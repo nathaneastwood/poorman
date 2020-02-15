@@ -1,0 +1,29 @@
+
+<!-- README.md is generated from README.Rmd. Please edit that file -->
+
+# poorman
+
+<!-- badges: start -->
+
+<!-- badges: end -->
+
+The goal of poorman is to provide base R versions of `dplyr` functions.
+Check out the blog post
+[here](http://127.0.0.1:4321/2020/02/15/building-a-base-dplyr-with-primitives/)
+for more details.
+
+## Installation
+
+You can install the released version of poorman from
+[CRAN](https://CRAN.R-project.org) with:
+
+``` r
+install.packages("poorman")
+```
+
+And the development version from [GitHub](https://github.com/) with:
+
+``` r
+# install.packages("devtools")
+devtools::install_github("nathaneastwood/poorman")
+```
