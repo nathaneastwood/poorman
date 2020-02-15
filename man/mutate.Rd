@@ -16,6 +16,9 @@ Mutate
 }
 \examples{
 mutate(mtcars, mpg2 = mpg * 2)
+\dontrun{
 mtcars \%>\% mutate(mpg2 = mpg * 2)
 mtcars \%>\% mutate(mpg2 = mpg * 2, cyl2 = cyl * 2)
+}
+
 }

@@ -16,6 +16,9 @@ Select
 }
 \examples{
 select(mtcars, mpg, cyl)
+\dontrun{
 mtcars \%>\% select(mpg)
 mtcars \%>\% select(mpg, cyl)
+}
+
 }

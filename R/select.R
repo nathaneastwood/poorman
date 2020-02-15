@@ -5,8 +5,12 @@
 #'
 #' @examples
 #' select(mtcars, mpg, cyl)
+#' \dontrun{
 #' mtcars %>% select(mpg)
 #' mtcars %>% select(mpg, cyl)
+#' }
+#'
+#' @export
 select <- function(.data, ...) {
   cols <- vapply(substitute(...()), deparse, NA_character_)
   extract(.data, , cols, drop = FALSE)
@@ -19,7 +23,11 @@ select <- function(.data, ...) {
 #'
 #' @examples
 #' pull(mtcars, mpg)
+#' \dontrun{
 #' mtcars %>% pull(mpg)
+#' }
+#'
+#' @export
 pull <- function(.data, var) {
   var <- deparse(substitute(var))
   stopifnot(length(var) == 1)

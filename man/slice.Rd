@@ -16,5 +16,8 @@ Slice
 }
 \examples{
 slice(mtcars, c(1, 2, 3))
+\dontrun{
 mtcars \%>\% slice(1:3)
+}
+
 }

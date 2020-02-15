@@ -16,5 +16,8 @@ Transmute
 }
 \examples{
 transmute(mtcars, mpg2 = mpg * 2)
+\dontrun{
 mtcars \%>\% transmute(mpg2 = mpg * 2, cyl2 = cyl * 2)
+}
+
 }

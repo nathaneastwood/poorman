@@ -16,8 +16,11 @@ Filter
 }
 \examples{
 filter(mtcars, am == 1)
+\dontrun{
 mtcars \%>\% filter(cyl == 4)
 mtcars \%>\% filter(cyl <= 5 & am > 0)
 mtcars \%>\% filter(cyl == 4 | cyl == 8)
 mtcars \%>\% filter(!(cyl \%in\% c(4, 6)), am != 0)
+}
+
 }
