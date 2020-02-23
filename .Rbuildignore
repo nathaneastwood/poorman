@@ -5,3 +5,4 @@
 ^Contributing\.md$
 ^NEWS\.md$
 ^LICENSE\.md$
+.gitignore
