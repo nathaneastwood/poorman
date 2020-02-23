@@ -18,13 +18,13 @@ filter <- function(.data, ...) {
 }
 
 #' @export
-filter.data.frame <- function(.data, ...) {
+filter.default <- function(.data, ...) {
   conditions <- paste(deparse_dots(...), collapse = " & ")
   extract(.data, with(.data, eval(parse(text = conditions))), )
 }
 
 #' @export
-filter.grouped_df <- function(.data, ...) {
+filter.grouped_data <- function(.data, ...) {
   apply_grouped_function(.data, "filter", ...)
 }
 
@@ -45,12 +45,12 @@ slice <- function(.data, ...) {
 }
 
 #' @export
-slice.data.frame <- function(.data, ...) {
+slice.default <- function(.data, ...) {
   stopifnot(is.numeric(...) | is.integer(...))
   extract(.data, ..., )
 }
 
 #' @export
-slice.grouped_df <- function(.data, ...) {
+slice.grouped_data <- function(.data, ...) {
   apply_grouped_function(.data, "slice", ...)
 }

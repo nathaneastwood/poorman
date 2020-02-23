@@ -3,11 +3,11 @@ extract2 <- `[[`
 inset <- `[<-`
 set_colnames <- `colnames<-`
 
-`[.grouped_df` <- function(x, i, j, drop = if (missing(i)) TRUE else length(cols) == 1) {
+`[.grouped_data` <- function(x, i, j, drop = if (missing(i)) TRUE else length(cols) == 1) {
   groups <- attr(x, "groups", exact = TRUE)
   class(x) <- "data.frame"
   res <- extract(x, i, j, drop)
-  class(res) <- c("grouped_df", class(x))
+  class(res) <- c("grouped_data", class(x))
   attr(res, "groups") <- groups
   res
 }

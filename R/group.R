@@ -23,7 +23,7 @@
 #' @export
 group_by <- function(.data, ...) {
   groups <- deparse_dots(...)
-  structure(.data, class = c("grouped_df", class(.data)), groups = groups)
+  structure(.data, class = c("grouped_data", class(.data)), groups = groups)
 }
 
 #' @param x A `data.frame`.
@@ -36,28 +36,32 @@ ungroup <- function(x, ...) {
   attr(x, "groups") <- groups[!(groups %in% rm_groups)]
   if (length(attr(x, "groups")) == 0L) {
     attr(x, "groups") <- NULL
-    class(x) <- class(x)[!(class(x) %in% "grouped_df")]
+    class(x) <- class(x)[!(class(x) %in% "grouped_data")]
   }
   x
 }
 
-split_into_groups <- function(.data) {
-  class(.data) <- "data.frame"
+apply_grouped_function <- function(.data, fn, ...) {
   groups <- attr(.data, "groups", exact = TRUE)
-  groups <- lapply(groups, function(x, .data) as.factor(extract2(.data, x)), .data)
-  res <- split(x = .data, f = groups)
+  grouped <- split_into_groups(.data, groups)
+  res <- do.call(rbind, unname(lapply(grouped, fn, ...)))
+  print(groups %in% colnames(res))
+  if (any(groups %in% colnames(res))) {
+    class(res) <- c("grouped_data", class(res))
+    attr(res, "groups") <- extract(groups, groups %in% colnames(res))
+  }
   res
 }
 
-apply_grouped_function <- function(.data, fn, ...) {
-  grouped <- split_into_groups(.data)
-  res <- do.call(rbind, unname(lapply(grouped, fn, ...)))
-  class(res) <- c("grouped_df", class(res))
+split_into_groups <- function(.data, groups) {
+  class(.data) <- "data.frame"
+  group_factors <- lapply(groups, function(x, .data) as.factor(extract2(.data, x)), .data)
+  res <- split(x = .data, f = group_factors)
   res
 }
 
 #' @export
-print.grouped_df <- function(x, ...) {
+print.grouped_data <- function(x, ...) {
   class(x) <- "data.frame"
   print(x, ...)
   cat("\nGroups: ", paste(attr(x, "groups", exact = TRUE), collapse = ", "))

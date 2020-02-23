@@ -16,7 +16,7 @@ mutate <- function(.data, ...) {
 }
 
 #' @export
-mutate.data.frame <- function(.data, ...) {
+mutate.default <- function(.data, ...) {
   conditions <- deparse_dots(...)
   new_data <- lapply(
     conditions,
@@ -27,7 +27,7 @@ mutate.data.frame <- function(.data, ...) {
 }
 
 #' @export
-mutate.grouped_df <- function(.data, ...) {
+mutate.grouped_data <- function(.data, ...) {
   apply_grouped_function(.data, "mutate", ...)
 }
 
@@ -48,13 +48,13 @@ transmute <- function(.data, ...) {
 }
 
 #' @export
-transmute.data.frame <- function(.data, ...) {
+transmute.default <- function(.data, ...) {
   conditions <- deparse_dots(...)
   mutated <- mutate(.data, ...)
   extract(mutated, names(conditions))
 }
 
 #' @export
-transmute.grouped_df <- function(.data, ...) {
+transmute.grouped_data <- function(.data, ...) {
   apply_grouped_function(.data, "transmute", ...)
 }
