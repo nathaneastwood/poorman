@@ -12,7 +12,7 @@
 #'
 #' @export
 select <- function(.data, ...) {
-  cols <- vapply(substitute(...()), deparse, NA_character_)
+  cols <- deparse_dots(...)
   extract(.data, , cols, drop = FALSE)
 }
 

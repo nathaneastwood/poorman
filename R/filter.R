@@ -14,8 +14,18 @@
 #'
 #' @export
 filter <- function(.data, ...) {
-  conditions <- paste(vapply(substitute(...()), deparse, NA_character_), collapse = " & ")
+  UseMethod("filter")
+}
+
+#' @export
+filter.data.frame <- function(.data, ...) {
+  conditions <- paste(deparse_dots(...), collapse = " & ")
   extract(.data, with(.data, eval(parse(text = conditions))), )
+}
+
+#' @export
+filter.grouped_df <- function(.data, ...) {
+  apply_grouped_function(.data, "filter", ...)
 }
 
 #' Slice
@@ -31,6 +41,16 @@ filter <- function(.data, ...) {
 #'
 #' @export
 slice <- function(.data, ...) {
-  stopifnot(is.numeric(...) || is.integer(...))
+  UseMethod("slice")
+}
+
+#' @export
+slice.data.frame <- function(.data, ...) {
+  stopifnot(is.numeric(...) | is.integer(...))
   extract(.data, ..., )
+}
+
+#' @export
+slice.grouped_df <- function(.data, ...) {
+  apply_grouped_function(.data, "slice", ...)
 }

@@ -12,13 +12,23 @@
 #'
 #' @export
 mutate <- function(.data, ...) {
-  conditions <- vapply(substitute(...()), deparse, NA_character_)
+  UseMethod("mutate")
+}
+
+#' @export
+mutate.data.frame <- function(.data, ...) {
+  conditions <- deparse_dots(...)
   new_data <- lapply(
     conditions,
     function(x, .data) with(.data, eval(parse(text = x))),
     .data
   )
   inset(.data, , names(conditions), new_data)
+}
+
+#' @export
+mutate.grouped_df <- function(.data, ...) {
+  apply_grouped_function(.data, "mutate", ...)
 }
 
 #' Transmute
@@ -34,7 +44,17 @@ mutate <- function(.data, ...) {
 #'
 #' @export
 transmute <- function(.data, ...) {
-  conditions <- vapply(substitute(...()), deparse, NA_character_)
+  UseMethod("transmute")
+}
+
+#' @export
+transmute.data.frame <- function(.data, ...) {
+  conditions <- deparse_dots(...)
   mutated <- mutate(.data, ...)
   extract(mutated, names(conditions))
+}
+
+#' @export
+transmute.grouped_df <- function(.data, ...) {
+  apply_grouped_function(.data, "transmute", ...)
 }
