@@ -2,7 +2,7 @@
 ^\.Rproj\.user$
 ^README\.Rmd$
 .lintr
-^Contributing\.md$
+^CONTRIBUTING\.md$
 ^NEWS\.md$
 ^LICENSE\.md$
 .gitignore
