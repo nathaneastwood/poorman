@@ -1,3 +1,7 @@
+# 0.1.2
+
+This update adds `rename()`.
+
 # 0.1.1
 
 This update includes `group_by()` and `ungroup()` operations.
