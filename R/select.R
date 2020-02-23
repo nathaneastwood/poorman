@@ -5,6 +5,7 @@
 #'
 #' @examples
 #' select(mtcars, mpg, cyl)
+#' select(mtcars, MilesPerGallon = mpg, Cylinders = cyl)
 #' \dontrun{
 #' mtcars %>% select(mpg)
 #' mtcars %>% select(mpg, cyl)
@@ -14,6 +15,9 @@
 #' @export
 select <- function(.data, ...) {
   cols <- deparse_dots(...)
+  map <- names(cols)
+  if (!is.null(map)) .data <- rename(.data, ...)
+  cols <- if (is.null(map)) cols else map
   extract(.data, , cols, drop = FALSE)
 }
 

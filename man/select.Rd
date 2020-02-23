@@ -27,6 +27,7 @@ mtcars \%>\%
   rename(MilesPerGallon = mpg)
 }
 select(mtcars, mpg, cyl)
+select(mtcars, MilesPerGallon = mpg, Cylinders = cyl)
 \dontrun{
 mtcars \%>\% select(mpg)
 mtcars \%>\% select(mpg, cyl)
