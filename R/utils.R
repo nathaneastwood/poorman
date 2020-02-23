@@ -1,6 +1,7 @@
 extract <- `[`
 extract2 <- `[[`
 inset <- `[<-`
+set_colnames <- `colnames<-`
 
 `[.grouped_df` <- function(x, i, j, drop = if (missing(i)) TRUE else length(cols) == 1) {
   groups <- attr(x, "groups", exact = TRUE)

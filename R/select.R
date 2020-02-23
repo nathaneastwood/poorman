@@ -10,6 +10,7 @@
 #' mtcars %>% select(mpg, cyl)
 #' }
 #'
+#' @name select
 #' @export
 select <- function(.data, ...) {
   cols <- deparse_dots(...)
