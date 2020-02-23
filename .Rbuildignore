@@ -2,4 +2,6 @@
 ^\.Rproj\.user$
 ^README\.Rmd$
 .lintr
-Contributing.md
+^Contributing\.md$
+^NEWS\.md$
+^LICENSE\.md$
