@@ -1,15 +1,17 @@
 Package: poorman
 Type: Package
-Title: A Copy of dplyr Verbs
+Title: A Poor Man's Base R Copy of dplyr Verbs
 Version: 0.1.0
-Authors@R: person("Nathan", "Eastwood", "", "nathan.eastwood@icloud.com", 
+Authors@R: person("Nathan", "Eastwood", "", "nathan.eastwood@icloud.com",
     role = c("aut", "cre"))
 Description: A simple replication of key dplyr verbs using only base R.
 URL: https://github.com/nathaneastwood/poorman
 BugReports: https://github.com/nathaneastwood/poorman/issues
 Depends: R (>= 3.4)
-Suggests: magrittr
-License: MIT + file LICENSE
+Suggests:
+    magrittr,
+    roxygen2
+License: file LICENSE
 Encoding: UTF-8
 LazyData: true
 RoxygenNote: 7.0.2

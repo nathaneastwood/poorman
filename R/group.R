@@ -44,11 +44,7 @@ ungroup <- function(x, ...) {
 split_into_groups <- function(.data) {
   class(.data) <- "data.frame"
   groups <- attr(.data, "groups", exact = TRUE)
-  groups <- lapply(
-    groups,
-    function(x, .data) as.factor(extract2(.data, x)),
-    .data
-  )
+  groups <- lapply(groups, function(x, .data) as.factor(extract2(.data, x)), .data)
   res <- split(x = .data, f = groups)
   res
 }
