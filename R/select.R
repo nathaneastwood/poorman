@@ -30,6 +30,5 @@ select <- function(.data, ...) {
 #' @export
 pull <- function(.data, var) {
   var <- deparse(substitute(var))
-  stopifnot(length(var) == 1)
-  extract(.data, , var, drop = TRUE)
+  extract2(.data, var)
 }
