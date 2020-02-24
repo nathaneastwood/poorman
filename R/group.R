@@ -45,7 +45,6 @@ apply_grouped_function <- function(.data, fn, ...) {
   groups <- attr(.data, "groups", exact = TRUE)
   grouped <- split_into_groups(.data, groups)
   res <- do.call(rbind, unname(lapply(grouped, fn, ...)))
-  print(groups %in% colnames(res))
   if (any(groups %in% colnames(res))) {
     class(res) <- c("grouped_data", class(res))
     attr(res, "groups") <- extract(groups, groups %in% colnames(res))
