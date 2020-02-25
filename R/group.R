@@ -23,6 +23,8 @@
 #' @export
 group_by <- function(.data, ...) {
   groups <- deparse_dots(...)
+  unknown <- !(groups %in% colnames(.data))
+  if (any(unknown)) stop("Invalid groups: ", extract(groups, unknown))
   structure(.data, class = c("grouped_data", class(.data)), groups = groups)
 }
 
@@ -33,10 +35,10 @@ ungroup <- function(x, ...) {
   rm_groups <- deparse_dots(...)
   groups <- attr(x, "groups")
   if (length(rm_groups) == 0L) rm_groups <- groups
-  attr(x, "groups") <- groups[!(groups %in% rm_groups)]
+  attr(x, "groups") <- extract(groups, !(groups %in% rm_groups))
   if (length(attr(x, "groups")) == 0L) {
     attr(x, "groups") <- NULL
-    class(x) <- class(x)[!(class(x) %in% "grouped_data")]
+    class(x) <- extract(class(x), !(class(x) %in% "grouped_data"))
   }
   x
 }
