@@ -6,4 +6,4 @@
 ^NEWS\.md$
 ^LICENSE\.md$
 .gitignore
-*.sh
+^.*\.sh$

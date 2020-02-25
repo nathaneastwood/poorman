@@ -56,7 +56,7 @@ mtcars %>% filter(mpg > 28)
 ### `mutate()`
 
 ```{r mutate}
-mtcars %>% mutate(mpg_squared = mpg ^ 2)
+mtcars %>% mutate(mpg2 = mpg ^ 2)
 ```
 
 ### `arrange()`
