@@ -7,18 +7,18 @@ output: github_document
 ```{r, include = FALSE}
 knitr::opts_chunk$set(
   collapse = TRUE,
-  comment = "#>",
+  comment = "#",
   fig.path = "man/figures/README-",
   out.width = "100%"
 )
 ```
 
-# poorman
+# `poorman`
 
 <!-- badges: start -->
 <!-- badges: end -->
 
-The goal of poorman is to provide base R versions of `dplyr` functions. Check out the blog post [here](http://127.0.0.1:4321/2020/02/15/building-a-base-dplyr-with-primitives/) for more details.
+The goal of poorman is to provide base R versions of `dplyr` functions. Check out the blog post [here](https://nathaneastwood.github.io/2020/02/15/building-a-base-dplyr-with-primitives/) for more details.
 
 ## Installation
 
@@ -33,4 +33,42 @@ And the development version from [GitHub](https://github.com/) with:
 ``` r
 # install.packages("devtools")
 devtools::install_github("nathaneastwood/poorman")
+```
+
+## Features
+
+`poorman` attempts to replicate the `dplyr` API exactly such that your dplyr code will still run even if you use `poorman` in its place. Below are some of the operations that are currently available.
+
+### `select()`
+
+```{r select}
+library(poorman)
+library(magrittr)
+mtcars %>% select(mpg, gear, disp)
+```
+
+### `filter()`
+
+```{r filter}
+mtcars %>% filter(mpg > 28)
+```
+
+### `mutate()`
+
+```{r mutate}
+mtcars %>% mutate(mpg_squared = mpg ^ 2)
+```
+
+### `arrange()`
+
+```{r arrange}
+mtcars %>% arrange(mpg)
+```
+
+### `group_by()`
+
+```{r group_by}
+mtcars %>%
+  group_by(am, cyl) %>%
+  summarise(meanMpg = mean(mpg), sumMpg = sum(mpg))
 ```
