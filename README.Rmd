@@ -39,11 +39,14 @@ devtools::install_github("nathaneastwood/poorman")
 
 `poorman` attempts to replicate the `dplyr` API exactly such that your dplyr code will still run even if you use `poorman` in its place. Below are some of the operations that are currently available.
 
+```{r libraries}
+library(poorman)
+library(magrittr)
+```
+
 ### `select()`
 
 ```{r select}
-library(poorman)
-library(magrittr)
 mtcars %>% select(mpg, gear, disp)
 ```
 
