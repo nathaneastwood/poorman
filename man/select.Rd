@@ -22,15 +22,10 @@ Select
 \examples{
 rename(mtcars, MilesPerGallon = mpg)
 rename(mtcars, Cylinders = cyl, Gears = gear)
-\dontrun{
-mtcars \%>\%
-  rename(MilesPerGallon = mpg)
-}
+mtcars \%>\% rename(MilesPerGallon = mpg)
 select(mtcars, mpg, cyl)
 select(mtcars, MilesPerGallon = mpg, Cylinders = cyl)
-\dontrun{
 mtcars \%>\% select(mpg)
 mtcars \%>\% select(mpg, cyl)
-}
 
 }

@@ -5,10 +5,8 @@
 #'
 #' @examples
 #' arrange(mtcars, mpg)
-#' \dontrun{
 #' mtcars %>% arrange(mpg)
 #' mtcars %>% arrange(cyl, mpg)
-#' }
 #'
 #' @export
 arrange <- function(.data, ...) {

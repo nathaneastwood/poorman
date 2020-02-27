@@ -7,9 +7,7 @@
 #' @examples
 #' summarise(mtcars, mean(mpg))
 #' summarise(mtcars, meanMpg = mean(mpg), sumMpg = sum(mpg))
-#' \dontrun{
 #' mtcars %>% summarise(mean(mpg))
-#' }
 #'
 #' @export
 summarise <- function(.data, ...) {

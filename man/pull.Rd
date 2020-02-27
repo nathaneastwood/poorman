@@ -16,8 +16,6 @@ Pull
 }
 \examples{
 pull(mtcars, mpg)
-\dontrun{
-mtcars \%>\% pull(mpg)
-}
+mtcars \%>\% pull(disp)
 
 }

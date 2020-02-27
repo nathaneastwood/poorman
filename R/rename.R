@@ -3,10 +3,7 @@
 #' @examples
 #' rename(mtcars, MilesPerGallon = mpg)
 #' rename(mtcars, Cylinders = cyl, Gears = gear)
-#' \dontrun{
-#' mtcars %>%
-#'   rename(MilesPerGallon = mpg)
-#' }
+#' mtcars %>% rename(MilesPerGallon = mpg)
 #' @rdname select
 #' @export
 rename <- function(.data, ...) {

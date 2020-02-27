@@ -6,10 +6,8 @@
 #' @examples
 #' select(mtcars, mpg, cyl)
 #' select(mtcars, MilesPerGallon = mpg, Cylinders = cyl)
-#' \dontrun{
 #' mtcars %>% select(mpg)
 #' mtcars %>% select(mpg, cyl)
-#' }
 #'
 #' @name select
 #' @export
@@ -28,9 +26,7 @@ select <- function(.data, ...) {
 #'
 #' @examples
 #' pull(mtcars, mpg)
-#' \dontrun{
-#' mtcars %>% pull(mpg)
-#' }
+#' mtcars %>% pull(disp)
 #'
 #' @export
 pull <- function(.data, var) {

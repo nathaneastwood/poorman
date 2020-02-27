@@ -23,15 +23,12 @@ Determine the groups within a `data.frame` to perform operations on.
 \examples{
 group_by(mtcars, am, cyl)
 ungroup(mutate(group_by(mtcars, am, cyl), sumMpg = sum(mpg)))
-\dontrun{
 mtcars \%>\%
   group_by(am, cyl) \%>\%
   mutate(sumMpg = sum(mpg)) \%>\%
   ungroup()
-
 mtcars \%>\%
   group_by(carb) \%>\%
   filter(any(gear == 5))
-}
 
 }
