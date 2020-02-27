@@ -11,9 +11,8 @@ Goal
 ----
 
 The goal of poorman is to provide base R versions of `dplyr` functions.
-Check out the blog post
-[here](https://nathaneastwood.github.io/2020/02/15/building-a-base-dplyr-with-primitives/)
-for more details.
+Check out the blog posts
+[here](https://nathaneastwood.github.io/tags/poorman/) for more details.
 
 Installation
 ------------

@@ -1,6 +1,6 @@
 # 0.1.4
 
-The update adds a copy of the pipe (`%>%`).
+This update adds a copy of the pipe (`%>%`).
 
 # 0.1.3
 
