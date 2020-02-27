@@ -31,7 +31,11 @@ summarise.grouped_data <- function(.data, ...) {
   fn_names <- names(fns)
   group_data <- lapply(groups, function(x, .data) extract2(.data, x), .data)
   res <- do.call(rbind, lapply(split(.data, group_data), function(x, groups, fns) {
-    to_get <- paste(paste0(groups, "[[1]]", collapse = ", "), paste(fns, collapse = ", "), sep = ", ")
+    levels <- paste0(
+      "ifelse(is.factor(", groups, ")[[1]], as.character(", groups, ")[[1]], ", groups, "[[1]])",
+      collapse = ", "
+    )
+    to_get <- paste(levels, paste(fns, collapse = ", "), sep = ", ")
     eval(parse(text = paste("with(x, list(", to_get, "))")))
   }, groups, fns))
   colnames(res) <- c(groups, if (is.null(fn_names)) fns else fn_names)
