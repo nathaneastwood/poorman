@@ -65,5 +65,5 @@ split_into_groups <- function(.data, groups) {
 print.grouped_data <- function(x, ...) {
   class(x) <- "data.frame"
   print(x, ...)
-  cat("\nGroups: ", paste(attr(x, "groups", exact = TRUE), collapse = ", "))
+  cat("\nGroups: ", paste(attr(x, "groups", exact = TRUE), collapse = ", "), "\n\n")
 }
