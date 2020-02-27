@@ -1,3 +1,11 @@
+# 0.1.4
+
+The update adds a copy of the pipe (`%>%`).
+
+# 0.1.3
+
+This update added `summarise()`.
+
 # 0.1.2
 
 This update adds `rename()`.

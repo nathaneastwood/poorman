@@ -28,8 +28,9 @@ Features
 --------
 
 `poorman` attempts to replicate the `dplyr` API exactly such that your
-dplyr code will still run even if you use `poorman` in its place. Below
-are some of the operations that are currently available.
+dplyr code will still run even if you use `poorman` in its place, it
+even comes with its own `magrittr` pipe (`%>%`) replica. Below are some
+of the operations that are currently available.
 
     library(poorman)
     # 
@@ -40,7 +41,6 @@ are some of the operations that are currently available.
     # The following object is masked from 'package:stats':
     # 
     #     filter
-    library(magrittr)
 
 ### `select()`
 
