@@ -1,10 +1,14 @@
 <!-- README.md is generated from README.Rmd. Please edit that file -->
+<h1 align="center">
+<code>poorman</code>
+</h1>
+<blockquote align="center">
+I’d seen my father. He was a poor man, and I watched him do astonishing
+things. - Sidney Poitier
+</blockquote>
 
-`poorman`
-=========
-
-<!-- badges: start -->
-<!-- badges: end -->
+Goal
+----
 
 The goal of poorman is to provide base R versions of `dplyr` functions.
 Check out the blog post
@@ -174,3 +178,13 @@ of the operations that are currently available.
     # 4  1   6 20.56667   61.7
     # 5  0   8    15.05  180.6
     # 6  1   8     15.4   30.8
+
+Related Work
+------------
+
+[`bplyr`](https://github.com/yonicd/bplyr) and
+[`tbltools`](https://github.com/mkearney/tbltools) both attempt to offer
+similar functionality to this package. Note however that `bplyr` uses
+`rlang` under the hood and `tbltools` appends `_data` to each of its
+functions, e.g. `select_data()`. `poorman` attempts to replicate the
+`dplyr` API exactly without additional packages.
