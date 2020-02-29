@@ -183,7 +183,8 @@ Related Work
 
 [`bplyr`](https://github.com/yonicd/bplyr) and
 [`tbltools`](https://github.com/mkearney/tbltools) both attempt to offer
-similar functionality to this package. Note however that `bplyr` uses
-`rlang` under the hood and `tbltools` use `magrittr` and appends `_data`
-to each of its functions, e.g. `select_data()`. `poorman` attempts to
-replicate the `dplyr` API exactly without additional packages.
+similar functionality to this package. Note however that `bplyr` imports
+`magrittr` and uses `rlang` under the hood and `tbltools` imports
+`magrittr` and appends `_data` to each of its functions,
+e.g. `select_data()`. `poorman` attempts to replicate the `dplyr` API
+exactly without additional packages.
