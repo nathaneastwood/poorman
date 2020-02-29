@@ -9,6 +9,7 @@ URL: https://github.com/nathaneastwood/poorman
 BugReports: https://github.com/nathaneastwood/poorman/issues
 Depends: R (>= 3.4)
 Suggests:
+    knitr,
     roxygen2,
     tinytest
 License: file LICENSE

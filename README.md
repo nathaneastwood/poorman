@@ -10,14 +10,14 @@ things. - Sidney Poitier
 Goal
 ----
 
-The goal of poorman is to provide base R versions of `dplyr` functions.
-Check out the blog posts
+The goal of `poorman` is to provide base R versions of `dplyr`
+functions. Check out the blog posts
 [here](https://nathaneastwood.github.io/tags/poorman/) for more details.
 
 Installation
 ------------
 
-You can install the released version of poorman from
+You can install the released version of `poorman` from
 [CRAN](https://CRAN.R-project.org) with:
 
     install.packages("poorman")
@@ -184,6 +184,6 @@ Related Work
 [`bplyr`](https://github.com/yonicd/bplyr) and
 [`tbltools`](https://github.com/mkearney/tbltools) both attempt to offer
 similar functionality to this package. Note however that `bplyr` uses
-`rlang` under the hood and `tbltools` appends `_data` to each of its
-functions, e.g. `select_data()`. `poorman` attempts to replicate the
-`dplyr` API exactly without additional packages.
+`rlang` under the hood and `tbltools` use `magrittr` and appends `_data`
+to each of its functions, e.g. `select_data()`. `poorman` attempts to
+replicate the `dplyr` API exactly without additional packages.
