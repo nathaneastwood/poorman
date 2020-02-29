@@ -7,3 +7,4 @@
 ^LICENSE\.md$
 .gitignore
 ^.*\.sh$
+.github
