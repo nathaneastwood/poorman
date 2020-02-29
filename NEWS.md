@@ -1,10 +1,18 @@
+# 0.1.6
+
+This update adds `inner_join()`, `left_join()`, `right_join()` and `full_join()`.
+
+# 0.1.5
+
+This update adds a full set of tests for the functions available in v0.1.5.
+
 # 0.1.4
 
 This update adds a copy of the pipe (`%>%`).
 
 # 0.1.3
 
-This update added `summarise()`.
+This update adds `summarise()`.
 
 # 0.1.2
 
