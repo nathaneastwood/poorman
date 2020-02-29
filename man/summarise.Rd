@@ -7,10 +7,10 @@
 summarise(.data, ...)
 }
 \arguments{
-\item{.data}{A `data.frame`.}
+\item{.data}{A \code{data.frame}.}
 
 \item{...}{Name-value pairs of summary functions. The name will be the name of the variable in the result. The value
-should be an expression that returns a single value, e.g. `min(x)`.}
+should be an expression that returns a single value, e.g. \code{min(x)}.}
 }
 \description{
 Summarise

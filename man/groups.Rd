@@ -11,14 +11,14 @@ group_by(.data, ...)
 ungroup(x, ...)
 }
 \arguments{
-\item{.data}{`data.frame`. The data to group.}
+\item{.data}{\code{data.frame}. The data to group.}
 
 \item{...}{One or more unquoted column names to group/ungroup the data by.}
 
-\item{x}{A `data.frame`.}
+\item{x}{A \code{data.frame}.}
 }
 \description{
-Determine the groups within a `data.frame` to perform operations on.
+Determine the groups within a \code{data.frame} to perform operations on.
 }
 \examples{
 group_by(mtcars, am, cyl)

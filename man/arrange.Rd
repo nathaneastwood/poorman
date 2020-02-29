@@ -7,9 +7,9 @@
 arrange(.data, ...)
 }
 \arguments{
-\item{.data}{A `data.frame`.}
+\item{.data}{A \code{data.frame}.}
 
-\item{...}{A `vector()` of name(s) to order the data by.}
+\item{...}{A \code{vector()} of name(s) to order the data by.}
 }
 \description{
 Arrange

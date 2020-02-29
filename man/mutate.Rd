@@ -7,7 +7,7 @@
 mutate(.data, ...)
 }
 \arguments{
-\item{.data}{A `data.frame`.}
+\item{.data}{A \code{data.frame}.}
 
 \item{...}{Expressions to mutate the data by.}
 }

@@ -7,9 +7,9 @@
 slice(.data, ...)
 }
 \arguments{
-\item{.data}{A `data.frame`.}
+\item{.data}{A \code{data.frame}.}
 
-\item{...}{A `vector()` of rows to subset.}
+\item{...}{A \code{vector()} of rows to subset.}
 }
 \description{
 Slice

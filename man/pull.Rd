@@ -2,20 +2,28 @@
 % Please edit documentation in R/select.R
 \name{pull}
 \alias{pull}
-\title{Pull}
+\title{Pull out a single variable}
 \usage{
-pull(.data, var)
+pull(.data, var = -1)
 }
 \arguments{
-\item{.data}{A `data.frame`.}
+\item{.data}{A \code{data.frame}.}
 
-\item{...}{The name of the column to extract}
+\item{var}{A variable specified as:
+\itemize{
+\item a literal variable name
+\item a positive integer, giving the position counting from the left
+\item a negative integer, giving the position counting from the right
+}
+
+The default returns the last column (on the assumption that's the column you've created most recently).}
 }
 \description{
-Pull
+Pull out a single variable
 }
 \examples{
-pull(mtcars, mpg)
-mtcars \%>\% pull(disp)
+mtcars \%>\% pull(-1)
+mtcars \%>\% pull(1)
+mtcars \%>\% pull(cyl)
 
 }

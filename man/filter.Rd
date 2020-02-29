@@ -7,7 +7,7 @@
 filter(.data, ...)
 }
 \arguments{
-\item{.data}{A `data.frame`.}
+\item{.data}{A \code{data.frame}.}
 
 \item{...}{Expressions used to filter the data by.}
 }

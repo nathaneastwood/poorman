@@ -10,7 +10,7 @@ rename(.data, ...)
 select(.data, ...)
 }
 \arguments{
-\item{.data}{A `data.frame`.}
+\item{.data}{A \code{data.frame}.}
 
 \item{...}{The name(s) of the column(s) to select.}
 }
