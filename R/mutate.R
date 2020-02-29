@@ -10,6 +10,7 @@
 #'
 #' @export
 mutate <- function(.data, ...) {
+  check_is_dataframe(.data)
   UseMethod("mutate")
 }
 
@@ -42,6 +43,7 @@ mutate.grouped_data <- function(.data, ...) {
 #'
 #' @export
 transmute <- function(.data, ...) {
+  check_is_dataframe(.data)
   UseMethod("transmute")
 }
 

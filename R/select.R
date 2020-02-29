@@ -12,6 +12,7 @@
 #' @name select
 #' @export
 select <- function(.data, ...) {
+  check_is_dataframe(.data)
   cols <- deparse_dots(...)
   map <- names(cols)
   if (!is.null(map)) .data <- rename(.data, ...)

@@ -7,6 +7,7 @@
 #' @rdname select
 #' @export
 rename <- function(.data, ...) {
+  check_is_dataframe(.data)
   map <- deparse_dots(...)
   col_names <- colnames(.data)
   set_colnames(.data, inset(col_names, which(col_names %in% unname(map)), names(map)))

@@ -19,6 +19,7 @@
 #' @name groups
 #' @export
 group_by <- function(.data, ...) {
+  check_is_dataframe(.data)
   groups <- deparse_dots(...)
   unknown <- !(groups %in% colnames(.data))
   if (any(unknown)) stop("Invalid groups: ", extract(groups, unknown))
@@ -29,6 +30,7 @@ group_by <- function(.data, ...) {
 #' @rdname groups
 #' @export
 ungroup <- function(x, ...) {
+  check_is_dataframe(.data)
   rm_groups <- deparse_dots(...)
   groups <- attr(x, "groups")
   if (length(rm_groups) == 0L) rm_groups <- groups
