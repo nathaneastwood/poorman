@@ -42,8 +42,13 @@ slice <- function(.data, ...) {
 
 #' @export
 slice.default <- function(.data, ...) {
-  stopifnot(is.numeric(...) | is.integer(...))
-  extract(.data, ..., )
+  rows <- c(...)
+  stopifnot(is.numeric(rows) | is.integer(rows))
+  if (all(rows > 0L)) {
+    max_rows <- nrow(.data)
+    rows <- intersect(rows, seq_len(max_rows))
+  }
+  extract(.data, rows, )
 }
 
 #' @export
