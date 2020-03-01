@@ -43,15 +43,19 @@ full_join <- function(x, y, by = NULL, suffix = c(".x", ".y")) {
 join_worker <- function(x, y, by = NULL, suffix = c(".x", ".y"), ...) {
   if (is.null(by)) {
     by <- intersect(names(x), names(y))
-    if (length(by) > 1L) {
-      cat("Joining, by = c(\"", paste0(by, collapse = "\", \""), "\")\n", sep = "")
-    } else {
-      cat("Joining, by = \"", by, "\"\n", sep = "")
-    }
+    join_message(by)
     extract(merge(x = x, y = y, suffixes = suffix, ...), union(names(x), names(y)))
   } else if (is.null(names(by))) {
     merge(x = x, y = y, by = by, suffixes = suffix, ...)
   } else {
     merge(x = x, y = y, by.x = names(by), by.y = by, suffixes = suffix, ...)
+  }
+}
+
+join_message <- function(by) {
+  if (length(by) > 1L) {
+    cat("Joining, by = c(\"", paste0(by, collapse = "\", \""), "\")\n", sep = "")
+  } else {
+    cat("Joining, by = \"", by, "\"\n", sep = "")
   }
 }
