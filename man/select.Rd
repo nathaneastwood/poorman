@@ -3,7 +3,7 @@
 \name{rename}
 \alias{rename}
 \alias{select}
-\title{Rename}
+\title{Select/rename variables by name}
 \usage{
 rename(.data, ...)
 
@@ -15,14 +15,14 @@ select(.data, ...)
 \item{...}{The name(s) of the column(s) to select.}
 }
 \description{
-Rename
-
-Select
+Choose or rename variables from a \code{data.frame}. \code{select()} keeps only the
+variables you mention; \code{rename()} keeps all the variables.
 }
 \examples{
 rename(mtcars, MilesPerGallon = mpg)
 rename(mtcars, Cylinders = cyl, Gears = gear)
 mtcars \%>\% rename(MilesPerGallon = mpg)
+
 select(mtcars, mpg, cyl)
 select(mtcars, MilesPerGallon = mpg, Cylinders = cyl)
 mtcars \%>\% select(mpg)
