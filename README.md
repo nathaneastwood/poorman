@@ -17,12 +17,9 @@ functions. Check out the blog posts
 Installation
 ------------
 
-You can install the released version of `poorman` from
-[CRAN](https://CRAN.R-project.org) with:
-
-    install.packages("poorman")
-
-And the development version from [GitHub](https://github.com/) with:
+`poorman` is still in development and hasn’t been published to CRAN yet.
+You can install the development version from
+[GitHub](https://github.com/) with:
 
     # install.packages("devtools")
     devtools::install_github("nathaneastwood/poorman")
