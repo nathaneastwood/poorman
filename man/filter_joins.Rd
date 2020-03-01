@@ -3,10 +3,13 @@
 \name{filter_joins}
 \alias{filter_joins}
 \alias{anti_join}
+\alias{semi_join}
 \title{Filtering joins filter rows from \code{x} based on the presence or absence of
 matches in \code{y}:}
 \usage{
 anti_join(x, y, by = NULL)
+
+semi_join(x, y, by = NULL)
 }
 \description{
 \itemize{

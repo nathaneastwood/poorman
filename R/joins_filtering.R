@@ -19,3 +19,16 @@ anti_join <- function(x, y, by = NULL) {
   rownames(res) <- NULL
   res
 }
+
+#' @rdname filter_joins
+#' @export
+semi_join <- function(x, y, by = NULL) {
+  if (is.null(by)) {
+    by <- intersect(names(x), names(y))
+    join_message(by)
+  }
+  in_x_and_y <- interaction(extract(x, , by)) %in% interaction(extract(y, , by))
+  res <- extract(x, in_x_and_y, )
+  rownames(res) <- NULL
+  res
+}
