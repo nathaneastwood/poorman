@@ -178,10 +178,8 @@ of the operations that are currently available.
 Related Work
 ------------
 
-[`bplyr`](https://github.com/yonicd/bplyr) and
-[`tbltools`](https://github.com/mkearney/tbltools) both attempt to offer
-similar functionality to this package. Note however that `bplyr` imports
-`magrittr` and uses `rlang` under the hood and `tbltools` imports
-`magrittr` and appends `_data` to each of its functions,
-e.g. `select_data()`. `poorman` attempts to replicate the `dplyr` API
-exactly without additional packages.
+-   [`bplyr`](https://github.com/yonicd/bplyr) - imports `magrittr` and
+    `rlang`; it prepends functions with `b_*()`, e.g. `b_select()`.
+-   [`tbltools`](https://github.com/mkearney/tbltools) - imports
+    `magrittr` and appends `*_data()` to each of its functions,
+    e.g. `select_data()`.
