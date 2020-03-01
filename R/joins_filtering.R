@@ -10,25 +10,24 @@ NULL
 #' @rdname filter_joins
 #' @export
 anti_join <- function(x, y, by = NULL) {
-  if (is.null(by)) {
-    by <- intersect(names(x), names(y))
-    join_message(by)
-  }
-  in_x_not_y <- !(interaction(extract(x, , by)) %in% interaction(extract(y, , by)))
-  res <- extract(x, in_x_not_y, )
-  rownames(res) <- NULL
-  res
+  filter_join_worker(x, y, by, type = "anti")
 }
 
 #' @rdname filter_joins
 #' @export
 semi_join <- function(x, y, by = NULL) {
+  filter_join_worker(x, y, by, type = "semi")
+}
+
+filter_join_worker <- function(x, y, by = NULL, type = c("anti", "semi")) {
+  type <- match.arg(type, choices = c("anti", "semi"), several.ok = FALSE)
   if (is.null(by)) {
     by <- intersect(names(x), names(y))
     join_message(by)
   }
-  in_x_and_y <- interaction(extract(x, , by)) %in% interaction(extract(y, , by))
-  res <- extract(x, in_x_and_y, )
+  rows <- interaction(extract(x, , by)) %in% interaction(extract(y, , by))
+  if (type == "anti") rows <- !rows
+  res <- extract(x, rows, )
   rownames(res) <- NULL
   res
 }
