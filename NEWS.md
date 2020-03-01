@@ -1,3 +1,7 @@
+# 0.1.7
+
+This update adds `semi_join()` and `anti_join()`.
+
 # 0.1.6
 
 This update adds `inner_join()`, `left_join()`, `right_join()` and `full_join()`.
