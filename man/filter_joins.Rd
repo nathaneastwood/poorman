@@ -17,3 +17,16 @@ semi_join(x, y, by = NULL)
 \item \code{anti_join()} return all rows from \code{x} with\emph{out} a match in \code{y}.
 }
 }
+\examples{
+table1 <- data.frame(
+  pupil = rep(1:3, each = 2),
+  test = rep(c("A", "B"), 3),
+  score = c(60, 70, 65, 80, 85, 70),
+  stringsAsFactors = FALSE
+)
+table2 <- table1[c(1, 3, 4), ]
+
+table1 \%>\% anti_join(table2, by = c("pupil", "test"))
+table1 \%>\% semi_join(table2, by = c("pupil", "test"))
+
+}

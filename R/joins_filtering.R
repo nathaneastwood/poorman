@@ -4,6 +4,18 @@
 #' * `semi_join()` return all rows from `x` with a match in `y`.
 #' * `anti_join()` return all rows from `x` with*out* a match in `y`.
 #'
+#' @examples
+#' table1 <- data.frame(
+#'   pupil = rep(1:3, each = 2),
+#'   test = rep(c("A", "B"), 3),
+#'   score = c(60, 70, 65, 80, 85, 70),
+#'   stringsAsFactors = FALSE
+#' )
+#' table2 <- table1[c(1, 3, 4), ]
+#'
+#' table1 %>% anti_join(table2, by = c("pupil", "test"))
+#' table1 %>% semi_join(table2, by = c("pupil", "test"))
+#'
 #' @name filter_joins
 NULL
 
