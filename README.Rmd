@@ -28,7 +28,7 @@ The goal of `poorman` is to provide base R versions of `dplyr` functions. Check 
 
 `poorman` is still in development and hasn't been published to CRAN yet. You can install the development version from [GitHub](https://github.com/) with:
 
-``` r
+```{r installation, eval = FALSE}
 # install.packages("remotes")
 remotes::install_github("nathaneastwood/poorman")
 ```
