@@ -31,15 +31,15 @@ summarise.grouped_data <- function(.data, ...) {
   fns <- deparse_dots(...)
   fn_names <- names(fns)
   group_data <- lapply(groups, function(x, .data) extract2(.data, x), .data)
-  res <- do.call(rbind, lapply(split(.data, group_data), function(x, groups, fns) {
-    levels <- paste0(
-      "ifelse(is.factor(", groups, ")[[1]], as.character(", groups, ")[[1]], ", groups, "[[1]])",
-      collapse = ", "
+  res <- do.call(rbind, lapply(split(.data, group_data), function(x, groups, fns, fn_names) {
+    if (nrow(x) == 0L) return()
+    grp_res <- data.frame(
+      eval(parse(text = paste0("with(x, list(", paste0(fns, collapse = ", "), "))")))
     )
-    to_get <- paste(levels, paste(fns, collapse = ", "), sep = ", ")
-    eval(parse(text = paste("with(x, list(", to_get, "))")))
-  }, groups, fns))
-  colnames(res) <- c(groups, if (is.null(fn_names)) fns else fn_names)
+    grp_res <- cbind(unique(x[, groups]), grp_res)
+    colnames(grp_res) <- c(groups, if (is.null(fn_names)) fns else fn_names)
+    grp_res
+  }, groups, fns, fn_names))
   rownames(res) <- NULL
-  as.data.frame(res)
+  structure(res, class = c("grouped_data", class(res)), groups = groups)
 }

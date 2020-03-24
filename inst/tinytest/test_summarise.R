@@ -27,12 +27,30 @@ expect_equal(
   mtcars %>% group_by(am, cyl) %>% summarise(meanMpg = mean(mpg)),
   structure(
     list(
-      am = list(0, 1, 0, 1, 0, 1),
-      cyl = list(4, 4, 6, 6, 8, 8),
-      meanMpg = list(22.9, 28.075, 19.125, 20.5666666666667, 15.05, 15.4)
+      am = c(0, 1, 0, 1, 0, 1),
+      cyl = c(4, 4, 6, 6, 8, 8),
+      meanMpg = c(22.9, 28.075, 19.125, 20.5666666666667, 15.05, 15.4)
     ),
-    class = "data.frame",
-    row.names = c(NA, -6L)
+    row.names = c(NA, 6L),
+    class = c("grouped_data", "data.frame"),
+    groups = c("am", "cyl")
   ),
   info = "Test grouped summarise"
+)
+
+expect_equal(
+  mtcars %>% group_by(am, cyl, gear) %>% summarise(meanMpg = mean(mpg), sumDisp = sum(disp)),
+  structure(
+    list(
+      am = c(0, 0, 0, 0, 1, 0, 1, 1, 1, 1),
+      cyl = c(4, 6, 8, 4, 4, 6, 6, 4, 6, 8),
+      gear = c(3, 3, 3, 4, 4, 4, 4, 5, 5, 5),
+      meanMpg = c(21.5, 19.75, 15.05, 23.6, 28.0333333333333, 18.5, 21, 28.2, 19.7, 15.4),
+      sumDisp = c(120.1, 483, 4291.4, 287.5, 533.5, 335.2, 320, 215.4, 145, 652)
+    ),
+    row.names = c(NA, -10L),
+    class = c("grouped_data", "data.frame"),
+    groups = c("am", "cyl", "gear")
+  ),
+  info = "Test multiple groups and multiple summary functions"
 )
