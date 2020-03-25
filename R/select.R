@@ -21,7 +21,11 @@ select <- function(.data, ...) {
   check_is_dataframe(.data)
   cols <- deparse_dots(...)
   map <- names(cols)
-  if (!is.null(map)) .data <- rename(.data, ...)
-  cols <- if (is.null(map)) cols else map
-  extract(.data, , cols, drop = FALSE)
+  col_nums <- suppressWarnings(as.integer(cols))
+  char_cols <- which(colnames(.data) %in% cols[which(is.na(col_nums))])
+  col_nums[is.na(col_nums)] <- char_cols
+  res <- extract(.data, , col_nums, drop = FALSE)
+  to_map <- nchar(map) > 0L
+  colnames(res)[to_map] <- map[to_map]
+  res
 }
