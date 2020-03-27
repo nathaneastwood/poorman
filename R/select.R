@@ -19,7 +19,7 @@ NULL
 #' @export
 select <- function(.data, ...) {
   check_is_dataframe(.data)
-  cols <- deparse_dots(...)
+  cols <- gsub('[\"]', '', deparse_dots(...))
   map <- names(cols)
   col_nums <- suppressWarnings(as.integer(cols))
   char_cols <- which(colnames(.data) %in% cols[which(is.na(col_nums))])
