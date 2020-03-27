@@ -22,7 +22,7 @@ select <- function(.data, ...) {
   cols <- gsub('[\"]', '', deparse_dots(...))
   map <- names(cols)
   col_nums <- suppressWarnings(as.integer(cols))
-  char_cols <- which(colnames(.data) %in% cols[which(is.na(col_nums))])
+  char_cols <- match(cols[which(is.na(col_nums))], colnames(.data))
   col_nums[is.na(col_nums)] <- char_cols
   res <- extract(.data, , col_nums, drop = FALSE)
   to_map <- nchar(map) > 0L
