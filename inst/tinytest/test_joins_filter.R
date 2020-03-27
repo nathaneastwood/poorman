@@ -6,13 +6,19 @@ table1 <- data.frame(
 table2 <- table1[c(1, 3, 5), ]
 
 expect_equal(
-  table1 %>% anti_join(table2, by = "id"),
+  {
+    invisible(capture.output(res <- table1 %>% anti_join(table2)))
+    res
+  },
   data.frame(id = c(2, 4), animal = c("dog", "parrot"), stringsAsFactors = FALSE),
   info = "Single column anti-join"
 )
 
 expect_equal(
-  table1 %>% semi_join(table2, by = "id"),
+  {
+    invisible(capture.output(res <- table1 %>% semi_join(table2)))
+    res
+  },
   data.frame(id = c(1L, 3L, 5L), animal = c("cat", "hamster", "horse"), stringsAsFactors = FALSE),
   info = "Single column semi-join"
 )
