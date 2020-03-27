@@ -40,6 +40,7 @@ summarise.grouped_data <- function(.data, ...) {
     colnames(grp_res) <- c(groups, if (is.null(fn_names)) fns else fn_names)
     grp_res
   }, groups, fns, fn_names))
+  res <- eval(parse(text = paste0("res[order(", paste0("res[, ", seq_along(groups), "]", collapse = ", "), "), ]")))
   rownames(res) <- NULL
   structure(res, class = c("grouped_data", class(res)), groups = groups)
 }

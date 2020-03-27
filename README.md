@@ -169,12 +169,14 @@ of the operations that are currently available.
       group_by(am, cyl) %>%
       summarise(meanMpg = mean(mpg), sumMpg = sum(mpg))
     #   am cyl  meanMpg sumMpg
-    # 1  0   4     22.9   68.7
-    # 2  1   4   28.075  224.6
-    # 3  0   6   19.125   76.5
-    # 4  1   6 20.56667   61.7
-    # 5  0   8    15.05  180.6
-    # 6  1   8     15.4   30.8
+    # 1  0   4 22.90000   68.7
+    # 2  0   6 19.12500   76.5
+    # 3  0   8 15.05000  180.6
+    # 4  1   4 28.07500  224.6
+    # 5  1   6 20.56667   61.7
+    # 6  1   8 15.40000   30.8
+    # 
+    # Groups:  am, cyl
 
 Related Work
 ------------
