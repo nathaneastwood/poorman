@@ -11,6 +11,15 @@ anti_join(x, y, by = NULL)
 
 semi_join(x, y, by = NULL)
 }
+\arguments{
+\item{x, y}{The \code{data.frame}s to join.}
+
+\item{by}{A character vector of variables to join by. If \code{NULL}, the default,
+‘*_join()’ will do a natural join, using all variables with common names
+across the two tables. A message lists the variables so that you can check
+they're right (to suppress the message, simply explicitly list the variables
+that you want to join).}
+}
 \description{
 \itemize{
 \item \code{semi_join()} return all rows from \code{x} with a match in \code{y}.

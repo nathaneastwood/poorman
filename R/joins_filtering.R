@@ -4,6 +4,13 @@
 #' * `semi_join()` return all rows from `x` with a match in `y`.
 #' * `anti_join()` return all rows from `x` with*out* a match in `y`.
 #'
+#' @param x,y The `data.frame`s to join.
+#' @param by A character vector of variables to join by. If `NULL`, the default,
+#' ‘*_join()’ will do a natural join, using all variables with common names
+#' across the two tables. A message lists the variables so that you can check
+#' they're right (to suppress the message, simply explicitly list the variables
+#' that you want to join).
+#'
 #' @examples
 #' table1 <- data.frame(
 #'   pupil = rep(1:3, each = 2),
