@@ -167,7 +167,8 @@ of the operations that are currently available.
 
     mtcars %>%
       group_by(am, cyl) %>%
-      summarise(meanMpg = mean(mpg), sumMpg = sum(mpg))
+      summarise(meanMpg = mean(mpg), sumMpg = sum(mpg)) %>%
+      ungroup()
     #   am cyl  meanMpg sumMpg
     # 1  0   4 22.90000   68.7
     # 2  0   6 19.12500   76.5
@@ -175,8 +176,6 @@ of the operations that are currently available.
     # 4  1   4 28.07500  224.6
     # 5  1   6 20.56667   61.7
     # 6  1   8 15.40000   30.8
-    # 
-    # Groups:  am, cyl
 
 Related Work
 ------------

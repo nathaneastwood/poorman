@@ -70,7 +70,8 @@ mtcars %>% arrange(mpg)
 ```{r group_by}
 mtcars %>%
   group_by(am, cyl) %>%
-  summarise(meanMpg = mean(mpg), sumMpg = sum(mpg))
+  summarise(meanMpg = mean(mpg), sumMpg = sum(mpg)) %>%
+  ungroup()
 ```
 
 ## Related Work
