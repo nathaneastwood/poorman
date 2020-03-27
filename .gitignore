@@ -4,3 +4,4 @@
 .Ruserdata
 *.tar.gz
 *\.Rcheck
+*.sh
