@@ -8,3 +8,5 @@
 ^.*\.sh$
 .github
 ^.*\.tar.gz$
+^CRAN-RELEASE$
+^cran-comments\.md$

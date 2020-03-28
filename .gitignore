@@ -5,3 +5,5 @@
 *.tar.gz
 *\.Rcheck
 *.sh
+^CRAN-RELEASE$
+^cran-comments\.md$
