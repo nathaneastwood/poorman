@@ -7,19 +7,18 @@
 #' @export
 rename <- function(.data, ...) {
   check_is_dataframe(.data)
-  map <- deparse_dots(...)
-  new_names <- names(map)
+  new_names <- names(deparse_dots(...))
   if (length(new_names) == 0L) {
     warning("You didn't give any new names")
     return(.data)
   }
-  col_names <- colnames(.data)
-  no_new_name <- which(nchar(new_names) == 0L)
-  old_names <- unname(map)
-  if (length(no_new_name) > 0L) {
-    warning("You didn't provide new names for: ", paste0("`", extract(map, no_new_name), collapse = ", "), "`")
-    new_names <- extract(new_names, -no_new_name)
-    old_names <- extract(old_names, -no_new_name)
+  col_pos <- select_positions(.data, ...)
+  old_names <- colnames(.data)[col_pos]
+  new_names_zero <- nchar(new_names) == 0L
+  if (any(new_names_zero)) {
+    warning("You didn't provide new names for: ", paste0("`", old_names[new_names_zero], collapse = ", "), "`")
+    new_names[new_names_zero] <- old_names[new_names_zero]
   }
-  set_colnames(.data, inset(col_names, which(col_names %in% old_names), new_names))
+  colnames(.data)[col_pos] <- new_names
+  .data
 }

@@ -1,8 +1,9 @@
 expect_equal(
   mtcars %>% rename(MilesPerGallon = mpg),
   {
-    colnames(mtcars)[1] <- "MilesPerGallon"
-    mtcars
+    res <- mtcars
+    colnames(res)[1] <- "MilesPerGallon"
+    res
   },
   info = "Test renaming a single column"
 )
@@ -11,8 +12,9 @@ expect_equal(
 expect_equal(
   mtcars %>% rename(Gears = gear, Auto = am),
   {
-    colnames(mtcars)[which(colnames(mtcars) %in% c("gear", "am"))] <- c("Gears", "Auto")
-    mtcars
+    res <- mtcars
+    colnames(res)[which(colnames(res) %in% c("am", "gear"))] <- c("Auto", "Gears")
+    res
   },
   info = "Test renaming multiple columns"
 )

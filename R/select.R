@@ -18,13 +18,9 @@ NULL
 #' @rdname select
 #' @export
 select <- function(.data, ...) {
-  check_is_dataframe(.data)
-  cols <- gsub('[\"]', '', deparse_dots(...))
-  map <- names(cols)
-  col_nums <- suppressWarnings(as.integer(cols))
-  char_cols <- match(cols[which(is.na(col_nums))], colnames(.data))
-  col_nums[is.na(col_nums)] <- char_cols
-  res <- extract(.data, , col_nums, drop = FALSE)
+  map <- names(deparse_dots(...))
+  col_pos <- select_positions(.data, ...)
+  res <- extract(.data, , col_pos, drop = FALSE)
   to_map <- nchar(map) > 0L
   colnames(res)[to_map] <- map[to_map]
   res
