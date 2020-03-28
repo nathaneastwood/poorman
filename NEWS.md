@@ -1,3 +1,7 @@
+# 0.1.8
+
+This update adds `relocate()` and consolidates the selection method for `select()`, `rename()` and `relocate()` using `select_positions()`.
+
 # 0.1.7
 
 This update adds `semi_join()` and `anti_join()`.

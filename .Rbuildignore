@@ -3,7 +3,6 @@
 ^README\.Rmd$
 .lintr
 ^CONTRIBUTING\.md$
-^NEWS\.md$
 ^LICENSE\.md$
 .gitignore
 ^.*\.sh$
