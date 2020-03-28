@@ -7,3 +7,4 @@
 .gitignore
 ^.*\.sh$
 .github
+^.*\.tar.gz$
