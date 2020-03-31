@@ -2,17 +2,19 @@
 % Please edit documentation in R/slice.R
 \name{slice}
 \alias{slice}
-\title{Slice}
+\title{Choose rows by position}
 \usage{
 slice(.data, ...)
 }
 \arguments{
 \item{.data}{A \code{data.frame}.}
 
-\item{...}{A \code{vector()} of rows to subset.}
+\item{...}{Integer row values. Provide either positive values to keep, or negative values to drop. The values
+provided must be either all positive or negative. Indices beyond the number of rows in the input are silently
+ignored.}
 }
 \description{
-Slice
+Choose rows by their original position in the \code{data.frame}. Grouped \code{data.frame}s use the position within each group.
 }
 \examples{
 slice(mtcars, c(1, 2, 3))

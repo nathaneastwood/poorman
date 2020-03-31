@@ -1,5 +1,7 @@
 #' Pull out a single variable
 #'
+#' This is a direct replacement for `[[.data.frame`.
+#'
 #' @param .data A `data.frame`.
 #' @param var A variable specified as:
 #' * a literal variable name

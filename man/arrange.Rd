@@ -2,17 +2,20 @@
 % Please edit documentation in R/arrange.R
 \name{arrange}
 \alias{arrange}
-\title{Arrange}
+\title{Arrange rows by variables}
 \usage{
 arrange(.data, ...)
 }
 \arguments{
 \item{.data}{A \code{data.frame}.}
 
-\item{...}{A \code{vector()} of name(s) to order the data by.}
+\item{...}{A comma separated vector of unquoted name(s) to order the data by.}
+}
+\value{
+A \code{data.frame}.
 }
 \description{
-Arrange
+Order rows of a \code{data.frame} by an expression involving its variables.
 }
 \examples{
 arrange(mtcars, mpg)

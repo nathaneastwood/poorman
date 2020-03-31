@@ -19,7 +19,7 @@ pull(.data, var = -1)
 The default returns the last column (on the assumption that's the column you've created most recently).}
 }
 \description{
-Pull out a single variable
+This is a direct replacement for \verb{[[.data.frame}.
 }
 \examples{
 mtcars \%>\% pull(-1)

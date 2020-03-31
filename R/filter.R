@@ -1,7 +1,16 @@
-#' Filter
+#' Return rows with matching conditions
+#'
+#' Use `filter()` to choose rows/cases where conditions are `TRUE`.
 #'
 #' @param .data A `data.frame`.
-#' @param ... Expressions used to filter the data by.
+#' @param ... Logical predicated defined in terms of the variables in `.data`. Multiple conditions are combined with
+#' `&`. Arguments within `...` are automatically quoted and evaluated within the context of the `data.frame`.
+#'
+#' @section Useful filter functions:
+#'
+#' * `==`, `>`, `>=`, etc.
+#' * `&`, `|`, `!`, `xor()`
+#' * `is.na()`
 #'
 #' @examples
 #' filter(mtcars, am == 1)
@@ -9,6 +18,9 @@
 #' mtcars %>% filter(cyl <= 5 & am > 0)
 #' mtcars %>% filter(cyl == 4 | cyl == 8)
 #' mtcars %>% filter(!(cyl %in% c(4, 6)), am != 0)
+#'
+#' @return
+#' A `data.frame`.
 #'
 #' @export
 filter <- function(.data, ...) {

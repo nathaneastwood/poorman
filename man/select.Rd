@@ -14,6 +14,9 @@ select(.data, ...)
 
 \item{...}{The name(s) of the column(s) to select.}
 }
+\value{
+A \code{data.frame}.
+}
 \description{
 Choose or rename variables from a \code{data.frame}. \code{select()} keeps only the
 variables you mention; \code{rename()} keeps all the variables.

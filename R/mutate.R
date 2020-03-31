@@ -1,13 +1,19 @@
-#' Mutate
+#' Create or transform variables
+#'
+#' `mutate()` adds new variables and preserves existing ones; `transmute()` adds new variables and drops existing ones.
+#' Both functions preserve the number of rows of the input. New variables overwrite existing variables of the same name.
 #'
 #' @param .data A `data.frame`.
-#' @param ... Expressions to mutate the data by.
+#' @param ... Name-value pairs of expressions, each with length `1L`. The name of each argument will be the name of a
+#' new column and the value will be its corresponding value. Use a `NULL` value in ‘mutate’ to drop a variable. New
+#' variables overwrite existing variables of the same name.
 #'
 #' @examples
 #' mutate(mtcars, mpg2 = mpg * 2)
 #' mtcars %>% mutate(mpg2 = mpg * 2)
 #' mtcars %>% mutate(mpg2 = mpg * 2, cyl2 = cyl * 2)
 #'
+#' @name mutate
 #' @export
 mutate <- function(.data, ...) {
   check_is_dataframe(.data)

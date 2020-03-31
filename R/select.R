@@ -7,6 +7,7 @@
 #' @param ... The name(s) of the column(s) to select.
 #'
 #' @name select
+#' @return A `data.frame`.
 NULL
 
 #' @examples

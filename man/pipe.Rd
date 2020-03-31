@@ -3,7 +3,7 @@
 \name{pipe}
 \alias{pipe}
 \alias{\%>\%}
-\title{Pipe}
+\title{Forward-pipe operator}
 \usage{
 lhs \%>\% rhs
 }
@@ -13,9 +13,14 @@ lhs \%>\% rhs
 \item{rhs}{Where you are piping the result to.}
 }
 \description{
-Pipe
+Pipe an object forward into a function or call expression.
+}
+\details{
+Unlike the \code{magrittr} pipe, you must supply an actual function instead of just a function name. For example
+\code{mtcars \%>\% head} will not work, but \code{mtcars \%>\% head()} will.
 }
 \examples{
+mtcars \%>\% head()
 mtcars \%>\% select(mpg)
 
 }

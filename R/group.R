@@ -1,6 +1,6 @@
-#' Group By
+#' Group by one or more variables
 #'
-#' Determine the groups within a `data.frame` to perform operations on.
+#' Determine the groups within a `data.frame` to perform operations on. [ungroup()] removes the grouping levels.
 #'
 #' @param .data `data.frame`. The data to group.
 #' @param ... One or more unquoted column names to group/ungroup the data by.
@@ -16,6 +16,9 @@
 #'   group_by(carb) %>%
 #'   filter(any(gear == 5))
 #'
+#' @return
+#' When using [group_by()], a `data.frame`, grouped by the grouping variables.
+#'
 #' @name groups
 #' @export
 group_by <- function(.data, ...) {
@@ -27,6 +30,8 @@ group_by <- function(.data, ...) {
 }
 
 #' @param x A `data.frame`.
+#' @return
+#' When using [ungroup()], `data.frame`.
 #' @rdname groups
 #' @export
 ungroup <- function(x, ...) {
@@ -53,6 +58,11 @@ apply_grouped_function <- function(.data, fn, ...) {
   res
 }
 
+#' Split a `data.frame` into groups.
+#'
+#' @return A `list` with a `data.frame` in each level.
+#' @seealso [split()]
+#' @noRd
 split_into_groups <- function(.data, groups) {
   class(.data) <- "data.frame"
   group_factors <- lapply(groups, function(x, .data) as.factor(extract2(.data, x)), .data)
@@ -60,9 +70,20 @@ split_into_groups <- function(.data, groups) {
   res
 }
 
+#' Print a grouped `data.frame`
+#'
+#' A print method for grouped `data.frame`s. Uses the standard `print.data.frame()` method but also reports the groups.
+#'
+#' @param x An object of class `grouped_data`.
+#' @param ... Additional arguments to [print()].
+#' @inheritParams base::print.data.frame
+#'
+#' @examples
+#' mtcars %>% group_by(cyl, am) %>% print()
+#'
 #' @export
-print.grouped_data <- function(x, ...) {
+print.grouped_data <- function(x, ..., digits = NULL, quote = FALSE, right = TRUE, row.names = TRUE, max = NULL) {
   class(x) <- "data.frame"
-  print(x, ...)
+  print(x, ..., digits = digits, quote = quote, right = right, row.names = row.names, max = max)
   cat("\nGroups: ", paste(attr(x, "groups", exact = TRUE), collapse = ", "), "\n\n")
 }

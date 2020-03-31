@@ -2,18 +2,31 @@
 % Please edit documentation in R/filter.R
 \name{filter}
 \alias{filter}
-\title{Filter}
+\title{Return rows with matching conditions}
 \usage{
 filter(.data, ...)
 }
 \arguments{
 \item{.data}{A \code{data.frame}.}
 
-\item{...}{Expressions used to filter the data by.}
+\item{...}{Logical predicated defined in terms of the variables in \code{.data}. Multiple conditions are combined with
+\code{&}. Arguments within \code{...} are automatically quoted and evaluated within the context of the \code{data.frame}.}
+}
+\value{
+A \code{data.frame}.
 }
 \description{
-Filter
+Use \code{filter()} to choose rows/cases where conditions are \code{TRUE}.
 }
+\section{Useful filter functions}{
+
+\itemize{
+\item \code{==}, \code{>}, \code{>=}, etc.
+\item \code{&}, \code{|}, \code{!}, \code{xor()}
+\item \code{is.na()}
+}
+}
+
 \examples{
 filter(mtcars, am == 1)
 mtcars \%>\% filter(cyl == 4)

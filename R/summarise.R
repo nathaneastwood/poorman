@@ -1,4 +1,7 @@
-#' Summarise
+#' Reduce multiple values down to a single value
+#'
+#' Create one or more scalar variables summarising the variables of an existing `data.frame`. Grouped `data.frame`s will
+#' result in one row in the output for each group.
 #'
 #' @param .data A `data.frame`.
 #' @param ... Name-value pairs of summary functions. The name will be the name of the variable in the result. The value
@@ -44,3 +47,7 @@ summarise.grouped_data <- function(.data, ...) {
   rownames(res) <- NULL
   structure(res, class = c("grouped_data", class(res)), groups = groups)
 }
+
+summarize <- summarise
+summarize.data.frame <- summarise.data.frame
+summarize.grouped_data <- summarise.grouped_data

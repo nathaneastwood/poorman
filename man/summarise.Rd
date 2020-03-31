@@ -2,7 +2,7 @@
 % Please edit documentation in R/summarise.R
 \name{summarise}
 \alias{summarise}
-\title{Summarise}
+\title{Reduce multiple values down to a single value}
 \usage{
 summarise(.data, ...)
 }
@@ -13,7 +13,8 @@ summarise(.data, ...)
 should be an expression that returns a single value, e.g. \code{min(x)}.}
 }
 \description{
-Summarise
+Create one or more scalar variables summarising the variables of an existing \code{data.frame}. Grouped \code{data.frame}s will
+result in one row in the output for each group.
 }
 \examples{
 summarise(mtcars, mean(mpg))

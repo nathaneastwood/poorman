@@ -1,7 +1,11 @@
-#' Slice
+#' Choose rows by position
+#'
+#' Choose rows by their original position in the `data.frame`. Grouped `data.frame`s use the position within each group.
 #'
 #' @param .data A `data.frame`.
-#' @param ... A `vector()` of rows to subset.
+#' @param ... Integer row values. Provide either positive values to keep, or negative values to drop. The values
+#' provided must be either all positive or negative. Indices beyond the number of rows in the input are silently
+#' ignored.
 #'
 #' @examples
 #' slice(mtcars, c(1, 2, 3))

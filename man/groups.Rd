@@ -4,7 +4,7 @@
 \alias{groups}
 \alias{group_by}
 \alias{ungroup}
-\title{Group By}
+\title{Group by one or more variables}
 \usage{
 group_by(.data, ...)
 
@@ -17,8 +17,13 @@ ungroup(x, ...)
 
 \item{x}{A \code{data.frame}.}
 }
+\value{
+When using \code{\link[=group_by]{group_by()}}, a \code{data.frame}, grouped by the grouping variables.
+
+When using \code{\link[=ungroup]{ungroup()}}, \code{data.frame}.
+}
 \description{
-Determine the groups within a \code{data.frame} to perform operations on.
+Determine the groups within a \code{data.frame} to perform operations on. \code{\link[=ungroup]{ungroup()}} removes the grouping levels.
 }
 \examples{
 group_by(mtcars, am, cyl)
