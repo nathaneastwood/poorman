@@ -1,7 +1,7 @@
 Package: poorman
 Type: Package
 Title: A Poor Man's Base R Copy of 'dplyr' Verbs
-Version: 0.1.8
+Version: 0.1.9
 Authors@R: person("Nathan", "Eastwood", "", "nathan.eastwood@icloud.com",
     role = c("aut", "cre"))
 Description: A simple replication of key 'dplyr' verbs using only base R.
@@ -12,7 +12,7 @@ Suggests:
     knitr,
     roxygen2,
     tinytest
-License: file LICENSE
+License: MIT + file LICENSE
 Encoding: UTF-8
 LazyData: true
 RoxygenNote: 7.0.2
