@@ -3,6 +3,10 @@
 poorman <a href='https://nathaneastwood.github.io/tags/poorman/'><img src='man/figures/logo.png' align="right" height="139" /></a>
 ==================================================================================================================================
 
+[![CRAN
+status](https://www.r-pkg.org/badges/version/poorman)](https://cran.r-project.org/package=poorman)
+![CRAN downloads](https://cranlogs.r-pkg.org/badges/poorman)
+
 <blockquote align="center">
 I’d seen my father. He was a poor man, and I watched him do astonishing
 things. - Sidney Poitier
@@ -18,12 +22,15 @@ functions. Check out the blog posts
 Installation
 ------------
 
-`poorman` is still in development and hasn’t been published to CRAN yet.
 You can install the development version from
-[GitHub](https://github.com/) with:
+[GitHub](https://github.com/nathaneastwood/poorman) with:
 
     # install.packages("remotes")
     remotes::install_github("nathaneastwood/poorman")
+
+Or you can download the latest release from CRAN with:
+
+    install.packages("poorman")
 
 Features
 --------
