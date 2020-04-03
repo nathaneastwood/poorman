@@ -36,10 +36,18 @@ You can install the development version from [GitHub](https://github.com/nathane
 remotes::install_github("nathaneastwood/poorman")
 ```
 
-Or you can download the latest release from CRAN with:
+Or you can install the latest release from CRAN with:
 
 ```{r cran, eval = FALSE}
 install.packages("poorman")
+```
+
+## Docker
+
+If you'd like to try out the package using Docker, you can run the latest image with:
+
+```{bash, eval = FALSE}
+docker run --rm -it nathaneastwood/poorman
 ```
 
 ## Features

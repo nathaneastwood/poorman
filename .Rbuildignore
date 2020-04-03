@@ -10,3 +10,4 @@
 ^.*\.tar.gz$
 ^CRAN-RELEASE$
 ^cran-comments\.md$
+Dockerfile

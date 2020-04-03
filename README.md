@@ -28,9 +28,17 @@ You can install the development version from
     # install.packages("remotes")
     remotes::install_github("nathaneastwood/poorman")
 
-Or you can download the latest release from CRAN with:
+Or you can install the latest release from CRAN with:
 
     install.packages("poorman")
+
+Docker
+------
+
+If you’d like to try out the package using Docker, you can run the
+latest image with:
+
+    docker run --rm -it nathaneastwood/poorman
 
 Features
 --------
