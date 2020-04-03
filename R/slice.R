@@ -21,10 +21,7 @@ slice <- function(.data, ...) {
 slice.default <- function(.data, ...) {
   rows <- c(...)
   stopifnot(is.numeric(rows) | is.integer(rows))
-  if (all(rows > 0L)) {
-    max_rows <- nrow(.data)
-    rows <- intersect(rows, seq_len(max_rows))
-  }
+  if (all(rows > 0L)) rows <- rows[rows <= nrow(.data)]
   extract(.data, rows, )
 }
 

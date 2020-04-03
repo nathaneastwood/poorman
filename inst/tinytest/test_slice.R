@@ -16,6 +16,12 @@ expect_equal(
   info = "Test that extra rows aren't returned if the user slices more rows than are available"
 )
 
+expect_equal(
+  mtcars %>% slice(2, 2, 2),
+  mtcars[c(2, 2, 2), ],
+  info = "Test that slicing the same row number n times duplicates that row n times"
+)
+
 # Grouped Operations
 expect_equal(
   mtcars %>% group_by(am, cyl) %>% slice(1:2) %>% ungroup(),
