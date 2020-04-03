@@ -2,9 +2,12 @@
 % Please edit documentation in R/summarise.R
 \name{summarise}
 \alias{summarise}
+\alias{summarize}
 \title{Reduce multiple values down to a single value}
 \usage{
 summarise(.data, ...)
+
+summarize(.data, ...)
 }
 \arguments{
 \item{.data}{A \code{data.frame}.}
@@ -15,6 +18,9 @@ should be an expression that returns a single value, e.g. \code{min(x)}.}
 \description{
 Create one or more scalar variables summarising the variables of an existing \code{data.frame}. Grouped \code{data.frame}s will
 result in one row in the output for each group.
+}
+\details{
+\code{summarise()} and \code{summarize()} are synonyms.
 }
 \examples{
 summarise(mtcars, mean(mpg))

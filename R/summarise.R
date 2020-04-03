@@ -3,6 +3,8 @@
 #' Create one or more scalar variables summarising the variables of an existing `data.frame`. Grouped `data.frame`s will
 #' result in one row in the output for each group.
 #'
+#' `summarise()` and `summarize()` are synonyms.
+#'
 #' @param .data A `data.frame`.
 #' @param ... Name-value pairs of summary functions. The name will be the name of the variable in the result. The value
 #' should be an expression that returns a single value, e.g. `min(x)`.
@@ -12,6 +14,7 @@
 #' summarise(mtcars, meanMpg = mean(mpg), sumMpg = sum(mpg))
 #' mtcars %>% summarise(mean(mpg))
 #'
+#' @name summarise
 #' @export
 summarise <- function(.data, ...) {
   check_is_dataframe(.data)
@@ -48,6 +51,10 @@ summarise.grouped_data <- function(.data, ...) {
   structure(res, class = c("grouped_data", class(res)), groups = groups)
 }
 
+#' @rdname summarise
+#' @export
 summarize <- summarise
+#' @export
 summarize.data.frame <- summarise.data.frame
+#' @export
 summarize.grouped_data <- summarise.grouped_data
