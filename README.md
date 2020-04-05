@@ -195,6 +195,7 @@ of the operations that are currently available.
 Related Work
 ------------
 
+-   [`dplyr`](https://github.com/tidyverse/dplyr)
 -   [`bplyr`](https://github.com/yonicd/bplyr) - imports `magrittr` and
     `rlang`; it prepends functions with `b_*()`, e.g. `b_select()`.
 -   [`tbltools`](https://github.com/mkearney/tbltools) - imports
