@@ -4,6 +4,7 @@
 \alias{select_helpers}
 \alias{starts_with}
 \alias{ends_with}
+\alias{contains}
 \title{Select Helpers}
 \usage{
 starts_with(
@@ -17,13 +18,20 @@ ends_with(
   ignore.case = TRUE,
   vars = colnames(get(".data", envir = parent.frame()))
 )
+
+contains(
+  match,
+  ignore.case = TRUE,
+  vars = colnames(get(".data", envir = parent.frame()))
+)
 }
 \arguments{
 \item{match}{\code{character(n)}. If length > 1, the union of the matches is taken.}
 
 \item{ignore.case}{\code{logical(1)}. If \code{TRUE}, the default, ignores case when matching names.}
 
-\item{vars}{\code{character(n)}. A character vector of variable names.}
+\item{vars}{\code{character(n)}. A character vector of variable names. When called from inside selecting functions such as
+\code{select()}, these are automatically set to the names of the table.}
 }
 \value{
 An integer vector giving the position of the matched variables.
@@ -32,10 +40,14 @@ An integer vector giving the position of the matched variables.
 These functions allow you to select variables based on their names.
 \itemize{
 \item \code{starts_with()}: Starts with a prefix.
+\item \code{ends_with()}: Ends with a prefix.
+\item \code{contains()}: Contains a literal string.
 }
 }
 \examples{
 mtcars \%>\% select(starts_with("c"))
 mtcars \%>\% select(starts_with(c("c", "h")))
+mtcars \%>\% select(ends_with("b"))
+mtcars \%>\% relocate(contains("a"), .before = mpg)
 
 }

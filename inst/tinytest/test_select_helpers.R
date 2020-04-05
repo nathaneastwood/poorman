@@ -39,3 +39,21 @@ expect_equal(
   mtcars[, c("mpg", "cyl", "disp", "gear", "carb")],
   info = "Test multiple *_with() functions in combination with other selection methods"
 )
+
+expect_equal(
+  mtcars %>% select(contains("a")),
+  mtcars[, c("drat", "am", "gear", "carb")],
+  info = "Test select() with contains() and a single variable"
+)
+
+expect_equal(
+  mtcars %>% select(contains(c("a", "m"))),
+  mtcars[, c("drat", "am", "gear", "carb", "mpg")],
+  info = "Test select() with contains() and multiple variables"
+)
+
+expect_equal(
+  mtcars %>% select(contains("M", ignore.case = FALSE)),
+  mtcars[, 0],
+  info = "Test select() with contains() and no match"
+)
