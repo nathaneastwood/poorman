@@ -47,8 +47,34 @@ ungroup <- function(x, ...) {
   x
 }
 
+#' Return grouping variables
+#'
+#' @param x A `data.frame`.
+#'
+#' @examples
+#' df <- mtcars %>% group_by(am, cyl)
+#' group_vars(df)
+#'
+#' @return
+#' A character vector of group names.
+#'
+#' @export
+group_vars <- function(x) {
+  attr(x, "groups", exact = TRUE)
+}
+
+has_groups <- function(x) {
+  groups <- group_vars(x)
+  if (is.null(groups)) FALSE else TRUE
+}
+
+set_groups <- function(x, groups) {
+  attr(x, "groups") <- groups
+  x
+}
+
 apply_grouped_function <- function(.data, fn, ...) {
-  groups <- attr(.data, "groups", exact = TRUE)
+  groups <- group_vars(.data)
   grouped <- split_into_groups(.data, groups)
   res <- do.call(rbind, unname(lapply(grouped, fn, ...)))
   if (any(groups %in% colnames(res))) {

@@ -37,5 +37,7 @@ relocate <- function(.data, ..., .before = NULL, .after = NULL) {
   lhs <- setdiff(seq(1L, where - 1L), col_pos)
   rhs <- setdiff(seq(where + 1L, ncol(.data)), col_pos)
 
-  .data[unique(c(lhs, col_pos, rhs))]
+  res <- .data[unique(c(lhs, col_pos, rhs))]
+  if (has_groups(.data)) res <- set_groups(res, group_vars(.data))
+  res
 }

@@ -1,14 +1,16 @@
 #' Get integer column positions
 #'
-#' Given nse column names, get the integer column positions within the data.frame.
+#' Given a set of column names, or column selection helper functions, evaluate and get the integer column positions
+#' within the data.frame.
 #'
 #' @inheritParams select
+#' @param group_pos `logical(1)`. Should grouping variable positions be returned (default: `FALSE`)?
 #'
 #' @return
-#' A `vector` of `integer`s.
+#' A vector of `integer`s.
 #'
 #' @noRd
-select_positions <- function(.data, ...) {
+select_positions <- function(.data, ..., group_pos = FALSE) {
   # We need to remove the additional quotes when passed a string column name
   cols <- deparse_dots(...)
   cols <- unlist(lapply(
@@ -19,6 +21,14 @@ select_positions <- function(.data, ...) {
       parsed_x
     }
   ))
+  if (isTRUE(group_pos)) {
+    groups <- group_vars(.data)
+    missing_groups <- !(groups %in% cols)
+    if (any(missing_groups)) {
+      message("Adding missing grouping variables: `", paste(groups[missing_groups], collapse = "`, `"), "`")
+      cols <- c(groups[missing_groups], cols)
+    }
+  }
   col_pos <- suppressWarnings(as.integer(cols))
   col_pos[is.na(col_pos)] <- match(cols[which(is.na(col_pos))], colnames(.data))
   unique(col_pos)
