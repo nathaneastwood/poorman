@@ -12,3 +12,7 @@ check_is_dataframe <- function(.data) {
   if (!is.data.frame(.data)) stop(parent_fn, " must be given a data.frame")
   invisible()
 }
+
+is_wholenumber <- function(x) {
+  x %% 1L == 0L
+}

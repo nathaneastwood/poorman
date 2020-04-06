@@ -13,13 +13,10 @@
 select_positions <- function(.data, ..., group_pos = FALSE) {
   # We need to remove the additional quotes when passed a string column name
   cols <- deparse_dots(...)
+  data_names <- colnames(.data)
   cols <- unlist(lapply(
     cols,
-    function(x) {
-      parsed_x <- try(eval(parse(text = x)), silent = TRUE)
-      if (inherits(parsed_x, "try-error")) parsed_x <- unname(gsub('[\"]', '', x))
-      parsed_x
-    }
+    function(x) if (x %in% data_names) x else eval(parse(text = x))
   ))
   if (isTRUE(group_pos)) {
     groups <- group_vars(.data)
@@ -30,7 +27,7 @@ select_positions <- function(.data, ..., group_pos = FALSE) {
     }
   }
   col_pos <- suppressWarnings(as.integer(cols))
-  col_pos[is.na(col_pos)] <- match(cols[which(is.na(col_pos))], colnames(.data))
+  col_pos[is.na(col_pos)] <- match(cols[which(is.na(col_pos))], data_names)
   unique(col_pos)
 }
 
@@ -40,6 +37,7 @@ select_positions <- function(.data, ..., group_pos = FALSE) {
 #' * `starts_with()`: Starts with a prefix.
 #' * `ends_with()`: Ends with a prefix.
 #' * `contains()`: Contains a literal string.
+#' * `last_col()`: Select the last variable, possibly with an offset.
 #'
 #' @param match `character(n)`. If length > 1, the union of the matches is taken.
 #' @param ignore.case `logical(1)`. If `TRUE`, the default, ignores case when matching names.
@@ -54,6 +52,7 @@ select_positions <- function(.data, ..., group_pos = FALSE) {
 #' mtcars %>% select(starts_with(c("c", "h")))
 #' mtcars %>% select(ends_with("b"))
 #' mtcars %>% relocate(contains("a"), .before = mpg)
+#' mtcars %>% select(last_col())
 #'
 #' @name select_helpers
 #'
@@ -86,4 +85,18 @@ contains <- function(match, ignore.case = TRUE, vars = colnames(get(".data", env
     }
   )
   unique(matches)
+}
+
+#' @name select_helpers
+#' @export
+last_col <- function(offset = 0L, vars = colnames(get(".data", envir = parent.frame()))) {
+  if (!is_wholenumber(offset)) stop("`offset` must be an integer")
+  n <- length(vars)
+  if (offset && n <= offset) {
+    stop("`offset` must be smaller than the number of `vars`")
+  } else if (n == 0) {
+    stop("Can't select last column when `vars` is empty")
+  } else {
+    n - offset
+  }
 }

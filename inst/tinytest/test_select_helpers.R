@@ -57,3 +57,20 @@ expect_equal(
   mtcars[, 0],
   info = "Test select() with contains() and no match"
 )
+
+expect_equal(
+  mtcars %>% select(last_col()),
+  mtcars[, "carb", drop = FALSE],
+  info = "Test select() with last_col()"
+)
+
+expect_equal(
+  mtcars %>% select(last_col(2)),
+  mtcars[, "am", drop = FALSE],
+  info = "Test select() with last_col() and an offset"
+)
+
+expect_error(
+  mtcars %>% select(last_col(1.2)),
+  info = "Test last_col() returns an error when not given a whole number"
+)

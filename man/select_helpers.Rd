@@ -5,6 +5,7 @@
 \alias{starts_with}
 \alias{ends_with}
 \alias{contains}
+\alias{last_col}
 \title{Select Helpers}
 \usage{
 starts_with(
@@ -24,6 +25,8 @@ contains(
   ignore.case = TRUE,
   vars = colnames(get(".data", envir = parent.frame()))
 )
+
+last_col(offset = 0L, vars = colnames(get(".data", envir = parent.frame())))
 }
 \arguments{
 \item{match}{\code{character(n)}. If length > 1, the union of the matches is taken.}
@@ -42,6 +45,7 @@ These functions allow you to select variables based on their names.
 \item \code{starts_with()}: Starts with a prefix.
 \item \code{ends_with()}: Ends with a prefix.
 \item \code{contains()}: Contains a literal string.
+\item \code{last_col()}: Select the last variable, possibly with an offset.
 }
 }
 \examples{
@@ -49,5 +53,6 @@ mtcars \%>\% select(starts_with("c"))
 mtcars \%>\% select(starts_with(c("c", "h")))
 mtcars \%>\% select(ends_with("b"))
 mtcars \%>\% relocate(contains("a"), .before = mpg)
+mtcars \%>\% select(last_col())
 
 }
