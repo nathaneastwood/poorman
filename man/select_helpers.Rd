@@ -6,6 +6,7 @@
 \alias{ends_with}
 \alias{contains}
 \alias{last_col}
+\alias{everything}
 \title{Select Helpers}
 \usage{
 starts_with(
@@ -27,6 +28,8 @@ contains(
 )
 
 last_col(offset = 0L, vars = colnames(get(".data", envir = parent.frame())))
+
+everything(vars = colnames(get(".data", envir = parent.frame())))
 }
 \arguments{
 \item{match}{\code{character(n)}. If length > 1, the union of the matches is taken.}
@@ -45,6 +48,7 @@ These functions allow you to select variables based on their names.
 \item \code{starts_with()}: Starts with a prefix.
 \item \code{ends_with()}: Ends with a prefix.
 \item \code{contains()}: Contains a literal string.
+\item \code{everything()}: Matches all variables.
 \item \code{last_col()}: Select the last variable, possibly with an offset.
 }
 }

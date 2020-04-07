@@ -37,6 +37,7 @@ select_positions <- function(.data, ..., group_pos = FALSE) {
 #' * `starts_with()`: Starts with a prefix.
 #' * `ends_with()`: Ends with a prefix.
 #' * `contains()`: Contains a literal string.
+#' * `everything()`: Matches all variables.
 #' * `last_col()`: Select the last variable, possibly with an offset.
 #'
 #' @param match `character(n)`. If length > 1, the union of the matches is taken.
@@ -99,4 +100,10 @@ last_col <- function(offset = 0L, vars = colnames(get(".data", envir = parent.fr
   } else {
     n - offset
   }
+}
+
+#' @name select_helpers
+#' @export
+everything <- function(vars = colnames(get(".data", envir = parent.frame()))) {
+  seq_along(vars)
 }

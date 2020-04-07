@@ -74,3 +74,15 @@ expect_error(
   mtcars %>% select(last_col(1.2)),
   info = "Test last_col() returns an error when not given a whole number"
 )
+
+expect_equal(
+  mtcars %>% select(everything()),
+  mtcars,
+  info = "Test everything() returns all columns in the same order"
+)
+
+expect_equal(
+  mtcars %>% select(starts_with("q"), ends_with("s"), everything()),
+  mtcars[, c("qsec", "vs", colnames(mtcars)[!colnames(mtcars) %in% c("qsec", "vs")])],
+  info = "Test everything() returns the rest of the columns after the initial selection"
+)
