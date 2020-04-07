@@ -37,6 +37,7 @@ select_positions <- function(.data, ..., group_pos = FALSE) {
 #' * `starts_with()`: Starts with a prefix.
 #' * `ends_with()`: Ends with a prefix.
 #' * `contains()`: Contains a literal string.
+#' * `matches()`: Matches a regular expression.
 #' * `everything()`: Matches all variables.
 #' * `last_col()`: Select the last variable, possibly with an offset.
 #'
@@ -53,6 +54,7 @@ select_positions <- function(.data, ..., group_pos = FALSE) {
 #' mtcars %>% select(starts_with(c("c", "h")))
 #' mtcars %>% select(ends_with("b"))
 #' mtcars %>% relocate(contains("a"), .before = mpg)
+#' iris %>% select(matches(".t."))
 #' mtcars %>% select(last_col())
 #'
 #' @name select_helpers
@@ -88,6 +90,20 @@ contains <- function(match, ignore.case = TRUE, vars = colnames(get(".data", env
   unique(matches)
 }
 
+#' @param perl `logical(1)`. Should Perl-compatible regexps be used?
+#' @name select_helpers
+#' @export
+matches <- function(match, ignore.case = TRUE, perl = FALSE, vars = colnames(get(".data", envir = parent.frame()))) {
+  grep(pattern = match, x = vars, ignore.case = ignore.case, perl = perl)
+}
+
+#' @name select_helpers
+#' @export
+everything <- function(vars = colnames(get(".data", envir = parent.frame()))) {
+  seq_along(vars)
+}
+
+#' @param offset `integer(1)`. Select the `n`th variable from the end of the `data.frame`.
 #' @name select_helpers
 #' @export
 last_col <- function(offset = 0L, vars = colnames(get(".data", envir = parent.frame()))) {
@@ -100,10 +116,4 @@ last_col <- function(offset = 0L, vars = colnames(get(".data", envir = parent.fr
   } else {
     n - offset
   }
-}
-
-#' @name select_helpers
-#' @export
-everything <- function(vars = colnames(get(".data", envir = parent.frame()))) {
-  seq_along(vars)
 }

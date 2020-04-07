@@ -5,8 +5,9 @@
 \alias{starts_with}
 \alias{ends_with}
 \alias{contains}
-\alias{last_col}
+\alias{matches}
 \alias{everything}
+\alias{last_col}
 \title{Select Helpers}
 \usage{
 starts_with(
@@ -27,9 +28,16 @@ contains(
   vars = colnames(get(".data", envir = parent.frame()))
 )
 
-last_col(offset = 0L, vars = colnames(get(".data", envir = parent.frame())))
+matches(
+  match,
+  ignore.case = TRUE,
+  perl = FALSE,
+  vars = colnames(get(".data", envir = parent.frame()))
+)
 
 everything(vars = colnames(get(".data", envir = parent.frame())))
+
+last_col(offset = 0L, vars = colnames(get(".data", envir = parent.frame())))
 }
 \arguments{
 \item{match}{\code{character(n)}. If length > 1, the union of the matches is taken.}
@@ -38,6 +46,10 @@ everything(vars = colnames(get(".data", envir = parent.frame())))
 
 \item{vars}{\code{character(n)}. A character vector of variable names. When called from inside selecting functions such as
 \code{select()}, these are automatically set to the names of the table.}
+
+\item{perl}{\code{logical(1)}. Should Perl-compatible regexps be used?}
+
+\item{offset}{\code{integer(1)}. Select the \code{n}th variable from the end of the \code{data.frame}.}
 }
 \value{
 An integer vector giving the position of the matched variables.
@@ -48,6 +60,7 @@ These functions allow you to select variables based on their names.
 \item \code{starts_with()}: Starts with a prefix.
 \item \code{ends_with()}: Ends with a prefix.
 \item \code{contains()}: Contains a literal string.
+\item \code{matches()}: Matches a regular expression.
 \item \code{everything()}: Matches all variables.
 \item \code{last_col()}: Select the last variable, possibly with an offset.
 }
@@ -57,6 +70,7 @@ mtcars \%>\% select(starts_with("c"))
 mtcars \%>\% select(starts_with(c("c", "h")))
 mtcars \%>\% select(ends_with("b"))
 mtcars \%>\% relocate(contains("a"), .before = mpg)
+iris \%>\% select(matches(".t."))
 mtcars \%>\% select(last_col())
 
 }

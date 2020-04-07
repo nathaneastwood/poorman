@@ -59,6 +59,12 @@ expect_equal(
 )
 
 expect_equal(
+  iris %>% select(matches(".t.")),
+  iris[, 1:4],
+  info = "Test matches() selects columns based on a regular expression"
+)
+
+expect_equal(
   mtcars %>% select(last_col()),
   mtcars[, "carb", drop = FALSE],
   info = "Test select() with last_col()"
