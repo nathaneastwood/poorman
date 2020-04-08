@@ -13,45 +13,23 @@
 \alias{last_col}
 \title{Select Helpers}
 \usage{
-starts_with(
-  match,
-  ignore.case = TRUE,
-  vars = colnames(get(".data", envir = parent.frame()))
-)
+starts_with(match, ignore.case = TRUE, vars = peek_vars())
 
-ends_with(
-  match,
-  ignore.case = TRUE,
-  vars = colnames(get(".data", envir = parent.frame()))
-)
+ends_with(match, ignore.case = TRUE, vars = peek_vars())
 
-contains(
-  match,
-  ignore.case = TRUE,
-  vars = colnames(get(".data", envir = parent.frame()))
-)
+contains(match, ignore.case = TRUE, vars = peek_vars())
 
-matches(
-  match,
-  ignore.case = TRUE,
-  perl = FALSE,
-  vars = colnames(get(".data", envir = parent.frame()))
-)
+matches(match, ignore.case = TRUE, perl = FALSE, vars = peek_vars())
 
-num_range(
-  prefix,
-  range,
-  width = NULL,
-  vars = colnames(get(".data", envir = parent.frame()))
-)
+num_range(prefix, range, width = NULL, vars = peek_vars())
 
-all_of(x, vars = colnames(get(".data", envir = parent.frame())))
+all_of(x, vars = peek_vars())
 
-any_of(x, vars = colnames(get(".data", envir = parent.frame())))
+any_of(x, vars = peek_vars())
 
-everything(vars = colnames(get(".data", envir = parent.frame())))
+everything(vars = peek_vars())
 
-last_col(offset = 0L, vars = colnames(get(".data", envir = parent.frame())))
+last_col(offset = 0L, vars = peek_vars())
 }
 \arguments{
 \item{match}{\code{character(n)}. If length > 1, the union of the matches is taken.}

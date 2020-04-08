@@ -11,9 +11,9 @@
 #'
 #' @noRd
 select_positions <- function(.data, ..., group_pos = FALSE) {
-  # We need to remove the additional quotes when passed a string column name
-  cols <- deparse_dots(...)
   data_names <- colnames(.data)
+  select_env$col_names <- data_names
+  cols <- deparse_dots(...)
   cols <- unlist(lapply(
     cols,
     function(x) if (x %in% data_names) x else eval(parse(text = x))
@@ -72,19 +72,19 @@ select_positions <- function(.data, ..., group_pos = FALSE) {
 #' @name select_helpers
 #'
 #' @export
-starts_with <- function(match, ignore.case = TRUE, vars = colnames(get(".data", envir = parent.frame()))) {
+starts_with <- function(match, ignore.case = TRUE, vars = peek_vars()) {
   grep(pattern = paste0("^", paste0(match, collapse = "|^")), x = vars, ignore.case = ignore.case)
 }
 
 #' @name select_helpers
 #' @export
-ends_with <- function(match, ignore.case = TRUE, vars = colnames(get(".data", envir = parent.frame()))) {
+ends_with <- function(match, ignore.case = TRUE, vars = peek_vars()) {
   grep(pattern = paste0(paste0(match, collapse = "$|"), "$"), x = vars, ignore.case = ignore.case)
 }
 
 #' @name select_helpers
 #' @export
-contains <- function(match, ignore.case = TRUE, vars = colnames(get(".data", envir = parent.frame()))) {
+contains <- function(match, ignore.case = TRUE, vars = peek_vars()) {
   matches <- lapply(
     match,
     function(x) {
@@ -106,7 +106,7 @@ contains <- function(match, ignore.case = TRUE, vars = colnames(get(".data", env
 #'
 #' @name select_helpers
 #' @export
-matches <- function(match, ignore.case = TRUE, perl = FALSE, vars = colnames(get(".data", envir = parent.frame()))) {
+matches <- function(match, ignore.case = TRUE, perl = FALSE, vars = peek_vars()) {
   grep(pattern = match, x = vars, ignore.case = ignore.case, perl = perl)
 }
 
@@ -117,7 +117,7 @@ matches <- function(match, ignore.case = TRUE, perl = FALSE, vars = colnames(get
 #'
 #' @name select_helpers
 #' @export
-num_range <- function(prefix, range, width = NULL, vars = colnames(get(".data", envir = parent.frame()))) {
+num_range <- function(prefix, range, width = NULL, vars = peek_vars()) {
   if (!is.null(width)) {
     range <- sprintf(paste0("%0", width, "d"), range)
   }
@@ -133,7 +133,7 @@ num_range <- function(prefix, range, width = NULL, vars = colnames(get(".data", 
 #' @param x `character(n)`. A vector of column names.
 #' @name select_helpers
 #' @export
-all_of <- function(x, vars = colnames(get(".data", envir = parent.frame()))) {
+all_of <- function(x, vars = peek_vars()) {
   x_ <- !x %in% vars
   if (any(x_)) {
     which_x_ <- which(x_)
@@ -149,13 +149,13 @@ all_of <- function(x, vars = colnames(get(".data", envir = parent.frame()))) {
 
 #' @name select_helpers
 #' @export
-any_of <- function(x, vars = colnames(get(".data", envir = parent.frame()))) {
+any_of <- function(x, vars = peek_vars()) {
   which(vars %in% x)
 }
 
 #' @name select_helpers
 #' @export
-everything <- function(vars = colnames(get(".data", envir = parent.frame()))) {
+everything <- function(vars = peek_vars()) {
   seq_along(vars)
 }
 
@@ -163,7 +163,7 @@ everything <- function(vars = colnames(get(".data", envir = parent.frame()))) {
 #'
 #' @name select_helpers
 #' @export
-last_col <- function(offset = 0L, vars = colnames(get(".data", envir = parent.frame()))) {
+last_col <- function(offset = 0L, vars = peek_vars()) {
   if (!is_wholenumber(offset)) stop("`offset` must be an integer")
   n <- length(vars)
   if (offset && n <= offset) {
@@ -173,4 +173,10 @@ last_col <- function(offset = 0L, vars = colnames(get(".data", envir = parent.fr
   } else {
     n - offset
   }
+}
+
+select_env <- new.env()
+
+peek_vars <- function() {
+  get("col_names", envir = select_env)
 }
