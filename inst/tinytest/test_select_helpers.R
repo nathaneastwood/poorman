@@ -89,13 +89,22 @@ expect_equal(
   info = "Test that `any_of()` selects columns regardless of their validity"
 )
 
-df <- as.data.frame(matrix(runif(100), nrow = 10))
-df <- as.data.frame(df[c(3, 4, 7, 1, 9, 8, 5, 2, 6, 10)])
 expect_equal(
-  df %>% select(num_range("V", 4:6)),
-  df[, c("V4", "V5", "V6")]
+  data.frame("V1" = 1, "V2" = 2, "V3" = 3, "V4" = 4) %>% select(num_range("V", 2:3)),
+  data.frame("V2" = 2, "V3" = 3),
+  info = "Test num_range() within a selection"
 )
-rm(df)
+
+expect_equal(
+  data.frame("V001" = 1, "V002" = 2, "V003" = 3, "V004" = 4) %>% select(num_range("V", 2:3, width = 3)),
+  data.frame("V002" = 2, "V003" = 3),
+  info = "Test that num_range() works for a given width"
+)
+
+expect_error(
+  data.frame("a1" = 1, "a1" = 2, "a2" = 3, check.names = FALSE) %>% select(num_range("a", 1)),
+  info = "Test that num_range() only works when column names are unique"
+)
 
 expect_equal(
   mtcars %>% select(last_col()),
@@ -112,6 +121,16 @@ expect_equal(
 expect_error(
   mtcars %>% select(last_col(1.2)),
   info = "Test last_col() returns an error when not given a whole number"
+)
+
+expect_error(
+  mtcars %>% select(last_col(100)),
+  info = "Test an error occurs when the user attempts to select using `last_col()` with too large an offset"
+)
+
+expect_error(
+  mtcars %>% select(last_col(vars = c())),
+  info = "Test an error occurs when no variables are provided to match column names against"
 )
 
 expect_equal(

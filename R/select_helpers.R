@@ -122,8 +122,8 @@ num_range <- function(prefix, range, width = NULL, vars = peek_vars()) {
     range <- sprintf(paste0("%0", width, "d"), range)
   }
   find <- paste0(prefix, range)
-  if (anyDuplicated(vars)) {
-    which(find %in% vars)
+  if (any(duplicated(vars))) {
+    stop("Column names must be unique")
   } else {
     x <- match(find, vars)
     x[!is.na(x)]
