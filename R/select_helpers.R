@@ -48,6 +48,9 @@ select_positions <- function(.data, ..., group_pos = FALSE) {
 #' @param vars `character(n)`. A character vector of variable names. When called from inside selecting functions such as
 #' `select()`, these are automatically set to the names of the table.
 #'
+#' @seealso
+#' [select()], [relocate()]
+#'
 #' @return
 #' An integer vector giving the position of the matched variables.
 #'
@@ -100,10 +103,31 @@ contains <- function(match, ignore.case = TRUE, vars = colnames(get(".data", env
 }
 
 #' @param perl `logical(1)`. Should Perl-compatible regexps be used?
+#'
 #' @name select_helpers
 #' @export
 matches <- function(match, ignore.case = TRUE, perl = FALSE, vars = colnames(get(".data", envir = parent.frame()))) {
   grep(pattern = match, x = vars, ignore.case = ignore.case, perl = perl)
+}
+
+#' @param prefix A prefix which starts the numeric range.
+#' @param range `integer(n)`. A sequence of integers, e.g. `1:5`.
+#' @param width `numeric(1)`. Optionally, the "width" of the numeric range. For example, a range of 2 gives "01", a
+#' range of three "001", etc.
+#'
+#' @name select_helpers
+#' @export
+num_range <- function(prefix, range, width = NULL, vars = colnames(get(".data", envir = parent.frame()))) {
+  if (!is.null(width)) {
+    range <- sprintf(paste0("%0", width, "d"), range)
+  }
+  find <- paste0(prefix, range)
+  if (anyDuplicated(vars)) {
+    which(find %in% vars)
+  } else {
+    x <- match(find, vars)
+    x[!is.na(x)]
+  }
 }
 
 #' @param x `character(n)`. A vector of column names.
@@ -136,6 +160,7 @@ everything <- function(vars = colnames(get(".data", envir = parent.frame()))) {
 }
 
 #' @param offset `integer(1)`. Select the `n`th variable from the end of the `data.frame`.
+#'
 #' @name select_helpers
 #' @export
 last_col <- function(offset = 0L, vars = colnames(get(".data", envir = parent.frame()))) {

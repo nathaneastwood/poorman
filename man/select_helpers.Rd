@@ -6,6 +6,7 @@
 \alias{ends_with}
 \alias{contains}
 \alias{matches}
+\alias{num_range}
 \alias{all_of}
 \alias{any_of}
 \alias{everything}
@@ -37,6 +38,13 @@ matches(
   vars = colnames(get(".data", envir = parent.frame()))
 )
 
+num_range(
+  prefix,
+  range,
+  width = NULL,
+  vars = colnames(get(".data", envir = parent.frame()))
+)
+
 all_of(x, vars = colnames(get(".data", envir = parent.frame())))
 
 any_of(x, vars = colnames(get(".data", envir = parent.frame())))
@@ -54,6 +62,13 @@ last_col(offset = 0L, vars = colnames(get(".data", envir = parent.frame())))
 \code{select()}, these are automatically set to the names of the table.}
 
 \item{perl}{\code{logical(1)}. Should Perl-compatible regexps be used?}
+
+\item{prefix}{A prefix which starts the numeric range.}
+
+\item{range}{\code{integer(n)}. A sequence of integers, e.g. \code{1:5}.}
+
+\item{width}{\code{numeric(1)}. Optionally, the "width" of the numeric range. For example, a range of 2 gives "01", a
+range of three "001", etc.}
 
 \item{x}{\code{character(n)}. A vector of column names.}
 
@@ -90,4 +105,7 @@ try({iris \%>\% select(all_of(c("Species", "Genres")))})
 # However `any_of()` allows missing variables
 iris \%>\% select(any_of(c("Species", "Genres")))
 
+}
+\seealso{
+\code{\link[=select]{select()}}, \code{\link[=relocate]{relocate()}}
 }

@@ -89,6 +89,14 @@ expect_equal(
   info = "Test that `any_of()` selects columns regardless of their validity"
 )
 
+df <- as.data.frame(matrix(runif(100), nrow = 10))
+df <- as.data.frame(df[c(3, 4, 7, 1, 9, 8, 5, 2, 6, 10)])
+expect_equal(
+  df %>% select(num_range("V", 4:6)),
+  df[, c("V4", "V5", "V6")]
+)
+rm(df)
+
 expect_equal(
   mtcars %>% select(last_col()),
   mtcars[, "carb", drop = FALSE],

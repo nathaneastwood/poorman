@@ -1,14 +1,7 @@
-#' Change column order
-#'
-#' Change the column positions of a `data.frame`.
-#'
-#' @param .data A `data.frame`.
-#' @param ... The columns to move.
 #' @param .before,.after Destination of the columns selected by `...`. Supplying neither will move the columns to the
 #' left-hand side whereas supplying both will result in an error.
 #'
-#' @return
-#' A `data.frame`
+#' @rdname select
 #'
 #' @export
 relocate <- function(.data, ..., .before = NULL, .after = NULL) {

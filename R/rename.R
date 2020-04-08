@@ -1,9 +1,17 @@
+#' Rename columns
+#'
+#' `rename()` changes the names of individual variables using `new_name = old_name` syntax.
+#'
+#' @param .data A `data.frame`
+#' @param ... Comma separated key-value paids in the form of `new_name = old_name` to rename selected variables.
+#'
+#' @return A `data.frame`
+#'
 #' @examples
 #' rename(mtcars, MilesPerGallon = mpg)
 #' rename(mtcars, Cylinders = cyl, Gears = gear)
 #' mtcars %>% rename(MilesPerGallon = mpg)
 #'
-#' @rdname select
 #' @export
 rename <- function(.data, ...) {
   check_is_dataframe(.data)
