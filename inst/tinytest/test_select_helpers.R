@@ -65,6 +65,31 @@ expect_equal(
 )
 
 expect_equal(
+  mtcars %>% select(all_of(c("disp", "qsec"))),
+  mtcars[, c("disp", "qsec")],
+  info = "Test `select()` with `all_of()` and valid columns"
+)
+
+expect_error(
+  mtcars %>% relocate(all_of(c("disp", "gear", "tmp"))),
+  info = "Test errors are returned when `all_of()` has a single incorrect column"
+)
+
+expect_error(
+  mtcars %>% relocate(all_of(c("disp", "gear", "tmp", "blah"))),
+  info = "Test errors are returned when `all_of()` has a multiple incorrect columns"
+)
+
+expect_equal(
+  mtcars %>% relocate(any_of(c("disp", "gear", "tmp", "cyl")), .before = mpg),
+  {
+    cols <- c("cyl", "disp", "gear")
+    mtcars[, c(cols, colnames(mtcars)[which(!colnames(mtcars) %in% cols)])]
+  },
+  info = "Test that `any_of()` selects columns regardless of their validity"
+)
+
+expect_equal(
   mtcars %>% select(last_col()),
   mtcars[, "carb", drop = FALSE],
   info = "Test select() with last_col()"

@@ -6,6 +6,8 @@
 \alias{ends_with}
 \alias{contains}
 \alias{matches}
+\alias{all_of}
+\alias{any_of}
 \alias{everything}
 \alias{last_col}
 \title{Select Helpers}
@@ -35,6 +37,10 @@ matches(
   vars = colnames(get(".data", envir = parent.frame()))
 )
 
+all_of(x, vars = colnames(get(".data", envir = parent.frame())))
+
+any_of(x, vars = colnames(get(".data", envir = parent.frame())))
+
 everything(vars = colnames(get(".data", envir = parent.frame())))
 
 last_col(offset = 0L, vars = colnames(get(".data", envir = parent.frame())))
@@ -49,6 +55,8 @@ last_col(offset = 0L, vars = colnames(get(".data", envir = parent.frame())))
 
 \item{perl}{\code{logical(1)}. Should Perl-compatible regexps be used?}
 
+\item{x}{\code{character(n)}. A vector of column names.}
+
 \item{offset}{\code{integer(1)}. Select the \code{n}th variable from the end of the \code{data.frame}.}
 }
 \value{
@@ -61,6 +69,8 @@ These functions allow you to select variables based on their names.
 \item \code{ends_with()}: Ends with a prefix.
 \item \code{contains()}: Contains a literal string.
 \item \code{matches()}: Matches a regular expression.
+\item \code{all_of()}: Matches variable names in a character vector. All names must be present, otherwise an error is thrown.
+\item \code{any_of()}: The same as \code{all_of()} except it doesn't throw an error.
 \item \code{everything()}: Matches all variables.
 \item \code{last_col()}: Select the last variable, possibly with an offset.
 }
@@ -72,5 +82,12 @@ mtcars \%>\% select(ends_with("b"))
 mtcars \%>\% relocate(contains("a"), .before = mpg)
 iris \%>\% select(matches(".t."))
 mtcars \%>\% select(last_col())
+
+# `all_of()` selects the variables in a character vector:
+iris \%>\% select(all_of(c("Petal.Length", "Petal.Width")))
+# `all_of()` is strict and will throw an error if the column name isn't found
+try({iris \%>\% select(all_of(c("Species", "Genres")))})
+# However `any_of()` allows missing variables
+iris \%>\% select(any_of(c("Species", "Genres")))
 
 }

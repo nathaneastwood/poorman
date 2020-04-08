@@ -38,6 +38,8 @@ select_positions <- function(.data, ..., group_pos = FALSE) {
 #' * `ends_with()`: Ends with a prefix.
 #' * `contains()`: Contains a literal string.
 #' * `matches()`: Matches a regular expression.
+#' * `all_of()`: Matches variable names in a character vector. All names must be present, otherwise an error is thrown.
+#' * `any_of()`: The same as `all_of()` except it doesn't throw an error.
 #' * `everything()`: Matches all variables.
 #' * `last_col()`: Select the last variable, possibly with an offset.
 #'
@@ -56,6 +58,13 @@ select_positions <- function(.data, ..., group_pos = FALSE) {
 #' mtcars %>% relocate(contains("a"), .before = mpg)
 #' iris %>% select(matches(".t."))
 #' mtcars %>% select(last_col())
+#'
+#' # `all_of()` selects the variables in a character vector:
+#' iris %>% select(all_of(c("Petal.Length", "Petal.Width")))
+#' # `all_of()` is strict and will throw an error if the column name isn't found
+#' try({iris %>% select(all_of(c("Species", "Genres")))})
+#' # However `any_of()` allows missing variables
+#' iris %>% select(any_of(c("Species", "Genres")))
 #'
 #' @name select_helpers
 #'
@@ -95,6 +104,29 @@ contains <- function(match, ignore.case = TRUE, vars = colnames(get(".data", env
 #' @export
 matches <- function(match, ignore.case = TRUE, perl = FALSE, vars = colnames(get(".data", envir = parent.frame()))) {
   grep(pattern = match, x = vars, ignore.case = ignore.case, perl = perl)
+}
+
+#' @param x `character(n)`. A vector of column names.
+#' @name select_helpers
+#' @export
+all_of <- function(x, vars = colnames(get(".data", envir = parent.frame()))) {
+  x_ <- !x %in% vars
+  if (any(x_)) {
+    which_x_ <- which(x_)
+    if (length(which_x_) == 1L) {
+      stop("The column ", x[which_x_], " does not exist.")
+    } else {
+      stop("The columns ", paste(x[which_x_], collapse = ", "), " do not exist.")
+    }
+  } else {
+    which(vars %in% x)
+  }
+}
+
+#' @name select_helpers
+#' @export
+any_of <- function(x, vars = colnames(get(".data", envir = parent.frame()))) {
+  which(vars %in% x)
 }
 
 #' @name select_helpers
