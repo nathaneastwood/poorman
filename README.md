@@ -48,15 +48,10 @@ dplyr code will still run even if you use `poorman` in its place, it
 even comes with its own `magrittr` pipe (`%>%`) replica. Below are some
 of the operations that are currently available.
 
-    library(poorman)
+    library(poorman, warn.conflicts = FALSE)
     # 
     #   I'd seen my father. He was a poor man, and I watched him do astonishing things.
     #     - Sidney Poitier
-    # 
-    # Attaching package: 'poorman'
-    # The following object is masked from 'package:stats':
-    # 
-    #     filter
 
 ### `select()`
 
