@@ -1,3 +1,20 @@
+# 0.1.10
+
+Second CRAN release.
+
+This update adds selection helper functions. See `?select_helpers` for more information.
+
+The following bugs have been fixed:
+
+* `mutate()` column creations are immediately available, e.g. `mtcars %>% mutate(mpg2 = mpg * 2, mpg4 = mpg2 * 2)` will create columns named `mpg2` and `mpg4`
+* `group_by()` groups now persist in selections, e.g. `mtcars %>% group_by(am) %>% select(mpg)` will return `am` and `mpg` columns
+* `slice()` now duplicates rows, e.g. `mtcars %>% slice(2, 2, 2)` will return row 2 three times
+* `summarize()` is now exported
+
+# 0.1.9
+
+First CRAN release
+
 # 0.1.8
 
 This update adds `relocate()` and consolidates the selection method for `select()`, `rename()` and `relocate()` using `select_positions()`.
