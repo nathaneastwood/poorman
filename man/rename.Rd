@@ -9,7 +9,7 @@ rename(.data, ...)
 \arguments{
 \item{.data}{A \code{data.frame}}
 
-\item{...}{Comma separated key-value paids in the form of \code{new_name = old_name} to rename selected variables.}
+\item{...}{Comma separated key-value pairs in the form of \code{new_name = old_name} to rename selected variables.}
 }
 \value{
 A \code{data.frame}

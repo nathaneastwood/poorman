@@ -13,7 +13,7 @@ transmute(.data, ...)
 \item{.data}{A \code{data.frame}.}
 
 \item{...}{Name-value pairs of expressions, each with length \code{1L}. The name of each argument will be the name of a
-new column and the value will be its corresponding value. Use a \code{NULL} value in ‘mutate’ to drop a variable. New
+new column and the value will be its corresponding value. Use a \code{NULL} value in \code{mutate} to drop a variable. New
 variables overwrite existing variables of the same name.}
 }
 \description{

@@ -3,7 +3,7 @@
 #' `rename()` changes the names of individual variables using `new_name = old_name` syntax.
 #'
 #' @param .data A `data.frame`
-#' @param ... Comma separated key-value paids in the form of `new_name = old_name` to rename selected variables.
+#' @param ... Comma separated key-value pairs in the form of `new_name = old_name` to rename selected variables.
 #'
 #' @return A `data.frame`
 #'

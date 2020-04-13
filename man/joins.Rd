@@ -20,7 +20,7 @@ full_join(x, y, by = NULL, suffix = c(".x", ".y"))
 \item{x, y}{The \code{data.frame}s to join.}
 
 \item{by}{A character vector of variables to join by. If \code{NULL}, the default,
-‘*_join()’ will do a natural join, using all variables with common names
+\verb{*_join()} will do a natural join, using all variables with common names
 across the two tables. A message lists the variables so that you can check
 they're right (to suppress the message, simply explicitly list the variables
 that you want to join).

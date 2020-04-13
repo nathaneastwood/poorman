@@ -5,7 +5,7 @@
 #'
 #' @param .data A `data.frame`.
 #' @param ... Name-value pairs of expressions, each with length `1L`. The name of each argument will be the name of a
-#' new column and the value will be its corresponding value. Use a `NULL` value in ‘mutate’ to drop a variable. New
+#' new column and the value will be its corresponding value. Use a `NULL` value in `mutate` to drop a variable. New
 #' variables overwrite existing variables of the same name.
 #'
 #' @examples
