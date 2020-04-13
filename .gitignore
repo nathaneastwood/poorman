@@ -4,6 +4,6 @@
 .Ruserdata
 *.tar.gz
 *\.Rcheck
-*.sh
+build_docs.sh
 CRAN-RELEASE
 cran-comments.md
