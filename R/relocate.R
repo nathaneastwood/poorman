@@ -26,11 +26,12 @@ relocate <- function(.data, ..., .before = NULL, .after = NULL) {
     where <- 1L
     col_pos <- union(col_pos, where)
   }
-
   lhs <- setdiff(seq(1L, where - 1L), col_pos)
   rhs <- setdiff(seq(where + 1L, ncol(.data)), col_pos)
+  col_pos <- unique(c(lhs, col_pos, rhs))
+  col_pos <- col_pos[col_pos <= length(data_names)]
 
-  res <- .data[unique(c(lhs, col_pos, rhs))]
+  res <- .data[col_pos]
   if (has_groups(.data)) res <- set_groups(res, group_vars(.data))
   res
 }

@@ -22,6 +22,13 @@ expect_equal(
   info = "Test .after functionality for multiple variables"
 )
 
+expect_equal(
+  iris %>% relocate(contains("Petal"), .after = Species),
+  iris[, c("Sepal.Length", "Sepal.Width", "Species", "Petal.Length", "Petal.Width")],
+  info = "Test .after works when .after is the last column"
+)
+
 expect_error(
-  mtcars %>% relocate(gear, .after = mpg, .before = cyl)
+  mtcars %>% relocate(gear, .after = mpg, .before = cyl),
+  info = "relocate() fails when .after and .before are both given"
 )
