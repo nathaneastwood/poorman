@@ -4,6 +4,7 @@ Title: A Poor Man's Base R Copy of 'dplyr' Verbs
 Version: 0.1.10
 Authors@R: person("Nathan", "Eastwood", "", "nathan.eastwood@icloud.com",
     role = c("aut", "cre"))
+Maintainer: Nathan Eastwood <nathan.eastwood@icloud.com>
 Description: A simple replication of key 'dplyr' verbs using only base R.
 URL: https://github.com/nathaneastwood/poorman
 BugReports: https://github.com/nathaneastwood/poorman/issues
