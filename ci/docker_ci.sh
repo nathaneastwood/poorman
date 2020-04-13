@@ -20,6 +20,7 @@ docker cp $dir_root $container_name:/root
 
 docker exec \
   --workdir /root/$dir_package \
+  --env POORMAN_TOKEN_CODECOV=$POORMAN_TOKEN_CODECOV \
   $container_name \
   Rscript "$@"
 

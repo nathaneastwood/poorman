@@ -1,0 +1,11 @@
+name: check_macos
+on: [push]
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v1
+    - name: Check macos-elcapitan-release
+      env:
+        DOCKER_PASSWORD: ${{ secrets.DOCKER_PASSWORD }}
+      run: sh ci/docker_ci.sh ci/check_rhub.R "macos-elcapitan-release"
