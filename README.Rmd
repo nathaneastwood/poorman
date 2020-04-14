@@ -17,15 +17,27 @@ knitr::opts_chunk$set(
 
 [![CRAN status](https://www.r-pkg.org/badges/version/poorman)](https://cran.r-project.org/package=poorman)
 ![CRAN downloads](https://cranlogs.r-pkg.org/badges/poorman)
+![check_cran](https://github.com/nathaneastwood/poorman/workflows/check_cran/badge.svg?branch=master)
+[![codecov](https://codecov.io/gh/nathaneastwood/poorman/branch/master/graph/badge.svg)](https://codecov.io/gh/nathaneastwood/poorman)
 
 <blockquote align="center">
   I'd seen my father. He was a poor man, and I watched him do astonishing things.
     - Sidney Poitier
 </blockquote>
 
-## Goal
+## Overview
 
-The goal of `poorman` is to provide base R versions of `dplyr` functions. Check out the blog posts [here](https://nathaneastwood.github.io/tags/poorman/) for more details.
+`poorman` is a grammar of data manipulation, providing dependency free versions of [`dplyr`](https://github.com/tidyverse/dplyr) verbs that help you solve the most common data manipulation challenges:
+
+* `select()` picks variables based on their names.
+* `mutate()` adds new variables that are functions of existing variables.
+* `filter()` picks cases based on their values.
+* `summarise()` reduces multiple values down to a single summary.
+* `arrange()` changes the ordering of the rows.
+
+`poorman` attempts to replicate the `dplyr` API exactly such that your `dplyr` code will still run even if you use `poorman` in its place. In addition to replicating `dplyr` functionality, `poorman` implements other functionality from the wider `tidyverse` such as select helpers and the pipe, `%>%`.
+
+For more details on the functionality available within `poorman`, check out the `poorman` series of blog posts [here](https://nathaneastwood.github.io/tags/poorman/).
 
 ## Installation
 
@@ -50,41 +62,16 @@ If you'd like to try out the package using Docker, you can run the latest image 
 docker run --rm -it nathaneastwood/poorman
 ```
 
-## Features
+## Usage
 
-`poorman` attempts to replicate the `dplyr` API exactly such that your dplyr code will still run even if you use `poorman` in its place, it even comes with its own `magrittr` pipe (`%>%`) replica. Below are some of the operations that are currently available.
-
-```{r libraries}
+```{r usage}
 library(poorman, warn.conflicts = FALSE)
-```
 
-### `select()`
+mtcars %>%
+  select(mpg, starts_with("c")) %>%
+  mutate(mpg2 = mpg * 2, mpg4 = mpg2 * 2) %>%
+  filter(mpg > 28)
 
-```{r select}
-mtcars %>% select(mpg, gear, disp)
-```
-
-### `filter()`
-
-```{r filter}
-mtcars %>% filter(mpg > 28)
-```
-
-### `mutate()`
-
-```{r mutate}
-mtcars %>% mutate(mpg2 = mpg ^ 2)
-```
-
-### `arrange()`
-
-```{r arrange}
-mtcars %>% arrange(mpg)
-```
-
-### `group_by()`
-
-```{r group_by}
 mtcars %>%
   group_by(am, cyl) %>%
   summarise(meanMpg = mean(mpg), sumMpg = sum(mpg)) %>%
