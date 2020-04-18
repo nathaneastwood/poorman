@@ -9,8 +9,8 @@ relocate <- function(.data, ..., .before = NULL, .after = NULL) {
   data_names <- colnames(.data)
   col_pos <- select_positions(.data, ...)
 
-  .before <- if (missing(.before)) .before else deparse(substitute(.before))
-  .after <- if (missing(.after)) .after else deparse(substitute(.after))
+  .before <- deparse_var(.before)
+  .after <- deparse_var(.after)
   has_before <- !is.null(.before)
   has_after <- !is.null(.after)
 
