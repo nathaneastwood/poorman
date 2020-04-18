@@ -7,3 +7,4 @@
 build_docs.sh
 CRAN-RELEASE
 cran-comments.md
+*.Rproj
