@@ -73,6 +73,9 @@ set_groups <- function(x, groups) {
   x
 }
 
+#' @param .data A `data.frame`.
+#' @param fn `character(1)`. The function to apply to each group.
+#' @noRd
 apply_grouped_function <- function(.data, fn, ...) {
   groups <- group_vars(.data)
   grouped <- split_into_groups(.data, groups)

@@ -22,8 +22,10 @@ summarise <- function(.data, ...) {
 }
 
 #' @export
-summarise.data.frame <- function(.data, ...) {
+summarise.default <- function(.data, ...) {
   fns <- vapply(substitute(...()), deparse, NA_character_)
+  context$.data <- .data
+  on.exit(rm(.data, envir = context))
   res <- lapply(fns, function(x) eval(parse(text = paste("with(.data,", x, ")"))))
   res <- as.data.frame(res)
   fn_names <- names(fns)
@@ -39,6 +41,8 @@ summarise.grouped_data <- function(.data, ...) {
   group_data <- lapply(groups, function(x, .data) extract2(.data, x), .data)
   res <- do.call(rbind, lapply(split(.data, group_data), function(x, groups, fns, fn_names) {
     if (nrow(x) == 0L) return()
+    context$.data <- x
+    on.exit(rm(.data, envir = context))
     grp_res <- data.frame(
       eval(parse(text = paste0("with(x, list(", paste0(fns, collapse = ", "), "))")))
     )
@@ -55,6 +59,6 @@ summarise.grouped_data <- function(.data, ...) {
 #' @export
 summarize <- summarise
 #' @export
-summarize.data.frame <- summarise.data.frame
+summarize.default <- summarise.default
 #' @export
 summarize.grouped_data <- summarise.grouped_data

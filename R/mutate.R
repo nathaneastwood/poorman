@@ -34,6 +34,8 @@ mutate.default <- function(.data, ...) {
   conditions <- deparse_dots(...)
   not_matched <- names(conditions)[!names(conditions) %in% names(.data)]
   .data[, not_matched] <- NA
+  context$.data <- .data
+  on.exit(rm(.data, envir = context))
   for (i in seq_along(conditions)) {
     .data[, names(conditions)[i]] <- with(.data, eval(parse(text = conditions[i])))
   }

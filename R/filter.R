@@ -31,6 +31,8 @@ filter <- function(.data, ...) {
 #' @export
 filter.default <- function(.data, ...) {
   conditions <- paste(deparse_dots(...), collapse = " & ")
+  context$.data <- .data
+  on.exit(rm(.data, envir = context))
   extract(.data, with(.data, eval(parse(text = conditions))), )
 }
 

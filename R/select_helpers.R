@@ -12,7 +12,8 @@
 #' @noRd
 select_positions <- function(.data, ..., group_pos = FALSE) {
   data_names <- colnames(.data)
-  select_env$col_names <- data_names
+  select_env$.col_names <- data_names
+  on.exit(rm(list = ".col_names", envir = select_env))
   cols <- deparse_dots(...)
   cols <- unlist(lapply(
     cols,
@@ -173,10 +174,4 @@ last_col <- function(offset = 0L, vars = peek_vars()) {
   } else {
     n - offset
   }
-}
-
-select_env <- new.env()
-
-peek_vars <- function() {
-  get("col_names", envir = select_env)
 }
