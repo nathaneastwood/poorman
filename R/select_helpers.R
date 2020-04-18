@@ -16,7 +16,7 @@ select_positions <- function(.data, ..., group_pos = FALSE) {
   cols <- deparse_dots(...)
   cols <- unlist(lapply(
     cols,
-    function(x) if (x %in% data_names) x else eval(parse(text = x))
+    function(x) if (x %in% data_names) x else eval(str2lang(x))
   ))
   if (isTRUE(group_pos)) {
     groups <- group_vars(.data)
