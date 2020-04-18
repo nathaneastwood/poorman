@@ -18,9 +18,10 @@
 #' @export
 pull <- function(.data, var = -1) {
   var <- deparse(substitute(var))
-  if (!(var %in% colnames(.data)) & grepl("^[[:digit:]]+L|[[:digit:]]", var)) {
+  col_names <- colnames(.data)
+  if (!(var %in% col_names) & grepl("^[[:digit:]]+L|[[:digit:]]", var)) {
     var <- as.integer(gsub("L", "", var))
-    var <- ifelse(var < 1L, extract(rev(colnames(.data)), abs(var)), extract(colnames(.data), var))
+    var <- ifelse(var < 1L, extract(rev(col_names), abs(var)), extract(col_names, var))
   }
   extract2(.data, var)
 }
