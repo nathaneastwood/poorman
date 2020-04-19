@@ -20,7 +20,7 @@ select_positions <- function(.data, ..., group_pos = FALSE) {
     function(x) if (x %in% data_names) x else eval(str2lang(x))
   ))
   if (isTRUE(group_pos)) {
-    groups <- group_vars(.data)
+    groups <- get_groups(.data)
     missing_groups <- !(groups %in% cols)
     if (any(missing_groups)) {
       message("Adding missing grouping variables: `", paste(groups[missing_groups], collapse = "`, `"), "`")

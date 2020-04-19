@@ -4,6 +4,8 @@
 #'
 #' @param .data `data.frame`. The data to group.
 #' @param ... One or more unquoted column names to group/ungroup the data by.
+#' @param .add `logical(1)`. When `FALSE` (the default) `group_by()` will override existing groups. To add to existing
+#' groups, use `.add = TRUE`.
 #'
 #' @examples
 #' group_by(mtcars, am, cyl)
@@ -21,9 +23,11 @@
 #'
 #' @name groups
 #' @export
-group_by <- function(.data, ...) {
+group_by <- function(.data, ..., .add = FALSE) {
   check_is_dataframe(.data)
+  pre_groups <- get_groups(.data)
   groups <- deparse_dots(...)
+  if (isTRUE(.add)) groups <- unique(c(pre_groups, groups))
   unknown <- !(groups %in% colnames(.data))
   if (any(unknown)) stop("Invalid groups: ", extract(groups, unknown))
   structure(.data, class = c("grouped_data", class(.data)), groups = groups)
@@ -53,18 +57,18 @@ ungroup <- function(x, ...) {
 #'
 #' @examples
 #' df <- mtcars %>% group_by(am, cyl)
-#' group_vars(df)
+#' get_groups(df)
 #'
 #' @return
 #' A character vector of group names.
 #'
 #' @export
-group_vars <- function(x) {
+get_groups <- function(x) {
   attr(x, "groups", exact = TRUE)
 }
 
 has_groups <- function(x) {
-  groups <- group_vars(x)
+  groups <- get_groups(x)
   if (is.null(groups)) FALSE else TRUE
 }
 
@@ -77,7 +81,7 @@ set_groups <- function(x, groups) {
 #' @param fn `character(1)`. The function to apply to each group.
 #' @noRd
 apply_grouped_function <- function(.data, fn, ...) {
-  groups <- group_vars(.data)
+  groups <- get_groups(.data)
   grouped <- split_into_groups(.data, groups)
   res <- do.call(rbind, unname(lapply(grouped, fn, ...)))
   if (any(groups %in% colnames(res))) {

@@ -39,6 +39,6 @@ select <- function(.data, ...) {
   res <- extract(.data, , col_pos, drop = FALSE)
   to_map <- nchar(map) > 0L
   colnames(res)[to_map] <- map[to_map]
-  if (has_groups(.data)) res <- set_groups(res, group_vars(.data))
+  if (has_groups(.data)) res <- set_groups(res, get_groups(.data))
   res
 }

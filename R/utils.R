@@ -22,3 +22,8 @@ check_is_dataframe <- function(.data) {
 is_wholenumber <- function(x) {
   x %% 1L == 0L
 }
+
+set_names <- function(object = nm, nm) {
+  names(object) <- nm
+  object
+}

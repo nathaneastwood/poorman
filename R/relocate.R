@@ -32,6 +32,6 @@ relocate <- function(.data, ..., .before = NULL, .after = NULL) {
   col_pos <- col_pos[col_pos <= length(data_names)]
 
   res <- .data[col_pos]
-  if (has_groups(.data)) res <- set_groups(res, group_vars(.data))
+  if (has_groups(.data)) res <- set_groups(res, get_groups(.data))
   res
 }

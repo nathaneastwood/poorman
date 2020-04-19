@@ -6,7 +6,7 @@
 \alias{ungroup}
 \title{Group by one or more variables}
 \usage{
-group_by(.data, ...)
+group_by(.data, ..., .add = FALSE)
 
 ungroup(x, ...)
 }
@@ -14,6 +14,9 @@ ungroup(x, ...)
 \item{.data}{\code{data.frame}. The data to group.}
 
 \item{...}{One or more unquoted column names to group/ungroup the data by.}
+
+\item{.add}{\code{logical(1)}. When \code{FALSE} (the default) \code{group_by()} will override existing groups. To add to existing
+groups, use \code{.add = TRUE}.}
 
 \item{x}{A \code{data.frame}.}
 }
