@@ -1,3 +1,9 @@
+# 0.1.11
+
+Third CRAN release.
+
+This update adds the functions `count()`, `tally()`, `add_count()` and `add_tally()`. In order to achieve these, the functions `n()` and `desc()` have also been added. In addition, `group_by()` can now add additional groups to an already grouped `data.frame`.
+
 # 0.1.10
 
 Second CRAN release.
