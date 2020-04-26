@@ -26,33 +26,25 @@ summarise.default <- function(.data, ...) {
   fns <- vapply(substitute(...()), deparse, NA_character_)
   context$.data <- .data
   on.exit(rm(.data, envir = context))
-  res <- lapply(fns, function(x) eval(parse(text = paste("with(.data,", x, ")"))))
+  if (has_groups(.data)) {
+    group <- unique(.data[, get_groups(.data), drop = FALSE])
+    if (nrow(group) == 0L) return(NULL)
+  }
+  res <- lapply(fns, function(x) do.call(with, list(.data, str2lang(x))))
   res <- as.data.frame(res)
   fn_names <- names(fns)
   colnames(res) <- if (is.null(fn_names)) fns else fn_names
+  if (has_groups(.data)) res <- cbind(group, res)
   res
 }
 
 #' @export
 summarise.grouped_data <- function(.data, ...) {
-  groups <- attr(.data, "groups", exact = TRUE)
-  fns <- deparse_dots(...)
-  fn_names <- names(fns)
-  group_data <- lapply(groups, function(x, .data) extract2(.data, x), .data)
-  res <- do.call(rbind, lapply(split(.data, group_data), function(x, groups, fns, fn_names) {
-    if (nrow(x) == 0L) return()
-    context$.data <- x
-    on.exit(rm(.data, envir = context))
-    grp_res <- data.frame(
-      eval(parse(text = paste0("with(x, list(", paste0(fns, collapse = ", "), "))")))
-    )
-    grp_res <- cbind(unique(x[, groups]), grp_res)
-    colnames(grp_res) <- c(groups, if (is.null(fn_names)) fns else fn_names)
-    grp_res
-  }, groups, fns, fn_names))
-  res <- eval(parse(text = paste0("res[order(", paste0("res[, ", seq_along(groups), "]", collapse = ", "), "), ]")))
+  groups <- get_groups(.data)
+  res <- apply_grouped_function(.data, "summarise", ...)
+  res <- res[do.call(order, do.call(c, lapply(groups, function(x) extract(res, x)))), ]
   rownames(res) <- NULL
-  structure(res, class = c("grouped_data", class(res)), groups = groups)
+  res
 }
 
 #' @rdname summarise
