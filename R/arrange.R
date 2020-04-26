@@ -22,7 +22,7 @@ arrange <- function(.data, ...) {
 #' @export
 arrange.default <- function(.data, ...) {
   rows <- eval.parent(substitute(with(.data, order(...))))
-  extract(.data, rows, , drop = FALSE)
+  .data[rows, , drop = FALSE]
 }
 
 #' @export

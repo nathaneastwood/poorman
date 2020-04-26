@@ -22,7 +22,7 @@ slice.default <- function(.data, ...) {
   rows <- c(...)
   stopifnot(is.numeric(rows) | is.integer(rows))
   if (all(rows > 0L)) rows <- rows[rows <= nrow(.data)]
-  extract(.data, rows, )
+  .data[rows, ]
 }
 
 #' @export

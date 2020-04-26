@@ -36,7 +36,7 @@ NULL
 select <- function(.data, ...) {
   map <- names(deparse_dots(...))
   col_pos <- select_positions(.data, ..., group_pos = TRUE)
-  res <- extract(.data, , col_pos, drop = FALSE)
+  res <- .data[, col_pos, drop = FALSE]
   to_map <- nchar(map) > 0L
   colnames(res)[to_map] <- map[to_map]
   if (has_groups(.data)) res <- set_groups(res, get_groups(.data))

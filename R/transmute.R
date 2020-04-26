@@ -19,7 +19,7 @@ transmute <- function(.data, ...) {
 transmute.default <- function(.data, ...) {
   conditions <- deparse_dots(...)
   mutated <- mutate(.data, ...)
-  extract(mutated, names(conditions))
+  mutated[, names(conditions), drop = FALSE]
 }
 
 #' @export

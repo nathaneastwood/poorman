@@ -42,7 +42,7 @@ summarise.default <- function(.data, ...) {
 summarise.grouped_data <- function(.data, ...) {
   groups <- get_groups(.data)
   res <- apply_grouped_function(.data, "summarise", ...)
-  res <- res[do.call(order, do.call(c, lapply(groups, function(x) extract(res, x)))), ]
+  res <- res[do.call(order, lapply(groups, function(x) res[, x])), ]
   rownames(res) <- NULL
   res
 }

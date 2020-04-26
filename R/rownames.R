@@ -12,9 +12,9 @@
 #' @export
 rownames_to_column <- function(.data, var = "rowname") {
   check_is_dataframe(.data)
-  if (var %in% colnames(.data)) stop("Column `", var, "` already exists in `.data`")
-  row_names <- rownames(.data)
+  col_names <- colnames(.data)
+  if (var %in% col_names) stop("Column `", var, "` already exists in `.data`")
+  .data[, var] <- rownames(.data)
   rownames(.data) <- NULL
-  .data <- inset(.data, , var, row_names)
-  extract(.data, , c(var, setdiff(colnames(.data), var)))
+  .data[, c(var, setdiff(col_names, var))]
 }

@@ -21,7 +21,7 @@ pull <- function(.data, var = -1) {
   col_names <- colnames(.data)
   if (!(var %in% col_names) & grepl("^[[:digit:]]+L|[[:digit:]]", var)) {
     var <- as.integer(gsub("L", "", var))
-    var <- ifelse(var < 1L, extract(rev(col_names), abs(var)), extract(col_names, var))
+    var <- ifelse(var < 1L, rev(col_names)[abs(var)], col_names[var])
   }
-  extract2(.data, var)
+  .data[, var]
 }

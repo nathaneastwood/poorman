@@ -44,7 +44,7 @@ join_worker <- function(x, y, by = NULL, suffix = c(".x", ".y"), ...) {
   if (is.null(by)) {
     by <- intersect(names(x), names(y))
     join_message(by)
-    extract(merge(x = x, y = y, by = by, suffixes = suffix, ...), union(names(x), names(y)))
+    merge(x = x, y = y, by = by, suffixes = suffix, ...)[, union(names(x), names(y))]
   } else if (is.null(names(by))) {
     merge(x = x, y = y, by = by, suffixes = suffix, ...)
   } else {

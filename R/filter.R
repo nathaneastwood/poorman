@@ -33,7 +33,7 @@ filter.default <- function(.data, ...) {
   conditions <- paste(deparse_dots(...), collapse = " & ")
   context$.data <- .data
   on.exit(rm(.data, envir = context))
-  extract(.data, do.call(with, list(.data, str2lang(unname(conditions)))), )
+  .data[do.call(with, list(.data, str2lang(unname(conditions)))), ]
 }
 
 #' @export

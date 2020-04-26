@@ -44,9 +44,9 @@ filter_join_worker <- function(x, y, by = NULL, type = c("anti", "semi")) {
     by <- intersect(names(x), names(y))
     join_message(by)
   }
-  rows <- interaction(extract(x, , by)) %in% interaction(extract(y, , by))
+  rows <- interaction(x[, by]) %in% interaction(y[, by])
   if (type == "anti") rows <- !rows
-  res <- extract(x, rows, )
+  res <- x[rows, ]
   rownames(res) <- NULL
   res
 }
