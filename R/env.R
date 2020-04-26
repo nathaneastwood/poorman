@@ -29,5 +29,5 @@ context <- new.env()
 #'
 #' @export
 n <- function() {
-  eval(str2lang("nrow(.data)"), envir = context)
+  do.call(nrow, list(quote(.data)), envir = context)
 }

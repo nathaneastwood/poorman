@@ -37,7 +37,7 @@ mutate.default <- function(.data, ...) {
   context$.data <- .data
   on.exit(rm(.data, envir = context))
   for (i in seq_along(conditions)) {
-    .data[, names(conditions)[i]] <- with(.data, eval(parse(text = conditions[i])))
+    .data[, names(conditions)[i]] <- do.call(with, list(.data, str2lang(unname(conditions)[i])))
   }
   .data
 }
