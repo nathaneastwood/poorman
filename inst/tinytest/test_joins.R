@@ -14,7 +14,7 @@ df2 <- data.frame(
 
 expect_equal(
   {
-    invisible(capture.output(res <- df1 %>% inner_join(df2)))
+    invisible(suppressMessages(res <- df1 %>% inner_join(df2)))
     res
   },
   data.frame(
@@ -29,7 +29,7 @@ expect_equal(
 
 expect_equal(
   {
-    invisible(capture.output(res <- df1 %>% left_join(df2)))
+    invisible(suppressMessages(res <- df1 %>% left_join(df2)))
     res
   },
   data.frame(
@@ -44,7 +44,7 @@ expect_equal(
 
 expect_equal(
   {
-    invisible(capture.output(res <- df1 %>% right_join(df2)))
+    invisible(suppressMessages(res <- df1 %>% right_join(df2)))
     res
   },
   data.frame(
@@ -59,7 +59,7 @@ expect_equal(
 
 expect_equal(
   {
-    invisible(capture.output(res <- df1 %>% full_join(df2)))
+    invisible(suppressMessages(res <- df1 %>% full_join(df2)))
     res
   },
   data.frame(
