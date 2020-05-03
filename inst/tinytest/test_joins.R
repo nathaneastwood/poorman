@@ -48,10 +48,10 @@ expect_equal(
     res
   },
   data.frame(
-    id = c(2, 4, 5, 7),
-    name = LETTERS[1:4],
-    height = c(NA, NA, 2, 2),
-    weight = c(2, 3, 4, 5),
+    id = c(5, 7, 2, 4),
+    name = LETTERS[c(3, 4, 1, 2)],
+    height = c(2, 2, NA, NA),
+    weight = c(4, 5, 2, 3),
     stringsAsFactors = FALSE
   ),
   info = "Right join"
@@ -63,10 +63,10 @@ expect_equal(
     res
   },
   data.frame(
-    id = c(1, 2, 3, 4, 5, 7, 9),
-    name = c("A", "A", "B", "B", "C", "D", "E"),
-    height = c(1, NA, 2, NA, 2, 2, 2),
-    weight = c(NA, 2, NA, 3, 4, 5, NA),
+    id = c(1, 3, 5, 7, 9, 2, 4),
+    name = c("A", "B", "C", "D", "E", "A", "B"),
+    height = c(1, rep(2, 4), NA, NA),
+    weight = c(NA, NA, 4, 5, NA, 2, 3),
     stringsAsFactors = FALSE
   ),
   info = "Full join"

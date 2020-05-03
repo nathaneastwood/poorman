@@ -41,21 +41,25 @@ full_join <- function(x, y, by = NULL, suffix = c(".x", ".y")) {
 }
 
 join_worker <- function(x, y, by = NULL, suffix = c(".x", ".y"), ...) {
+  x[, ".join_id"] <- seq_len(nrow(x))
   if (is.null(by)) {
     by <- intersect(names(x), names(y))
     join_message(by)
-    merge(x = x, y = y, by = by, suffixes = suffix, ...)[, union(names(x), names(y))]
+    merged <- merge(x = x, y = y, by = by, suffixes = suffix, ...)[, union(names(x), names(y))]
   } else if (is.null(names(by))) {
-    merge(x = x, y = y, by = by, suffixes = suffix, ...)
+    merged <- merge(x = x, y = y, by = by, suffixes = suffix, ...)
   } else {
-    merge(x = x, y = y, by.x = names(by), by.y = by, suffixes = suffix, ...)
+    merged <- merge(x = x, y = y, by.x = names(by), by.y = by, suffixes = suffix, ...)
   }
+  merged <- merged[order(merged[, ".join_id"]), colnames(merged) != ".join_id"]
+  rownames(merged) <- NULL
+  merged
 }
 
 join_message <- function(by) {
   if (length(by) > 1L) {
-    cat("Joining, by = c(\"", paste0(by, collapse = "\", \""), "\")\n", sep = "")
+    message("Joining, by = c(\"", paste0(by, collapse = "\", \""), "\")\n", sep = "")
   } else {
-    cat("Joining, by = \"", by, "\"\n", sep = "")
+    message("Joining, by = \"", by, "\"\n", sep = "")
   }
 }
