@@ -8,4 +8,4 @@ build_docs.sh
 CRAN-RELEASE
 cran-comments.md
 *.Rproj
-^README\.html$
+README.html
