@@ -44,5 +44,7 @@ mutate.default <- function(.data, ...) {
 
 #' @export
 mutate.grouped_data <- function(.data, ...) {
-  apply_grouped_function(.data, "mutate", ...)
+  rows <- rownames(.data)
+  res <- apply_grouped_function(.data, "mutate", ...)
+  res[rows, ]
 }

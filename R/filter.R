@@ -38,5 +38,7 @@ filter.default <- function(.data, ...) {
 
 #' @export
 filter.grouped_data <- function(.data, ...) {
-  apply_grouped_function(.data, "filter", ...)
+  rows <- rownames(.data)
+  res <- apply_grouped_function(.data, "filter", ...)
+  res[rows[rows %in% rownames(res)], ]
 }

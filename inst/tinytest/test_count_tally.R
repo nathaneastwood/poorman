@@ -83,10 +83,9 @@ expect_equal(
   mtcars %>% group_by(cyl) %>% add_tally(),
   {
     res <- mtcars
-    res <- res[order(mtcars$cyl), ]
     res[, "n"] <- c(
-      11L, 11L, 11L, 11L, 11L, 11L, 11L, 11L, 11L, 11L, 11L, 7L, 7L, 7L, 7L, 7L, 7L, 7L, 14L, 14L, 14L, 14L, 14L, 14L,
-      14L, 14L, 14L, 14L, 14L, 14L, 14L, 14L
+      7L, 7L, 11L, 7L, 14L, 7L, 14L, 11L, 11L, 7L, 7L, 14L, 14L, 14L, 14L, 14L, 14L, 11L, 11L, 11L, 11L, 14L, 14L, 14L,
+      14L, 11L, 11L, 11L, 14L, 7L, 14L, 11L
     )
     attr(res, "groups") <- "cyl"
     attr(res, "class") <- c("grouped_data", "data.frame")

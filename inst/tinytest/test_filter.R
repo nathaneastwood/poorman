@@ -31,6 +31,10 @@ expect_equal(
 # Grouped Operations
 expect_equal(
   mtcars %>% group_by(carb) %>% filter(any(mpg > 28)) %>% ungroup(),
-  do.call(rbind, unname(lapply(split(mtcars, mtcars$carb), function(x) x[any(x$mpg > 28), ]))),
+  {
+    rows <- rownames(mtcars)
+    res <- do.call(rbind, unname(lapply(split(mtcars, mtcars$carb), function(x) x[any(x$mpg > 28), ])))
+    res[rows[rows %in% rownames(res)], ]
+  },
   info = "Test grouped filters"
 )

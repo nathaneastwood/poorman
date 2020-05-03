@@ -55,13 +55,14 @@ expect_equal(
   mtcars %>% group_by(am, cyl) %>% mutate(mpg2 = mpg * 2) %>% ungroup(),
   {
     res <- mtcars
-    do.call(rbind, unname(lapply(
+    res <- do.call(rbind, unname(lapply(
       split(res, list(res$am , res$cyl)),
       function(x) {
         x[, "mpg2"] <- x$mpg * 2
         x
       }
     )))
+    res[rownames(mtcars), ]
   },
   info = "Test grouped mutations"
 )

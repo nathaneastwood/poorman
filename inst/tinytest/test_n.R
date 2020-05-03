@@ -13,10 +13,12 @@ expect_equal(
 expect_equal(
   mt_gears %>% mutate(n = n()) %>% ungroup(),
   {
-    do.call(rbind, unname(lapply(split(mtcars, mtcars$gear), function(x) {
+    rows <- rownames(mtcars)
+    res <- do.call(rbind, unname(lapply(split(mtcars, mtcars$gear), function(x) {
       x$n <- nrow(x)
       x
     })))
+    res[rows[rows %in% rownames(res)], ]
   },
   info = "n() works within a grouped mutate()"
 )
