@@ -17,11 +17,13 @@
 #'
 #' @export
 pull <- function(.data, var = -1) {
-  var <- deparse(substitute(var))
+  var_deparse <- deparse(substitute(var))
   col_names <- colnames(.data)
-  if (!(var %in% col_names) & grepl("^[[:digit:]]+L|[[:digit:]]", var)) {
-    var <- as.integer(gsub("L", "", var))
+  if (!(var_deparse %in% col_names) & grepl("^[[:digit:]]+L|[[:digit:]]", var_deparse)) {
+    var <- as.integer(gsub("L", "", var_deparse))
     var <- ifelse(var < 1L, rev(col_names)[abs(var)], col_names[var])
+  } else if (var_deparse %in% col_names) {
+    var <- var_deparse
   }
   .data[, var]
 }
