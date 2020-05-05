@@ -25,5 +25,6 @@ This is a direct replacement for \verb{[[.data.frame}.
 mtcars \%>\% pull(-1)
 mtcars \%>\% pull(1)
 mtcars \%>\% pull(cyl)
+mtcars \%>\% pull("cyl")
 
 }

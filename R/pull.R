@@ -14,10 +14,11 @@
 #' mtcars %>% pull(-1)
 #' mtcars %>% pull(1)
 #' mtcars %>% pull(cyl)
+#' mtcars %>% pull("cyl")
 #'
 #' @export
 pull <- function(.data, var = -1) {
-  var <- deparse(substitute(var))
+  var <- deparse_var(var)
   col_names <- colnames(.data)
   if (!(var %in% col_names) & grepl("^[[:digit:]]+L|[[:digit:]]", var)) {
     var <- as.integer(gsub("L", "", var))
