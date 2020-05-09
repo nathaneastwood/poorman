@@ -32,6 +32,13 @@ mutate <- function(.data, ...) {
 #' @export
 mutate.default <- function(.data, ...) {
   conditions <- deparse_dots(...)
+  cond_names <- names(conditions)
+  unnamed <- which(nchar(cond_names) == 0L)
+  if (is.null(cond_names)) {
+    names(conditions) <- conditions
+  } else if (length(unnamed) > 0L) {
+    names(conditions)[unnamed] <- conditions[unnamed]
+  }
   not_matched <- names(conditions)[!names(conditions) %in% names(.data)]
   .data[, not_matched] <- NA
   context$.data <- .data

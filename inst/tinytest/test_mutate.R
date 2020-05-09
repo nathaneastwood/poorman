@@ -50,6 +50,16 @@ expect_equal(
   info = "Test that newly created variables are available immediately with mutate()"
 )
 
+expect_equal(
+  mtcars %>% mutate(1L),
+  {
+    res <- mtcars
+    res[, "1L"] <- 1L
+    res
+  },
+  info = "Test that unnamed conditions are evaluated"
+)
+
 # Grouped Operations
 expect_equal(
   mtcars %>% group_by(am, cyl) %>% mutate(mpg2 = mpg * 2) %>% ungroup(),
