@@ -15,7 +15,7 @@ between(x, left, right)
 A \code{logical} vector the same length as \code{x}.
 }
 \description{
-This is a shortcut for ‘x >= left & x <= right’.
+This is a shortcut for \code{x >= left & x <= right}.
 }
 \examples{
 between(1:12, 7, 9)

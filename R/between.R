@@ -1,6 +1,6 @@
 #' Do values in a numeric vector fall in specified range?
 #'
-#' This is a shortcut for ‘x >= left & x <= right’.
+#' This is a shortcut for `x >= left & x <= right`.
 #'
 #' @param x A `numeric` vector of values.
 #' @param left,right Boundary values.
