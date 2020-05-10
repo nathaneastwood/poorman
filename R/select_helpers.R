@@ -1,37 +1,3 @@
-#' Get integer column positions
-#'
-#' Given a set of column names, or column selection helper functions, evaluate and get the integer column positions
-#' within the data.frame.
-#'
-#' @inheritParams select
-#' @param group_pos `logical(1)`. Should grouping variable positions be returned (default: `FALSE`)?
-#'
-#' @return
-#' A vector of `integer`s.
-#'
-#' @noRd
-select_positions <- function(.data, ..., group_pos = FALSE) {
-  data_names <- colnames(.data)
-  select_env$.col_names <- data_names
-  on.exit(rm(list = ".col_names", envir = select_env))
-  cols <- deparse_dots(...)
-  cols <- unlist(lapply(
-    cols,
-    function(x) if (x %in% data_names) x else eval(str2lang(x))
-  ))
-  if (isTRUE(group_pos)) {
-    groups <- get_groups(.data)
-    missing_groups <- !(groups %in% cols)
-    if (any(missing_groups)) {
-      message("Adding missing grouping variables: `", paste(groups[missing_groups], collapse = "`, `"), "`")
-      cols <- c(groups[missing_groups], cols)
-    }
-  }
-  col_pos <- suppressWarnings(as.integer(cols))
-  col_pos[is.na(col_pos)] <- match(cols[which(is.na(col_pos))], data_names)
-  unique(col_pos)
-}
-
 #' Select Helpers
 #'
 #' These functions allow you to select variables based on their names.

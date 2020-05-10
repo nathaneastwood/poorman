@@ -16,10 +16,10 @@
 #' @return A `data.frame`.
 #'
 #' @examples
-#' select(mtcars, mpg, cyl)
+#' select(mtcars, mpg:cyl)
 #' select(mtcars, MilesPerGallon = mpg, Cylinders = cyl)
 #' mtcars %>% select(mpg)
-#' mtcars %>% select(mpg, cyl)
+#' mtcars %>% select(!mpg, !cyl)
 #' iris %>% select(contains("Petal"))
 #'
 #' df <- as.data.frame(matrix(runif(100), nrow = 10))
