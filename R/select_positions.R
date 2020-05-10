@@ -33,7 +33,8 @@ select_positions <- function(.data, ..., group_pos = FALSE) {
   data_names <- colnames(.data)
   select_env$.col_names <- data_names
   on.exit(rm(list = ".col_names", envir = select_env))
-  pos <- unlist(lapply(cols, eval_expr))
+  exec_env <- parent.frame(2L)
+  pos <- unlist(lapply(cols, eval_expr, exec_env = exec_env))
   if (isTRUE(group_pos)) {
     groups <- get_groups(.data)
     missing_groups <- !(groups %in% cols)
@@ -45,14 +46,14 @@ select_positions <- function(.data, ..., group_pos = FALSE) {
   unique(pos)
 }
 
-eval_expr <- function(x) {
+eval_expr <- function(x, exec_env) {
   type <- typeof(x)
   switch(
     type,
     "integer" = x,
     "double" = as.integer(x),
     "character" = select_char(x),
-    "symbol" = select_symbol(x),
+    "symbol" = select_symbol(x, exec_env = exec_env),
     "language" = eval_call(x),
     stop("Expressions of type <", typeof(x), "> cannot be evaluated for use when subsetting.")
   )
@@ -64,8 +65,15 @@ select_char <- function(expr) {
   pos
 }
 
-select_symbol <- function(expr) {
-  select_char(as.character(expr))
+select_symbol <- function(expr, exec_env) {
+  res <- try(select_char(as.character(expr)), silent = TRUE)
+  if (inherits(res, "try-error")) {
+    res <- tryCatch(
+      select_char(eval(expr, envir = exec_env)),
+      error = function(e) stop("Column ", expr, " does not exist.")
+    )
+  }
+  res
 }
 
 eval_call <- function(x) {
