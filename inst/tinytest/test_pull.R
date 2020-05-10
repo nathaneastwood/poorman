@@ -38,3 +38,12 @@ expect_equal(
   mtcars[, "carb"],
   info = "Test pulling a single column with a negative numeric"
 )
+
+expect_equal(
+  {
+    var <- "mpg"
+    mtcars %>% pull(var)
+  },
+  mtcars[, "mpg"],
+  info = "Can pull using a variable"
+)
