@@ -1,3 +1,29 @@
+# 0.2.0
+
+Fourth CRAN release.
+
+This update has added the following new features:
+
+* `if_else()` (#11)
+* `between()` (#12)
+* `lead()` and `lag()` (#13)
+* `n_distinct()` (#16)
+* window rank functions: `cume_dist()`, `dense_rank()`, `min_rank()`, `ntile()`, `percent_rank()`, `row_number()` (#18)
+
+My thanks go to @msberends for their help on these features!
+
+This update also refactors a lot of the code, hence the minor version bump. This includes:
+
+* More support for "tidyselect" features such as `!`, `:`, `-`, `c()` and `()`
+* Removal of `eval(parse(text = ...)`
+* Rework of grouped summaries
+
+Finally, 0.2.0 includes many bug fixes:
+
+* Joins now maintain their original order (#10)
+* `group_by()` + `mutate()` now preserve row order (#14)
+* Quote names are allowed in `pull()` (#15)
+
 # 0.1.11
 
 Third CRAN release.
