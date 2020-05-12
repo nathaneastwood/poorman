@@ -39,6 +39,24 @@ expect_equal(
 )
 
 expect_equal(
+  mtcars %>% select(MilesPerGallon = -mpg) %>% colnames(),
+  colnames(mtcars)[-1L],
+  info = "Negative column selections do not affect renaming"
+)
+
+expect_equal(
+  mtcars %>% select(Columns = -mpg:-gear) %>% colnames(),
+  "carb",
+  info = "Negative column selections do not affect renaming in multiple column selections"
+)
+
+expect_equal(
+  mtcars %>% select(Col = mpg:disp) %>% colnames(),
+  c("Col1", "Col2", "Col3"),
+  info = "Renaming columns during multiple column selection"
+)
+
+expect_equal(
   mtcars %>% select(11, 10, 9, 8, 7, 6, 5, 4, 3, 2, 1),
   mtcars[, rev(colnames(mtcars))],
   info = "Test order of selection is preserved"

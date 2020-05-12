@@ -34,11 +34,10 @@ NULL
 #' @rdname select
 #' @export
 select <- function(.data, ...) {
-  map <- names(deparse_dots(...))
   col_pos <- select_positions(.data, ..., group_pos = TRUE)
+  map_names <- names(col_pos)
   res <- .data[, col_pos, drop = FALSE]
-  to_map <- nchar(map) > 0L
-  colnames(res)[to_map] <- map[to_map]
+  if (!is.null(map_names) && all(col_pos > 0L)) colnames(res) <- map_names
   if (has_groups(.data)) res <- set_groups(res, get_groups(.data))
   res
 }

@@ -43,7 +43,7 @@ select_positions <- function(.data, ..., group_pos = FALSE) {
       pos <- c(match(groups[missing_groups], data_names), pos)
     }
   }
-  unique(pos)
+  pos[!duplicated(pos)]
 }
 
 eval_expr <- function(x, exec_env) {
