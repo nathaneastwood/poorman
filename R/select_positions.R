@@ -39,8 +39,11 @@ select_positions <- function(.data, ..., group_pos = FALSE) {
     groups <- get_groups(.data)
     missing_groups <- !(groups %in% cols)
     if (any(missing_groups)) {
-      message("Adding missing grouping variables: `", paste(groups[missing_groups], collapse = "`, `"), "`")
-      pos <- c(match(groups[missing_groups], data_names), pos)
+      sel_missing <- groups[missing_groups]
+      message("Adding missing grouping variables: `", paste(sel_missing, collapse = "`, `"), "`")
+      readd <- match(sel_missing, data_names)
+      if (length(names(cols)) > 0L) names(readd) <- data_names[readd]
+      pos <- c(readd, pos)
     }
   }
   pos[!duplicated(pos)]

@@ -67,3 +67,16 @@ expect_equal(
   mtcars[, "mpg", drop = FALSE],
   info = "Test selecting the same column multiple times only returns it once"
 )
+
+expect_equal(
+  suppressMessages(mtcars %>% group_by(cyl) %>% select(MilesPerGallon = mpg)),
+  {
+    res <- mtcars
+    res <- res[, c("cyl", "mpg")]
+    colnames(res)[2] <- "MilesPerGallon"
+    attr(res, "groups") <- "cyl"
+    class(res) <- c("grouped_data", "data.frame")
+    res
+  },
+  info = "Ensure columns are named correctly when renaming grouped data"
+)
