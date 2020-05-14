@@ -53,6 +53,15 @@ expect_equal(
 )
 expect_equal(
   {
+    data <- data.frame(a = 1, b = 2, c = 3, d = 4)
+    val <- c("a", "c")
+    data %>% select(val)
+  },
+  data.frame(a = 1, c = 3),
+  info = "Selecting by a vector variable works"
+)
+expect_equal(
+  {
     data <- data.frame(a = 1, b = 2)
     a <- "b"
     data %>% select(a)

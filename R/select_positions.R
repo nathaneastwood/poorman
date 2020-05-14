@@ -72,7 +72,7 @@ select_symbol <- function(expr, exec_env) {
   res <- try(select_char(as.character(expr)), silent = TRUE)
   if (inherits(res, "try-error")) {
     res <- tryCatch(
-      eval_expr(eval(expr, envir = exec_env)),
+      unlist(lapply(eval(expr, envir = exec_env), eval_expr)),
       error = function(e) stop("Column ", expr, " does not exist.")
     )
   }
