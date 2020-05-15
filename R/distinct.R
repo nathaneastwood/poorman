@@ -54,18 +54,30 @@ distinct <- function(.data, ..., .keep_all = FALSE) {
 distinct.default <- function(.data, ..., .keep_all = FALSE) {
   if (ncol(.data) == 0L) return(.data[1, ])
   cols <- deparse_dots(...)
-  if (length(cols) == 0L) {
+  col_names <- names(cols)
+  col_len <- length(cols)
+  if (is.null(col_names) && col_len > 0L) names(cols) <- cols
+  if (col_len == 0L) {
     res <- .data
   } else {
-    if (length(names(cols)) > 0L) cols <- names(cols)
     res <- mutate(.data, ...)
-    res <- suppressMessages(select(res, cols))
+    col_names <- names(cols)
+    res <- if (!is.null(col_names)) {
+      zero_names <- nchar(col_names) == 0L
+      if (any(zero_names)) {
+        names(cols)[zero_names] <- cols[zero_names]
+        col_names <- names(cols)
+      }
+      suppressMessages(select(res, col_names))
+    } else {
+      suppressMessages(select(res, cols))
+    }
   }
   res <- unique(res)
   if (isTRUE(.keep_all)) {
     res <- cbind(res, .data[rownames(res), setdiff(colnames(.data), colnames(res)), drop = FALSE])
   }
-  common_cols <- intersect(colnames(.data), colnames(res))
+  common_cols <- c(intersect(colnames(.data), colnames(res)), setdiff(col_names, colnames(.data)))
   if (length(common_cols) > 0L) res[, common_cols, drop = FALSE] else res
 }
 

@@ -80,6 +80,18 @@ expect_equal(
 )
 
 expect_equal(
+  data.frame(a = c(1, 2), b = c(1, 2)) %>% distinct(a, b * 2),
+  data.frame(a = c(1, 2), `b * 2` = c(2, 4), check.names = FALSE),
+  info = "Non-named mutations arguments are returned"
+)
+
+expect_equal(
+  data.frame(a = c(1, 2), b = c(1, 2)) %>% distinct(a, b2 = b * 2),
+  data.frame(a = c(1, 2), b2 = c(2, 4), check.names = FALSE),
+  info = "Named mutations arguments are returned"
+)
+
+expect_equal(
   structure(list(), .Names = character(0), row.names = c(NA, -2L), class = "data.frame") %>%
     distinct() %>%
     nrow(),
