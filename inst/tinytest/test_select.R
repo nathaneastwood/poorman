@@ -69,6 +69,16 @@ expect_equal(
 )
 
 expect_equal(
+  mtcars %>% select(mpg:disp, Gears = gear),
+  {
+    res <- mtcars[, c("mpg", "cyl", "disp", "gear")]
+    colnames(res)[4] <- "Gears"
+    res
+  },
+  info = "Ensure columns are named correctly when not all columns are to be renamed"
+)
+
+expect_equal(
   suppressMessages(mtcars %>% group_by(cyl) %>% select(MilesPerGallon = mpg)),
   {
     res <- mtcars
