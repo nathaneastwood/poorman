@@ -30,9 +30,11 @@ filter <- function(.data, ...) {
 
 #' @export
 filter.default <- function(.data, ...) {
+  conditions <- eval(substitute(alist(...)))
+  cond_class <- unlist(lapply(conditions, typeof))
+  if (any(cond_class != "language")) stop("Conditions must be logical vectors")
   context$.data <- .data
   on.exit(rm(.data, envir = context))
-  conditions <- eval(substitute(alist(...)))
   frame <- parent.frame()
   rows <- lapply(
     conditions,
@@ -40,7 +42,6 @@ filter.default <- function(.data, ...) {
     frame = frame
   )
   rows <- Reduce("&", rows)
-  if (!is.logical(rows)) stop("'subset' must be logical")
   .data[rows & !is.na(rows), ]
 }
 
