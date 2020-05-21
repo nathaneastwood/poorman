@@ -31,7 +31,7 @@ filter <- function(.data, ...) {
 #' @export
 filter.default <- function(.data, ...) {
   conditions <- eval(substitute(alist(...)))
-  cond_class <- unlist(lapply(conditions, typeof))
+  cond_class <- vapply(conditions, typeof, NA_character_)
   if (any(cond_class != "language")) stop("Conditions must be logical vectors")
   context$.data <- .data
   on.exit(rm(.data, envir = context))
