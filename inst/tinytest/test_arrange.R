@@ -1,4 +1,3 @@
-# Test single column arrangement
 expect_equal(
   mtcars %>% arrange(mpg),
   mtcars[order(mtcars$mpg), ],
