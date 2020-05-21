@@ -30,10 +30,18 @@ filter <- function(.data, ...) {
 
 #' @export
 filter.default <- function(.data, ...) {
-  conditions <- paste(deparse_dots(...), collapse = " & ")
   context$.data <- .data
   on.exit(rm(.data, envir = context))
-  .data[do.call(with, list(.data, str2lang(unname(conditions)))), ]
+  conditions <- eval(substitute(alist(...)))
+  frame <- parent.frame()
+  rows <- lapply(
+    conditions,
+    function(cond, frame) eval(cond, context$.data, frame),
+    frame = frame
+  )
+  rows <- Reduce("&", rows)
+  if (!is.logical(rows)) stop("'subset' must be logical")
+  .data[rows & !is.na(rows), ]
 }
 
 #' @export
