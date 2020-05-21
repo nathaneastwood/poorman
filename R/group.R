@@ -77,10 +77,11 @@ set_groups <- function(x, groups) {
   x
 }
 
-#' @param .data A `data.frame`.
 #' @param fn `character(1)`. The function to apply to each group.
+#' @param .data A `data.frame`.
+#' @param ... Arguments to be passed to `fn`.
 #' @noRd
-apply_grouped_function <- function(.data, fn, ...) {
+apply_grouped_function <- function(fn, .data, ...) {
   groups <- get_groups(.data)
   grouped <- split_into_groups(.data, groups)
   res <- do.call(rbind, unname(lapply(grouped, fn, ...)))

@@ -27,5 +27,5 @@ slice.default <- function(.data, ...) {
 
 #' @export
 slice.grouped_data <- function(.data, ...) {
-  apply_grouped_function(.data, "slice", ...)
+  apply_grouped_function("slice", .data, ...)
 }

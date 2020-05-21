@@ -41,7 +41,7 @@ summarise.default <- function(.data, ...) {
 #' @export
 summarise.grouped_data <- function(.data, ...) {
   groups <- get_groups(.data)
-  res <- apply_grouped_function(.data, "summarise", ...)
+  res <- apply_grouped_function("summarise", .data, ...)
   res <- res[do.call(order, lapply(groups, function(x) res[, x])), ]
   rownames(res) <- NULL
   res

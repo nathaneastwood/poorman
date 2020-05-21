@@ -25,6 +25,6 @@ transmute.default <- function(.data, ...) {
 #' @export
 transmute.grouped_data <- function(.data, ...) {
   rows <- rownames(.data)
-  res <- apply_grouped_function(.data, "transmute", ...)
+  res <- apply_grouped_function("transmute", .data, ...)
   res[rows, ]
 }
