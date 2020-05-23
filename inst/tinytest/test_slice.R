@@ -22,6 +22,16 @@ expect_equal(
   info = "Test that slice() works with negative indices"
 )
 
+expect_error(
+  mtcars %>% slice(-1, 1),
+  info = "`slice()` expressions should return either all positive or all negative."
+)
+
+expect_error(
+  mtcars %>% slice(am == 1),
+  info = "`slice()` expressions should return indices (positive or negative integers)."
+)
+
 expect_equal(
   mtcars %>% slice(1:3),
   mtcars[1:3, ],

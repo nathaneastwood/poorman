@@ -53,29 +53,9 @@ slice <- function(.data, ...) {
 
 #' @export
 slice.data.frame <- function(.data, ...) {
-  conditions <- eval(substitute(alist(...)))
-  if (length(conditions) == 0L) return(.data)
   if (nrow(.data) == 0L) return(.data)
-  context$.data <- .data
-  on.exit(rm(.data, envir = context))
-  frame <- parent.frame()
-  rows <- lapply(
-    conditions,
-    function(cond, frame) {
-      res <- eval(cond, context$.data, frame)
-      res[is.na(res)] <- 0L
-      res
-    },
-    frame = frame
-  )
-  row_class <- vapply(rows, class, NA_character_)
-  if (any(!row_class %in% c("integer", "numeric"))) stop("Conditions must evaluate to indicies (positive or negative)")
-  rows <- do.call(c, rows)
-  if (!all(rows > 0) && !all(rows < 0) && all(rows != 0)) {
-    stop("`slice()` expressions should return either all positive or all negative values")
-  }
-  if (all(rows > 0L)) rows <- rows[rows <= nrow(.data)]
-  context$.data[rows, , drop = FALSE]
+  pos <- slice_positions(.data, ...)
+  .data[pos, , drop = FALSE]
 }
 
 #' @export
@@ -126,6 +106,42 @@ slice_tail.data.frame <- function(.data, ..., n, prop) {
 #' @export
 slice_tail.grouped_data <- function(.data, ..., n, prop) {
   apply_grouped_function("slice_tail", .data, n = n, prop = prop, ...)
+}
+
+# helpers ----------------------------------------------------------------------
+
+slice_positions <- function(.data, ...) {
+  conditions <- eval(substitute(alist(...)))
+  context$.data <- .data
+  on.exit(rm(.data, envir = context))
+  if (length(conditions) == 0L) return(seq_len(nrow(context$.data)))
+
+  frame <- parent.frame(2L)
+  rows <- lapply(
+    conditions,
+    function(cond, frame) {
+      res <- eval(cond, context$.data, frame)
+      if (is.logical(res) && all(is.na(res))) {
+        res <- integer()
+      } else if (is.numeric(res)) {
+        res <- as.integer(res)
+      } else if (!is.integer(res)) {
+        stop("`slice()` expressions should return indices (positive or negative integers).")
+      }
+    },
+    frame = frame
+  )
+  rows <- do.call(c, rows)
+  if (length(rows) == 0L) {
+    # do nothing
+  } else if (all(rows >= 0, na.rm = TRUE)) {
+    rows <- rows[!is.na(rows) & rows <= nrow(context$.data) & rows > 0]
+  } else if (all(rows <= 0, na.rm = TRUE)) {
+    rows <- setdiff(seq_len(nrow(context$.data)), -rows)
+  } else {
+    stop("`slice()` expressions should return either all positive or all negative.")
+  }
+  rows
 }
 
 check_slice_size <- function(n, prop) {
