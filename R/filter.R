@@ -36,7 +36,7 @@ filter.default <- function(.data, ...) {
   context$.data <- .data
   on.exit(rm(.data, envir = context), add = TRUE)
   eval_env$env <- parent.frame()
-  on.exit(rm(env, envir = eval_env), add = TRUE)
+  on.exit(rm(list = "env", envir = eval_env), add = TRUE)
   rows <- lapply(
     conditions,
     function(cond, frame) eval(cond, context$.data, frame),

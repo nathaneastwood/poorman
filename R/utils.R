@@ -18,11 +18,6 @@ is_wholenumber <- function(x) {
   x %% 1L == 0L
 }
 
-set_names <- function(object = nm, nm) {
-  names(object) <- nm
-  object
-}
-
 seq2 <- function (from, to) {
   if (length(from) != 1) stop("`from` must be length one")
   if (length(to) != 1) stop("`to` must be length one")

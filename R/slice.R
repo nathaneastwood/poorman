@@ -129,14 +129,14 @@ slice_min.data.frame <- function(.data, order_by, ..., n, prop, with_ties = TRUE
   idx <- if (isTRUE(with_ties)) {
     switch(
       size$type,
-      n = function(x, n) head(order(x), smaller_ranks(x, size$n)),
-      prop = function(x, n) head(order(x), smaller_ranks(x, size$prop * n))
+      n = function(x, n) vec_head(order(x), smaller_ranks(x, size$n)),
+      prop = function(x, n) vec_head(order(x), smaller_ranks(x, size$prop * n))
     )
   } else {
     switch(
       size$type,
-      n = function(x, n) head(order(x), size$n),
-      prop = function(x, n) head(order(x), size$prop * n)
+      n = function(x, n) vec_head(order(x), size$n),
+      prop = function(x, n) vec_head(order(x), size$prop * n)
     )
   }
   order_by <- .data[, deparse_var(order_by)]
@@ -146,7 +146,7 @@ slice_min.data.frame <- function(.data, order_by, ..., n, prop, with_ties = TRUE
 #' @export
 slice_min.grouped_data <- function(.data, order_by, ..., n, prop, with_ties = TRUE) {
   eval_env$env <- environment()
-  on.exit(rm(env, envir = eval_env), add = TRUE)
+  on.exit(rm(list = "env", envir = eval_env), add = TRUE)
   apply_grouped_function("slice_min", .data, order_by = order_by, n = n, prop = prop, with_ties = with_ties, ...)
 }
 
@@ -164,14 +164,14 @@ slice_max.data.frame <- function(.data, order_by, ..., n, prop, with_ties = TRUE
   idx <- if (isTRUE(with_ties)) {
     switch(
       size$type,
-      n = function(x, n) head(order(x, decreasing = TRUE), smaller_ranks(desc(x), size$n)),
-      prop = function(x, n) head(order(x, decreasing = TRUE), smaller_ranks(desc(x), size$prop * n))
+      n = function(x, n) vec_head(order(x, decreasing = TRUE), smaller_ranks(desc(x), size$n)),
+      prop = function(x, n) vec_head(order(x, decreasing = TRUE), smaller_ranks(desc(x), size$prop * n))
     )
   } else {
     switch(
       size$type,
-      n = function(x, n) head(order(x, decreasing = TRUE), size$n),
-      prop = function(x, n) head(order(x, decreasing = TRUE), size$prop * n)
+      n = function(x, n) vec_head(order(x, decreasing = TRUE), size$n),
+      prop = function(x, n) vec_head(order(x, decreasing = TRUE), size$prop * n)
     )
   }
   order_by <- .data[, deparse_var(order_by)]
@@ -181,7 +181,7 @@ slice_max.data.frame <- function(.data, order_by, ..., n, prop, with_ties = TRUE
 #' @export
 slice_max.grouped_data <- function(.data, order_by, ..., n, prop, with_ties = TRUE) {
   eval_env$env <- environment()
-  on.exit(rm(env, envir = eval_env), add = TRUE)
+  on.exit(rm(list = "env", envir = eval_env), add = TRUE)
   apply_grouped_function("slice_max", .data, order_by = order_by, n = n, prop = prop, with_ties = with_ties, ...)
 }
 
@@ -212,7 +212,7 @@ slice_sample.data.frame <- function(.data, ..., n, prop, weight_by = NULL, repla
 #' @export
 slice_sample.grouped_data <- function(.data, ..., n, prop, weight_by = NULL, replace = FALSE) {
   eval_env$env <- environment()
-  on.exit(rm(env, envir = eval_env), add = TRUE)
+  on.exit(rm(list = "env", envir = eval_env), add = TRUE)
   apply_grouped_function("slice_sample", .data, n = n, prop = prop, weight_by = weight_by, replace = replace, ...)
 }
 
