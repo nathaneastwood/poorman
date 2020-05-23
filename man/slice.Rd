@@ -4,6 +4,10 @@
 \alias{slice}
 \alias{slice_head}
 \alias{slice_tail}
+\alias{slice_min}
+\alias{slice_min.data.frame}
+\alias{slice_max}
+\alias{slice_sample}
 \title{Subset rows by position}
 \usage{
 slice(.data, ...)
@@ -11,6 +15,14 @@ slice(.data, ...)
 slice_head(.data, ..., n, prop)
 
 slice_tail(.data, ..., n, prop)
+
+slice_min(.data, order_by, ..., n, prop, with_ties = TRUE)
+
+\method{slice_min}{data.frame}(.data, order_by, ..., n, prop, with_ties = TRUE)
+
+slice_max(.data, order_by, ..., n, prop, with_ties = TRUE)
+
+slice_sample(.data, ..., n, prop, weight_by = NULL, replace = FALSE)
 }
 \arguments{
 \item{.data}{A \code{data.frame}.}
@@ -25,6 +37,17 @@ supplied, \code{n = 1} will be used.
 
 If \code{n} is greater than the number of rows in the group (or \code{prop > 1}), the result will be silently truncated to the
 group size. If the \code{prop}ortion of a group size is not an integer, it is rounded down.}
+
+\item{order_by}{The variable to order by.}
+
+\item{with_ties}{\code{logical(1)}. Should ties be kept together? The default, \code{TRUE}, may return more rows than you
+request. Use \code{FALSE} to ignore ties, and return the first \code{n} rows.}
+
+\item{weight_by}{Sampling weights. This must evaluate to a vector of non-negative numbers the same length as the
+input. Weights are automatically standardised to sum to 1.}
+
+\item{replace}{\code{logical(1)}. Should sampling be performed with (\code{TRUE}) or without (\code{FALSE}, the default)
+replacement.}
 }
 \value{
 An object of the same type as \code{.data}. The output has the following properties:

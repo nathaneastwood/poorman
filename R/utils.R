@@ -2,8 +2,8 @@ deparse_dots <- function(...) {
   vapply(substitute(...()), deparse, NA_character_)
 }
 
-deparse_var <- function(var) {
-  sub_var <- eval(substitute(substitute(var)), parent.frame())
+deparse_var <- function(var, frame = if (is.null(eval_env$env)) parent.frame() else eval_env$env) {
+  sub_var <- eval(substitute(substitute(var)), frame)
   if (is.symbol(sub_var)) var <- as.character(sub_var)
   var
 }

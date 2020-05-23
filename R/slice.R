@@ -73,7 +73,8 @@ slice_head <- function(.data, ..., n, prop) {
 #' @export
 slice_head.data.frame <- function(.data, ..., n, prop) {
   size <- check_slice_size(n, prop)
-  idx <- switch(size$type,
+  idx <- switch(
+    size$type,
     n = function(n) seq2(1, min(size$n, n)),
     prop = function(n) seq2(1, min(size$prop * n, n))
   )
@@ -95,7 +96,8 @@ slice_tail <- function(.data, ..., n, prop) {
 #' @export
 slice_tail.data.frame <- function(.data, ..., n, prop) {
   size <- check_slice_size(n, prop)
-  idx <- switch(size$type,
+  idx <- switch(
+    size$type,
     n = function(n) seq2(max(n - size$n + 1, 1), n),
     prop = function(n) seq2(max(ceiling(n - size$prop * n) + 1, 1), n)
   )
@@ -106,6 +108,112 @@ slice_tail.data.frame <- function(.data, ..., n, prop) {
 #' @export
 slice_tail.grouped_data <- function(.data, ..., n, prop) {
   apply_grouped_function("slice_tail", .data, n = n, prop = prop, ...)
+}
+
+#' @rdname slice
+#' @export
+slice_min <- function(.data, order_by, ..., n, prop, with_ties = TRUE) {
+  UseMethod("slice_min")
+}
+
+#' @param order_by The variable to order by.
+#' @param with_ties `logical(1)`. Should ties be kept together? The default, `TRUE`, may return more rows than you
+#' request. Use `FALSE` to ignore ties, and return the first `n` rows.
+#'
+#' @rdname slice
+#' @export
+slice_min.data.frame <- function(.data, order_by, ..., n, prop, with_ties = TRUE) {
+  if (missing(order_by)) stop("argument `order_by` is missing, with no default.")
+
+  size <- check_slice_size(n, prop)
+  idx <- if (isTRUE(with_ties)) {
+    switch(
+      size$type,
+      n = function(x, n) head(order(x), smaller_ranks(x, size$n)),
+      prop = function(x, n) head(order(x), smaller_ranks(x, size$prop * n))
+    )
+  } else {
+    switch(
+      size$type,
+      n = function(x, n) head(order(x), size$n),
+      prop = function(x, n) head(order(x), size$prop * n)
+    )
+  }
+  order_by <- .data[, deparse_var(order_by)]
+  slice(.data, idx(order_by, poorman::n()))
+}
+
+#' @export
+slice_min.grouped_data <- function(.data, order_by, ..., n, prop, with_ties = TRUE) {
+  eval_env$env <- environment()
+  on.exit(rm(env, envir = eval_env), add = TRUE)
+  apply_grouped_function("slice_min", .data, order_by = order_by, n = n, prop = prop, with_ties = with_ties, ...)
+}
+
+#' @rdname slice
+#' @export
+slice_max <- function(.data, order_by, ..., n, prop, with_ties = TRUE) {
+  UseMethod("slice_max")
+}
+
+#' @export
+slice_max.data.frame <- function(.data, order_by, ..., n, prop, with_ties = TRUE) {
+  if (missing(order_by)) stop("argument `order_by` is missing, with no default.")
+
+  size <- check_slice_size(n, prop)
+  idx <- if (isTRUE(with_ties)) {
+    switch(
+      size$type,
+      n = function(x, n) head(order(x, decreasing = TRUE), smaller_ranks(desc(x), size$n)),
+      prop = function(x, n) head(order(x, decreasing = TRUE), smaller_ranks(desc(x), size$prop * n))
+    )
+  } else {
+    switch(
+      size$type,
+      n = function(x, n) head(order(x, decreasing = TRUE), size$n),
+      prop = function(x, n) head(order(x, decreasing = TRUE), size$prop * n)
+    )
+  }
+  order_by <- .data[, deparse_var(order_by)]
+  slice(.data, idx(order_by, poorman::n()))
+}
+
+#' @export
+slice_max.grouped_data <- function(.data, order_by, ..., n, prop, with_ties = TRUE) {
+  eval_env$env <- environment()
+  on.exit(rm(env, envir = eval_env), add = TRUE)
+  apply_grouped_function("slice_max", .data, order_by = order_by, n = n, prop = prop, with_ties = with_ties, ...)
+}
+
+#' @param replace `logical(1)`. Should sampling be performed with (`TRUE`) or without (`FALSE`, the default)
+#' replacement.
+#' @param weight_by Sampling weights. This must evaluate to a vector of non-negative numbers the same length as the
+#' input. Weights are automatically standardised to sum to 1.
+#'
+#' @rdname slice
+#' @export
+slice_sample <- function(.data, ..., n, prop, weight_by = NULL, replace = FALSE) {
+  UseMethod("slice_sample")
+}
+
+#' @export
+slice_sample.data.frame <- function(.data, ..., n, prop, weight_by = NULL, replace = FALSE) {
+  size <- check_slice_size(n, prop)
+  idx <- switch(
+    size$type,
+    n = function(x, n) sample_int(n, size$n, replace = replace, wt = x),
+    prop = function(x, n) sample_int(n, size$prop * n, replace = replace, wt = x),
+  )
+  weight_by <- deparse_var(weight_by)
+  if (!is.null(weight_by)) weight_by <- .data[, weight_by]
+  slice(.data, idx(weight_by, poorman::n()))
+}
+
+#' @export
+slice_sample.grouped_data <- function(.data, ..., n, prop, weight_by = NULL, replace = FALSE) {
+  eval_env$env <- environment()
+  on.exit(rm(env, envir = eval_env), add = TRUE)
+  apply_grouped_function("slice_sample", .data, n = n, prop = prop, weight_by = weight_by, replace = replace, ...)
 }
 
 # helpers ----------------------------------------------------------------------
@@ -167,4 +275,16 @@ check_slice_size <- function(n, prop) {
   } else {
     stop("Must supply exactly one of `n` and `prop` arguments.")
   }
+}
+
+sample_int <- function(n, size, replace = FALSE, wt = NULL) {
+  if (isTRUE(replace)) {
+    sample.int(n, size, prob = wt, replace = TRUE)
+  } else {
+    sample.int(n, min(size, n), prob = wt)
+  }
+}
+
+smaller_ranks <- function(x, y) {
+  sum(min_rank(x) <= y, na.rm = TRUE)
 }

@@ -1,5 +1,9 @@
 select_env <- new.env()
 
+context <- new.env()
+
+eval_env <- new.env()
+
 #' Peek at variables in the selection context
 #'
 #' Return the vector of column names of the data currently available for selection.
@@ -11,8 +15,6 @@ select_env <- new.env()
 peek_vars <- function() {
   get(".col_names", envir = select_env)
 }
-
-context <- new.env()
 
 #' The number of observations in the current group
 #'
@@ -29,5 +31,7 @@ context <- new.env()
 #'
 #' @export
 n <- function() {
-  do.call(nrow, list(quote(.data)), envir = context)
+  rows <- nrow(context$.data)
+  if (is.null(rows)) stop("`n()` must be used inside one of `summarise()`, `mutate()`, `filter()` or `slice()`")
+  rows
 }

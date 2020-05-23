@@ -34,12 +34,13 @@ filter.default <- function(.data, ...) {
   cond_class <- vapply(conditions, typeof, NA_character_)
   if (any(cond_class != "language")) stop("Conditions must be logical vectors")
   context$.data <- .data
-  on.exit(rm(.data, envir = context))
-  frame <- parent.frame()
+  on.exit(rm(.data, envir = context), add = TRUE)
+  eval_env$env <- parent.frame()
+  on.exit(rm(env, envir = eval_env), add = TRUE)
   rows <- lapply(
     conditions,
     function(cond, frame) eval(cond, context$.data, frame),
-    frame = frame
+    frame = eval_env$env
   )
   rows <- Reduce("&", rows)
   .data[rows & !is.na(rows), ]

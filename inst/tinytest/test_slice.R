@@ -28,7 +28,7 @@ expect_error(
 )
 
 expect_error(
-  mtcars %>% slice(am == 1),
+  mtcars %>% slice(TRUE),
   info = "`slice()` expressions should return indices (positive or negative integers)."
 )
 
@@ -76,67 +76,109 @@ expect_equal(
 
 # Slice variants
 
-expect_equal(
-  data.frame(x = 1:5) %>% slice_head(n = 6) %>% nrow(),
-  5,
-  info = "slice_head() silently truncates results"
-)
+df <- data.frame(x = 1:5)
+expect_equal(df %>% slice_head(n = 6) %>% nrow(), 5, info = "slice_head() silently truncates results")
+expect_equal(df %>% slice_tail(n = 6) %>% nrow(), 5, info = "slice_tail() silently truncates results")
+expect_equal(df %>% slice_sample(n = 6) %>% nrow(), 5, info = "slice_sample() silently truncates results")
+expect_equal(df %>% slice_min(x, n = 6) %>% nrow(), 5, info = "slice_min() silently truncates results")
+expect_equal(df %>% slice_max(x, n = 6) %>% nrow(), 5, info = "slice_max() silently truncates results")
 
+df <- data.frame(x = 1:10)
+expect_equal(df %>% slice_head(prop = 0.11) %>% nrow(), 1, info = "slice_head() correctly computes the proportion")
+expect_equal(df %>% slice_tail(prop = 0.11) %>% nrow(), 1, info = "slice_tail() correctly computes the proportion")
+expect_equal(df %>% slice_sample(prop = 0.11) %>% nrow(), 1, info = "slice_sample() correctly computes the proportion")
+expect_equal(df %>% slice_min(x, prop = 0.11) %>% nrow(), 1, info = "slice_min() correctly computes the proportion")
+expect_equal(df %>% slice_max(x, prop = 0.11) %>% nrow(), 1, info = "slice_max() correctly computes the proportion")
 expect_equal(
-  data.frame(x = 1:5) %>% slice_tail(n = 6) %>% nrow(),
-  5,
-  info = "slice_tail() silently truncates results"
-)
-
-expect_equal(
-  data.frame(x = 1:10) %>% slice_head(prop = 0.11) %>% nrow(),
+  df %>% slice_min(x, prop = 0.11, with_ties = FALSE) %>% nrow(),
   1,
-  info = "slice_head() returns the correct proportion"
+  info = "slice_min(with_ties = FALSE) correctly computes the proportion"
 )
-
 expect_equal(
-  data.frame(x = 1:10) %>% slice_tail(prop = 0.11) %>% nrow(),
+  df %>% slice_max(x, prop = 0.11, with_ties = FALSE) %>% nrow(),
   1,
-  info = "slice_tail() returns the correct proportion"
+  info = "slice_max(with_ties = FALSE) correctly computes the proportion"
 )
 
+df <- data.frame(x = c(1, 1, 1, 2, 2))
+expect_equal(df %>% slice_min(x) %>% nrow(), 3, info = "slice_min() returns ties by default")
+expect_equal(df %>% slice_max(x) %>% nrow(), 2, info = "slice_max() returns ties by default")
 expect_equal(
-  mtcars %>% slice_head(),
-  mtcars[1, ],
-  info = "slice_head() defaults to n = 1"
+  df %>% slice_min(x, with_ties = FALSE) %>% nrow(),
+  1,
+  info = "slice_min(with_ties = FALSE) does not return ties"
+)
+expect_equal(
+  df %>% slice_max(x, with_ties = FALSE) %>% nrow(),
+  1,
+  info = "slice_max(with_ties = FALSE) does not return ties"
+)
+
+df <- data.frame(id = 1:4, x = c(2, 3, 1, 2))
+expect_equal(df %>% slice_min(x, n = 2) %>% pull(id), c(3, 1, 4), info = "slice_min() reorders results")
+expect_equal(
+  df %>% slice_min(x, n = 2, with_ties = FALSE) %>% pull(id),
+  c(3, 1),
+  info = "slice_min(with_ties = FALSE) reorders results"
+)
+expect_equal(df %>% slice_max(x, n = 2) %>% pull(id), c(2, 1, 4), info = "slice_max() reorders results")
+expect_equal(
+  df %>% slice_max(x, n = 2, with_ties = FALSE) %>% pull(id),
+  c(2, 1),
+  info = "slice_max(with_ties = FALSE) reorders results"
+)
+
+df <- data.frame(id = 1:4, x = c(2, NA, 1, 2), y = c(NA, NA, NA, NA))
+expect_equal(df %>% slice_min(x, n = 2) %>% pull(id), c(3, 1, 4), info = "slice_min() ignores NAs")
+expect_equal(df %>% slice_min(y, n = 2) %>% nrow(), 0, info = "slice_min() ignores NAs")
+expect_equal(df %>% slice_max(x, n = 2) %>% pull(id), c(1, 4), info = "slice_max() ignores NAs")
+expect_equal(df %>% slice_max(y, n = 2) %>% nrow(), 0, info = "slice_max() ignores NAs")
+
+df <- data.frame(x = 1:100, wt = c(1, rep(0, 99)))
+expect_equal(
+  df %>% slice_sample(n = 1, weight_by = wt) %>% pull(x),
+  1,
+  info = "Arguments to slice_sample() are passed along"
+)
+expect_equal(
+  df %>% slice_sample(n = 2, weight_by = wt, replace = TRUE) %>% pull(x),
+  c(1, 1),
+  info = "Arguments to slice_sample() are passed along"
 )
 
 expect_error(
-  data.frame(1:10) %>% slice_head(n = c(1, 2)),
+  poorman:::check_slice_size(n = c(1, 2)),
   info = "`n` must be a single number."
 )
 
 expect_error(
-  mtcars %>% slice_head(n = NA),
+  poorman:::check_slice_size(n = NA),
   info = "`n` must be a non-missing positive number."
 )
 
 expect_error(
-  mtcars %>% slice_head(n = -1),
+  poorman:::check_slice_size(n = -1),
   info = "`n` must be a non-missing positive number."
 )
 
 expect_error(
-  mtcars %>% slice_head(prop = c(1, 2)),
+  poorman:::check_slice_size(prop = c(1, 2)),
   info = "`prop` must be a single number."
 )
 
 expect_error(
-  mtcars %>% slice_head(prop = NA),
+  poorman:::check_slice_size(prop = NA),
   info = "`prop` must be a non-missing positive number."
 )
 
 expect_error(
-  mtcars %>% slice_head(prop = -1),
+  poorman:::check_slice_size(prop = -1),
   info = "`prop` must be a non-missing positive number."
 )
 
 expect_error(
-  mtcars %>% slice_head(n = 1, prop = 0.1),
+  poorman:::check_slice_size(n = 1, prop = 0.1),
   info = "Must supply exactly one of `n` and `prop` arguments."
 )
+
+rm(df)
