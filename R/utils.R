@@ -23,3 +23,25 @@ seq2 <- function (from, to) {
   if (length(to) != 1) stop("`to` must be length one")
   if (from > to) integer() else seq.int(from, to)
 }
+
+is_function <- function(x, frame) {
+  res <- tryCatch(
+    is.function(x),
+    warning = function(w) FALSE,
+    error = function(e) FALSE
+  )
+  if (isTRUE(res)) return(res)
+  res <- tryCatch(
+    is.function(eval(x)),
+    warning = function(w) FALSE,
+    error = function(e) FALSE
+  )
+  if (isTRUE(res)) return(res)
+  res <- tryCatch(
+    is.function(eval(as.symbol(deparse(substitute(x))))),
+    warning = function(w) FALSE,
+    error = function(e) FALSE
+  )
+  if (isTRUE(res)) return(res)
+  FALSE
+}

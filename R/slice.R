@@ -221,7 +221,7 @@ slice_sample.grouped_data <- function(.data, ..., n, prop, weight_by = NULL, rep
 slice_positions <- function(.data, ...) {
   conditions <- eval(substitute(alist(...)))
   context$.data <- .data
-  on.exit(rm(.data, envir = context))
+  on.exit(rm(.data, envir = context), add = TRUE)
   if (length(conditions) == 0L) return(seq_len(nrow(context$.data)))
 
   frame <- parent.frame(2L)

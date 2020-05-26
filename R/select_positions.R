@@ -32,7 +32,9 @@ select_positions <- function(.data, ..., group_pos = FALSE) {
   cols <- eval(substitute(alist(...)))
   data_names <- colnames(.data)
   select_env$.col_names <- data_names
-  on.exit(rm(list = ".col_names", envir = select_env))
+  on.exit(rm(list = ".col_names", envir = select_env), add = TRUE)
+  context$.data <- .data
+  on.exit(rm(list = ".data", envir = context), add = TRUE)
   exec_env <- parent.frame(2L)
   pos <- unlist(lapply(cols, eval_expr, exec_env = exec_env))
   if (isTRUE(group_pos)) {
@@ -69,6 +71,13 @@ select_char <- function(expr) {
 }
 
 select_symbol <- function(expr, exec_env) {
+  expr_name <- as.character(expr)
+  if (grepl("^is\\.", expr_name) && is_function(expr)) {
+    stop(
+      "Predicate functions must be wrapped in `where()`.\n\n",
+      sprintf("  data %%>%% select(where(%s))", expr_name)
+    )
+  }
   res <- try(select_char(as.character(expr)), silent = TRUE)
   if (inherits(res, "try-error")) {
     res <- tryCatch(

@@ -91,7 +91,7 @@ tally_n <- function(x, wt) {
     wt <- "n"
   }
   context$.data <- x
-  on.exit(rm(list = ".data", envir = context))
+  on.exit(rm(list = ".data", envir = context), add = TRUE)
   if (is.null(wt)) {
     "n()"
   } else {

@@ -14,3 +14,4 @@
 ^cran-comments\.md$
 Dockerfile
 ci
+.vscode

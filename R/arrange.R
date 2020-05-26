@@ -22,7 +22,7 @@ arrange <- function(.data, ...) {
 #' @export
 arrange.default <- function(.data, ...) {
   context$.data <- .data
-  on.exit(rm(.data, envir = context))
+  on.exit(rm(.data, envir = context), add = TRUE)
   rows <- eval(substitute(order(...)), envir = context$.data)
   .data[rows, , drop = FALSE]
 }

@@ -85,5 +85,5 @@ iris \%>\% select(any_of(c("Species", "Genres")))
 
 }
 \seealso{
-\code{\link[=select]{select()}}, \code{\link[=relocate]{relocate()}}
+\code{\link[=select]{select()}}, \code{\link[=relocate]{relocate()}}, \code{\link[=where]{where()}}
 }

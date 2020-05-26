@@ -16,7 +16,7 @@
 #' `select()`, these are automatically set to the names of the table.
 #'
 #' @seealso
-#' [select()], [relocate()]
+#' [select()], [relocate()], [where()]
 #'
 #' @return
 #' An integer vector giving the position of the matched variables.
@@ -140,4 +140,36 @@ last_col <- function(offset = 0L, vars = peek_vars()) {
   } else {
     n - offset
   }
+}
+
+#' Select variables with a function
+#'
+#' This selection helper selects the variables for which a function returns `TRUE`.
+#'
+#' @param fn A function that returns `TRUE` or `FALSE`.
+#'
+#' @examples
+#' iris %>% select(where(is.numeric))
+#' iris %>% select(where(function(x) is.numeric(x)))
+#' iris %>% select(where(function(x) is.numeric(x) && mean(x) > 3.5))
+#'
+#' @return A vector of `integer` column positions which are the result of the `fn` evaluation.
+#'
+#' @seealso [select_helpers]
+#'
+#' @export
+where <- function(fn) {
+  if (!is_function(fn)) {
+    stop(deparse_var(fn), " is not a valid predicate function.")
+  }
+  preds <- unlist(lapply(
+    context$.data,
+    function(x, fn) {
+      eval(call("fn", x))
+    },
+    fn
+  ))
+  if (!is.logical(preds)) stop("`where()` must be used with functions that return `TRUE` or `FALSE`.")
+  cols <- select_env$.col_names[preds]
+  which(select_env$.col_names %in% cols)
 }
