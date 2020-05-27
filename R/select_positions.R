@@ -28,14 +28,14 @@
 #' select_positions(mtcars, mpg:drat)
 #'
 #' @noRd
-select_positions <- function(.data, ..., group_pos = FALSE) {
+select_positions <- function(.data, ..., .group_pos = FALSE) {
   cols <- dots_to_list(...)
   data_names <- colnames(.data)
   context$set_data(.data)
   on.exit(context$clean(), add = TRUE)
   exec_env <- parent.frame(2L)
   pos <- unlist(lapply(cols, eval_expr, exec_env = exec_env))
-  if (isTRUE(group_pos)) {
+  if (isTRUE(.group_pos)) {
     groups <- get_groups(.data)
     missing_groups <- !(groups %in% cols)
     if (any(missing_groups)) {

@@ -34,7 +34,7 @@ NULL
 #' @rdname select
 #' @export
 select <- function(.data, ...) {
-  col_pos <- select_positions(.data, ..., group_pos = TRUE)
+  col_pos <- select_positions(.data, ..., .group_pos = TRUE)
   map_names <- names(col_pos)
   map_names_length <- nchar(map_names)
   if (any(map_names_length == 0L)) {
