@@ -30,11 +30,11 @@ filter <- function(.data, ...) {
 
 #' @export
 filter.default <- function(.data, ...) {
-  conditions <- eval(substitute(alist(...)))
+  conditions <- dots_to_list(...)
   cond_class <- vapply(conditions, typeof, NA_character_)
   if (any(cond_class != "language")) stop("Conditions must be logical vectors")
-  context$.data <- .data
-  on.exit(rm(.data, envir = context), add = TRUE)
+  context$set_data(.data)
+  on.exit(context$clean(), add = TRUE)
   eval_env$env <- parent.frame()
   on.exit(rm(list = "env", envir = eval_env), add = TRUE)
   rows <- lapply(

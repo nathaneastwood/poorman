@@ -78,7 +78,6 @@ slice_head.data.frame <- function(.data, ..., n, prop) {
     n = function(n) seq2(1, min(size$n, n)),
     prop = function(n) seq2(1, min(size$prop * n, n))
   )
-  context$.data <- .data
   slice(.data, idx(poorman::n()))
 }
 
@@ -101,7 +100,6 @@ slice_tail.data.frame <- function(.data, ..., n, prop) {
     n = function(n) seq2(max(n - size$n + 1, 1), n),
     prop = function(n) seq2(max(ceiling(n - size$prop * n) + 1, 1), n)
   )
-  context$.data <- .data
   slice(.data, idx(poorman::n()))
 }
 
@@ -219,10 +217,10 @@ slice_sample.grouped_data <- function(.data, ..., n, prop, weight_by = NULL, rep
 # helpers ----------------------------------------------------------------------
 
 slice_positions <- function(.data, ...) {
-  conditions <- eval(substitute(alist(...)))
-  context$.data <- .data
-  on.exit(rm(.data, envir = context), add = TRUE)
-  if (length(conditions) == 0L) return(seq_len(nrow(context$.data)))
+  conditions <- dots_to_list(...)
+  context$set_data(.data)
+  on.exit(context$clean(), add = TRUE)
+  if (length(conditions) == 0L) return(seq_len(n()))
 
   frame <- parent.frame(2L)
   rows <- lapply(
@@ -243,9 +241,9 @@ slice_positions <- function(.data, ...) {
   if (length(rows) == 0L) {
     # do nothing
   } else if (all(rows >= 0, na.rm = TRUE)) {
-    rows <- rows[!is.na(rows) & rows <= nrow(context$.data) & rows > 0]
+    rows <- rows[!is.na(rows) & rows <= n() & rows > 0]
   } else if (all(rows <= 0, na.rm = TRUE)) {
-    rows <- setdiff(seq_len(nrow(context$.data)), -rows)
+    rows <- setdiff(seq_len(n()), -rows)
   } else {
     stop("`slice()` expressions should return either all positive or all negative.")
   }

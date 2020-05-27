@@ -8,6 +8,10 @@ deparse_var <- function(var, frame = if (is.null(eval_env$env)) parent.frame() e
   var
 }
 
+dots_to_list <- function(...) {
+  eval(substitute(alist(...)))
+}
+
 check_is_dataframe <- function(.data) {
   parent_fn <- all.names(sys.call(-1L), max.names = 1L)
   if (!is.data.frame(.data)) stop(parent_fn, " must be given a data.frame")

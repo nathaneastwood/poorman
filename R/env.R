@@ -1,6 +1,8 @@
-select_env <- new.env()
-
 context <- new.env()
+context$set_data <- function(.data) context$.data <- .data
+context$get_colnames <- function() colnames(context$.data)
+context$get_nrow <- function() nrow(context$.data)
+context$clean <- function() rm(list = c(".data"), envir = context)
 
 eval_env <- new.env()
 
@@ -13,7 +15,7 @@ eval_env <- new.env()
 #'
 #' @export
 peek_vars <- function() {
-  get(".col_names", envir = select_env)
+  context$get_colnames()
 }
 
 #' The number of observations in the current group
@@ -31,7 +33,7 @@ peek_vars <- function() {
 #'
 #' @export
 n <- function() {
-  rows <- nrow(context$.data)
+  rows <- context$get_nrow()
   if (is.null(rows)) stop("`n()` must be used inside one of `summarise()`, `mutate()`, `filter()` or `slice()`")
   rows
 }

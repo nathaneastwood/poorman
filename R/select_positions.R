@@ -29,12 +29,10 @@
 #'
 #' @noRd
 select_positions <- function(.data, ..., group_pos = FALSE) {
-  cols <- eval(substitute(alist(...)))
+  cols <- dots_to_list(...)
   data_names <- colnames(.data)
-  select_env$.col_names <- data_names
-  on.exit(rm(list = ".col_names", envir = select_env), add = TRUE)
-  context$.data <- .data
-  on.exit(rm(list = ".data", envir = context), add = TRUE)
+  context$set_data(.data)
+  on.exit(context$clean(), add = TRUE)
   exec_env <- parent.frame(2L)
   pos <- unlist(lapply(cols, eval_expr, exec_env = exec_env))
   if (isTRUE(group_pos)) {
@@ -65,7 +63,7 @@ eval_expr <- function(x, exec_env) {
 }
 
 select_char <- function(expr) {
-  pos <- match(expr, select_env$.col_names)
+  pos <- match(expr, context$get_colnames())
   if (is.na(pos)) stop("Column `", expr, "` does not exist")
   pos
 }

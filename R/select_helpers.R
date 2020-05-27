@@ -170,6 +170,7 @@ where <- function(fn) {
     fn
   ))
   if (!is.logical(preds)) stop("`where()` must be used with functions that return `TRUE` or `FALSE`.")
-  cols <- select_env$.col_names[preds]
-  which(select_env$.col_names %in% cols)
+  data_cols <- context$get_colnames()
+  cols <- data_cols[preds]
+  which(data_cols %in% cols)
 }
