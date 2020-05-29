@@ -29,7 +29,7 @@
 #' lead(1:5, default = 6)
 #'
 #' @export
-lag <- function (x, n = 1L, default = NA) {
+lag <- function(x, n = 1L, default = NA) {
   if (inherits(x, "ts")) stop("`x` must be a vector, not a `ts` object, do you want `stats::lag()`?")
   if (length(n) != 1L || !is.numeric(n) || n < 0L) stop("`n` must be a nonnegative integer scalar")
   if (n == 0L) return(x)
@@ -48,7 +48,7 @@ lag <- function (x, n = 1L, default = NA) {
 
 #' @rdname lag
 #' @export
-lead <- function (x, n = 1L, default = NA) {
+lead <- function(x, n = 1L, default = NA) {
   if (length(n) != 1L || !is.numeric(n) || n < 0L) stop("n must be a nonnegative integer scalar")
   if (n == 0L) return(x)
   tryCatch(

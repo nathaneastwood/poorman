@@ -56,7 +56,7 @@ min_rank <- function(x) {
 
 #' @rdname window_rank
 #' @export
-ntile <- function (x = row_number(), n) {
+ntile <- function(x = row_number(), n) {
   if (!missing(x)) x <- row_number(x)
   len <- length(x) - sum(is.na(x))
   n <- as.integer(floor(n))
