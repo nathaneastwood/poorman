@@ -9,4 +9,4 @@ CRAN-RELEASE
 cran-comments.md
 *.Rproj
 README.html
-.vscode
+.vscode/
