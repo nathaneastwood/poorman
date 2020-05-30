@@ -3,7 +3,11 @@ expect_error(
   info = "Predicate functions must be wrapped in `where()`"
 )
 
-df <- data.frame(is.col1 = 1:5, is.col2 = letters[1:5], check.names = FALSE)
+df <- data.frame(
+  is.col1 = 1:5, is.col2 = letters[1:5],
+  check.names = FALSE,
+  stringsAsFactors = FALSE
+)
 expect_equal(
   df %>% select(is.col1),
   df[, "is.col1", drop = FALSE],
@@ -16,7 +20,7 @@ expect_error(
 )
 
 expect_equal(
-  df %>% select(where(is.factor)),
+  df %>% select(where(is.character)),
   df[, "is.col2", drop = FALSE],
   info = "The user can select columns using predicates"
 )
