@@ -30,9 +30,9 @@
 #' @noRd
 select_positions <- function(.data, ..., .group_pos = FALSE) {
   cols <- dots_to_list(...)
-  data_names <- colnames(.data)
   context$set_data(.data)
   on.exit(context$clean(), add = TRUE)
+  data_names <- context$get_colnames()
   exec_env <- parent.frame(2L)
   pos <- unlist(lapply(cols, eval_expr, exec_env = exec_env))
   if (isTRUE(.group_pos)) {
