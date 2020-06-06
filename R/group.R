@@ -92,18 +92,6 @@ apply_grouped_function <- function(fn, .data, ...) {
   res
 }
 
-#' Split a `data.frame` into groups.
-#'
-#' @return A `list` with a `data.frame` in each level.
-#' @seealso [split()]
-#' @noRd
-split_into_groups <- function(.data, groups) {
-  class(.data) <- "data.frame"
-  group_factors <- lapply(groups, function(x, .data) as.factor(.data[, x]), .data)
-  res <- split(x = .data, f = group_factors)
-  res
-}
-
 #' Print a grouped `data.frame`
 #'
 #' A print method for grouped `data.frame`s. Uses the standard `print.data.frame()` method but also reports the groups.
