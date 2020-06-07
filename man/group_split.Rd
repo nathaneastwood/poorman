@@ -42,11 +42,8 @@ of each grouping variable for the group.
 
 \strong{Ungrouped \code{data.frame}s:}
 
-When used on ungrouped \code{data.frame}s, \code{group_split()} and \code{group_keys()} forwards the \code{...} to \code{group_by()} before
-the split, therefore the \code{...} are subject to the data mask.
-
-Using these functions on an ungrouped \code{data.frame} only makes sense if you need only one or the other, because
-otherwise the grouping algorithm is performed each time.
+When used on ungrouped \code{data.frame}s, \code{group_split()} forwards the \code{...} to \code{group_by()} before the split, therefore
+the \code{...} are subject to the data mask.
 }
 \examples{
 # Grouped data.frames:
