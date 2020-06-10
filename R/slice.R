@@ -108,17 +108,16 @@ slice_tail.grouped_data <- function(.data, ..., n, prop) {
   apply_grouped_function("slice_tail", .data, n = n, prop = prop, ...)
 }
 
+#' @param order_by The variable to order by.
+#' @param with_ties `logical(1)`. Should ties be kept together? The default, `TRUE`, may return more rows than you
+#' request. Use `FALSE` to ignore ties, and return the first `n` rows.
+#'
 #' @rdname slice
 #' @export
 slice_min <- function(.data, order_by, ..., n, prop, with_ties = TRUE) {
   UseMethod("slice_min")
 }
 
-#' @param order_by The variable to order by.
-#' @param with_ties `logical(1)`. Should ties be kept together? The default, `TRUE`, may return more rows than you
-#' request. Use `FALSE` to ignore ties, and return the first `n` rows.
-#'
-#' @rdname slice
 #' @export
 slice_min.data.frame <- function(.data, order_by, ..., n, prop, with_ties = TRUE) {
   if (missing(order_by)) stop("argument `order_by` is missing, with no default.")

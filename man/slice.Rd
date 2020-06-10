@@ -5,7 +5,6 @@
 \alias{slice_head}
 \alias{slice_tail}
 \alias{slice_min}
-\alias{slice_min.data.frame}
 \alias{slice_max}
 \alias{slice_sample}
 \title{Subset rows by position}
@@ -17,8 +16,6 @@ slice_head(.data, ..., n, prop)
 slice_tail(.data, ..., n, prop)
 
 slice_min(.data, order_by, ..., n, prop, with_ties = TRUE)
-
-\method{slice_min}{data.frame}(.data, order_by, ..., n, prop, with_ties = TRUE)
 
 slice_max(.data, order_by, ..., n, prop, with_ties = TRUE)
 
