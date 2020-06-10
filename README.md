@@ -57,8 +57,8 @@ install.packages("poorman")
 
 ## Docker
 
-If you’d like to try out the package using Docker, you can run the
-latest image with:
+If you’d like to try out the latest version of the package on CRAN using
+Docker, you can run the latest image with:
 
 ``` bash
 docker run --rm -it nathaneastwood/poorman
