@@ -27,7 +27,13 @@ x <- c(1, -1, 0, 10)
 y <- c("abc", "def", "", "ghi")
 na_if(y, "")
 
+# na_if() is particularly useful inside mutate(),
+# and is meant for use with vectors rather than entire data.frames
 mtcars \%>\%
   mutate(cyl = na_if(cyl, 6))
 
+}
+\seealso{
+\code{\link[=coalesce]{coalesce()}} to replace missing values within subsequent \code{vector}(s) of value(s). \code{\link[=replace_na]{replace_na()}} to replace \code{NA} with
+a value.
 }

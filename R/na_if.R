@@ -5,6 +5,10 @@
 #' @param x The vector to modify.
 #' @param y The value to replace with `NA`.
 #'
+#' @seealso
+#' [coalesce()] to replace missing values within subsequent `vector`(s) of value(s). [replace_na()] to replace `NA` with
+#' a value.
+#'
 #' @return
 #' A modified version of `x` that replaces any values that are equal to `y` with `NA`.
 #'
@@ -18,8 +22,8 @@
 #' y <- c("abc", "def", "", "ghi")
 #' na_if(y, "")
 #'
-# na_if() is particularly useful inside mutate(),
-# and is meant for use with vectors rather than entire data.frames
+#' # na_if() is particularly useful inside mutate(),
+#' # and is meant for use with vectors rather than entire data.frames
 #' mtcars %>%
 #'   mutate(cyl = na_if(cyl, 6))
 #'
