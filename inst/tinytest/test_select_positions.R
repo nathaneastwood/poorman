@@ -218,3 +218,8 @@ expect_equal(
   mtcars[, c("mpg", "cyl", "disp", "hp", "drat", "wt", "qsec")],
   info = "Test selecting with a mixture of selection options"
 )
+
+expect_error(
+  mtcars %>% select(100),
+  info = "Out of range columns error"
+)

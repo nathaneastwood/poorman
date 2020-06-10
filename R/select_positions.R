@@ -35,6 +35,15 @@ select_positions <- function(.data, ..., .group_pos = FALSE) {
   data_names <- context$get_colnames()
   exec_env <- parent.frame(2L)
   pos <- unlist(lapply(cols, eval_expr, exec_env = exec_env))
+  col_len <- context$get_ncol()
+  if (any(pos > col_len)) {
+    oor <- pos[which(pos > col_len)]
+    oor_len <- length(oor)
+    stop(
+      "Location", if (oor_len > 1) "s " else " ", collapse_to_sentence(oor),
+      if (oor_len > 1) " don't " else " doesn't ", "exist. There are only ", col_len, " columns."
+    )
+  }
   if (isTRUE(.group_pos)) {
     groups <- get_groups(.data)
     missing_groups <- !(groups %in% cols)

@@ -2,6 +2,7 @@ context <- new.env()
 context$set_data <- function(.data) context$.data <- .data
 context$get_colnames <- function() colnames(context$.data)
 context$get_nrow <- function() nrow(context$.data)
+context$get_ncol <- function() ncol(context$.data)
 context$clean <- function() rm(list = c(".data"), envir = context)
 
 eval_env <- new.env()

@@ -49,3 +49,16 @@ is_function <- function(x, frame) {
   if (isTRUE(res)) return(res)
   FALSE
 }
+
+collapse_to_sentence <- function(x) {
+  len_x <- length(x)
+  if (len_x == 0L) {
+    stop("Length of `x` is 0")
+  } else if (len_x == 1L) {
+    as.character(x)
+  } else if (len_x == 2L) {
+    paste(x, collapse = " and ")
+  } else {
+    paste(paste(x[1:(len_x - 1)], collapse = ", "), x[len_x], sep = " and ")
+  }
+}
