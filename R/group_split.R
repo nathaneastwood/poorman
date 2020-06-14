@@ -82,12 +82,16 @@ group_keys <- function(.data) {
 
 #' Split a `data.frame` into groups.
 #'
+#' @param .data A `data.frame`.
+#' @param groups `character(n)`. A `vector` of grouping variables to split by.
+#' @param ... Additional parameters to be passed to [split()].
+#'
 #' @return A `list` with a `data.frame` in each level.
 #' @seealso [split()]
 #' @noRd
-split_into_groups <- function(.data, groups) {
+split_into_groups <- function(.data, groups, ...) {
   class(.data) <- "data.frame"
   group_factors <- lapply(groups, function(x, .data) as.factor(.data[, x]), .data)
-  res <- split(x = .data, f = group_factors)
+  res <- split(x = .data, f = group_factors, ...)
   res
 }
