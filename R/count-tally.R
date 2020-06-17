@@ -90,7 +90,7 @@ tally_n <- function(x, wt) {
     message("Using `n` as weighting variable")
     wt <- "n"
   }
-  context$set_data(.data = x)
+  context$setup(.data = x)
   on.exit(context$clean(), add = TRUE)
   if (is.null(wt)) {
     "n()"

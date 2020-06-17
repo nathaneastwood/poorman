@@ -27,7 +27,7 @@ summarise <- function(.data, ...) {
 #' @export
 summarise.default <- function(.data, ...) {
   fns <- vapply(substitute(...()), deparse, NA_character_)
-  context$set_data(.data)
+  context$setup(.data)
   on.exit(context$clean(), add = TRUE)
   groups_exist <- has_groups(context$.data)
   if (groups_exist) {

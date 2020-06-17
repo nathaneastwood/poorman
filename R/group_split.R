@@ -53,7 +53,7 @@ group_split <- function(.data, ..., .keep = TRUE) {
   if (!has_groups(.data) && isFALSE(dots_len)) {
     return(list(.data))
   }
-  context$set_data(.data)
+  context$setup(.data)
   on.exit(context$clean(), add = TRUE)
   groups <- get_groups(.data)
   attr(context$.data, "groups") <- NULL
@@ -70,7 +70,7 @@ group_split <- function(.data, ..., .keep = TRUE) {
 #' @export
 group_keys <- function(.data) {
   groups <- get_groups(.data)
-  context$set_data(.data)
+  context$setup(.data)
   res <- context$.data[, context$get_colnames() %in% groups, drop = FALSE]
   res <- res[!duplicated(res), , drop = FALSE]
   if (nrow(res) == 0L) return(res)

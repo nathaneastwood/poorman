@@ -21,7 +21,7 @@ arrange <- function(.data, ...) {
 
 #' @export
 arrange.default <- function(.data, ...) {
-  context$set_data(.data)
+  context$setup(.data)
   on.exit(context$clean(), add = TRUE)
   rows <- eval(substitute(order(...)), envir = context$.data)
   .data[rows, , drop = FALSE]

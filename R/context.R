@@ -1,7 +1,7 @@
 context <- new.env()
 
 # Data
-context$set_data <- function(.data) context$.data <- .data
+context$setup <- function(.data) context$.data <- .data
 context$get_data <- function() context$.data
 context$get_nrow <- function() nrow(context$.data)
 context$get_colnames <- function() colnames(context$.data)

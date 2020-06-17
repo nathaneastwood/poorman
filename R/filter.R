@@ -33,7 +33,7 @@ filter.default <- function(.data, ...) {
   conditions <- dots_to_list(...)
   cond_class <- vapply(conditions, typeof, NA_character_)
   if (any(cond_class != "language")) stop("Conditions must be logical vectors")
-  context$set_data(.data)
+  context$setup(.data)
   on.exit(context$clean(), add = TRUE)
   eval_env$env <- parent.frame()
   on.exit(rm(list = "env", envir = eval_env), add = TRUE)

@@ -41,7 +41,7 @@ mutate.default <- function(.data, ...) {
   }
   not_matched <- names(conditions)[!names(conditions) %in% names(.data)]
   .data[, not_matched] <- NA
-  context$set_data(.data)
+  context$setup(.data)
   on.exit(context$clean(), add = TRUE)
   for (i in seq_along(conditions)) {
     context$.data[, names(conditions)[i]] <- do.call(with, list(context$.data, str2lang(unname(conditions)[i])))
