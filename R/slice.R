@@ -60,7 +60,7 @@ slice.data.frame <- function(.data, ...) {
 
 #' @export
 slice.grouped_data <- function(.data, ...) {
-  apply_grouped_function("slice", .data, ...)
+  apply_grouped_function("slice", .data, drop = TRUE, ...)
 }
 
 
@@ -83,7 +83,7 @@ slice_head.data.frame <- function(.data, ..., n, prop) {
 
 #' @export
 slice_head.grouped_data <- function(.data, ..., n, prop) {
-  apply_grouped_function("slice_head", .data, n = n, prop = prop, ...)
+  apply_grouped_function("slice_head", .data, drop = TRUE, n = n, prop = prop, ...)
 }
 
 #' @rdname slice
@@ -105,7 +105,7 @@ slice_tail.data.frame <- function(.data, ..., n, prop) {
 
 #' @export
 slice_tail.grouped_data <- function(.data, ..., n, prop) {
-  apply_grouped_function("slice_tail", .data, n = n, prop = prop, ...)
+  apply_grouped_function("slice_tail", .data, drop = TRUE, n = n, prop = prop, ...)
 }
 
 #' @param order_by The variable to order by.
@@ -144,7 +144,9 @@ slice_min.data.frame <- function(.data, order_by, ..., n, prop, with_ties = TRUE
 slice_min.grouped_data <- function(.data, order_by, ..., n, prop, with_ties = TRUE) {
   eval_env$env <- environment()
   on.exit(rm(list = "env", envir = eval_env), add = TRUE)
-  apply_grouped_function("slice_min", .data, order_by = order_by, n = n, prop = prop, with_ties = with_ties, ...)
+  apply_grouped_function(
+    "slice_min", .data, drop = TRUE, order_by = order_by, n = n, prop = prop, with_ties = with_ties, ...
+  )
 }
 
 #' @rdname slice
@@ -179,7 +181,9 @@ slice_max.data.frame <- function(.data, order_by, ..., n, prop, with_ties = TRUE
 slice_max.grouped_data <- function(.data, order_by, ..., n, prop, with_ties = TRUE) {
   eval_env$env <- environment()
   on.exit(rm(list = "env", envir = eval_env), add = TRUE)
-  apply_grouped_function("slice_max", .data, order_by = order_by, n = n, prop = prop, with_ties = with_ties, ...)
+  apply_grouped_function(
+    "slice_max", .data, drop = TRUE, order_by = order_by, n = n, prop = prop, with_ties = with_ties, ...
+  )
 }
 
 #' @param replace `logical(1)`. Should sampling be performed with (`TRUE`) or without (`FALSE`, the default)
@@ -210,7 +214,9 @@ slice_sample.data.frame <- function(.data, ..., n, prop, weight_by = NULL, repla
 slice_sample.grouped_data <- function(.data, ..., n, prop, weight_by = NULL, replace = FALSE) {
   eval_env$env <- environment()
   on.exit(rm(list = "env", envir = eval_env), add = TRUE)
-  apply_grouped_function("slice_sample", .data, n = n, prop = prop, weight_by = weight_by, replace = replace, ...)
+  apply_grouped_function(
+    "slice_sample", .data, drop = TRUE, n = n, prop = prop, weight_by = weight_by, replace = replace, ...
+  )
 }
 
 # helpers ----------------------------------------------------------------------

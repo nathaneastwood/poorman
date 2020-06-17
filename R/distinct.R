@@ -83,5 +83,5 @@ distinct.default <- function(.data, ..., .keep_all = FALSE) {
 
 #' @export
 distinct.grouped_data <- function(.data, ..., .keep_all = FALSE) {
-  apply_grouped_function("distinct", .data, ..., .keep_all = .keep_all)
+  apply_grouped_function("distinct", .data, drop = TRUE, ..., .keep_all = .keep_all)
 }

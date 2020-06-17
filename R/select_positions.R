@@ -30,12 +30,12 @@
 #' @noRd
 select_positions <- function(.data, ..., .group_pos = FALSE) {
   cols <- dots_to_list(...)
-  context$set_data(.data)
-  on.exit(context$clean(), add = TRUE)
-  data_names <- context$get_colnames()
   exec_env <- parent.frame(2L)
+  select_env$setup(.data, exec_env)
+  on.exit(select_env$clean(), add = TRUE)
+  data_names <- select_env$get_colnames()
   pos <- unlist(lapply(cols, eval_expr, exec_env = exec_env))
-  col_len <- context$get_ncol()
+  col_len <- select_env$get_ncol()
   if (any(pos > col_len)) {
     oor <- pos[which(pos > col_len)]
     oor_len <- length(oor)
@@ -72,7 +72,7 @@ eval_expr <- function(x, exec_env) {
 }
 
 select_char <- function(expr) {
-  pos <- match(expr, context$get_colnames())
+  pos <- match(expr, select_env$get_colnames())
   if (is.na(pos)) stop("Column `", expr, "` does not exist")
   pos
 }
@@ -144,5 +144,17 @@ select_bracket <- function(expr) {
 }
 
 select_context <- function(expr) {
-  eval(expr, envir = context$.data)
+  eval(expr, envir = select_env$.data)
 }
+
+select_env <- new.env()
+select_env$setup <- function(.data, calling_frame) {
+  select_env$.data <- .data
+  select_env$calling_frame <- calling_frame
+}
+select_env$clean <- function() {
+  rm(list = c(".data", "calling_frame"), envir = select_env)
+}
+select_env$get_colnames <- function() colnames(select_env$.data)
+select_env$get_nrow <- function() nrow(select_env$.data)
+select_env$get_ncol <- function() ncol(select_env$.data)

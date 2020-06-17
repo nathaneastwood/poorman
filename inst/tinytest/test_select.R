@@ -78,15 +78,9 @@ expect_equal(
   info = "Ensure columns are named correctly when not all columns are to be renamed"
 )
 
+res <- suppressMessages(mtcars %>% group_by(cyl) %>% select(MilesPerGallon = mpg))
 expect_equal(
-  suppressMessages(mtcars %>% group_by(cyl) %>% select(MilesPerGallon = mpg)),
-  {
-    res <- mtcars
-    res <- res[, c("cyl", "mpg")]
-    colnames(res)[2] <- "MilesPerGallon"
-    attr(res, "groups") <- "cyl"
-    class(res) <- c("grouped_data", "data.frame")
-    res
-  },
+  colnames(res),
+  c("cyl", "MilesPerGallon"),
   info = "Ensure columns are named correctly when renaming grouped data"
 )

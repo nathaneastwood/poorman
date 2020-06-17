@@ -4,11 +4,21 @@ expect_equal(
   info = "count() works on a single grouping variable"
 )
 
+res <- mtcars %>% group_by(gear) %>% count(cyl)
 expect_equal(
-  mtcars %>% group_by(gear) %>% count(cyl),
-  structure(list(
-    gear = c(3, 3, 3, 4, 4, 5, 5, 5), cyl = c(4, 6, 8, 4, 6, 4, 6, 8), n = c(1L, 2L, 12L, 8L, 4L, 2L, 1L, 2L)
-  ), row.names = c(NA, 8L), class = c("grouped_data", "data.frame"), groups = "gear"),
+  attr(res, "groups"),
+  structure(
+    list(gear = c(3, 4, 5), .rows = list(1:3, 4:5, 6:8)),
+    class = "data.frame", row.names = c(NA, -3L)
+  ),
+  info = "count() works on a grouped data.frame"
+)
+expect_equal(
+  res %>% ungroup(),
+  structure(
+    list(gear = c(3, 3, 3, 4, 4, 5, 5, 5), cyl = c(4, 6, 8, 4, 6, 4, 6, 8), n = c(1L, 2L, 12L, 8L, 4L, 2L, 1L, 2L)),
+    class = "data.frame", row.names = c(NA, -8L)
+  ),
   info = "count() works on a grouped data.frame"
 )
 
@@ -54,41 +64,41 @@ expect_equal(
   info = "tally() can sort and rename the frequency variable"
 )
 
+exp <- mtcars %>% add_count(cyl, wt = am, sort = TRUE, name = "freq")
 expect_equal(
-  mtcars %>% add_count(cyl, wt = am, sort = TRUE, name = "freq"),
+  exp %>% ungroup(),
   {
     res <- mtcars
     res[, "freq"] <- c(3, 3, 8, 3, 2, 3, 2, 8, 8, 3, 3, 2, 2, 2, 2, 2, 2, 8, 8, 8, 8, 2, 2, 2, 2, 8, 8, 8, 2, 3, 2, 8)
-    attr(res, "groups") <- "cyl"
-    attr(res, "class") <- c("grouped_data", "data.frame")
     res
   },
   info = "add_count() returns the expected data.frame"
 )
+expect_equal(
+  group_vars(exp),
+  "cyl",
+  info = "add_count() adds the expected groups"
+)
 
 expect_equal(
-  mtcars %>% group_by(cyl) %>% add_tally(wt = am, sort = TRUE, name = "freq"),
+  mtcars %>% group_by(cyl) %>% add_tally(wt = am, sort = TRUE, name = "freq") %>% ungroup(),
   {
     res <- mtcars
     res <- res[order(mtcars$cyl), ]
     res[, "freq"] <- c(8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 3, 3, 3, 3, 3, 3, 3, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2)
-    attr(res, "groups") <- "cyl"
-    attr(res, "class") <- c("grouped_data", "data.frame")
     res
   },
   info = "tally() returns the expected data.frame"
 )
 
 expect_equal(
-  mtcars %>% group_by(cyl) %>% add_tally(),
+  mtcars %>% group_by(cyl) %>% add_tally() %>% ungroup(),
   {
     res <- mtcars
     res[, "n"] <- c(
       7L, 7L, 11L, 7L, 14L, 7L, 14L, 11L, 11L, 7L, 7L, 14L, 14L, 14L, 14L, 14L, 14L, 11L, 11L, 11L, 11L, 14L, 14L, 14L,
       14L, 11L, 11L, 11L, 14L, 7L, 14L, 11L
     )
-    attr(res, "groups") <- "cyl"
-    attr(res, "class") <- c("grouped_data", "data.frame")
     res
   }
 )

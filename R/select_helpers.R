@@ -141,3 +141,15 @@ last_col <- function(offset = 0L, vars = peek_vars()) {
     n - offset
   }
 }
+
+#' Peek at variables in the selection context
+#'
+#' Return the vector of column names of the data currently available for selection.
+#'
+#' @return
+#' A vector of column names.
+#'
+#' @export
+peek_vars <- function() {
+  select_env$get_colnames()
+}

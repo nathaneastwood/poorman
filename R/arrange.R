@@ -29,5 +29,5 @@ arrange.default <- function(.data, ...) {
 
 #' @export
 arrange.grouped_data <- function(.data, ...) {
-  apply_grouped_function("arrange", .data, ...)
+  apply_grouped_function("arrange", .data, drop = TRUE, ...)
 }

@@ -34,19 +34,31 @@ n_groups(x)
 grouping variables. The last column, always called \code{.rows}, is a list of integer vectors that gives the location of
 the rows in each group.
 }
-}
-\details{
+
 \itemize{
 \item \code{group_rows()} returns the rows which each group contains.
-\item \code{group_indices()} returns an integer vector the same length as \code{.data} that gives the group that each row belongs
-to.
-\item \code{group_vars()} gives names of grouping variables as character vector.
-\item \code{groups()} gives the names as a list of symbols.
-\item \code{group_size()} gives the size of each group
-\item \code{n_groups()} gives the total number of groups.
 }
 
-See \link{context} for equivalent functions that return values for the current group.
+\itemize{
+\item \code{group_indices()} returns an integer vector the same length as \code{.data} that gives the group that each row belongs
+to.
+}
+
+\itemize{
+\item \code{group_vars()} gives names of grouping variables as character vector.
+}
+
+\itemize{
+\item \code{groups()} gives the names as a list of symbols.
+}
+
+\itemize{
+\item \code{group_size()} gives the size of each group.
+}
+
+\itemize{
+\item \code{n_groups()} gives the total number of groups.
+}
 }
 \examples{
 df <- data.frame(x = c(1,1,2,2))
@@ -59,4 +71,7 @@ group_vars(gf)
 group_rows(gf)
 group_data(gf)
 
+}
+\seealso{
+See \link{context} for equivalent functions that return values for the current group.
 }

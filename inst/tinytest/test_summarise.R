@@ -22,24 +22,41 @@ expect_equal(
   info = "Test multiple summarise with column names"
 )
 
-# Grouped Operations
 expect_equal(
-  mtcars %>% group_by(am, cyl) %>% summarise(meanMpg = mean(mpg)),
-  structure(
-    list(
-      am = c(0, 0, 0, 1, 1, 1),
-      cyl = c(4, 6, 8, 4, 6, 8),
-      meanMpg = c(22.9, 19.125, 15.05, 28.075, 20.5666666666667, 15.4)
-    ),
-    row.names = c(NA, 6L),
-    class = c("grouped_data", "data.frame"),
-    groups = c("am", "cyl")
-  ),
-  info = "Test grouped summarise"
+  mtcars %>% summarise(n(), range(mpg)),
+  structure(list(`n()` = c(32L, 32L), `range(mpg)` = c(10.4, 33.9)), class = "data.frame", row.names = c(NA, -2L)),
+  info = "Functions returning multiple values get split over rows"
 )
 
 expect_equal(
-  mtcars %>% group_by(am, cyl, gear) %>% summarise(meanMpg = mean(mpg), sumDisp = sum(disp)),
+  mtcars %>% summarise(n(), list(range(mpg))),
+  structure(
+    list(`n()` = 32L, `list(range(mpg))` = structure(list(c(10.4, 33.9)), class = "AsIs")),
+    class = "data.frame", row.names = c(NA, -1L)
+  ),
+  info = "Functions returning multiple values that are wrapped in list are returned as nested columns"
+)
+
+# Grouped Operations
+res <- mtcars %>% group_by(am, cyl, gear) %>% summarise(meanMpg = mean(mpg), sumDisp = sum(disp))
+gd <- group_data(res)
+expect_equal(
+  gd,
+  structure(
+    list(
+      am = c(0, 0, 0, 0, 0, 1, 1, 1, 1, 1),
+      cyl = c(4, 4, 6, 6, 8, 4, 4, 6, 6, 8),
+      gear = c(3, 4, 3, 4, 3, 4, 5, 4, 5, 5),
+      .rows = list(1L, 2L, 3L, 4L, 5L, 6L, 7L, 8L, 9L, 10L)
+    ),
+    row.names = c(NA, -10L), class = "data.frame"
+  ),
+  info = "Ensure the summarised data still contains group attributes"
+)
+
+attr(res, "groups") <- NULL
+expect_equal(
+  res,
   structure(
     list(
       am = c(0, 0, 0, 0, 0, 1, 1, 1, 1, 1),
@@ -49,8 +66,7 @@ expect_equal(
       sumDisp = c(120.1, 287.5, 483, 335.2, 4291.4, 533.5, 215.4, 320, 145, 652)
     ),
     row.names = c(NA, 10L),
-    class = c("grouped_data", "data.frame"),
-    groups = c("am", "cyl", "gear")
+    class = c("grouped_data", "data.frame")
   ),
   info = "Test multiple groups and multiple summary functions"
 )

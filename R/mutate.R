@@ -44,14 +44,14 @@ mutate.default <- function(.data, ...) {
   context$set_data(.data)
   on.exit(context$clean(), add = TRUE)
   for (i in seq_along(conditions)) {
-    .data[, names(conditions)[i]] <- do.call(with, list(.data, str2lang(unname(conditions)[i])))
+    context$.data[, names(conditions)[i]] <- do.call(with, list(context$.data, str2lang(unname(conditions)[i])))
   }
-  .data
+  context$.data
 }
 
 #' @export
 mutate.grouped_data <- function(.data, ...) {
   rows <- rownames(.data)
-  res <- apply_grouped_function("mutate", .data, ...)
+  res <- apply_grouped_function("mutate", .data, drop = TRUE, ...)
   res[rows, ]
 }

@@ -26,22 +26,28 @@ summarise.default <- function(.data, ...) {
   fns <- vapply(substitute(...()), deparse, NA_character_)
   context$set_data(.data)
   on.exit(context$clean(), add = TRUE)
-  if (has_groups(.data)) {
-    group <- unique(.data[, get_groups(.data), drop = FALSE])
-    if (nrow(group) == 0L) return(NULL)
+  groups_exist <- has_groups(context$.data)
+  if (groups_exist) {
+    group <- unique(context$.data[, get_groups(context$.data), drop = FALSE])
   }
-  res <- lapply(fns, function(x) do.call(with, list(.data, str2lang(x))))
+  res <- lapply(
+    fns,
+    function(x) {
+      x_res <- do.call(with, list(context$.data, str2lang(x)))
+      if (is.list(x_res)) I(x_res) else x_res
+    }
+  )
   res <- as.data.frame(res)
   fn_names <- names(fns)
   colnames(res) <- if (is.null(fn_names)) fns else fn_names
-  if (has_groups(.data)) res <- cbind(group, res)
+  if (groups_exist) res <- cbind(group, res, row.names = NULL)
   res
 }
 
 #' @export
 summarise.grouped_data <- function(.data, ...) {
   groups <- get_groups(.data)
-  res <- apply_grouped_function("summarise", .data, ...)
+  res <- apply_grouped_function("summarise", .data, drop = TRUE, ...)
   res <- res[do.call(order, lapply(groups, function(x) res[, x])), ]
   rownames(res) <- NULL
   res

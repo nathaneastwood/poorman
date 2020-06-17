@@ -76,3 +76,19 @@ expect_equal(
   },
   info = "Test grouped mutations"
 )
+
+expect_equal(
+  mtcars %>% group_by(am, cyl, gear) %>% mutate(col = 1) %>% ungroup(),
+  {
+    res <- mtcars
+    res <- do.call(rbind, unname(lapply(
+      split(res, list(res$am , res$cyl)),
+      function(x) {
+        x[, "col"] <- 1
+        x
+      }
+    )))
+    res[rownames(mtcars), ]
+  },
+  info = "mutate() works when there are missing groups"
+)

@@ -19,14 +19,14 @@ where <- function(fn) {
     stop(deparse_var(fn), " is not a valid predicate function.")
   }
   preds <- unlist(lapply(
-    context$.data,
+    select_env$.data,
     function(x, fn) {
       eval(call("fn", x))
     },
     fn
   ))
   if (!is.logical(preds)) stop("`where()` must be used with functions that return `TRUE` or `FALSE`.")
-  data_cols <- context$get_colnames()
+  data_cols <- select_env$get_colnames()
   cols <- data_cols[preds]
   which(data_cols %in% cols)
 }
