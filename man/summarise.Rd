@@ -12,8 +12,13 @@ summarize(.data, ...)
 \arguments{
 \item{.data}{A \code{data.frame}.}
 
-\item{...}{Name-value pairs of summary functions. The name will be the name of the variable in the result. The value
-should be an expression that returns a single value, e.g. \code{min(x)}.}
+\item{...}{Name-value pairs of summary functions. The name will be the name of the variable in the result.
+
+The value can be:
+\itemize{
+\item A vector of length \code{1}, e.g. \code{min(x)}, \code{n()}, or \code{sum(is.na(y))}.
+\item A vector of length \code{n}, e.g. \code{quantile()}.
+}}
 }
 \description{
 Create one or more scalar variables summarising the variables of an existing \code{data.frame}. Grouped \code{data.frame}s will

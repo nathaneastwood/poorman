@@ -6,8 +6,11 @@
 #' `summarise()` and `summarize()` are synonyms.
 #'
 #' @param .data A `data.frame`.
-#' @param ... Name-value pairs of summary functions. The name will be the name of the variable in the result. The value
-#' should be an expression that returns a single value, e.g. `min(x)`.
+#' @param ... Name-value pairs of summary functions. The name will be the name of the variable in the result.
+#'
+#' The value can be:
+#' * A vector of length `1`, e.g. `min(x)`, `n()`, or `sum(is.na(y))`.
+#' * A vector of length `n`, e.g. `quantile()`.
 #'
 #' @examples
 #' summarise(mtcars, mean(mpg))
