@@ -31,20 +31,12 @@ mutate <- function(.data, ...) {
 
 #' @export
 mutate.default <- function(.data, ...) {
-  conditions <- deparse_dots(...)
-  cond_names <- names(conditions)
-  unnamed <- which(nchar(cond_names) == 0L)
-  if (is.null(cond_names)) {
-    names(conditions) <- conditions
-  } else if (length(unnamed) > 0L) {
-    names(conditions)[unnamed] <- conditions[unnamed]
-  }
-  not_matched <- names(conditions)[!names(conditions) %in% names(.data)]
-  .data[, not_matched] <- NA
+  conditions <- dotdotdot(..., .impute_names = TRUE)
+  .data[, setdiff(names(conditions), names(.data))] <- NA
   context$setup(.data)
   on.exit(context$clean(), add = TRUE)
   for (i in seq_along(conditions)) {
-    context$.data[, names(conditions)[i]] <- do.call(with, list(context$.data, str2lang(unname(conditions)[i])))
+    context$.data[, names(conditions)[i]] <- eval(conditions[[i]], envir = context$.data)
   }
   context$.data
 }

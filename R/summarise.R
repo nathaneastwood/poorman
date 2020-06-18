@@ -26,7 +26,7 @@ summarise <- function(.data, ...) {
 
 #' @export
 summarise.default <- function(.data, ...) {
-  fns <- vapply(substitute(...()), deparse, NA_character_)
+  fns <- dotdotdot(...)
   context$setup(.data)
   on.exit(context$clean(), add = TRUE)
   groups_exist <- has_groups(context$.data)
@@ -36,7 +36,7 @@ summarise.default <- function(.data, ...) {
   res <- lapply(
     fns,
     function(x) {
-      x_res <- do.call(with, list(context$.data, str2lang(x)))
+      x_res <- do.call(with, list(context$.data, x))
       if (is.list(x_res)) I(x_res) else x_res
     }
   )

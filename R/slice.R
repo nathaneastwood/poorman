@@ -222,7 +222,7 @@ slice_sample.grouped_data <- function(.data, ..., n, prop, weight_by = NULL, rep
 # helpers ----------------------------------------------------------------------
 
 slice_positions <- function(.data, ...) {
-  conditions <- dots_to_list(...)
+  conditions <- dotdotdot(...)
   context$setup(.data)
   on.exit(context$clean(), add = TRUE)
   if (length(conditions) == 0L) return(seq_len(n()))

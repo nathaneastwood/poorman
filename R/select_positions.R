@@ -29,7 +29,7 @@
 #'
 #' @noRd
 select_positions <- function(.data, ..., .group_pos = FALSE) {
-  cols <- dots_to_list(...)
+  cols <- dotdotdot(...)
   exec_env <- parent.frame(2L)
   select_env$setup(.data, exec_env)
   on.exit(select_env$clean(), add = TRUE)

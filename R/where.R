@@ -21,7 +21,7 @@ where <- function(fn) {
   preds <- unlist(lapply(
     select_env$.data,
     function(x, fn) {
-      eval(call("fn", x))
+      do.call("fn", list(x))
     },
     fn
   ))
