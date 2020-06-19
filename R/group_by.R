@@ -105,7 +105,7 @@ apply_grouped_function <- function(fn, .data, drop = FALSE, ...) {
 #' @examples
 #' mtcars %>% group_by(cyl, am) %>% print()
 #'
-#' @export
+#' @noRd
 print.grouped_data <- function(x, ..., digits = NULL, quote = FALSE, right = TRUE, row.names = TRUE, max = NULL) {
   class(x) <- "data.frame"
   print(x, ..., digits = digits, quote = quote, right = right, row.names = row.names, max = max)
