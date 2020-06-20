@@ -30,11 +30,10 @@
 #' @noRd
 select_positions <- function(.data, ..., .group_pos = FALSE) {
   cols <- dotdotdot(...)
-  exec_env <- parent.frame(2L)
-  select_env$setup(.data, exec_env)
+  select_env$setup(.data = .data, calling_frame = parent.frame(2L))
   on.exit(select_env$clean(), add = TRUE)
   data_names <- select_env$get_colnames()
-  pos <- unlist(lapply(cols, eval_expr, exec_env = exec_env))
+  pos <- unlist(lapply(cols, eval_expr))
   col_len <- select_env$get_ncol()
   if (any(pos > col_len)) {
     oor <- pos[which(pos > col_len)]
@@ -58,14 +57,14 @@ select_positions <- function(.data, ..., .group_pos = FALSE) {
   pos[!duplicated(pos)]
 }
 
-eval_expr <- function(x, exec_env) {
+eval_expr <- function(x) {
   type <- typeof(x)
   switch(
     type,
     "integer" = x,
     "double" = as.integer(x),
     "character" = select_char(x),
-    "symbol" = select_symbol(x, exec_env = exec_env),
+    "symbol" = select_symbol(x),
     "language" = eval_call(x),
     stop("Expressions of type <", typeof(x), "> cannot be evaluated for use when subsetting.")
   )
@@ -77,7 +76,7 @@ select_char <- function(expr) {
   pos
 }
 
-select_symbol <- function(expr, exec_env) {
+select_symbol <- function(expr) {
   expr_name <- as.character(expr)
   if (grepl("^is\\.", expr_name) && is_function(expr)) {
     stop(
@@ -88,7 +87,7 @@ select_symbol <- function(expr, exec_env) {
   res <- try(select_char(as.character(expr)), silent = TRUE)
   if (inherits(res, "try-error")) {
     res <- tryCatch(
-      unlist(lapply(eval(expr, envir = exec_env), eval_expr)),
+      unlist(lapply(eval(expr, envir = select_env$calling_frame), eval_expr)),
       error = function(e) stop("Column ", expr, " does not exist.")
     )
   }

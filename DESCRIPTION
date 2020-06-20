@@ -1,7 +1,7 @@
 Package: poorman
 Type: Package
 Title: A Poor Man's Base R Copy of 'dplyr' Verbs
-Version: 0.2.0.33
+Version: 0.2.0.34
 Authors@R: person("Nathan", "Eastwood", "", "nathan.eastwood@icloud.com",
     role = c("aut", "cre"))
 Maintainer: Nathan Eastwood <nathan.eastwood@icloud.com>
