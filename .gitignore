@@ -10,3 +10,4 @@ cran-comments.md
 *.Rproj
 README.html
 .vscode/
+poorman.code-workspace

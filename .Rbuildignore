@@ -16,3 +16,4 @@
 ^ci$
 ^\.vscode$
 ^\.Rhistory$
+^\./poorman\.code-workspace$
