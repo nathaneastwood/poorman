@@ -53,7 +53,7 @@ n <- function() {
 }
 
 #' @description
-#' * `cur_data()` gives the current data for the current group (exclusing grouping variables).
+#' * `cur_data()` gives the current data for the current group (excluding grouping variables).
 #' @rdname context
 cur_data <- function() {
   check_group_context("`cur_data()`")

@@ -1,3 +1,24 @@
+# 0.2.1
+
+Fifth CRAN release.
+
+The update has added the following new features:
+
+* `distinct()` (#17)
+* `slice_head()`, `slice_tail()`, `slice_min()`, `slice_max()`, `slice_sample()` (#22)
+* `where()` (#27)
+* `coalesce()` (#28)
+* `group_split()`, `group_keys()` (#29)
+* `na_if()` (#34)
+* `recode()` (#35)
+* `near()` (#36)
+* `replace_na()` (#38)
+* `group_data()`, `group_indices()`, `group_vars()`, `group_rows()`, `group_size()`, `n_groups()`, `groups()` (#39)
+* `glimpse()` (#40)
+* `group_cols()`, `cur_data()`, `cur_group()`, `cur_group_id()`, `cur_group_rows()`, `cur_column()` (#41)
+
+There have also been a lot of refactoring for the internals of the package, particularly focusing on context awareness which allows for quite a few of these features (#40, #41) and grouped operations should now be more consistent. This update of course comes with a host of bug fixes including the renaming of multiple columns when using `{poorman}`'s version of `{tidyselect}`.
+
 # 0.2.0
 
 Fourth CRAN release.

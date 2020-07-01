@@ -28,7 +28,7 @@ contexts like \code{\link[=summarise]{summarise()}} and \code{\link[=mutate]{mut
 }
 
 \itemize{
-\item \code{cur_data()} gives the current data for the current group (exclusing grouping variables).
+\item \code{cur_data()} gives the current data for the current group (excluding grouping variables).
 }
 
 \itemize{
