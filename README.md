@@ -1,10 +1,11 @@
 
 <!-- README.md is generated from README.Rmd. Please edit that file -->
 
-# poorman <a href='https://nathaneastwood.github.io/tags/poorman/'><img src='man/figures/logo.png' align="right" height="139" /></a>
+# {poorman} <a href='https://nathaneastwood.github.io/tags/poorman/'><img src='man/figures/logo.png' align="right" height="139" /></a>
 
 [![CRAN
 status](https://www.r-pkg.org/badges/version/poorman)](https://cran.r-project.org/package=poorman)
+[![Dependencies](https://tinyverse.netlify.com/badge/poorman)](https://cran.r-project.org/package=poorman)
 ![CRAN downloads](https://cranlogs.r-pkg.org/badges/poorman)
 ![check\_cran](https://github.com/nathaneastwood/poorman/workflows/check_cran/badge.svg?branch=master)
 [![codecov](https://codecov.io/gh/nathaneastwood/poorman/branch/master/graph/badge.svg)](https://codecov.io/gh/nathaneastwood/poorman)
@@ -18,8 +19,8 @@ things. - Sidney Poitier
 
 ## Overview
 
-`poorman` is a grammar of data manipulation, providing dependency free
-versions of [`dplyr`](https://github.com/tidyverse/dplyr) verbs that
+`{poorman}` is a grammar of data manipulation, providing dependency free
+versions of [`{dplyr}`](https://github.com/tidyverse/dplyr) verbs that
 help you solve the most common data manipulation challenges:
 
   - `select()` picks variables based on their names.
@@ -29,14 +30,14 @@ help you solve the most common data manipulation challenges:
   - `summarise()` reduces multiple values down to a single summary.
   - `arrange()` changes the ordering of the rows.
 
-`poorman` attempts to replicate the `dplyr` API exactly such that your
-`dplyr` code will still run even if you use `poorman` in its place. In
-addition to replicating `dplyr` functionality, `poorman` implements
-other functionality from the wider `tidyverse` such as select helpers
-and the pipe, `%>%`.
+`{poorman}` attempts to replicate the `{dplyr}` API exactly such that
+your `{dplyr}` code will still run even if you use `{poorman}` in its
+place. In addition to replicating `{dplyr}` functionality, `{poorman}`
+implements other functionality from the wider `tidyverse` such as select
+helpers and the pipe, `%>%`.
 
-For more details on the functionality available within `poorman`, check
-out the `poorman` series of blog posts
+For more details on the functionality available within `{poorman}`,
+check out the `{poorman}` series of blog posts
 [here](https://nathaneastwood.github.io/tags/poorman/).
 
 ## Installation
@@ -97,9 +98,9 @@ mtcars %>%
 
 ## Related Work
 
-  - [`dplyr`](https://github.com/tidyverse/dplyr)
-  - [`bplyr`](https://github.com/yonicd/bplyr) - imports `magrittr` and
-    `rlang`; it prepends functions with `b_*()`, e.g. `b_select()`.
-  - [`tbltools`](https://github.com/mkearney/tbltools) - imports
+  - [`{dplyr}`](https://github.com/tidyverse/dplyr)
+  - [`{bplyr}`](https://github.com/yonicd/bplyr) - imports `magrittr`
+    and `rlang`; it prepends functions with `b_*()`, e.g. `b_select()`.
+  - [`{tbltools}`](https://github.com/mkearney/tbltools) - imports
     `magrittr` and appends `*_data()` to each of its functions,
     e.g. `select_data()`.
