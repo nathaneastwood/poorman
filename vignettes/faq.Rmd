@@ -20,7 +20,7 @@ knitr::opts_chunk$set(
 
 ## So What Does `{poorman}` Include?
 
-A full list of exported functions can be seen on the package website [here](). As a brief overview, however, `{poorman}` includes what is considered as "core" functionality offered by `{dplyr}`:
+A full list of exported functions can be seen on the package website [here](https://nathaneastwood.github.io/poorman/reference/index.html). As a brief overview, however, `{poorman}` includes what is considered as "core" functionality offered by `{dplyr}`:
 
 ```
 select(), rename(), pull(), relocate(), mutate(), transmute(), arrange()
