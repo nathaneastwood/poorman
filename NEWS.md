@@ -1,4 +1,16 @@
-# 0.2.1
+# poorman 0.2.2
+
+Sixth CRAN release.
+
+## Documentation changes
+
+This release sees a major overhaul of the package documentation focusing on three components:
+
+* R function documentation is now more focused and fully fleshed out.
+* Vignettes have been added to showcase the major components of the package.
+* A `{pkgdown}` website has been added.
+
+# poorman 0.2.1
 
 Fifth CRAN release.
 
@@ -15,11 +27,11 @@ The update has added the following new features:
 * `replace_na()` (#38)
 * `group_data()`, `group_indices()`, `group_vars()`, `group_rows()`, `group_size()`, `n_groups()`, `groups()` (#39)
 * `glimpse()` (#40)
-* `group_cols()`, `cur_data()`, `cur_group()`, `cur_group_id()`, `cur_group_rows()`, `cur_column()` (#41)
+* `cur_data()`, `cur_group()`, `cur_group_id()`, `cur_group_rows()` (#41)
 
 There have also been a lot of refactoring for the internals of the package, particularly focusing on context awareness which allows for quite a few of these features (#40, #41) and grouped operations should now be more consistent. This update of course comes with a host of bug fixes including the renaming of multiple columns when using `{poorman}`'s version of `{tidyselect}`.
 
-# 0.2.0
+# poorman 0.2.0
 
 Fourth CRAN release.
 
@@ -45,13 +57,13 @@ Finally, 0.2.0 includes many bug fixes:
 * `group_by()` + `mutate()` now preserve row order (#14)
 * Quote names are allowed in `pull()` (#15)
 
-# 0.1.11
+# poorman 0.1.11
 
 Third CRAN release.
 
 This update adds the functions `count()`, `tally()`, `add_count()` and `add_tally()`. In order to achieve these, the functions `n()` and `desc()` have also been added. In addition, `group_by()` can now add additional groups to an already grouped `data.frame`.
 
-# 0.1.10
+# poorman 0.1.10
 
 Second CRAN release.
 
@@ -64,42 +76,42 @@ The following bugs have been fixed:
 * `slice()` now duplicates rows, e.g. `mtcars %>% slice(2, 2, 2)` will return row 2 three times
 * `summarize()` is now exported
 
-# 0.1.9
+# poorman 0.1.9
 
 First CRAN release
 
-# 0.1.8
+# poorman 0.1.8
 
 This update adds `relocate()` and consolidates the selection method for `select()`, `rename()` and `relocate()` using `select_positions()`.
 
-# 0.1.7
+# poorman 0.1.7
 
 This update adds `semi_join()` and `anti_join()`.
 
-# 0.1.6
+# poorman 0.1.6
 
 This update adds `inner_join()`, `left_join()`, `right_join()` and `full_join()`.
 
-# 0.1.5
+# poorman 0.1.5
 
 This update adds a full set of tests for the functions available in v0.1.5.
 
-# 0.1.4
+# poorman 0.1.4
 
 This update adds a copy of the pipe (`%>%`).
 
-# 0.1.3
+# poorman 0.1.3
 
 This update adds `summarise()`.
 
-# 0.1.2
+# poorman 0.1.2
 
 This update adds `rename()`.
 
-# 0.1.1
+# poorman 0.1.1
 
 This update includes `group_by()` and `ungroup()` operations.
 
-# 0.1.0
+# poorman 0.1.0
 
 This initial version includes the `select()`, `pull()`, `arrange()`, `filter()`, `slice()`, `mutate()` and `transmute()` functions. See the [blog post](https://nathaneastwood.github.io/2020/02/15/building-a-base-dplyr-with-primitives/) for more details.

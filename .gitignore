@@ -11,3 +11,5 @@ cran-comments.md
 README.html
 .vscode/
 poorman.code-workspace
+docs
+inst/doc

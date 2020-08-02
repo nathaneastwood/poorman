@@ -1,0 +1,94 @@
+home:
+  strip_header: true
+
+template:
+  params:
+    bootswatch: flatly
+
+news:
+  one_page: false
+  releases:
+  - text: "poorman 0.1.9"
+    href: https://nathaneastwood.github.io/2020/04/01/poorman-first-release-of-a-base-r-dplyr-clone/
+  - text: "poorman 0.1.10"
+    href: https://nathaneastwood.github.io/2020/04/13/poorman-select-helpers-bug-fixes-and-tests-tests-tests/
+  - text: "poorman 0.2.0"
+    href: https://nathaneastwood.github.io/2020/05/17/poorman-the-selectificator-2000/
+  - text: "poorman 0.2.1"
+    href: https://nathaneastwood.github.io/2020/07/01/poorman-version-0.2.1-release/
+
+reference:
+- title: One table verbs
+  contents:
+  - arrange
+  - count
+  - distinct
+  - filter
+  - mutate
+  - pull
+  - relocate
+  - rename
+  - select
+  - summarise
+  - slice
+
+- title: Two table verbs
+  contents:
+  - filter_joins
+  - joins
+
+- title: Grouping
+  contents:
+  - group_by
+  - group_metadata
+  - group_split
+  - context
+
+- title: Vector functions
+  contents:
+  - between
+  - coalesce
+  - desc
+  - if_else
+  - lag
+  - n_distinct
+  - na_if
+  - near
+  - recode
+  - replace_na
+  - window_rank
+
+- title: Selection helpers
+  contents:
+  - peek_vars
+  - select_helpers
+  - where
+
+- title: Piping
+  contents:
+  - pipe
+
+- title: data.frame Display
+  contents:
+  - glimpse
+  - rownames
+
+navbar:
+  type: inverse
+  left:
+    - icon: fa-home
+      href: index.html
+    - text: "Articles"
+      icon: fas fa-book
+      menu:
+      -  text: Getting Started
+         href: articles/introduction.html
+    - text: "FAQ"
+      icon: fa-question-circle-o
+      href: articles/faq.html
+    - icon: fa-newspaper-o
+      text: "News"
+      href: news/index.html
+    - icon: fa-file-code-o
+      text: "Functions"
+      href: reference/index.html
