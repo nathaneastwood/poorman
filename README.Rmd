@@ -42,14 +42,16 @@ For more details on the functionality available within `{poorman}`, check out th
 
 ## Installation
 
-You can install the development version from [GitHub](https://github.com/nathaneastwood/poorman) with:
+You can install:
+
+* the development version from [GitHub](https://github.com/nathaneastwood/poorman) with
 
 ```{r installation, eval = FALSE}
 # install.packages("remotes")
 remotes::install_github("nathaneastwood/poorman")
 ```
 
-Or you can install the latest release from CRAN with:
+* the latest release from CRAN with
 
 ```{r cran, eval = FALSE}
 install.packages("poorman")
@@ -69,13 +71,13 @@ docker run --rm -it nathaneastwood/poorman
 library(poorman, warn.conflicts = FALSE)
 
 mtcars %>%
-  select(mpg, starts_with("c")) %>%
-  mutate(mpg2 = mpg * 2, mpg4 = mpg2 * 2) %>%
+  select(mpg, wt, starts_with("c")) %>%
+  mutate(kpl = (1.609 * mpg) / 3.785, wt_kg = wt * 453.5924) %>%
   filter(mpg > 28)
 
 mtcars %>%
   group_by(am, cyl) %>%
-  summarise(meanMpg = mean(mpg), sumMpg = sum(mpg)) %>%
+  summarise(mean_mpg = mean(mpg), sd_mpg = sd(mpg)) %>%
   ungroup()
 ```
 
