@@ -7,8 +7,8 @@ Sixth CRAN release.
 This release sees a major overhaul of the package documentation focusing on three components:
 
 * R function documentation is now more focused and fully fleshed out.
-* Vignettes have been added to showcase the major components of the package.
-* A `{pkgdown}` website has been added.
+* Vignettes have been added to showcase the major components of the package (#31).
+* A `{pkgdown}` website has been added (#30).
 
 # poorman 0.2.1
 
