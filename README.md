@@ -33,7 +33,7 @@ help you solve the most common data manipulation challenges:
 {poorman} attempts to replicate the {dplyr} API exactly such that your
 {dplyr} code will still run even if you use {poorman} in its place. In
 addition to replicating {dplyr} functionality, {poorman} implements
-other functionality from the wider `tidyverse` such as select helpers
+other functionality from the wider {tidyverse} such as select helpers
 and the pipe, `%>%`.
 
 For more details on the functionality available within {poorman}, check

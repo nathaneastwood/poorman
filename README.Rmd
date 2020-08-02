@@ -36,7 +36,7 @@ knitr::opts_chunk$set(
 * `summarise()` reduces multiple values down to a single summary.
 * `arrange()` changes the ordering of the rows.
 
-{poorman} attempts to replicate the {dplyr} API exactly such that your {dplyr} code will still run even if you use {poorman} in its place. In addition to replicating {dplyr} functionality, {poorman} implements other functionality from the wider `tidyverse` such as select helpers and the pipe, `%>%`.
+{poorman} attempts to replicate the {dplyr} API exactly such that your {dplyr} code will still run even if you use {poorman} in its place. In addition to replicating {dplyr} functionality, {poorman} implements other functionality from the wider {tidyverse} such as select helpers and the pipe, `%>%`.
 
 For more details on the functionality available within {poorman}, check out the {poorman} series of blog posts [here](https://nathaneastwood.github.io/tags/poorman/).
 
