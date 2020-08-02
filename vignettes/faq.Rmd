@@ -14,13 +14,13 @@ knitr::opts_chunk$set(
 )
 ```
 
-## What Is `{poorman}`?
+## What Is {poorman}?
 
-`{poorman}` is a package that unapologetically attempts to recreate the `{dplyr}` API in a dependency free way using only `{base}` R. `{poorman}` is still under development and doesn’t have all of `{dplyr}`’s functionality but what I would consider the "core" functionality is included. The idea behind `{poorman}` is that a user should be able to take their `{dplyr}` based script and run it using `{poorman}` without any hiccups.
+{poorman} is a package that unapologetically attempts to recreate the {dplyr} API in a dependency free way using only {base} R. {poorman} is still under development and doesn’t have all of {dplyr}’s functionality but what I would consider the "core" functionality is included. The idea behind {poorman} is that a user should be able to take their {dplyr} based script and run it using {poorman} without any hiccups.
 
-## So What Does `{poorman}` Include?
+## So What Does {poorman} Include?
 
-A full list of exported functions can be seen on the package website [here](https://nathaneastwood.github.io/poorman/reference/index.html). As a brief overview, however, `{poorman}` includes what is considered as "core" functionality offered by `{dplyr}`:
+A full list of exported functions can be seen on the package website [here](https://nathaneastwood.github.io/poorman/reference/index.html). As a brief overview, however, {poorman} includes what is considered as "core" functionality offered by {dplyr}:
 
 ```
 select(), rename(), pull(), relocate(), mutate(), transmute(), arrange()
@@ -29,14 +29,14 @@ summarise() / summarize()
 group_by(), ungroup()
 ```
 
-`{poorman}` also includes the join functionality.
+{poorman} also includes the join functionality.
 
 ```
 inner_join(), left_join(), right_join(), full_join()
 anti_join(), semi_join()
 ```
 
-Finally `{poorman}` includes its own version of the pipe so you do not need to load or install `magrittr`.
+Finally {poorman} includes its own version of the pipe so you do not need to load or install `magrittr`.
 
 ```
 %>%
@@ -44,38 +44,38 @@ Finally `{poorman}` includes its own version of the pipe so you do not need to l
 
 More functionality is being developed and will be added in time.
 
-## Why Develop `{poorman}`?
+## Why Develop {poorman}?
 
-This is probably the most common question; why bother developing `{poorman}` when `{dplyr}` already exists? Well there are actually several reasons why I decided to develop it. The most important reason to me though is quite simply because I can. `{poorman}` started out as a personal challenge and a bit of fun. Also as a freelance R developer, it is good to build up my portfolio of open source code that I can show to potential clients.
+This is probably the most common question; why bother developing {poorman} when {dplyr} already exists? Well there are actually several reasons why I decided to develop it. The most important reason to me though is quite simply because I can. {poorman} started out as a personal challenge and a bit of fun. Also as a freelance R developer, it is good to build up my portfolio of open source code that I can show to potential clients.
 
-Another reason for developing `{poorman}` is I wanted to challenge a common misconception that `{base}` R is not as powerful, or as good, or as useful as `{dplyr}`. Too often I see and hear comments belittling `{base}` R and as a user of the language for over 10 years now - well before the inception of `{dplyr}` - I find this idea very worrying. `{poorman}`'s package start up message is quite poignant in this regard.
+Another reason for developing {poorman} is I wanted to challenge a common misconception that {base} R is not as powerful, or as good, or as useful as {dplyr}. Too often I see and hear comments belittling {base} R and as a user of the language for over 10 years now - well before the inception of {dplyr} - I find this idea very worrying. {poorman}'s package start up message is quite poignant in this regard.
 
 > I’d seen my father. He was a poor man, and I watched him do astonishing things. - Sidney Poitier
 
-One aspect which should not be overlooked is the ability to teach `{base}`. Writing `{poorman}` gives me a platform to hopefully show useRs two key aspects of R programming in `{base}`; common data manipulation tasks; and non-standard evaulation. Going further, this is helped more by having simpler execution due to the avoidance of C++ code. Of course, R eventually dispatches to primitive or internal functionality but by excluding C++ in the `{poorman}` source, I make the source much easier to read for useRs who are not used to reading C++ or do not understand it. This in turn makes debugging and figuring out errors much easier too.
+One aspect which should not be overlooked is the ability to teach {base}. Writing {poorman} gives me a platform to hopefully show useRs two key aspects of R programming in {base}; common data manipulation tasks; and non-standard evaulation. Going further, this is helped more by having simpler execution due to the avoidance of C++ code. Of course, R eventually dispatches to primitive or internal functionality but by excluding C++ in the {poorman} source, I make the source much easier to read for useRs who are not used to reading C++ or do not understand it. This in turn makes debugging and figuring out errors much easier too.
 
-## But Why Not Just Use `{dplyr}`?
+## But Why Not Just Use {dplyr}?
 
-Let's be honest, the `{tidyverse}` is a fantastic set of packages which have transformed the face of data analysis in R, and `{dplyr}` is arguably one of the most important packages within the `{tidyverse}`. The API is, in my opinion, very easy to learn and use.
+Let's be honest, the {tidyverse} is a fantastic set of packages which have transformed the face of data analysis in R, and {dplyr} is arguably one of the most important packages within the {tidyverse}. The API is, in my opinion, very easy to learn and use.
 
-Being a part of the `{tidyverse}`, however, means that `{dplyr}` comes with a large number of dependencies that users must also install which is often seen as a disadvantage to using the `{tidyverse}`. Disadvantages of dependencies have been [written about](http://dirk.eddelbuettel.com/blog/2018/02/28/#017_dependencies) before and so I won't go into detail here. However what I will say is that the user may not have a need for additional parts of the `{tidyverse}` and so may not wish to have to install multiple packages to use one or two functions.
+Being a part of the {tidyverse}, however, means that {dplyr} comes with a large number of dependencies that users must also install which is often seen as a disadvantage to using the {tidyverse}. Disadvantages of dependencies have been [written about](http://dirk.eddelbuettel.com/blog/2018/02/28/#017_dependencies) before and so I won't go into detail here. However what I will say is that the user may not have a need for additional parts of the {tidyverse} and so may not wish to have to install multiple packages to use one or two functions.
 
-Some of these dependencies are very useful of course, allowing expansion into other areas such as accessing Spark instances and databases using the same API the user already knows. This is great and if you are using these additional tools then I absolutely recommend that you choose `{dplyr}` over `{poorman}`. However if you don't need the extra dependencies and functionality that comes with the wider `{tidyverse}` then maybe consider giving the lightweight `{poorman}` a go.
+Some of these dependencies are very useful of course, allowing expansion into other areas such as accessing Spark instances and databases using the same API the user already knows. This is great and if you are using these additional tools then I absolutely recommend that you choose {dplyr} over {poorman}. However if you don't need the extra dependencies and functionality that comes with the wider {tidyverse} then maybe consider giving the lightweight {poorman} a go.
 
-Finally a point on installation times, `{poorman}` takes roughly six seconds to install. If you've ever had to install or upgrade `{dplyr}` or the `{tidyverse}`, you'll recognise that this is very fast.
+Finally a point on installation times, {poorman} takes roughly six seconds to install. If you've ever had to install or upgrade {dplyr} or the {tidyverse}, you'll recognise that this is very fast.
 
-## Why The Name `{poorman}`?
+## Why The Name {poorman}?
 
-As I have already mentioned, I have seen comments in the past pertaining to R's worthlessness without the `{tidyverse}` and so the name `{poorman}` is a subtle play on the the idea that you must be a "poor man" if you use `{base}`. The irony of course is that I have managed to recreate - quite easily - the key parts of the `{dplyr}` API using only `{base}` R.
+As I have already mentioned, I have seen comments in the past pertaining to R's worthlessness without the {tidyverse} and so the name {poorman} is a subtle play on the the idea that you must be a "poor man" if you use {base}. The irony of course is that I have managed to recreate - quite easily - the key parts of the {dplyr} API using only {base} R.
 
-## Why Not Use `{data.table}` For The Backend?
+## Why Not Use {data.table} For The Backend?
 
-Because I wanted to build something that was completely dependency free and adding `{data.table}` as an `Import` adds a dependency.
+Because I wanted to build something that was completely dependency free and adding {data.table} as an `Import` adds a dependency.
 
-## But Doesn't `{poorman}` Have Dependencies?
+## But Doesn't {poorman} Have Dependencies?
 
-To answer this, we need to define what we mean by "dependency free". `{poorman}` does have some dependencies but they are for development purposes only and are therefore listed in the `Suggests` part of the `DESCRIPTION` file. Thus when a user installs the package, these dependencies are only ever installed if they are explicitly requested. However, `{poorman}` doesn't have any dependencies that users of the package need to install in order to use its functionality. I use these dependency packages to help me develop more easily. Therefore `{poorman}` isn't a truly "dependency free" like `data.table` is, but it is dependency free for its intended users.
+To answer this, we need to define what we mean by "dependency free". {poorman} does have some dependencies but they are for development purposes only and are therefore listed in the `Suggests` part of the `DESCRIPTION` file. Thus when a user installs the package, these dependencies are only ever installed if they are explicitly requested. However, {poorman} doesn't have any dependencies that users of the package need to install in order to use its functionality. I use these dependency packages to help me develop more easily. Therefore {poorman} isn't a truly "dependency free" like `data.table` is, but it is dependency free for its intended users.
 
-## How Does `{poorman}` Compare In Terms Of Speed?
+## How Does {poorman} Compare In Terms Of Speed?
 
-In all honesty, these things don't interest me. If speed is a genuine concern for you, you should just consider `{data.table}`. Benchmarks comparing `{dplyr}` and `{base}` have been done plenty of times before and `{poorman}` will have a slight overhead on `{base}`.
+In all honesty, these things don't interest me. If speed is a genuine concern for you, you should just consider {data.table}. Benchmarks comparing {dplyr} and {base} have been done plenty of times before and {poorman} will have a slight overhead on {base}.
