@@ -4,15 +4,16 @@
 \name{poorman}
 \alias{poorman}
 \alias{poorman-package}
-\title{poorman: A Poor Man's Base R Copy of 'dplyr' Verbs}
+\title{poorman: A Poor Man's Dependency Free Recreation of 'dplyr'}
 \description{
 \if{html}{\figure{logo.png}{options: align='right' alt='logo' width='120'}}
 
-A simple replication of key 'dplyr' verbs using only base R.
+A replication of key functionality from 'dplyr' and the wider 'tidyverse' using only 'base'.
 }
 \seealso{
 Useful links:
 \itemize{
+  \item \url{https://nathaneastwood.github.io/poorman/}
   \item \url{https://github.com/nathaneastwood/poorman}
   \item Report bugs at \url{https://github.com/nathaneastwood/poorman/issues}
 }
