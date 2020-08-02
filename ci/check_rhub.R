@@ -9,6 +9,7 @@ if (!is.element(platform, c("cran", rhub::platforms()[[1L]]))) {
   stop(paste(platform, "not in rhub::platforms()[[1L]] nor cran"))
 }
 
+install.packages("knitr")
 if (platform == "cran") {
   system("apt-get update && apt-get -y install libxml2-dev")
   install.packages("xml2")
