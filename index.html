@@ -5,7 +5,7 @@
 <meta charset="utf-8">
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>A Poor Mans Base R Copy of dplyr' Verbs • poorman</title>
+<title>A Poor Mans Dependency Free Recreation of dplyr' • poorman</title>
 <!-- favicons --><link rel="icon" type="image/png" sizes="16x16" href="favicon-16x16.png">
 <link rel="icon" type="image/png" sizes="32x32" href="favicon-32x32.png">
 <link rel="apple-touch-icon" type="image/png" sizes="180x180" href="apple-touch-icon.png">
@@ -17,8 +17,8 @@
 <script src="bootstrap-toc.js"></script><!-- Font Awesome icons --><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.12.1/css/all.min.css" integrity="sha256-mmgLkCYLUQbXn0B1SRqzHar6dCnv9oZFPEC1g1cwlkk=" crossorigin="anonymous">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.12.1/css/v4-shims.min.css" integrity="sha256-wZjR52fzng1pJHwx4aV2AO3yyTOXrcDW7jBpJtTwVxw=" crossorigin="anonymous">
 <!-- clipboard.js --><script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.6/clipboard.min.js" integrity="sha256-inc5kl9MA1hkeYUt+EC3BhlIgyp/2jDIyBLS6k3UxPI=" crossorigin="anonymous"></script><!-- headroom.js --><script src="https://cdnjs.cloudflare.com/ajax/libs/headroom/0.11.0/headroom.min.js" integrity="sha256-AsUX4SJE1+yuDu5+mAVzJbuYNPHj/WroHuZ8Ir/CkE0=" crossorigin="anonymous"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/headroom/0.11.0/jQuery.headroom.min.js" integrity="sha256-ZX/yNShbjqsohH1k95liqY9Gd8uOiE1S4vZc+9KQ1K4=" crossorigin="anonymous"></script><!-- pkgdown --><link href="pkgdown.css" rel="stylesheet">
-<script src="pkgdown.js"></script><meta property="og:title" content="A Poor Mans Base R Copy of dplyr' Verbs">
-<meta property="og:description" content="A simple replication of key dplyr verbs using only base R.">
+<script src="pkgdown.js"></script><meta property="og:title" content="A Poor Mans Dependency Free Recreation of dplyr'">
+<meta property="og:description" content="A replication of key functionality from dplyr and the wider tidyverse using only base.">
 <meta property="og:image" content="/logo.png">
 <!-- mathjax --><script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js" integrity="sha256-nvJJv9wWKEm88qvoQl9ekL2J+k/RWIsaSScxxlsrv8k=" crossorigin="anonymous"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/config/TeX-AMS-MML_HTMLorMML.js" integrity="sha256-84DKXVJXs0/F8OTMzX4UR909+jtl4G7SPypPavF+GfA=" crossorigin="anonymous"></script><!--[if lt IE 9]>
 <script src="https://oss.maxcdn.com/html5shiv/3.7.3/html5shiv.min.js"></script>
@@ -38,7 +38,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="index.html">poorman</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.2.1.1</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.2.1.2</span>
       </span>
     </div>
 
@@ -133,11 +133,16 @@
 <div id="installation" class="section level2">
 <h2 class="hasAnchor">
 <a href="#installation" class="anchor"></a>Installation</h2>
-<p>You can install the development version from <a href="https://github.com/nathaneastwood/poorman">GitHub</a> with:</p>
-<div class="sourceCode" id="cb1"><pre class="r"><span class="co"># install.packages("remotes")</span>
+<p>You can install:</p>
+<ul>
+<li>the development version from <a href="https://github.com/nathaneastwood/poorman">GitHub</a> with</li>
+</ul>
+<!-- end list --><div class="sourceCode" id="cb1"><pre class="r"><span class="co"># install.packages("remotes")</span>
 <span class="kw pkg">remotes</span><span class="kw ns">::</span><span class="fu"><a href="https://remotes.r-lib.org/reference/install_github.html">install_github</a></span>(<span class="st">"nathaneastwood/poorman"</span>)</pre></div>
-<p>Or you can install the latest release from CRAN with:</p>
-<div class="sourceCode" id="cb2"><pre class="r"><span class="fu"><a href="https://rdrr.io/r/utils/install.packages.html">install.packages</a></span>(<span class="st">"poorman"</span>)</pre></div>
+<ul>
+<li>the latest release from CRAN with</li>
+</ul>
+<!-- end list --><div class="sourceCode" id="cb2"><pre class="r"><span class="fu"><a href="https://rdrr.io/r/utils/install.packages.html">install.packages</a></span>(<span class="st">"poorman"</span>)</pre></div>
 </div>
 <div id="docker" class="section level2">
 <h2 class="hasAnchor">
@@ -154,26 +159,26 @@
 <span class="co">#     - Sidney Poitier</span>
 
 <span class="no">mtcars</span> <span class="kw">%&gt;%</span>
-  <span class="fu"><a href="reference/select.html">select</a></span>(<span class="no">mpg</span>, <span class="fu"><a href="reference/select_helpers.html">starts_with</a></span>(<span class="st">"c"</span>)) <span class="kw">%&gt;%</span>
-  <span class="fu"><a href="reference/mutate.html">mutate</a></span>(<span class="kw">mpg2</span> <span class="kw">=</span> <span class="no">mpg</span> * <span class="fl">2</span>, <span class="kw">mpg4</span> <span class="kw">=</span> <span class="no">mpg2</span> * <span class="fl">2</span>) <span class="kw">%&gt;%</span>
+  <span class="fu"><a href="reference/select.html">select</a></span>(<span class="no">mpg</span>, <span class="no">wt</span>, <span class="fu"><a href="reference/select_helpers.html">starts_with</a></span>(<span class="st">"c"</span>)) <span class="kw">%&gt;%</span>
+  <span class="fu"><a href="reference/mutate.html">mutate</a></span>(<span class="kw">kpl</span> <span class="kw">=</span> (<span class="fl">1.609</span> * <span class="no">mpg</span>) / <span class="fl">3.785</span>, <span class="kw">wt_kg</span> <span class="kw">=</span> <span class="no">wt</span> * <span class="fl">453.5924</span>) <span class="kw">%&gt;%</span>
   <span class="fu"><a href="reference/filter.html">filter</a></span>(<span class="no">mpg</span> <span class="kw">&gt;</span> <span class="fl">28</span>)
-<span class="co">#                 mpg cyl carb mpg2  mpg4</span>
-<span class="co"># Fiat 128       32.4   4    1 64.8 129.6</span>
-<span class="co"># Honda Civic    30.4   4    2 60.8 121.6</span>
-<span class="co"># Toyota Corolla 33.9   4    1 67.8 135.6</span>
-<span class="co"># Lotus Europa   30.4   4    2 60.8 121.6</span>
+<span class="co">#                 mpg    wt cyl carb      kpl    wt_kg</span>
+<span class="co"># Fiat 128       32.4 2.200   4    1 13.77321 997.9033</span>
+<span class="co"># Honda Civic    30.4 1.615   4    2 12.92301 732.5517</span>
+<span class="co"># Toyota Corolla 33.9 1.835   4    1 14.41086 832.3421</span>
+<span class="co"># Lotus Europa   30.4 1.513   4    2 12.92301 686.2853</span>
 
 <span class="no">mtcars</span> <span class="kw">%&gt;%</span>
   <span class="fu"><a href="reference/group_by.html">group_by</a></span>(<span class="no">am</span>, <span class="no">cyl</span>) <span class="kw">%&gt;%</span>
-  <span class="fu"><a href="reference/summarise.html">summarise</a></span>(<span class="kw">meanMpg</span> <span class="kw">=</span> <span class="fu"><a href="https://rdrr.io/r/base/mean.html">mean</a></span>(<span class="no">mpg</span>), <span class="kw">sumMpg</span> <span class="kw">=</span> <span class="fu"><a href="https://rdrr.io/r/base/sum.html">sum</a></span>(<span class="no">mpg</span>)) <span class="kw">%&gt;%</span>
+  <span class="fu"><a href="reference/summarise.html">summarise</a></span>(<span class="kw">mean_mpg</span> <span class="kw">=</span> <span class="fu"><a href="https://rdrr.io/r/base/mean.html">mean</a></span>(<span class="no">mpg</span>), <span class="kw">sd_mpg</span> <span class="kw">=</span> <span class="fu"><a href="https://rdrr.io/r/stats/sd.html">sd</a></span>(<span class="no">mpg</span>)) <span class="kw">%&gt;%</span>
   <span class="fu"><a href="reference/group_by.html">ungroup</a></span>()
-<span class="co">#   am cyl  meanMpg sumMpg</span>
-<span class="co"># 1  0   4 22.90000   68.7</span>
-<span class="co"># 2  0   6 19.12500   76.5</span>
-<span class="co"># 3  0   8 15.05000  180.6</span>
-<span class="co"># 4  1   4 28.07500  224.6</span>
-<span class="co"># 5  1   6 20.56667   61.7</span>
-<span class="co"># 6  1   8 15.40000   30.8</span></pre></div>
+<span class="co">#   am cyl mean_mpg    sd_mpg</span>
+<span class="co"># 1  0   4 22.90000 1.4525839</span>
+<span class="co"># 2  0   6 19.12500 1.6317169</span>
+<span class="co"># 3  0   8 15.05000 2.7743959</span>
+<span class="co"># 4  1   4 28.07500 4.4838599</span>
+<span class="co"># 5  1   6 20.56667 0.7505553</span>
+<span class="co"># 6  1   8 15.40000 0.5656854</span></pre></div>
 </div>
 <div id="related-work" class="section level2">
 <h2 class="hasAnchor">
