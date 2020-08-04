@@ -66,7 +66,7 @@ contains <- function(match, ignore.case = TRUE, vars = peek_vars()) {
       }
     }
   )
-  unique(matches)
+  unique(unlist(matches))
 }
 
 #' @param perl `logical(1)`. Should Perl-compatible regexps be used?
