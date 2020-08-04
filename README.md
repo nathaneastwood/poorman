@@ -105,8 +105,8 @@ mtcars %>%
 ## Related Work
 
   - [{dplyr}](https://github.com/tidyverse/dplyr)
-  - [{bplyr}](https://github.com/yonicd/bplyr) - imports `magrittr` and
-    `rlang`; it prepends functions with `b_*()`, e.g. `b_select()`.
+  - [{bplyr}](https://github.com/yonicd/bplyr) - imports {magrittr} and
+    {rlang}; it prepends functions with `b_*()`, e.g. `b_select()`.
   - [{tbltools}](https://github.com/mkearney/tbltools) - imports
-    `magrittr` and appends `*_data()` to each of its functions,
+    {magrittr} and appends `*_data()` to each of its functions,
     e.g. `select_data()`.
