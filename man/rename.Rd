@@ -22,10 +22,17 @@ the input.}
 \item{.cols}{Columns to rename; defaults to all columns.}
 }
 \value{
-A \code{data.frame}
+A \code{data.frame} with the following properties:
+\itemize{
+\item Rows are not affected.
+\item Column names are changed; column order is preserved.
+\item \code{data.frame} attributes are preserved.
+\item Groups are updated to reflect new names.
+}
 }
 \description{
 \code{rename()} changes the names of individual variables using \code{new_name = old_name} syntax.
+\code{rename_with()} renames columns using a function.
 }
 \examples{
 rename(mtcars, MilesPerGallon = mpg)

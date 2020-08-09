@@ -20,3 +20,9 @@ expect_error(
   mtcars %>% rename_with(.fn = function(x) rep("X", ncol(mtcars))),
   info = "Must not return duplicate columns"
 )
+
+expect_equal(
+  mtcars %>% group_by(am, cyl) %>% rename_with(toupper) %>% group_vars(),
+  c("CYL", "AM"),
+  info = "Group names are updated"
+)

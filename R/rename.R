@@ -1,6 +1,7 @@
 #' Rename columns
 #'
 #' `rename()` changes the names of individual variables using `new_name = old_name` syntax.
+#' `rename_with()` renames columns using a function.
 #'
 #' @param .data A `data.frame`
 #' @param ...
@@ -8,7 +9,13 @@
 #'
 #'   For `rename_with()`: additional arguments passed onto `.fn`.
 #'
-#' @return A `data.frame`
+#' @return
+#' A `data.frame` with the following properties:
+#'
+#' * Rows are not affected.
+#' * Column names are changed; column order is preserved.
+#' * `data.frame` attributes are preserved.
+#' * Groups are updated to reflect new names.
 #'
 #' @examples
 #' rename(mtcars, MilesPerGallon = mpg)
@@ -43,8 +50,11 @@ rename <- function(.data, ...) {
 #' rename_with(mtcars, toupper, starts_with("c"))
 #'
 #' @rdname rename
+#' @export
 rename_with <- function(.data, .fn, .cols = everything(), ...) {
   if (!is.function(.fn)) stop("`", .fn, "` is not a valid function")
+  grouped <- inherits(.data, "grouped_data")
+  if (grouped) grp_pos <- which(colnames(.data) %in% group_vars(.data))
   col_pos <- eval(substitute(select_positions(.data, .cols)))
   cols <- colnames(.data)[col_pos]
   new_cols <- .fn(cols, ...)
@@ -52,5 +62,6 @@ rename_with <- function(.data, .fn, .cols = everything(), ...) {
     stop("New names must be unique however `", deparse(substitute(.fn)), "` returns duplicate column names")
   }
   colnames(.data)[col_pos] <- new_cols
+  if (grouped) .data <- set_groups(.data, colnames(.data)[grp_pos])
   .data
 }
