@@ -144,3 +144,20 @@ expect_equal(
   mtcars[, c("qsec", "vs", colnames(mtcars)[!colnames(mtcars) %in% c("qsec", "vs")])],
   info = "Test everything() returns the rest of the columns after the initial selection"
 )
+
+expect_equal(
+  mtcars %>% select(group_cols()),
+  mtcars[, 0],
+  info = "group_cols() with non-grouped data returns a data.frame with zero columns"
+)
+
+expect_equivalent(
+  mtcars %>% group_by(am, cyl) %>% select(group_cols()),
+  mtcars[, c("am", "cyl")],
+  info = "selection of grouped data using group_cols() returns only the group columns"
+)
+
+expect_silent(
+  mtcars %>% group_by(am, cyl) %>% select(group_cols()),
+  info = "message to say adding missing grouping variables should not appear"
+)

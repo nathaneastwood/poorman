@@ -16,7 +16,7 @@
 #' `select()`, these are automatically set to the names of the table.
 #'
 #' @seealso
-#' [select()], [relocate()], [where()]
+#' [select()], [relocate()], [where()], [group_cols()]
 #'
 #' @return
 #' An integer vector giving the position of the matched variables.
