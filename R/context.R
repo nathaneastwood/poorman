@@ -62,6 +62,14 @@ cur_data <- function() {
 }
 
 #' @description
+#' * `cur_data_all()` gives the current data for the current group (including grouping variables).
+#' @rdname context
+cur_data_all <- function() {
+  check_group_context("`cur_data_all()`")
+  ungroup(context$get_data())
+}
+
+#' @description
 #' * `cur_group()` gives the group keys, a single row `data.frame` containing a column for each grouping variable and
 #'   its value.
 #' @rdname context

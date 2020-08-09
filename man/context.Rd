@@ -4,6 +4,7 @@
 \alias{context}
 \alias{n}
 \alias{cur_data}
+\alias{cur_data_all}
 \alias{cur_group}
 \alias{cur_group_id}
 \alias{cur_group_rows}
@@ -12,6 +13,8 @@
 n()
 
 cur_data()
+
+cur_data_all()
 
 cur_group()
 
@@ -29,6 +32,10 @@ contexts like \code{\link[=summarise]{summarise()}} and \code{\link[=mutate]{mut
 
 \itemize{
 \item \code{cur_data()} gives the current data for the current group (excluding grouping variables).
+}
+
+\itemize{
+\item \code{cur_data_all()} gives the current data for the current group (including grouping variables).
 }
 
 \itemize{
