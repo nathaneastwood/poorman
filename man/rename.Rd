@@ -2,14 +2,24 @@
 % Please edit documentation in R/rename.R
 \name{rename}
 \alias{rename}
+\alias{rename_with}
 \title{Rename columns}
 \usage{
 rename(.data, ...)
+
+rename_with(.data, .fn, .cols = everything(), ...)
 }
 \arguments{
 \item{.data}{A \code{data.frame}}
 
-\item{...}{Comma separated key-value pairs in the form of \code{new_name = old_name} to rename selected variables.}
+\item{...}{For \code{rename()}: comma separated key-value pairs in the form of \code{new_name = old_name} to rename selected variables.
+
+For \code{rename_with()}: additional arguments passed onto \code{.fn}.}
+
+\item{.fn}{A \verb{function()} used to transform the selected \code{.cols}. Should return a character vector the same length as
+the input.}
+
+\item{.cols}{Columns to rename; defaults to all columns.}
 }
 \value{
 A \code{data.frame}
@@ -21,5 +31,8 @@ A \code{data.frame}
 rename(mtcars, MilesPerGallon = mpg)
 rename(mtcars, Cylinders = cyl, Gears = gear)
 mtcars \%>\% rename(MilesPerGallon = mpg)
+
+rename_with(mtcars, toupper)
+rename_with(mtcars, toupper, starts_with("c"))
 
 }

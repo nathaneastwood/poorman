@@ -3,7 +3,10 @@
 #' `rename()` changes the names of individual variables using `new_name = old_name` syntax.
 #'
 #' @param .data A `data.frame`
-#' @param ... Comma separated key-value pairs in the form of `new_name = old_name` to rename selected variables.
+#' @param ...
+#'   For `rename()`: comma separated key-value pairs in the form of `new_name = old_name` to rename selected variables.
+#'
+#'   For `rename_with()`: additional arguments passed onto `.fn`.
 #'
 #' @return A `data.frame`
 #'
@@ -28,5 +31,26 @@ rename <- function(.data, ...) {
     new_names[new_names_zero] <- old_names[new_names_zero]
   }
   colnames(.data)[col_pos] <- new_names
+  .data
+}
+
+#' @param .fn A `function()` used to transform the selected `.cols`. Should return a character vector the same length as
+#' the input.
+#' @param .cols Columns to rename; defaults to all columns.
+#'
+#' @examples
+#' rename_with(mtcars, toupper)
+#' rename_with(mtcars, toupper, starts_with("c"))
+#'
+#' @rdname rename
+rename_with <- function(.data, .fn, .cols = everything(), ...) {
+  if (!is.function(.fn)) stop("`", .fn, "` is not a valid function")
+  col_pos <- eval(substitute(select_positions(.data, .cols)))
+  cols <- colnames(.data)[col_pos]
+  new_cols <- .fn(cols, ...)
+  if (any(duplicated(new_cols))) {
+    stop("New names must be unique however `", deparse(substitute(.fn)), "` returns duplicate column names")
+  }
+  colnames(.data)[col_pos] <- new_cols
   .data
 }
