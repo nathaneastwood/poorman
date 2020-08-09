@@ -60,6 +60,7 @@ reference:
 
 - title: Selection helpers
   contents:
+  - group_cols
   - peek_vars
   - select_helpers
   - where
