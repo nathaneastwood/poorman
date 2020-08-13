@@ -15,7 +15,7 @@
 #'
 #' @export
 where <- function(fn) {
-  if (!is_function(fn)) {
+  if (!is.function(fn)) {
     stop(deparse_var(fn), " is not a valid predicate function.")
   }
   preds <- unlist(lapply(

@@ -81,7 +81,7 @@ select_char <- function(expr) {
 
 select_symbol <- function(expr) {
   expr_name <- as.character(expr)
-  if (grepl("^is\\.", expr_name) && is_function(expr)) {
+  if (grepl("^is\\.", expr_name) && is.function(expr)) {
     stop(
       "Predicate functions must be wrapped in `where()`.\n\n",
       sprintf("  data %%>%% select(where(%s))", expr_name)
