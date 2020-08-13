@@ -43,6 +43,7 @@ reference:
   - group_metadata
   - group_split
   - context
+  - nest_by
 
 - title: Vector functions
   contents:
