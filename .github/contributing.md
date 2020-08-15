@@ -14,7 +14,7 @@ Along with any pull requests, please state that the contribution is your origina
 
 ## <a name="r"></a> R Coding Standards
 
-We follow the style guide maintained within the [tidyverse](http://style.tidyverse.org). This is tested using the [`lintr`](https://github.com/jimhester/lintr) package; you can automatically conform your code to these standards using the [`styler`](https://github.com/r-lib/styler) package.
+We follow the style guide maintained within the [tidyverse](http://style.tidyverse.org). This is tested using the [`lintr`](https://github.com/jimhester/lintr) package; you can automatically conform your code to these standards using the [`styler`](https://github.com/r-lib/styler) package. Please quality any integers with `L`, e.g. `1L`.
 
 ## <a name="git"></a> git Commit Standards
 

@@ -4,11 +4,11 @@ Please, go through these steps before you submit a PR.
 
 1. Please make sure that:
 
-    a. You have done your changes in a separate branch. Branches MUST have descriptive names that start with either the `fix/` or `feat/` prefixes. Good examples are: `fix/mutate` or `feat/arrange`.
+    a. You have made your changes in a separate branch. Branches MUST have descriptive names that start with either the `fix/`, `feat/` or `refactor/` prefixes (similar to the [git guidelines](./contributing.md#-git-commit-standards) for this project). Good examples are: `fix/mutate` or `feat/arrange`.
 
     b. You have a descriptive commit message with a short title (first line).
 
-    c. Your commit message follows the [git commit standards](https://github.com/nathaneastwood/poorman/blob/master/.github/contributing.md#-git-commit-standards) of the repository.
+    c. Your commit message follows the [git commit standards](./contributing.md#-git-commit-standards) of the repository.
 
     d. You have only one commit (if not, squash them into one commit).
 

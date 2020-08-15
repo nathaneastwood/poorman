@@ -1,5 +1,5 @@
 name: check_win
-on: [push]
+on: [push, pull request]
 jobs:
   build:
     runs-on: ubuntu-latest
