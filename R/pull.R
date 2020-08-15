@@ -18,14 +18,9 @@
 #'
 #' @export
 pull <- function(.data, var = -1) {
-
   var_list <- as.list(seq_along(.data))
-
   names(var_list) <- names(.data)
-
   .var <- eval(substitute(var), var_list)
-
-  if (.var < 0) .var <- length(var_list) + .var + 1
-
+  if (.var < 0L) .var <- length(var_list) + .var + 1L
   .data[[.var]]
 }
