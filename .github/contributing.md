@@ -18,7 +18,7 @@ We follow the style guide maintained within the [tidyverse](http://style.tidyver
 
 ## <a name="git"></a> git Commit Standards
 
-We follow the commit message style guide maintained within the [angular.js](https://github.com/angular/angular.js/blob/master/CONTRIBUTING.md#commit) project.
+We follow the commit message style guide maintained within the [angular.js](https://github.com/angular/angular.js/blob/master/DEVELOPERS.md#-git-commit-guidelines) project.
 
 The start of commit messages must be one of the following:
 
