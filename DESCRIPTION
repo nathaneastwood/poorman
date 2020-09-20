@@ -1,7 +1,7 @@
 Package: poorman
 Type: Package
 Title: A Poor Man's Dependency Free Recreation of 'dplyr'
-Version: 0.2.1.12
+Version: 0.2.1.13
 Authors@R: person("Nathan", "Eastwood", "", "nathan.eastwood@icloud.com",
     role = c("aut", "cre"))
 Maintainer: Nathan Eastwood <nathan.eastwood@icloud.com>
@@ -18,6 +18,6 @@ Suggests:
 License: MIT + file LICENSE
 Encoding: UTF-8
 LazyData: true
-RoxygenNote: 7.1.0
+RoxygenNote: 7.1.1
 Roxygen: list(markdown = TRUE)
 VignetteBuilder: knitr
