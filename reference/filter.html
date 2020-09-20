@@ -80,7 +80,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">poorman</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.2.1.7</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.2.1.12</span>
       </span>
     </div>
 
@@ -157,7 +157,7 @@
     <p>Use <code>filter()</code> to choose rows/cases where conditions are <code>TRUE</code>.</p>
     </div>
 
-    <pre class="usage"><span class='fu'>filter</span>(<span class='no'>.data</span>, <span class='no'>...</span>)</pre>
+    <pre class="usage"><span class='fu'>filter</span>(<span class='kw'>.data</span>, <span class='kw'>...</span>)</pre>
 
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
     <table class="ref-arguments">
@@ -181,14 +181,15 @@
     
 
 <ul>
-<li><p><code>==</code>, <code>&gt;</code>, <code>&gt;=</code>, etc.</p></li>
-<li><p><code>&amp;</code>, <code>|</code>, <code>!</code>, <code><a href='https://rdrr.io/r/base/Logic.html'>xor()</a></code></p></li>
+<li><p><code><a href='https://rdrr.io/r/base/Comparison.html'>==</a></code>, <code>&gt;</code>, <code>&gt;=</code>, etc.</p></li>
+<li><p><code>&amp;</code>, <code><a href='https://rdrr.io/r/base/Logic.html'>|</a></code>, <code><a href='https://rdrr.io/r/base/Logic.html'>!</a></code>, <code><a href='https://rdrr.io/r/base/Logic.html'>xor()</a></code></p></li>
 <li><p><code><a href='https://rdrr.io/r/base/NA.html'>is.na()</a></code></p></li>
 </ul>
 
 
     <h2 class="hasAnchor" id="examples"><a class="anchor" href="#examples"></a>Examples</h2>
-    <pre class="examples"><div class='input'><span class='fu'>filter</span>(<span class='no'>mtcars</span>, <span class='no'>am</span> <span class='kw'>==</span> <span class='fl'>1</span>)</div><div class='output co'>#&gt;                 mpg cyl  disp  hp drat    wt  qsec vs am gear carb
+    <pre class="examples"><div class='input'><span class='fu'>filter</span>(<span class='kw'>mtcars</span>, <span class='kw'>am</span> <span class='op'>==</span> <span class='fl'>1</span>)
+</div><div class='output co'>#&gt;                 mpg cyl  disp  hp drat    wt  qsec vs am gear carb
 #&gt; Mazda RX4      21.0   6 160.0 110 3.90 2.620 16.46  0  1    4    4
 #&gt; Mazda RX4 Wag  21.0   6 160.0 110 3.90 2.875 17.02  0  1    4    4
 #&gt; Datsun 710     22.8   4 108.0  93 3.85 2.320 18.61  1  1    4    1
@@ -201,7 +202,8 @@
 #&gt; Ford Pantera L 15.8   8 351.0 264 4.22 3.170 14.50  0  1    5    4
 #&gt; Ferrari Dino   19.7   6 145.0 175 3.62 2.770 15.50  0  1    5    6
 #&gt; Maserati Bora  15.0   8 301.0 335 3.54 3.570 14.60  0  1    5    8
-#&gt; Volvo 142E     21.4   4 121.0 109 4.11 2.780 18.60  1  1    4    2</div><div class='input'><span class='no'>mtcars</span> <span class='kw'>%&gt;%</span> <span class='fu'>filter</span>(<span class='no'>cyl</span> <span class='kw'>==</span> <span class='fl'>4</span>)</div><div class='output co'>#&gt;                 mpg cyl  disp  hp drat    wt  qsec vs am gear carb
+#&gt; Volvo 142E     21.4   4 121.0 109 4.11 2.780 18.60  1  1    4    2</div><div class='input'><span class='kw'>mtcars</span> <span class='op'>%&gt;%</span> <span class='fu'>filter</span>(<span class='kw'>cyl</span> <span class='op'>==</span> <span class='fl'>4</span>)
+</div><div class='output co'>#&gt;                 mpg cyl  disp  hp drat    wt  qsec vs am gear carb
 #&gt; Datsun 710     22.8   4 108.0  93 3.85 2.320 18.61  1  1    4    1
 #&gt; Merc 240D      24.4   4 146.7  62 3.69 3.190 20.00  1  0    4    2
 #&gt; Merc 230       22.8   4 140.8  95 3.92 3.150 22.90  1  0    4    2
@@ -212,7 +214,8 @@
 #&gt; Fiat X1-9      27.3   4  79.0  66 4.08 1.935 18.90  1  1    4    1
 #&gt; Porsche 914-2  26.0   4 120.3  91 4.43 2.140 16.70  0  1    5    2
 #&gt; Lotus Europa   30.4   4  95.1 113 3.77 1.513 16.90  1  1    5    2
-#&gt; Volvo 142E     21.4   4 121.0 109 4.11 2.780 18.60  1  1    4    2</div><div class='input'><span class='no'>mtcars</span> <span class='kw'>%&gt;%</span> <span class='fu'>filter</span>(<span class='no'>cyl</span> <span class='kw'>&lt;=</span> <span class='fl'>5</span> <span class='kw'>&amp;</span> <span class='no'>am</span> <span class='kw'>&gt;</span> <span class='fl'>0</span>)</div><div class='output co'>#&gt;                 mpg cyl  disp  hp drat    wt  qsec vs am gear carb
+#&gt; Volvo 142E     21.4   4 121.0 109 4.11 2.780 18.60  1  1    4    2</div><div class='input'><span class='kw'>mtcars</span> <span class='op'>%&gt;%</span> <span class='fu'>filter</span>(<span class='kw'>cyl</span> <span class='op'>&lt;=</span> <span class='fl'>5</span> <span class='op'>&amp;</span> <span class='kw'>am</span> <span class='op'>&gt;</span> <span class='fl'>0</span>)
+</div><div class='output co'>#&gt;                 mpg cyl  disp  hp drat    wt  qsec vs am gear carb
 #&gt; Datsun 710     22.8   4 108.0  93 3.85 2.320 18.61  1  1    4    1
 #&gt; Fiat 128       32.4   4  78.7  66 4.08 2.200 19.47  1  1    4    1
 #&gt; Honda Civic    30.4   4  75.7  52 4.93 1.615 18.52  1  1    4    2
@@ -220,7 +223,8 @@
 #&gt; Fiat X1-9      27.3   4  79.0  66 4.08 1.935 18.90  1  1    4    1
 #&gt; Porsche 914-2  26.0   4 120.3  91 4.43 2.140 16.70  0  1    5    2
 #&gt; Lotus Europa   30.4   4  95.1 113 3.77 1.513 16.90  1  1    5    2
-#&gt; Volvo 142E     21.4   4 121.0 109 4.11 2.780 18.60  1  1    4    2</div><div class='input'><span class='no'>mtcars</span> <span class='kw'>%&gt;%</span> <span class='fu'>filter</span>(<span class='no'>cyl</span> <span class='kw'>==</span> <span class='fl'>4</span> <span class='kw'>|</span> <span class='no'>cyl</span> <span class='kw'>==</span> <span class='fl'>8</span>)</div><div class='output co'>#&gt;                      mpg cyl  disp  hp drat    wt  qsec vs am gear carb
+#&gt; Volvo 142E     21.4   4 121.0 109 4.11 2.780 18.60  1  1    4    2</div><div class='input'><span class='kw'>mtcars</span> <span class='op'>%&gt;%</span> <span class='fu'>filter</span>(<span class='kw'>cyl</span> <span class='op'>==</span> <span class='fl'>4</span> <span class='op'>|</span> <span class='kw'>cyl</span> <span class='op'>==</span> <span class='fl'>8</span>)
+</div><div class='output co'>#&gt;                      mpg cyl  disp  hp drat    wt  qsec vs am gear carb
 #&gt; Datsun 710          22.8   4 108.0  93 3.85 2.320 18.61  1  1    4    1
 #&gt; Hornet Sportabout   18.7   8 360.0 175 3.15 3.440 17.02  0  0    3    2
 #&gt; Duster 360          14.3   8 360.0 245 3.21 3.570 15.84  0  0    3    4
@@ -245,7 +249,8 @@
 #&gt; Lotus Europa        30.4   4  95.1 113 3.77 1.513 16.90  1  1    5    2
 #&gt; Ford Pantera L      15.8   8 351.0 264 4.22 3.170 14.50  0  1    5    4
 #&gt; Maserati Bora       15.0   8 301.0 335 3.54 3.570 14.60  0  1    5    8
-#&gt; Volvo 142E          21.4   4 121.0 109 4.11 2.780 18.60  1  1    4    2</div><div class='input'><span class='no'>mtcars</span> <span class='kw'>%&gt;%</span> <span class='fu'>filter</span>(!(<span class='no'>cyl</span> <span class='kw'>%in%</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span>(<span class='fl'>4</span>, <span class='fl'>6</span>)), <span class='no'>am</span> <span class='kw'>!=</span> <span class='fl'>0</span>)</div><div class='output co'>#&gt;                 mpg cyl disp  hp drat   wt qsec vs am gear carb
+#&gt; Volvo 142E          21.4   4 121.0 109 4.11 2.780 18.60  1  1    4    2</div><div class='input'><span class='kw'>mtcars</span> <span class='op'>%&gt;%</span> <span class='fu'>filter</span>(<span class='op'>!</span>(<span class='kw'>cyl</span> <span class='op'>%in%</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span>(<span class='fl'>4</span>, <span class='fl'>6</span>)), <span class='kw'>am</span> != <span class='fl'>0</span>)
+</div><div class='output co'>#&gt;                 mpg cyl disp  hp drat   wt qsec vs am gear carb
 #&gt; Ford Pantera L 15.8   8  351 264 4.22 3.17 14.5  0  1    5    4
 #&gt; Maserati Bora  15.0   8  301 335 3.54 3.57 14.6  0  1    5    8</div><div class='input'>
 </div></pre>
@@ -264,7 +269,7 @@
 </div>
 
 <div class="pkgdown">
-  <p>Site built with <a href="https://pkgdown.r-lib.org/">pkgdown</a> 1.5.1.</p>
+  <p>Site built with <a href="https://pkgdown.r-lib.org/">pkgdown</a> 1.6.1.</p>
 </div>
 
       </footer>

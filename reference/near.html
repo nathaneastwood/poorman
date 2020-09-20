@@ -81,7 +81,7 @@ using ==, because it has a built in tolerance." />
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">poorman</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.2.1.7</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.2.1.12</span>
       </span>
     </div>
 
@@ -156,10 +156,10 @@ using ==, because it has a built in tolerance." />
 
     <div class="ref-description">
     <p>This is a safe way of comparing if two vectors of floating point numbers are (pairwise) equal.  This is safer than
-using <code>==</code>, because it has a built in tolerance.</p>
+using <code><a href='https://rdrr.io/r/base/Comparison.html'>==</a></code>, because it has a built in tolerance.</p>
     </div>
 
-    <pre class="usage"><span class='fu'>near</span>(<span class='no'>x</span>, <span class='no'>y</span>, <span class='kw'>tol</span> <span class='kw'>=</span> <span class='no'>.Machine</span>$<span class='no'>double.eps</span>^<span class='fl'>0.5</span>)</pre>
+    <pre class="usage"><span class='fu'>near</span>(<span class='kw'>x</span>, <span class='kw'>y</span>, tol = <span class='kw'>.Machine</span><span class='op'>$</span><span class='kw'>double.eps</span><span class='op'>^</span><span class='fl'>0.5</span>)</pre>
 
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
     <table class="ref-arguments">
@@ -176,7 +176,9 @@ using <code>==</code>, because it has a built in tolerance.</p>
 
 
     <h2 class="hasAnchor" id="examples"><a class="anchor" href="#examples"></a>Examples</h2>
-    <pre class="examples"><div class='input'><span class='fu'><a href='https://rdrr.io/r/base/MathFun.html'>sqrt</a></span>(<span class='fl'>2</span>) ^ <span class='fl'>2</span> <span class='kw'>==</span> <span class='fl'>2</span></div><div class='output co'>#&gt; [1] FALSE</div><div class='input'><span class='fu'>near</span>(<span class='fu'><a href='https://rdrr.io/r/base/MathFun.html'>sqrt</a></span>(<span class='fl'>2</span>) ^ <span class='fl'>2</span>, <span class='fl'>2</span>)</div><div class='output co'>#&gt; [1] TRUE</div><div class='input'>
+    <pre class="examples"><div class='input'><span class='fu'><a href='https://rdrr.io/r/base/MathFun.html'>sqrt</a></span>(<span class='fl'>2</span>) <span class='op'>^</span> <span class='fl'>2</span> <span class='op'>==</span> <span class='fl'>2</span>
+</div><div class='output co'>#&gt; [1] FALSE</div><div class='input'><span class='fu'>near</span>(<span class='fu'><a href='https://rdrr.io/r/base/MathFun.html'>sqrt</a></span>(<span class='fl'>2</span>) <span class='op'>^</span> <span class='fl'>2</span>, <span class='fl'>2</span>)
+</div><div class='output co'>#&gt; [1] TRUE</div><div class='input'>
 </div></pre>
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="pkgdown-sidebar">
@@ -193,7 +195,7 @@ using <code>==</code>, because it has a built in tolerance.</p>
 </div>
 
 <div class="pkgdown">
-  <p>Site built with <a href="https://pkgdown.r-lib.org/">pkgdown</a> 1.5.1.</p>
+  <p>Site built with <a href="https://pkgdown.r-lib.org/">pkgdown</a> 1.6.1.</p>
 </div>
 
       </footer>

@@ -81,7 +81,7 @@ rename_with() renames columns using a function." />
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">poorman</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.2.1.7</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.2.1.12</span>
       </span>
     </div>
 
@@ -159,9 +159,9 @@ rename_with() renames columns using a function." />
 <code>rename_with()</code> renames columns using a function.</p>
     </div>
 
-    <pre class="usage"><span class='fu'>rename</span>(<span class='no'>.data</span>, <span class='no'>...</span>)
+    <pre class="usage"><span class='fu'>rename</span>(<span class='kw'>.data</span>, <span class='kw'>...</span>)
 
-<span class='fu'>rename_with</span>(<span class='no'>.data</span>, <span class='no'>.fn</span>, <span class='kw'>.cols</span> <span class='kw'>=</span> <span class='fu'><a href='select_helpers.html'>everything</a></span>(), <span class='no'>...</span>)</pre>
+<span class='fu'>rename_with</span>(<span class='kw'>.data</span>, <span class='kw'>.fn</span>, .cols = <span class='fu'><a href='select_helpers.html'>everything</a></span>(), <span class='kw'>...</span>)</pre>
 
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
     <table class="ref-arguments">
@@ -197,7 +197,8 @@ the input.</p></td>
 
 
     <h2 class="hasAnchor" id="examples"><a class="anchor" href="#examples"></a>Examples</h2>
-    <pre class="examples"><div class='input'><span class='fu'>rename</span>(<span class='no'>mtcars</span>, <span class='kw'>MilesPerGallon</span> <span class='kw'>=</span> <span class='no'>mpg</span>)</div><div class='output co'>#&gt;                     MilesPerGallon cyl  disp  hp drat    wt  qsec vs am gear
+    <pre class="examples"><div class='input'><span class='fu'>rename</span>(<span class='kw'>mtcars</span>, MilesPerGallon = <span class='kw'>mpg</span>)
+</div><div class='output co'>#&gt;                     MilesPerGallon cyl  disp  hp drat    wt  qsec vs am gear
 #&gt; Mazda RX4                     21.0   6 160.0 110 3.90 2.620 16.46  0  1    4
 #&gt; Mazda RX4 Wag                 21.0   6 160.0 110 3.90 2.875 17.02  0  1    4
 #&gt; Datsun 710                    22.8   4 108.0  93 3.85 2.320 18.61  1  1    4
@@ -262,7 +263,8 @@ the input.</p></td>
 #&gt; Ford Pantera L         4
 #&gt; Ferrari Dino           6
 #&gt; Maserati Bora          8
-#&gt; Volvo 142E             2</div><div class='input'><span class='fu'>rename</span>(<span class='no'>mtcars</span>, <span class='kw'>Cylinders</span> <span class='kw'>=</span> <span class='no'>cyl</span>, <span class='kw'>Gears</span> <span class='kw'>=</span> <span class='no'>gear</span>)</div><div class='output co'>#&gt;                      mpg Cylinders  disp  hp drat    wt  qsec vs am Gears carb
+#&gt; Volvo 142E             2</div><div class='input'><span class='fu'>rename</span>(<span class='kw'>mtcars</span>, Cylinders = <span class='kw'>cyl</span>, Gears = <span class='kw'>gear</span>)
+</div><div class='output co'>#&gt;                      mpg Cylinders  disp  hp drat    wt  qsec vs am Gears carb
 #&gt; Mazda RX4           21.0         6 160.0 110 3.90 2.620 16.46  0  1     4    4
 #&gt; Mazda RX4 Wag       21.0         6 160.0 110 3.90 2.875 17.02  0  1     4    4
 #&gt; Datsun 710          22.8         4 108.0  93 3.85 2.320 18.61  1  1     4    1
@@ -294,7 +296,8 @@ the input.</p></td>
 #&gt; Ford Pantera L      15.8         8 351.0 264 4.22 3.170 14.50  0  1     5    4
 #&gt; Ferrari Dino        19.7         6 145.0 175 3.62 2.770 15.50  0  1     5    6
 #&gt; Maserati Bora       15.0         8 301.0 335 3.54 3.570 14.60  0  1     5    8
-#&gt; Volvo 142E          21.4         4 121.0 109 4.11 2.780 18.60  1  1     4    2</div><div class='input'><span class='no'>mtcars</span> <span class='kw'>%&gt;%</span> <span class='fu'>rename</span>(<span class='kw'>MilesPerGallon</span> <span class='kw'>=</span> <span class='no'>mpg</span>)</div><div class='output co'>#&gt;                     MilesPerGallon cyl  disp  hp drat    wt  qsec vs am gear
+#&gt; Volvo 142E          21.4         4 121.0 109 4.11 2.780 18.60  1  1     4    2</div><div class='input'><span class='kw'>mtcars</span> <span class='op'>%&gt;%</span> <span class='fu'>rename</span>(MilesPerGallon = <span class='kw'>mpg</span>)
+</div><div class='output co'>#&gt;                     MilesPerGallon cyl  disp  hp drat    wt  qsec vs am gear
 #&gt; Mazda RX4                     21.0   6 160.0 110 3.90 2.620 16.46  0  1    4
 #&gt; Mazda RX4 Wag                 21.0   6 160.0 110 3.90 2.875 17.02  0  1    4
 #&gt; Datsun 710                    22.8   4 108.0  93 3.85 2.320 18.61  1  1    4
@@ -360,7 +363,8 @@ the input.</p></td>
 #&gt; Ferrari Dino           6
 #&gt; Maserati Bora          8
 #&gt; Volvo 142E             2</div><div class='input'>
-<span class='fu'>rename_with</span>(<span class='no'>mtcars</span>, <span class='no'>toupper</span>)</div><div class='output co'>#&gt;                      MPG CYL  DISP  HP DRAT    WT  QSEC VS AM GEAR CARB
+<span class='fu'>rename_with</span>(<span class='kw'>mtcars</span>, <span class='kw'>toupper</span>)
+</div><div class='output co'>#&gt;                      MPG CYL  DISP  HP DRAT    WT  QSEC VS AM GEAR CARB
 #&gt; Mazda RX4           21.0   6 160.0 110 3.90 2.620 16.46  0  1    4    4
 #&gt; Mazda RX4 Wag       21.0   6 160.0 110 3.90 2.875 17.02  0  1    4    4
 #&gt; Datsun 710          22.8   4 108.0  93 3.85 2.320 18.61  1  1    4    1
@@ -392,7 +396,8 @@ the input.</p></td>
 #&gt; Ford Pantera L      15.8   8 351.0 264 4.22 3.170 14.50  0  1    5    4
 #&gt; Ferrari Dino        19.7   6 145.0 175 3.62 2.770 15.50  0  1    5    6
 #&gt; Maserati Bora       15.0   8 301.0 335 3.54 3.570 14.60  0  1    5    8
-#&gt; Volvo 142E          21.4   4 121.0 109 4.11 2.780 18.60  1  1    4    2</div><div class='input'><span class='fu'>rename_with</span>(<span class='no'>mtcars</span>, <span class='no'>toupper</span>, <span class='fu'><a href='select_helpers.html'>starts_with</a></span>(<span class='st'>"c"</span>))</div><div class='output co'>#&gt;                      mpg CYL  disp  hp drat    wt  qsec vs am gear CARB
+#&gt; Volvo 142E          21.4   4 121.0 109 4.11 2.780 18.60  1  1    4    2</div><div class='input'><span class='fu'>rename_with</span>(<span class='kw'>mtcars</span>, <span class='kw'>toupper</span>, <span class='fu'><a href='select_helpers.html'>starts_with</a></span>(<span class='st'>"c"</span>))
+</div><div class='output co'>#&gt;                      mpg CYL  disp  hp drat    wt  qsec vs am gear CARB
 #&gt; Mazda RX4           21.0   6 160.0 110 3.90 2.620 16.46  0  1    4    4
 #&gt; Mazda RX4 Wag       21.0   6 160.0 110 3.90 2.875 17.02  0  1    4    4
 #&gt; Datsun 710          22.8   4 108.0  93 3.85 2.320 18.61  1  1    4    1
@@ -441,7 +446,7 @@ the input.</p></td>
 </div>
 
 <div class="pkgdown">
-  <p>Site built with <a href="https://pkgdown.r-lib.org/">pkgdown</a> 1.5.1.</p>
+  <p>Site built with <a href="https://pkgdown.r-lib.org/">pkgdown</a> 1.6.1.</p>
 </div>
 
       </footer>

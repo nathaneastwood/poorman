@@ -81,7 +81,7 @@ Both functions preserve the number of rows of the input. New variables overwrite
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">poorman</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.2.1.7</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.2.1.12</span>
       </span>
     </div>
 
@@ -159,9 +159,9 @@ Both functions preserve the number of rows of the input. New variables overwrite
 Both functions preserve the number of rows of the input. New variables overwrite existing variables of the same name.</p>
     </div>
 
-    <pre class="usage"><span class='fu'>mutate</span>(<span class='no'>.data</span>, <span class='no'>...</span>)
+    <pre class="usage"><span class='fu'>mutate</span>(<span class='kw'>.data</span>, <span class='kw'>...</span>)
 
-<span class='fu'>transmute</span>(<span class='no'>.data</span>, <span class='no'>...</span>)</pre>
+<span class='fu'>transmute</span>(<span class='kw'>.data</span>, <span class='kw'>...</span>)</pre>
 
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
     <table class="ref-arguments">
@@ -180,7 +180,8 @@ variables overwrite existing variables of the same name.</p></td>
 
 
     <h2 class="hasAnchor" id="examples"><a class="anchor" href="#examples"></a>Examples</h2>
-    <pre class="examples"><div class='input'><span class='fu'>mutate</span>(<span class='no'>mtcars</span>, <span class='kw'>mpg2</span> <span class='kw'>=</span> <span class='no'>mpg</span> * <span class='fl'>2</span>)</div><div class='output co'>#&gt;                      mpg cyl  disp  hp drat    wt  qsec vs am gear carb mpg2
+    <pre class="examples"><div class='input'><span class='fu'>mutate</span>(<span class='kw'>mtcars</span>, mpg2 = <span class='kw'>mpg</span> <span class='op'>*</span> <span class='fl'>2</span>)
+</div><div class='output co'>#&gt;                      mpg cyl  disp  hp drat    wt  qsec vs am gear carb mpg2
 #&gt; Mazda RX4           21.0   6 160.0 110 3.90 2.620 16.46  0  1    4    4 42.0
 #&gt; Mazda RX4 Wag       21.0   6 160.0 110 3.90 2.875 17.02  0  1    4    4 42.0
 #&gt; Datsun 710          22.8   4 108.0  93 3.85 2.320 18.61  1  1    4    1 45.6
@@ -212,7 +213,8 @@ variables overwrite existing variables of the same name.</p></td>
 #&gt; Ford Pantera L      15.8   8 351.0 264 4.22 3.170 14.50  0  1    5    4 31.6
 #&gt; Ferrari Dino        19.7   6 145.0 175 3.62 2.770 15.50  0  1    5    6 39.4
 #&gt; Maserati Bora       15.0   8 301.0 335 3.54 3.570 14.60  0  1    5    8 30.0
-#&gt; Volvo 142E          21.4   4 121.0 109 4.11 2.780 18.60  1  1    4    2 42.8</div><div class='input'><span class='no'>mtcars</span> <span class='kw'>%&gt;%</span> <span class='fu'>mutate</span>(<span class='kw'>mpg2</span> <span class='kw'>=</span> <span class='no'>mpg</span> * <span class='fl'>2</span>)</div><div class='output co'>#&gt;                      mpg cyl  disp  hp drat    wt  qsec vs am gear carb mpg2
+#&gt; Volvo 142E          21.4   4 121.0 109 4.11 2.780 18.60  1  1    4    2 42.8</div><div class='input'><span class='kw'>mtcars</span> <span class='op'>%&gt;%</span> <span class='fu'>mutate</span>(mpg2 = <span class='kw'>mpg</span> <span class='op'>*</span> <span class='fl'>2</span>)
+</div><div class='output co'>#&gt;                      mpg cyl  disp  hp drat    wt  qsec vs am gear carb mpg2
 #&gt; Mazda RX4           21.0   6 160.0 110 3.90 2.620 16.46  0  1    4    4 42.0
 #&gt; Mazda RX4 Wag       21.0   6 160.0 110 3.90 2.875 17.02  0  1    4    4 42.0
 #&gt; Datsun 710          22.8   4 108.0  93 3.85 2.320 18.61  1  1    4    1 45.6
@@ -244,7 +246,8 @@ variables overwrite existing variables of the same name.</p></td>
 #&gt; Ford Pantera L      15.8   8 351.0 264 4.22 3.170 14.50  0  1    5    4 31.6
 #&gt; Ferrari Dino        19.7   6 145.0 175 3.62 2.770 15.50  0  1    5    6 39.4
 #&gt; Maserati Bora       15.0   8 301.0 335 3.54 3.570 14.60  0  1    5    8 30.0
-#&gt; Volvo 142E          21.4   4 121.0 109 4.11 2.780 18.60  1  1    4    2 42.8</div><div class='input'><span class='no'>mtcars</span> <span class='kw'>%&gt;%</span> <span class='fu'>mutate</span>(<span class='kw'>mpg2</span> <span class='kw'>=</span> <span class='no'>mpg</span> * <span class='fl'>2</span>, <span class='kw'>cyl2</span> <span class='kw'>=</span> <span class='no'>cyl</span> * <span class='fl'>2</span>)</div><div class='output co'>#&gt;                      mpg cyl  disp  hp drat    wt  qsec vs am gear carb mpg2
+#&gt; Volvo 142E          21.4   4 121.0 109 4.11 2.780 18.60  1  1    4    2 42.8</div><div class='input'><span class='kw'>mtcars</span> <span class='op'>%&gt;%</span> <span class='fu'>mutate</span>(mpg2 = <span class='kw'>mpg</span> <span class='op'>*</span> <span class='fl'>2</span>, cyl2 = <span class='kw'>cyl</span> <span class='op'>*</span> <span class='fl'>2</span>)
+</div><div class='output co'>#&gt;                      mpg cyl  disp  hp drat    wt  qsec vs am gear carb mpg2
 #&gt; Mazda RX4           21.0   6 160.0 110 3.90 2.620 16.46  0  1    4    4 42.0
 #&gt; Mazda RX4 Wag       21.0   6 160.0 110 3.90 2.875 17.02  0  1    4    4 42.0
 #&gt; Datsun 710          22.8   4 108.0  93 3.85 2.320 18.61  1  1    4    1 45.6
@@ -311,7 +314,8 @@ variables overwrite existing variables of the same name.</p></td>
 #&gt; Maserati Bora         16
 #&gt; Volvo 142E             8</div><div class='input'>
 <span class='co'># Newly created variables are available immediately</span>
-<span class='no'>mtcars</span> <span class='kw'>%&gt;%</span> <span class='fu'>mutate</span>(<span class='kw'>mpg2</span> <span class='kw'>=</span> <span class='no'>mpg</span> * <span class='fl'>2</span>, <span class='kw'>mpg4</span> <span class='kw'>=</span> <span class='no'>mpg2</span> * <span class='fl'>2</span>)</div><div class='output co'>#&gt;                      mpg cyl  disp  hp drat    wt  qsec vs am gear carb mpg2
+<span class='kw'>mtcars</span> <span class='op'>%&gt;%</span> <span class='fu'>mutate</span>(mpg2 = <span class='kw'>mpg</span> <span class='op'>*</span> <span class='fl'>2</span>, mpg4 = <span class='kw'>mpg2</span> <span class='op'>*</span> <span class='fl'>2</span>)
+</div><div class='output co'>#&gt;                      mpg cyl  disp  hp drat    wt  qsec vs am gear carb mpg2
 #&gt; Mazda RX4           21.0   6 160.0 110 3.90 2.620 16.46  0  1    4    4 42.0
 #&gt; Mazda RX4 Wag       21.0   6 160.0 110 3.90 2.875 17.02  0  1    4    4 42.0
 #&gt; Datsun 710          22.8   4 108.0  93 3.85 2.320 18.61  1  1    4    1 45.6
@@ -378,10 +382,11 @@ variables overwrite existing variables of the same name.</p></td>
 #&gt; Maserati Bora        60.0
 #&gt; Volvo 142E           85.6</div><div class='input'>
 <span class='co'># You can also use mutate() to remove variables and modify existing variables</span>
-<span class='no'>mtcars</span> <span class='kw'>%&gt;%</span> <span class='fu'>mutate</span>(
-  <span class='kw'>mpg</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
-  <span class='kw'>disp</span> <span class='kw'>=</span> <span class='no'>disp</span> * <span class='fl'>0.0163871</span> <span class='co'># convert to litres</span>
-)</div><div class='output co'>#&gt;                     cyl     disp  hp drat    wt  qsec vs am gear carb
+<span class='kw'>mtcars</span> <span class='op'>%&gt;%</span> <span class='fu'>mutate</span>(
+  mpg = <span class='kw'>NULL</span>,
+  disp = <span class='kw'>disp</span> <span class='op'>*</span> <span class='fl'>0.0163871</span> <span class='co'># convert to litres</span>
+)
+</div><div class='output co'>#&gt;                     cyl     disp  hp drat    wt  qsec vs am gear carb
 #&gt; Mazda RX4             6 2.621936 110 3.90 2.620 16.46  0  1    4    4
 #&gt; Mazda RX4 Wag         6 2.621936 110 3.90 2.875 17.02  0  1    4    4
 #&gt; Datsun 710            4 1.769807  93 3.85 2.320 18.61  1  1    4    1
@@ -416,8 +421,9 @@ variables overwrite existing variables of the same name.</p></td>
 #&gt; Volvo 142E            4 1.982839 109 4.11 2.780 18.60  1  1    4    2</div><div class='input'>
 <span class='co'># mutate() vs transmute --------------------------</span>
 <span class='co'># mutate() keeps all existing variables</span>
-<span class='no'>mtcars</span> <span class='kw'>%&gt;%</span>
-  <span class='fu'>mutate</span>(<span class='kw'>displ_l</span> <span class='kw'>=</span> <span class='no'>disp</span> / <span class='fl'>61.0237</span>)</div><div class='output co'>#&gt;                      mpg cyl  disp  hp drat    wt  qsec vs am gear carb
+<span class='kw'>mtcars</span> <span class='op'>%&gt;%</span>
+  <span class='fu'>mutate</span>(displ_l = <span class='kw'>disp</span> <span class='op'>/</span> <span class='fl'>61.0237</span>)
+</div><div class='output co'>#&gt;                      mpg cyl  disp  hp drat    wt  qsec vs am gear carb
 #&gt; Mazda RX4           21.0   6 160.0 110 3.90 2.620 16.46  0  1    4    4
 #&gt; Mazda RX4 Wag       21.0   6 160.0 110 3.90 2.875 17.02  0  1    4    4
 #&gt; Datsun 710          22.8   4 108.0  93 3.85 2.320 18.61  1  1    4    1
@@ -484,8 +490,9 @@ variables overwrite existing variables of the same name.</p></td>
 #&gt; Maserati Bora       4.932510
 #&gt; Volvo 142E          1.982836</div><div class='input'>
 <span class='co'># transmute keeps only the variables you create</span>
-<span class='no'>mtcars</span> <span class='kw'>%&gt;%</span>
-  <span class='fu'>transmute</span>(<span class='kw'>displ_l</span> <span class='kw'>=</span> <span class='no'>disp</span> / <span class='fl'>61.0237</span>)</div><div class='output co'>#&gt;                      displ_l
+<span class='kw'>mtcars</span> <span class='op'>%&gt;%</span>
+  <span class='fu'>transmute</span>(displ_l = <span class='kw'>disp</span> <span class='op'>/</span> <span class='fl'>61.0237</span>)
+</div><div class='output co'>#&gt;                      displ_l
 #&gt; Mazda RX4           2.621932
 #&gt; Mazda RX4 Wag       2.621932
 #&gt; Datsun 710          1.769804
@@ -534,7 +541,7 @@ variables overwrite existing variables of the same name.</p></td>
 </div>
 
 <div class="pkgdown">
-  <p>Site built with <a href="https://pkgdown.r-lib.org/">pkgdown</a> 1.5.1.</p>
+  <p>Site built with <a href="https://pkgdown.r-lib.org/">pkgdown</a> 1.6.1.</p>
 </div>
 
       </footer>

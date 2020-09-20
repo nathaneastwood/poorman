@@ -80,7 +80,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">poorman</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.2.1.7</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.2.1.12</span>
       </span>
     </div>
 
@@ -157,7 +157,7 @@
     <p>Order rows of a <code>data.frame</code> by an expression involving its variables.</p>
     </div>
 
-    <pre class="usage"><span class='fu'>arrange</span>(<span class='no'>.data</span>, <span class='no'>...</span>)</pre>
+    <pre class="usage"><span class='fu'>arrange</span>(<span class='kw'>.data</span>, <span class='kw'>...</span>)</pre>
 
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
     <table class="ref-arguments">
@@ -177,7 +177,8 @@
     <p>A <code>data.frame</code>.</p>
 
     <h2 class="hasAnchor" id="examples"><a class="anchor" href="#examples"></a>Examples</h2>
-    <pre class="examples"><div class='input'><span class='fu'>arrange</span>(<span class='no'>mtcars</span>, <span class='no'>mpg</span>)</div><div class='output co'>#&gt;                      mpg cyl  disp  hp drat    wt  qsec vs am gear carb
+    <pre class="examples"><div class='input'><span class='fu'>arrange</span>(<span class='kw'>mtcars</span>, <span class='kw'>mpg</span>)
+</div><div class='output co'>#&gt;                      mpg cyl  disp  hp drat    wt  qsec vs am gear carb
 #&gt; Cadillac Fleetwood  10.4   8 472.0 205 2.93 5.250 17.98  0  0    3    4
 #&gt; Lincoln Continental 10.4   8 460.0 215 3.00 5.424 17.82  0  0    3    4
 #&gt; Camaro Z28          13.3   8 350.0 245 3.73 3.840 15.41  0  0    3    4
@@ -209,7 +210,8 @@
 #&gt; Honda Civic         30.4   4  75.7  52 4.93 1.615 18.52  1  1    4    2
 #&gt; Lotus Europa        30.4   4  95.1 113 3.77 1.513 16.90  1  1    5    2
 #&gt; Fiat 128            32.4   4  78.7  66 4.08 2.200 19.47  1  1    4    1
-#&gt; Toyota Corolla      33.9   4  71.1  65 4.22 1.835 19.90  1  1    4    1</div><div class='input'><span class='no'>mtcars</span> <span class='kw'>%&gt;%</span> <span class='fu'>arrange</span>(<span class='no'>mpg</span>)</div><div class='output co'>#&gt;                      mpg cyl  disp  hp drat    wt  qsec vs am gear carb
+#&gt; Toyota Corolla      33.9   4  71.1  65 4.22 1.835 19.90  1  1    4    1</div><div class='input'><span class='kw'>mtcars</span> <span class='op'>%&gt;%</span> <span class='fu'>arrange</span>(<span class='kw'>mpg</span>)
+</div><div class='output co'>#&gt;                      mpg cyl  disp  hp drat    wt  qsec vs am gear carb
 #&gt; Cadillac Fleetwood  10.4   8 472.0 205 2.93 5.250 17.98  0  0    3    4
 #&gt; Lincoln Continental 10.4   8 460.0 215 3.00 5.424 17.82  0  0    3    4
 #&gt; Camaro Z28          13.3   8 350.0 245 3.73 3.840 15.41  0  0    3    4
@@ -241,7 +243,8 @@
 #&gt; Honda Civic         30.4   4  75.7  52 4.93 1.615 18.52  1  1    4    2
 #&gt; Lotus Europa        30.4   4  95.1 113 3.77 1.513 16.90  1  1    5    2
 #&gt; Fiat 128            32.4   4  78.7  66 4.08 2.200 19.47  1  1    4    1
-#&gt; Toyota Corolla      33.9   4  71.1  65 4.22 1.835 19.90  1  1    4    1</div><div class='input'><span class='no'>mtcars</span> <span class='kw'>%&gt;%</span> <span class='fu'>arrange</span>(<span class='no'>cyl</span>, <span class='no'>mpg</span>)</div><div class='output co'>#&gt;                      mpg cyl  disp  hp drat    wt  qsec vs am gear carb
+#&gt; Toyota Corolla      33.9   4  71.1  65 4.22 1.835 19.90  1  1    4    1</div><div class='input'><span class='kw'>mtcars</span> <span class='op'>%&gt;%</span> <span class='fu'>arrange</span>(<span class='kw'>cyl</span>, <span class='kw'>mpg</span>)
+</div><div class='output co'>#&gt;                      mpg cyl  disp  hp drat    wt  qsec vs am gear carb
 #&gt; Volvo 142E          21.4   4 121.0 109 4.11 2.780 18.60  1  1    4    2
 #&gt; Toyota Corona       21.5   4 120.1  97 3.70 2.465 20.01  1  0    3    1
 #&gt; Datsun 710          22.8   4 108.0  93 3.85 2.320 18.61  1  1    4    1
@@ -290,7 +293,7 @@
 </div>
 
 <div class="pkgdown">
-  <p>Site built with <a href="https://pkgdown.r-lib.org/">pkgdown</a> 1.5.1.</p>
+  <p>Site built with <a href="https://pkgdown.r-lib.org/">pkgdown</a> 1.6.1.</p>
 </div>
 
       </footer>

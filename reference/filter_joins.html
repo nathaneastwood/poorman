@@ -6,8 +6,8 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>Filtering joins filter rows from <code>x</code> based on the presence or absence of
-matches in <code>y</code>: — filter_joins • poorman</title>
+<title>Filtering joins filter rows from x based on the presence or absence of
+matches in y: — filter_joins • poorman</title>
 
 <!-- favicons -->
 <link rel="icon" type="image/png" sizes="16x16" href="../favicon-16x16.png">
@@ -47,8 +47,8 @@ matches in <code>y</code>: — filter_joins • poorman</title>
 
 
 
-<meta property="og:title" content="Filtering joins filter rows from <code>x</code> based on the presence or absence of
-matches in <code>y</code>: — filter_joins" />
+<meta property="og:title" content="Filtering joins filter rows from x based on the presence or absence of
+matches in y: — filter_joins" />
 <meta property="og:description" content="
 
 semi_join() return all rows from x with a match in y.
@@ -87,7 +87,7 @@ anti_join() return all rows from x without a match in y.
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">poorman</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.2.1.7</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.2.1.12</span>
       </span>
     </div>
 
@@ -170,9 +170,9 @@ matches in <code>y</code>:</h1>
 
     </div>
 
-    <pre class="usage"><span class='fu'>anti_join</span>(<span class='no'>x</span>, <span class='no'>y</span>, <span class='kw'>by</span> <span class='kw'>=</span> <span class='kw'>NULL</span>)
+    <pre class="usage"><span class='fu'>anti_join</span>(<span class='kw'>x</span>, <span class='kw'>y</span>, by = <span class='kw'>NULL</span>)
 
-<span class='fu'>semi_join</span>(<span class='no'>x</span>, <span class='no'>y</span>, <span class='kw'>by</span> <span class='kw'>=</span> <span class='kw'>NULL</span>)</pre>
+<span class='fu'>semi_join</span>(<span class='kw'>x</span>, <span class='kw'>y</span>, by = <span class='kw'>NULL</span>)</pre>
 
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
     <table class="ref-arguments">
@@ -193,18 +193,20 @@ that you want to join).</p></td>
 
 
     <h2 class="hasAnchor" id="examples"><a class="anchor" href="#examples"></a>Examples</h2>
-    <pre class="examples"><div class='input'><span class='no'>table1</span> <span class='kw'>&lt;-</span> <span class='fu'><a href='https://rdrr.io/r/base/data.frame.html'>data.frame</a></span>(
-  <span class='kw'>pupil</span> <span class='kw'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/rep.html'>rep</a></span>(<span class='fl'>1</span>:<span class='fl'>3</span>, <span class='kw'>each</span> <span class='kw'>=</span> <span class='fl'>2</span>),
-  <span class='kw'>test</span> <span class='kw'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/rep.html'>rep</a></span>(<span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span>(<span class='st'>"A"</span>, <span class='st'>"B"</span>), <span class='fl'>3</span>),
-  <span class='kw'>score</span> <span class='kw'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span>(<span class='fl'>60</span>, <span class='fl'>70</span>, <span class='fl'>65</span>, <span class='fl'>80</span>, <span class='fl'>85</span>, <span class='fl'>70</span>),
-  <span class='kw'>stringsAsFactors</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>
+    <pre class="examples"><div class='input'><span class='kw'>table1</span> <span class='op'>&lt;-</span> <span class='fu'><a href='https://rdrr.io/r/base/data.frame.html'>data.frame</a></span>(
+  pupil = <span class='fu'><a href='https://rdrr.io/r/base/rep.html'>rep</a></span>(<span class='fl'>1</span><span class='op'>:</span><span class='fl'>3</span>, each = <span class='fl'>2</span>),
+  test = <span class='fu'><a href='https://rdrr.io/r/base/rep.html'>rep</a></span>(<span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span>(<span class='st'>"A"</span>, <span class='st'>"B"</span>), <span class='fl'>3</span>),
+  score = <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span>(<span class='fl'>60</span>, <span class='fl'>70</span>, <span class='fl'>65</span>, <span class='fl'>80</span>, <span class='fl'>85</span>, <span class='fl'>70</span>),
+  stringsAsFactors = <span class='fl'>FALSE</span>
 )
-<span class='no'>table2</span> <span class='kw'>&lt;-</span> <span class='no'>table1</span>[<span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span>(<span class='fl'>1</span>, <span class='fl'>3</span>, <span class='fl'>4</span>), ]
+<span class='kw'>table2</span> <span class='op'>&lt;-</span> <span class='kw'>table1</span>[<span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span>(<span class='fl'>1</span>, <span class='fl'>3</span>, <span class='fl'>4</span>), ]
 
-<span class='no'>table1</span> <span class='kw'>%&gt;%</span> <span class='fu'>anti_join</span>(<span class='no'>table2</span>, <span class='kw'>by</span> <span class='kw'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span>(<span class='st'>"pupil"</span>, <span class='st'>"test"</span>))</div><div class='output co'>#&gt;   pupil test score
+<span class='kw'>table1</span> <span class='op'>%&gt;%</span> <span class='fu'>anti_join</span>(<span class='kw'>table2</span>, by = <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span>(<span class='st'>"pupil"</span>, <span class='st'>"test"</span>))
+</div><div class='output co'>#&gt;   pupil test score
 #&gt; 1     1    B    70
 #&gt; 2     3    A    85
-#&gt; 3     3    B    70</div><div class='input'><span class='no'>table1</span> <span class='kw'>%&gt;%</span> <span class='fu'>semi_join</span>(<span class='no'>table2</span>, <span class='kw'>by</span> <span class='kw'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span>(<span class='st'>"pupil"</span>, <span class='st'>"test"</span>))</div><div class='output co'>#&gt;   pupil test score
+#&gt; 3     3    B    70</div><div class='input'><span class='kw'>table1</span> <span class='op'>%&gt;%</span> <span class='fu'>semi_join</span>(<span class='kw'>table2</span>, by = <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span>(<span class='st'>"pupil"</span>, <span class='st'>"test"</span>))
+</div><div class='output co'>#&gt;   pupil test score
 #&gt; 1     1    A    60
 #&gt; 2     2    A    65
 #&gt; 3     2    B    80</div><div class='input'>
@@ -224,7 +226,7 @@ that you want to join).</p></td>
 </div>
 
 <div class="pkgdown">
-  <p>Site built with <a href="https://pkgdown.r-lib.org/">pkgdown</a> 1.5.1.</p>
+  <p>Site built with <a href="https://pkgdown.r-lib.org/">pkgdown</a> 1.6.1.</p>
 </div>
 
       </footer>

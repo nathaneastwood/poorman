@@ -6,7 +6,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>Context dependent expressions — context • poorman</title>
+<title>Select Grouping Variables — group_cols • poorman</title>
 
 <!-- favicons -->
 <link rel="icon" type="image/png" sizes="16x16" href="../favicon-16x16.png">
@@ -46,34 +46,8 @@
 
 
 
-<meta property="og:title" content="Context dependent expressions — context" />
-<meta property="og:description" content="These functions return information about the &quot;current&quot; group or &quot;current&quot; variable, so only work inside specific
-contexts like summarise() and mutate().
-
-n() gives the number of observations in the current group.
-
-
-
-cur_data() gives the current data for the current group (excluding grouping variables).
-
-
-
-cur_data_all() gives the current data for the current group (including grouping variables).
-
-
-
-cur_group() gives the group keys, a single row data.frame containing a column for each grouping variable and
-its value.
-
-
-
-cur_group_id() gives a unique numeric identifier for the current group.
-
-
-
-cur_group_rows() gives the rows the groups appear in the data.
-
-" />
+<meta property="og:title" content="Select Grouping Variables — group_cols" />
+<meta property="og:description" content="This selection helper matches grouping variables. It can be used within select() and relocate() selections." />
 <meta property="og:image" content="/logo.png" />
 
 
@@ -174,106 +148,57 @@ cur_group_rows() gives the rows the groups appear in the data.
 <div class="row">
   <div class="col-md-9 contents">
     <div class="page-header">
-    <h1>Context dependent expressions</h1>
-    <small class="dont-index">Source: <a href='https://github.com/nathaneastwood/poorman/blob/master/R/context.R'><code>R/context.R</code></a></small>
-    <div class="hidden name"><code>context.Rd</code></div>
+    <h1>Select Grouping Variables</h1>
+    <small class="dont-index">Source: <a href='https://github.com/nathaneastwood/poorman/blob/master/R/group_cols.R'><code>R/group_cols.R</code></a></small>
+    <div class="hidden name"><code>group_cols.Rd</code></div>
     </div>
 
     <div class="ref-description">
-    <p>These functions return information about the "current" group or "current" variable, so only work inside specific
-contexts like <code><a href='summarise.html'>summarise()</a></code> and <code><a href='mutate.html'>mutate()</a></code>.</p>
-<ul>
-<li><p><code>n()</code> gives the number of observations in the current group.</p></li>
-</ul>
-
-<ul>
-<li><p><code>cur_data()</code> gives the current data for the current group (excluding grouping variables).</p></li>
-</ul>
-
-<ul>
-<li><p><code>cur_data_all()</code> gives the current data for the current group (including grouping variables).</p></li>
-</ul>
-
-<ul>
-<li><p><code>cur_group()</code> gives the group keys, a single row <code>data.frame</code> containing a column for each grouping variable and
-its value.</p></li>
-</ul>
-
-<ul>
-<li><p><code>cur_group_id()</code> gives a unique numeric identifier for the current group.</p></li>
-</ul>
-
-<ul>
-<li><p><code>cur_group_rows()</code> gives the rows the groups appear in the data.</p></li>
-</ul>
-
+    <p>This selection helper matches grouping variables. It can be used within <code><a href='relocate.html'>select()</a></code> and <code><a href='relocate.html'>relocate()</a></code> selections.</p>
     </div>
 
-    <pre class="usage"><span class='fu'>n</span>()
+    <pre class="usage"><span class='fu'>group_cols</span>()</pre>
 
-<span class='fu'>cur_data</span>()
-
-<span class='fu'>cur_data_all</span>()
-
-<span class='fu'>cur_group</span>()
-
-<span class='fu'>cur_group_id</span>()
-
-<span class='fu'>cur_group_rows</span>()</pre>
-
-
-    <h2 class="hasAnchor" id="data-table"><a class="anchor" href="#data-table"></a><code>data.table</code></h2>
-
-    
-
-<p>If you're familiar with <code>data.table</code>:</p><ul>
-<li><p><code>cur_data()</code> &lt;-&gt; <code>.SD</code></p></li>
-<li><p><code>cur_group_id()</code> &lt;-&gt; <code>.GRP</code></p></li>
-<li><p><code>cur_group()</code> &lt;-&gt; <code>.BY</code></p></li>
-<li><p><code>cur_group_rows()</code> &lt;-&gt; <code>.I</code></p></li>
-</ul>
 
     <h2 class="hasAnchor" id="see-also"><a class="anchor" href="#see-also"></a>See also</h2>
 
-    <div class='dont-index'><p>See <code><a href='group_metadata.html'>group_data()</a></code> for equivalent functions that return values for all groups.</p></div>
+    <div class='dont-index'><p><code><a href='group_metadata.html'>groups()</a></code> and <code><a href='group_metadata.html'>group_vars()</a></code> for retrieving the grouping variables outside selection contexts.</p></div>
 
     <h2 class="hasAnchor" id="examples"><a class="anchor" href="#examples"></a>Examples</h2>
-    <pre class="examples"><div class='input'><span class='kw'>df</span> <span class='op'>&lt;-</span> <span class='fu'><a href='https://rdrr.io/r/base/data.frame.html'>data.frame</a></span>(
-  g = <span class='fu'><a href='https://rdrr.io/r/base/sample.html'>sample</a></span>(<span class='fu'><a href='https://rdrr.io/r/base/rep.html'>rep</a></span>(<span class='kw'>letters</span>[<span class='fl'>1</span><span class='op'>:</span><span class='fl'>3</span>], <span class='fl'>1</span><span class='op'>:</span><span class='fl'>3</span>)),
-  x = <span class='fu'><a href='https://rdrr.io/r/stats/Uniform.html'>runif</a></span>(<span class='fl'>6</span>),
-  y = <span class='fu'><a href='https://rdrr.io/r/stats/Uniform.html'>runif</a></span>(<span class='fl'>6</span>),
-  stringsAsFactors = <span class='fl'>FALSE</span>
-)
-<span class='kw'>gf</span> <span class='op'>&lt;-</span> <span class='kw'>df</span> <span class='op'>%&gt;%</span> <span class='fu'><a href='group_by.html'>group_by</a></span>(<span class='kw'>g</span>)
-
-<span class='kw'>gf</span> <span class='op'>%&gt;%</span> <span class='fu'><a href='summarise.html'>summarise</a></span>(n = <span class='fu'>n</span>())
-</div><div class='output co'>#&gt;   g n
-#&gt; 1 a 1
-#&gt; 2 b 2
-#&gt; 3 c 3</div><div class='input'>
-<span class='kw'>gf</span> <span class='op'>%&gt;%</span> <span class='fu'><a href='mutate.html'>mutate</a></span>(id = <span class='fu'>cur_group_id</span>())
-</div><div class='output co'>#&gt;   g         x          y id
-#&gt; 1 c 0.9835254 0.13807484  3
-#&gt; 2 c 0.5898376 0.08084496  3
-#&gt; 3 c 0.7591584 0.65598263  3
-#&gt; 4 b 0.8360753 0.60200386  2
-#&gt; 5 b 0.7628195 0.65699583  2
-#&gt; 6 a 0.4172699 0.32931716  1</div><div class='input'><span class='kw'>gf</span> <span class='op'>%&gt;%</span> <span class='fu'><a href='summarise.html'>summarise</a></span>(row = <span class='fu'>cur_group_rows</span>())
-</div><div class='output co'>#&gt;   g row
-#&gt; 1 a   6
-#&gt; 2 b   4
-#&gt; 3 b   5
-#&gt; 4 c   1
-#&gt; 5 c   2
-#&gt; 6 c   3</div><div class='input'><span class='kw'>gf</span> <span class='op'>%&gt;%</span> <span class='fu'><a href='summarise.html'>summarise</a></span>(data = <span class='fu'><a href='https://rdrr.io/r/base/list.html'>list</a></span>(<span class='fu'>cur_group</span>()))
-</div><div class='output co'>#&gt;   g data
-#&gt; 1 a    a
-#&gt; 2 b    b
-#&gt; 3 c    c</div><div class='input'><span class='kw'>gf</span> <span class='op'>%&gt;%</span> <span class='fu'><a href='summarise.html'>summarise</a></span>(data = <span class='fu'><a href='https://rdrr.io/r/base/list.html'>list</a></span>(<span class='fu'>cur_data</span>()))
-</div><div class='output co'>#&gt;   g         data
-#&gt; 1 a 0.417269....
-#&gt; 2 b c(0.8360....
-#&gt; 3 c c(0.9835....</div><div class='input'>
+    <pre class="examples"><div class='input'><span class='kw'>mtcars</span> <span class='op'>%&gt;%</span> <span class='fu'><a href='group_by.html'>group_by</a></span>(<span class='kw'>am</span>, <span class='kw'>cyl</span>) <span class='op'>%&gt;%</span> <span class='fu'><a href='relocate.html'>select</a></span>(<span class='fu'>group_cols</span>())
+</div><div class='output co'>#&gt;                     am cyl
+#&gt; Mazda RX4            1   6
+#&gt; Mazda RX4 Wag        1   6
+#&gt; Datsun 710           1   4
+#&gt; Hornet 4 Drive       0   6
+#&gt; Hornet Sportabout    0   8
+#&gt; Valiant              0   6
+#&gt; Duster 360           0   8
+#&gt; Merc 240D            0   4
+#&gt; Merc 230             0   4
+#&gt; Merc 280             0   6
+#&gt; Merc 280C            0   6
+#&gt; Merc 450SE           0   8
+#&gt; Merc 450SL           0   8
+#&gt; Merc 450SLC          0   8
+#&gt; Cadillac Fleetwood   0   8
+#&gt; Lincoln Continental  0   8
+#&gt; Chrysler Imperial    0   8
+#&gt; Fiat 128             1   4
+#&gt; Honda Civic          1   4
+#&gt; Toyota Corolla       1   4
+#&gt; Toyota Corona        0   4
+#&gt; Dodge Challenger     0   8
+#&gt; AMC Javelin          0   8
+#&gt; Camaro Z28           0   8
+#&gt; Pontiac Firebird     0   8
+#&gt; Fiat X1-9            1   4
+#&gt; Porsche 914-2        1   4
+#&gt; Lotus Europa         1   4
+#&gt; Ford Pantera L       1   8
+#&gt; Ferrari Dino         1   6
+#&gt; Maserati Bora        1   8
+#&gt; Volvo 142E           1   4</div><div class='input'>
 </div></pre>
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="pkgdown-sidebar">

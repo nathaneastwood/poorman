@@ -90,7 +90,7 @@ last_col(): Select the last variable, possibly with an offset.
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">poorman</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.2.1.7</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.2.1.12</span>
       </span>
     </div>
 
@@ -177,23 +177,23 @@ last_col(): Select the last variable, possibly with an offset.
 
     </div>
 
-    <pre class="usage"><span class='fu'>starts_with</span>(<span class='no'>match</span>, <span class='kw'>ignore.case</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>, <span class='kw'>vars</span> <span class='kw'>=</span> <span class='fu'><a href='peek_vars.html'>peek_vars</a></span>())
+    <pre class="usage"><span class='fu'>starts_with</span>(<span class='kw'>match</span>, ignore.case = <span class='fl'>TRUE</span>, vars = <span class='fu'><a href='peek_vars.html'>peek_vars</a></span>())
 
-<span class='fu'>ends_with</span>(<span class='no'>match</span>, <span class='kw'>ignore.case</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>, <span class='kw'>vars</span> <span class='kw'>=</span> <span class='fu'><a href='peek_vars.html'>peek_vars</a></span>())
+<span class='fu'>ends_with</span>(<span class='kw'>match</span>, ignore.case = <span class='fl'>TRUE</span>, vars = <span class='fu'><a href='peek_vars.html'>peek_vars</a></span>())
 
-<span class='fu'>contains</span>(<span class='no'>match</span>, <span class='kw'>ignore.case</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>, <span class='kw'>vars</span> <span class='kw'>=</span> <span class='fu'><a href='peek_vars.html'>peek_vars</a></span>())
+<span class='fu'>contains</span>(<span class='kw'>match</span>, ignore.case = <span class='fl'>TRUE</span>, vars = <span class='fu'><a href='peek_vars.html'>peek_vars</a></span>())
 
-<span class='fu'>matches</span>(<span class='no'>match</span>, <span class='kw'>ignore.case</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>, <span class='kw'>perl</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>, <span class='kw'>vars</span> <span class='kw'>=</span> <span class='fu'><a href='peek_vars.html'>peek_vars</a></span>())
+<span class='fu'>matches</span>(<span class='kw'>match</span>, ignore.case = <span class='fl'>TRUE</span>, perl = <span class='fl'>FALSE</span>, vars = <span class='fu'><a href='peek_vars.html'>peek_vars</a></span>())
 
-<span class='fu'>num_range</span>(<span class='no'>prefix</span>, <span class='no'>range</span>, <span class='kw'>width</span> <span class='kw'>=</span> <span class='kw'>NULL</span>, <span class='kw'>vars</span> <span class='kw'>=</span> <span class='fu'><a href='peek_vars.html'>peek_vars</a></span>())
+<span class='fu'>num_range</span>(<span class='kw'>prefix</span>, <span class='kw'>range</span>, width = <span class='kw'>NULL</span>, vars = <span class='fu'><a href='peek_vars.html'>peek_vars</a></span>())
 
-<span class='fu'>all_of</span>(<span class='no'>x</span>, <span class='kw'>vars</span> <span class='kw'>=</span> <span class='fu'><a href='peek_vars.html'>peek_vars</a></span>())
+<span class='fu'>all_of</span>(<span class='kw'>x</span>, vars = <span class='fu'><a href='peek_vars.html'>peek_vars</a></span>())
 
-<span class='fu'>any_of</span>(<span class='no'>x</span>, <span class='kw'>vars</span> <span class='kw'>=</span> <span class='fu'><a href='peek_vars.html'>peek_vars</a></span>())
+<span class='fu'>any_of</span>(<span class='kw'>x</span>, vars = <span class='fu'><a href='peek_vars.html'>peek_vars</a></span>())
 
-<span class='fu'>everything</span>(<span class='kw'>vars</span> <span class='kw'>=</span> <span class='fu'><a href='peek_vars.html'>peek_vars</a></span>())
+<span class='fu'>everything</span>(vars = <span class='fu'><a href='peek_vars.html'>peek_vars</a></span>())
 
-<span class='fu'>last_col</span>(<span class='kw'>offset</span> <span class='kw'>=</span> <span class='fl'>0L</span>, <span class='kw'>vars</span> <span class='kw'>=</span> <span class='fu'><a href='peek_vars.html'>peek_vars</a></span>())</pre>
+<span class='fu'>last_col</span>(offset = <span class='fl'>0L</span>, vars = <span class='fu'><a href='peek_vars.html'>peek_vars</a></span>())</pre>
 
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
     <table class="ref-arguments">
@@ -209,7 +209,7 @@ last_col(): Select the last variable, possibly with an offset.
     <tr>
       <th>vars</th>
       <td><p><code><a href='https://rdrr.io/r/base/character.html'>character(n)</a></code>. A character vector of variable names. When called from inside selecting functions such as
-<code><a href='select.html'>select()</a></code>, these are automatically set to the names of the table.</p></td>
+<code><a href='relocate.html'>select()</a></code>, these are automatically set to the names of the table.</p></td>
     </tr>
     <tr>
       <th>perl</th>
@@ -243,10 +243,11 @@ range of three "001", etc.</p></td>
     <p>An integer vector giving the position of the matched variables.</p>
     <h2 class="hasAnchor" id="see-also"><a class="anchor" href="#see-also"></a>See also</h2>
 
-    <div class='dont-index'><p><code><a href='select.html'>select()</a></code>, <code><a href='select.html'>relocate()</a></code>, <code><a href='where.html'>where()</a></code></p></div>
+    <div class='dont-index'><p><code><a href='relocate.html'>select()</a></code>, <code><a href='relocate.html'>relocate()</a></code>, <code><a href='where.html'>where()</a></code>, <code><a href='group_cols.html'>group_cols()</a></code></p></div>
 
     <h2 class="hasAnchor" id="examples"><a class="anchor" href="#examples"></a>Examples</h2>
-    <pre class="examples"><div class='input'><span class='no'>mtcars</span> <span class='kw'>%&gt;%</span> <span class='fu'><a href='select.html'>select</a></span>(<span class='fu'>starts_with</span>(<span class='st'>"c"</span>))</div><div class='output co'>#&gt;                     cyl carb
+    <pre class="examples"><div class='input'><span class='kw'>mtcars</span> <span class='op'>%&gt;%</span> <span class='fu'><a href='relocate.html'>select</a></span>(<span class='fu'>starts_with</span>(<span class='st'>"c"</span>))
+</div><div class='output co'>#&gt;                     cyl carb
 #&gt; Mazda RX4             6    4
 #&gt; Mazda RX4 Wag         6    4
 #&gt; Datsun 710            4    1
@@ -278,7 +279,8 @@ range of three "001", etc.</p></td>
 #&gt; Ford Pantera L        8    4
 #&gt; Ferrari Dino          6    6
 #&gt; Maserati Bora         8    8
-#&gt; Volvo 142E            4    2</div><div class='input'><span class='no'>mtcars</span> <span class='kw'>%&gt;%</span> <span class='fu'><a href='select.html'>select</a></span>(<span class='fu'>starts_with</span>(<span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span>(<span class='st'>"c"</span>, <span class='st'>"h"</span>)))</div><div class='output co'>#&gt;                     cyl  hp carb
+#&gt; Volvo 142E            4    2</div><div class='input'><span class='kw'>mtcars</span> <span class='op'>%&gt;%</span> <span class='fu'><a href='relocate.html'>select</a></span>(<span class='fu'>starts_with</span>(<span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span>(<span class='st'>"c"</span>, <span class='st'>"h"</span>)))
+</div><div class='output co'>#&gt;                     cyl  hp carb
 #&gt; Mazda RX4             6 110    4
 #&gt; Mazda RX4 Wag         6 110    4
 #&gt; Datsun 710            4  93    1
@@ -310,7 +312,8 @@ range of three "001", etc.</p></td>
 #&gt; Ford Pantera L        8 264    4
 #&gt; Ferrari Dino          6 175    6
 #&gt; Maserati Bora         8 335    8
-#&gt; Volvo 142E            4 109    2</div><div class='input'><span class='no'>mtcars</span> <span class='kw'>%&gt;%</span> <span class='fu'><a href='select.html'>select</a></span>(<span class='fu'>ends_with</span>(<span class='st'>"b"</span>))</div><div class='output co'>#&gt;                     carb
+#&gt; Volvo 142E            4 109    2</div><div class='input'><span class='kw'>mtcars</span> <span class='op'>%&gt;%</span> <span class='fu'><a href='relocate.html'>select</a></span>(<span class='fu'>ends_with</span>(<span class='st'>"b"</span>))
+</div><div class='output co'>#&gt;                     carb
 #&gt; Mazda RX4              4
 #&gt; Mazda RX4 Wag          4
 #&gt; Datsun 710             1
@@ -342,7 +345,8 @@ range of three "001", etc.</p></td>
 #&gt; Ford Pantera L         4
 #&gt; Ferrari Dino           6
 #&gt; Maserati Bora          8
-#&gt; Volvo 142E             2</div><div class='input'><span class='no'>mtcars</span> <span class='kw'>%&gt;%</span> <span class='fu'><a href='select.html'>relocate</a></span>(<span class='fu'>contains</span>(<span class='st'>"a"</span>), <span class='kw'>.before</span> <span class='kw'>=</span> <span class='no'>mpg</span>)</div><div class='output co'>#&gt;                     drat am gear carb  mpg cyl  disp  hp    wt  qsec vs
+#&gt; Volvo 142E             2</div><div class='input'><span class='kw'>mtcars</span> <span class='op'>%&gt;%</span> <span class='fu'><a href='relocate.html'>relocate</a></span>(<span class='fu'>contains</span>(<span class='st'>"a"</span>), .before = <span class='kw'>mpg</span>)
+</div><div class='output co'>#&gt;                     drat am gear carb  mpg cyl  disp  hp    wt  qsec vs
 #&gt; Mazda RX4           3.90  1    4    4 21.0   6 160.0 110 2.620 16.46  0
 #&gt; Mazda RX4 Wag       3.90  1    4    4 21.0   6 160.0 110 2.875 17.02  0
 #&gt; Datsun 710          3.85  1    4    1 22.8   4 108.0  93 2.320 18.61  1
@@ -374,7 +378,8 @@ range of three "001", etc.</p></td>
 #&gt; Ford Pantera L      4.22  1    5    4 15.8   8 351.0 264 3.170 14.50  0
 #&gt; Ferrari Dino        3.62  1    5    6 19.7   6 145.0 175 2.770 15.50  0
 #&gt; Maserati Bora       3.54  1    5    8 15.0   8 301.0 335 3.570 14.60  0
-#&gt; Volvo 142E          4.11  1    4    2 21.4   4 121.0 109 2.780 18.60  1</div><div class='input'><span class='no'>iris</span> <span class='kw'>%&gt;%</span> <span class='fu'><a href='select.html'>select</a></span>(<span class='fu'>matches</span>(<span class='st'>".t."</span>))</div><div class='output co'>#&gt;     Sepal.Length Sepal.Width Petal.Length Petal.Width
+#&gt; Volvo 142E          4.11  1    4    2 21.4   4 121.0 109 2.780 18.60  1</div><div class='input'><span class='kw'>iris</span> <span class='op'>%&gt;%</span> <span class='fu'><a href='relocate.html'>select</a></span>(<span class='fu'>matches</span>(<span class='st'>".t."</span>))
+</div><div class='output co'>#&gt;     Sepal.Length Sepal.Width Petal.Length Petal.Width
 #&gt; 1            5.1         3.5          1.4         0.2
 #&gt; 2            4.9         3.0          1.4         0.2
 #&gt; 3            4.7         3.2          1.3         0.2
@@ -524,7 +529,8 @@ range of three "001", etc.</p></td>
 #&gt; 147          6.3         2.5          5.0         1.9
 #&gt; 148          6.5         3.0          5.2         2.0
 #&gt; 149          6.2         3.4          5.4         2.3
-#&gt; 150          5.9         3.0          5.1         1.8</div><div class='input'><span class='no'>mtcars</span> <span class='kw'>%&gt;%</span> <span class='fu'><a href='select.html'>select</a></span>(<span class='fu'>last_col</span>())</div><div class='output co'>#&gt;                     carb
+#&gt; 150          5.9         3.0          5.1         1.8</div><div class='input'><span class='kw'>mtcars</span> <span class='op'>%&gt;%</span> <span class='fu'><a href='relocate.html'>select</a></span>(<span class='fu'>last_col</span>())
+</div><div class='output co'>#&gt;                     carb
 #&gt; Mazda RX4              4
 #&gt; Mazda RX4 Wag          4
 #&gt; Datsun 710             1
@@ -558,7 +564,8 @@ range of three "001", etc.</p></td>
 #&gt; Maserati Bora          8
 #&gt; Volvo 142E             2</div><div class='input'>
 <span class='co'># `all_of()` selects the variables in a character vector:</span>
-<span class='no'>iris</span> <span class='kw'>%&gt;%</span> <span class='fu'><a href='select.html'>select</a></span>(<span class='fu'>all_of</span>(<span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span>(<span class='st'>"Petal.Length"</span>, <span class='st'>"Petal.Width"</span>)))</div><div class='output co'>#&gt;     Petal.Length Petal.Width
+<span class='kw'>iris</span> <span class='op'>%&gt;%</span> <span class='fu'><a href='relocate.html'>select</a></span>(<span class='fu'>all_of</span>(<span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span>(<span class='st'>"Petal.Length"</span>, <span class='st'>"Petal.Width"</span>)))
+</div><div class='output co'>#&gt;     Petal.Length Petal.Width
 #&gt; 1            1.4         0.2
 #&gt; 2            1.4         0.2
 #&gt; 3            1.3         0.2
@@ -709,9 +716,11 @@ range of three "001", etc.</p></td>
 #&gt; 148          5.2         2.0
 #&gt; 149          5.4         2.3
 #&gt; 150          5.1         1.8</div><div class='input'><span class='co'># `all_of()` is strict and will throw an error if the column name isn't found</span>
-<span class='fu'><a href='https://rdrr.io/r/base/try.html'>try</a></span>({<span class='no'>iris</span> <span class='kw'>%&gt;%</span> <span class='fu'><a href='select.html'>select</a></span>(<span class='fu'>all_of</span>(<span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span>(<span class='st'>"Species"</span>, <span class='st'>"Genres"</span>)))})</div><div class='output co'>#&gt; Error in all_of(c("Species", "Genres")) : 
+<span class='fu'><a href='https://rdrr.io/r/base/try.html'>try</a></span>({<span class='kw'>iris</span> <span class='op'>%&gt;%</span> <span class='fu'><a href='relocate.html'>select</a></span>(<span class='fu'>all_of</span>(<span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span>(<span class='st'>"Species"</span>, <span class='st'>"Genres"</span>)))})
+</div><div class='output co'>#&gt; Error in all_of(c("Species", "Genres")) : 
 #&gt;   The column Genres does not exist.</div><div class='input'><span class='co'># However `any_of()` allows missing variables</span>
-<span class='no'>iris</span> <span class='kw'>%&gt;%</span> <span class='fu'><a href='select.html'>select</a></span>(<span class='fu'>any_of</span>(<span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span>(<span class='st'>"Species"</span>, <span class='st'>"Genres"</span>)))</div><div class='output co'>#&gt;        Species
+<span class='kw'>iris</span> <span class='op'>%&gt;%</span> <span class='fu'><a href='relocate.html'>select</a></span>(<span class='fu'>any_of</span>(<span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span>(<span class='st'>"Species"</span>, <span class='st'>"Genres"</span>)))
+</div><div class='output co'>#&gt;        Species
 #&gt; 1       setosa
 #&gt; 2       setosa
 #&gt; 3       setosa
@@ -878,7 +887,7 @@ range of three "001", etc.</p></td>
 </div>
 
 <div class="pkgdown">
-  <p>Site built with <a href="https://pkgdown.r-lib.org/">pkgdown</a> 1.5.1.</p>
+  <p>Site built with <a href="https://pkgdown.r-lib.org/">pkgdown</a> 1.6.1.</p>
 </div>
 
       </footer>

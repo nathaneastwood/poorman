@@ -80,7 +80,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">poorman</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.2.1.7</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.2.1.12</span>
       </span>
     </div>
 
@@ -157,7 +157,7 @@
     <p>This is a shortcut for <code>x &gt;= left &amp; x &lt;= right</code>.</p>
     </div>
 
-    <pre class="usage"><span class='fu'>between</span>(<span class='no'>x</span>, <span class='no'>left</span>, <span class='no'>right</span>)</pre>
+    <pre class="usage"><span class='fu'>between</span>(<span class='kw'>x</span>, <span class='kw'>left</span>, <span class='kw'>right</span>)</pre>
 
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
     <table class="ref-arguments">
@@ -177,9 +177,11 @@
     <p>A <code>logical</code> vector the same length as <code>x</code>.</p>
 
     <h2 class="hasAnchor" id="examples"><a class="anchor" href="#examples"></a>Examples</h2>
-    <pre class="examples"><div class='input'><span class='fu'>between</span>(<span class='fl'>1</span>:<span class='fl'>12</span>, <span class='fl'>7</span>, <span class='fl'>9</span>)</div><div class='output co'>#&gt;  [1] FALSE FALSE FALSE FALSE FALSE FALSE  TRUE  TRUE  TRUE FALSE FALSE FALSE</div><div class='input'>
-<span class='no'>x</span> <span class='kw'>&lt;-</span> <span class='fu'><a href='https://rdrr.io/r/stats/Normal.html'>rnorm</a></span>(<span class='fl'>1e2</span>)
-<span class='no'>x</span>[<span class='fu'>between</span>(<span class='no'>x</span>, -<span class='fl'>1</span>, <span class='fl'>1</span>)]</div><div class='output co'>#&gt;  [1]  0.255317055 -0.005571287  0.621552721 -0.247325302 -0.244199607
+    <pre class="examples"><div class='input'><span class='fu'>between</span>(<span class='fl'>1</span><span class='op'>:</span><span class='fl'>12</span>, <span class='fl'>7</span>, <span class='fl'>9</span>)
+</div><div class='output co'>#&gt;  [1] FALSE FALSE FALSE FALSE FALSE FALSE  TRUE  TRUE  TRUE FALSE FALSE FALSE</div><div class='input'>
+<span class='kw'>x</span> <span class='op'>&lt;-</span> <span class='fu'><a href='https://rdrr.io/r/stats/Normal.html'>rnorm</a></span>(<span class='fl'>1e2</span>)
+<span class='kw'>x</span>[<span class='fu'>between</span>(<span class='kw'>x</span>, <span class='op'>-</span><span class='fl'>1</span>, <span class='fl'>1</span>)]
+</div><div class='output co'>#&gt;  [1]  0.255317055 -0.005571287  0.621552721 -0.247325302 -0.244199607
 #&gt;  [6] -0.282705449 -0.553699384  0.628982042  0.512426950 -0.522012515
 #&gt; [11] -0.052601910  0.542996343 -0.914074827  0.468154420  0.362951256
 #&gt; [16]  0.737776321 -0.097445104 -0.935847354 -0.015950311 -0.826788954
@@ -209,7 +211,7 @@
 </div>
 
 <div class="pkgdown">
-  <p>Site built with <a href="https://pkgdown.r-lib.org/">pkgdown</a> 1.5.1.</p>
+  <p>Site built with <a href="https://pkgdown.r-lib.org/">pkgdown</a> 1.6.1.</p>
 </div>
 
       </footer>
