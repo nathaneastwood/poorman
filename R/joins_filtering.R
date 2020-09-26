@@ -46,7 +46,7 @@ filter_join_worker <- function(x, y, by = NULL, type = c("anti", "semi")) {
   }
   rows <- interaction(x[, by]) %in% interaction(y[, by])
   if (type == "anti") rows <- !rows
-  res <- x[rows, ]
+  res <- x[rows, , drop = FALSE]
   rownames(res) <- NULL
   res
 }
