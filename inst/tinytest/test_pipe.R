@@ -12,7 +12,7 @@ expect_equal(
 
 expect_equal(
   "Ceci n'est pas une pipe" %>% gsub("une", "un", .),
-  "un",
+  "Ceci n'est pas un pipe",
   info = "Using the dot place-holder."
 )
 
