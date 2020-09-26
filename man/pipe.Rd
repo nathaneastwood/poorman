@@ -15,12 +15,38 @@ lhs \%>\% rhs
 \description{
 Pipe an object forward into a function or call expression.
 }
-\details{
-Unlike the \code{magrittr} pipe, you must supply an actual function instead of just a function name. For example
-\code{mtcars \%>\% head} will not work, but \code{mtcars \%>\% head()} will.
-}
 \examples{
-mtcars \%>\% head()
-mtcars \%>\% select(mpg)
+# Basic use:
+iris \%>\% head
 
+# Use with lhs as first argument
+iris \%>\% head(10)
+
+# Using the dot place-holder
+"Ceci n'est pas une pipe" \%>\% gsub("une", "un", .)
+
+# When dot is nested, lhs is still placed first:
+sample(1:10) \%>\% paste0(LETTERS[.])
+
+# This can be avoided:
+rnorm(100) \%>\% {c(min(.), mean(.), max(.))} \%>\% floor
+
+# Lambda expressions:
+iris \%>\%
+  {
+    size <- sample(1:10, size = 1)
+    rbind(head(., size), tail(., size))
+  }
+
+# renaming in lambdas:
+iris \%>\%
+  {
+    my_data <- .
+    size <- sample(1:10, size = 1)
+    rbind(head(my_data, size), tail(my_data, size))
+  }
+
+}
+\author{
+Nathan Eastwood and Antoine Fabri \email{antoine.fabri@gmail.com}.
 }

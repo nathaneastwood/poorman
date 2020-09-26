@@ -55,7 +55,7 @@ rename_with <- function(.data, .fn, .cols = everything(), ...) {
   if (!is.function(.fn)) stop("`", .fn, "` is not a valid function")
   grouped <- inherits(.data, "grouped_data")
   if (grouped) grp_pos <- which(colnames(.data) %in% group_vars(.data))
-  col_pos <- eval(substitute(select_positions(.data, .cols)))
+  col_pos <- do.call(select_positions, list(.data = .data, substitute(.cols)))
   cols <- colnames(.data)[col_pos]
   new_cols <- .fn(cols, ...)
   if (any(duplicated(new_cols))) {
