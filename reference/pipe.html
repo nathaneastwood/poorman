@@ -80,7 +80,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">poorman</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.2.1.14</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.2.1.15</span>
       </span>
     </div>
 
@@ -172,53 +172,79 @@
     </tr>
     </table>
 
-    <h2 class="hasAnchor" id="details"><a class="anchor" href="#details"></a>Details</h2>
+    <h2 class="hasAnchor" id="author"><a class="anchor" href="#author"></a>Author</h2>
 
-    <p>Unlike the <code>magrittr</code> pipe, you must supply an actual function instead of just a function name. For example
-<code>mtcars %&gt;% head</code> will not work, but <code>mtcars %&gt;% head()</code> will.</p>
+    <p>Nathan Eastwood and Antoine Fabri <a href='mailto:antoine.fabri@gmail.com'>antoine.fabri@gmail.com</a>.</p>
 
     <h2 class="hasAnchor" id="examples"><a class="anchor" href="#examples"></a>Examples</h2>
-    <pre class="examples"><div class='input'><span class='va'>mtcars</span> <span class='op'>%&gt;%</span> <span class='fu'><a href='https://rdrr.io/r/utils/head.html'>head</a></span><span class='op'>(</span><span class='op'>)</span>
-</div><div class='output co'>#&gt;                    mpg cyl disp  hp drat    wt  qsec vs am gear carb
-#&gt; Mazda RX4         21.0   6  160 110 3.90 2.620 16.46  0  1    4    4
-#&gt; Mazda RX4 Wag     21.0   6  160 110 3.90 2.875 17.02  0  1    4    4
-#&gt; Datsun 710        22.8   4  108  93 3.85 2.320 18.61  1  1    4    1
-#&gt; Hornet 4 Drive    21.4   6  258 110 3.08 3.215 19.44  1  0    3    1
-#&gt; Hornet Sportabout 18.7   8  360 175 3.15 3.440 17.02  0  0    3    2
-#&gt; Valiant           18.1   6  225 105 2.76 3.460 20.22  1  0    3    1</div><div class='input'><span class='va'>mtcars</span> <span class='op'>%&gt;%</span> <span class='fu'><a href='relocate.html'>select</a></span><span class='op'>(</span><span class='va'>mpg</span><span class='op'>)</span>
-</div><div class='output co'>#&gt;                      mpg
-#&gt; Mazda RX4           21.0
-#&gt; Mazda RX4 Wag       21.0
-#&gt; Datsun 710          22.8
-#&gt; Hornet 4 Drive      21.4
-#&gt; Hornet Sportabout   18.7
-#&gt; Valiant             18.1
-#&gt; Duster 360          14.3
-#&gt; Merc 240D           24.4
-#&gt; Merc 230            22.8
-#&gt; Merc 280            19.2
-#&gt; Merc 280C           17.8
-#&gt; Merc 450SE          16.4
-#&gt; Merc 450SL          17.3
-#&gt; Merc 450SLC         15.2
-#&gt; Cadillac Fleetwood  10.4
-#&gt; Lincoln Continental 10.4
-#&gt; Chrysler Imperial   14.7
-#&gt; Fiat 128            32.4
-#&gt; Honda Civic         30.4
-#&gt; Toyota Corolla      33.9
-#&gt; Toyota Corona       21.5
-#&gt; Dodge Challenger    15.5
-#&gt; AMC Javelin         15.2
-#&gt; Camaro Z28          13.3
-#&gt; Pontiac Firebird    19.2
-#&gt; Fiat X1-9           27.3
-#&gt; Porsche 914-2       26.0
-#&gt; Lotus Europa        30.4
-#&gt; Ford Pantera L      15.8
-#&gt; Ferrari Dino        19.7
-#&gt; Maserati Bora       15.0
-#&gt; Volvo 142E          21.4</div><div class='input'>
+    <pre class="examples"><div class='input'><span class='co'># Basic use:</span>
+<span class='va'>iris</span> <span class='op'>%&gt;%</span> <span class='va'>head</span>
+</div><div class='output co'>#&gt;   Sepal.Length Sepal.Width Petal.Length Petal.Width Species
+#&gt; 1          5.1         3.5          1.4         0.2  setosa
+#&gt; 2          4.9         3.0          1.4         0.2  setosa
+#&gt; 3          4.7         3.2          1.3         0.2  setosa
+#&gt; 4          4.6         3.1          1.5         0.2  setosa
+#&gt; 5          5.0         3.6          1.4         0.2  setosa
+#&gt; 6          5.4         3.9          1.7         0.4  setosa</div><div class='input'>
+<span class='co'># Use with lhs as first argument</span>
+<span class='va'>iris</span> <span class='op'>%&gt;%</span> <span class='fu'><a href='https://rdrr.io/r/utils/head.html'>head</a></span><span class='op'>(</span><span class='fl'>10</span><span class='op'>)</span>
+</div><div class='output co'>#&gt;    Sepal.Length Sepal.Width Petal.Length Petal.Width Species
+#&gt; 1           5.1         3.5          1.4         0.2  setosa
+#&gt; 2           4.9         3.0          1.4         0.2  setosa
+#&gt; 3           4.7         3.2          1.3         0.2  setosa
+#&gt; 4           4.6         3.1          1.5         0.2  setosa
+#&gt; 5           5.0         3.6          1.4         0.2  setosa
+#&gt; 6           5.4         3.9          1.7         0.4  setosa
+#&gt; 7           4.6         3.4          1.4         0.3  setosa
+#&gt; 8           5.0         3.4          1.5         0.2  setosa
+#&gt; 9           4.4         2.9          1.4         0.2  setosa
+#&gt; 10          4.9         3.1          1.5         0.1  setosa</div><div class='input'>
+<span class='co'># Using the dot place-holder</span>
+<span class='st'>"Ceci n'est pas une pipe"</span> <span class='op'>%&gt;%</span> <span class='fu'><a href='https://rdrr.io/r/base/grep.html'>gsub</a></span><span class='op'>(</span><span class='st'>"une"</span>, <span class='st'>"un"</span>, <span class='va'>.</span><span class='op'>)</span>
+</div><div class='output co'>#&gt; [1] "un"</div><div class='input'>
+<span class='co'># When dot is nested, lhs is still placed first:</span>
+<span class='fu'><a href='https://rdrr.io/r/base/sample.html'>sample</a></span><span class='op'>(</span><span class='fl'>1</span><span class='op'>:</span><span class='fl'>10</span><span class='op'>)</span> <span class='op'>%&gt;%</span> <span class='fu'><a href='https://rdrr.io/r/base/paste.html'>paste0</a></span><span class='op'>(</span><span class='va'>LETTERS</span><span class='op'>[</span><span class='va'>.</span><span class='op'>]</span><span class='op'>)</span>
+</div><div class='output co'>#&gt;  [1] "5E"  "1A"  "8H"  "3C"  "6F"  "4D"  "7G"  "9I"  "10J" "2B" </div><div class='input'>
+<span class='co'># This can be avoided:</span>
+<span class='fu'><a href='https://rdrr.io/r/stats/Normal.html'>rnorm</a></span><span class='op'>(</span><span class='fl'>100</span><span class='op'>)</span> <span class='op'>%&gt;%</span> <span class='op'>{</span><span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span><span class='op'>(</span><span class='fu'><a href='https://rdrr.io/r/base/Extremes.html'>min</a></span><span class='op'>(</span><span class='va'>.</span><span class='op'>)</span>, <span class='fu'><a href='https://rdrr.io/r/base/mean.html'>mean</a></span><span class='op'>(</span><span class='va'>.</span><span class='op'>)</span>, <span class='fu'><a href='https://rdrr.io/r/base/Extremes.html'>max</a></span><span class='op'>(</span><span class='va'>.</span><span class='op'>)</span><span class='op'>)</span><span class='op'>}</span> <span class='op'>%&gt;%</span> <span class='va'>floor</span>
+</div><div class='output co'>#&gt; [1] -2  0  2</div><div class='input'>
+<span class='co'># Lambda expressions:</span>
+<span class='va'>iris</span> <span class='op'>%&gt;%</span>
+  <span class='op'>{</span>
+    <span class='va'>size</span> <span class='op'>&lt;-</span> <span class='fu'><a href='https://rdrr.io/r/base/sample.html'>sample</a></span><span class='op'>(</span><span class='fl'>1</span><span class='op'>:</span><span class='fl'>10</span>, size <span class='op'>=</span> <span class='fl'>1</span><span class='op'>)</span>
+    <span class='fu'><a href='https://rdrr.io/r/base/cbind.html'>rbind</a></span><span class='op'>(</span><span class='fu'><a href='https://rdrr.io/r/utils/head.html'>head</a></span><span class='op'>(</span><span class='va'>.</span>, <span class='va'>size</span><span class='op'>)</span>, <span class='fu'><a href='https://rdrr.io/r/utils/head.html'>tail</a></span><span class='op'>(</span><span class='va'>.</span>, <span class='va'>size</span><span class='op'>)</span><span class='op'>)</span>
+  <span class='op'>}</span>
+</div><div class='output co'>#&gt;     Sepal.Length Sepal.Width Petal.Length Petal.Width   Species
+#&gt; 1            5.1         3.5          1.4         0.2    setosa
+#&gt; 2            4.9         3.0          1.4         0.2    setosa
+#&gt; 3            4.7         3.2          1.3         0.2    setosa
+#&gt; 4            4.6         3.1          1.5         0.2    setosa
+#&gt; 5            5.0         3.6          1.4         0.2    setosa
+#&gt; 6            5.4         3.9          1.7         0.4    setosa
+#&gt; 7            4.6         3.4          1.4         0.3    setosa
+#&gt; 8            5.0         3.4          1.5         0.2    setosa
+#&gt; 9            4.4         2.9          1.4         0.2    setosa
+#&gt; 142          6.9         3.1          5.1         2.3 virginica
+#&gt; 143          5.8         2.7          5.1         1.9 virginica
+#&gt; 144          6.8         3.2          5.9         2.3 virginica
+#&gt; 145          6.7         3.3          5.7         2.5 virginica
+#&gt; 146          6.7         3.0          5.2         2.3 virginica
+#&gt; 147          6.3         2.5          5.0         1.9 virginica
+#&gt; 148          6.5         3.0          5.2         2.0 virginica
+#&gt; 149          6.2         3.4          5.4         2.3 virginica
+#&gt; 150          5.9         3.0          5.1         1.8 virginica</div><div class='input'>
+<span class='co'># renaming in lambdas:</span>
+<span class='va'>iris</span> <span class='op'>%&gt;%</span>
+  <span class='op'>{</span>
+    <span class='va'>my_data</span> <span class='op'>&lt;-</span> <span class='va'>.</span>
+    <span class='va'>size</span> <span class='op'>&lt;-</span> <span class='fu'><a href='https://rdrr.io/r/base/sample.html'>sample</a></span><span class='op'>(</span><span class='fl'>1</span><span class='op'>:</span><span class='fl'>10</span>, size <span class='op'>=</span> <span class='fl'>1</span><span class='op'>)</span>
+    <span class='fu'><a href='https://rdrr.io/r/base/cbind.html'>rbind</a></span><span class='op'>(</span><span class='fu'><a href='https://rdrr.io/r/utils/head.html'>head</a></span><span class='op'>(</span><span class='va'>my_data</span>, <span class='va'>size</span><span class='op'>)</span>, <span class='fu'><a href='https://rdrr.io/r/utils/head.html'>tail</a></span><span class='op'>(</span><span class='va'>my_data</span>, <span class='va'>size</span><span class='op'>)</span><span class='op'>)</span>
+  <span class='op'>}</span>
+</div><div class='output co'>#&gt;     Sepal.Length Sepal.Width Petal.Length Petal.Width   Species
+#&gt; 1            5.1         3.5          1.4         0.2    setosa
+#&gt; 2            4.9         3.0          1.4         0.2    setosa
+#&gt; 149          6.2         3.4          5.4         2.3 virginica
+#&gt; 150          5.9         3.0          5.1         1.8 virginica</div><div class='input'>
 </div></pre>
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="pkgdown-sidebar">
