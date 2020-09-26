@@ -42,3 +42,21 @@ expect_equal(
   data.frame(pupil = c(1L, 2L, 2L), test = c("A", "A", "B"), score = c(60, 65, 80), stringsAsFactors = FALSE),
   info = "Multi-column semi-join"
 )
+
+tbl1 <- data.frame(
+  a = rep(LETTERS[1:3], 10),
+  stringsAsFactors = FALSE
+)
+tbl2 <- data.frame(
+  a = LETTERS[1:3],
+  b = colours()[1:3],
+  stringsAsFactors = FALSE
+)
+expect_equal(
+  invisible(suppressMessages(res <- semi_join(tbl1, tbl2))),
+  data.frame(
+    a = rep(LETTERS[1:3], 10),
+    stringsAsFactors = FALSE
+  ),
+  info = "Ensure `drop = FALSE` for single column data.frames."
+)
