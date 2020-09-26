@@ -157,9 +157,9 @@
     <p>Determine the groups within a <code>data.frame</code> to perform operations on. <code>ungroup()</code> removes the grouping levels.</p>
     </div>
 
-    <pre class="usage"><span class='fu'>group_by</span>(<span class='kw'>.data</span>, <span class='kw'>...</span>, .add = <span class='fl'>FALSE</span>)
+    <pre class="usage"><span class='fu'>group_by</span><span class='op'>(</span><span class='va'>.data</span>, <span class='va'>...</span>, .add <span class='op'>=</span> <span class='cn'>FALSE</span><span class='op'>)</span>
 
-<span class='fu'>ungroup</span>(<span class='kw'>x</span>, <span class='kw'>...</span>)</pre>
+<span class='fu'>ungroup</span><span class='op'>(</span><span class='va'>x</span>, <span class='va'>...</span><span class='op'>)</span></pre>
 
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
     <table class="ref-arguments">
@@ -189,7 +189,7 @@ groups, use <code>.add = TRUE</code>.</p></td>
 <p>When using <code>ungroup()</code>, a <code>data.frame</code>.</p>
 
     <h2 class="hasAnchor" id="examples"><a class="anchor" href="#examples"></a>Examples</h2>
-    <pre class="examples"><div class='input'><span class='fu'>group_by</span>(<span class='kw'>mtcars</span>, <span class='kw'>am</span>, <span class='kw'>cyl</span>)
+    <pre class="examples"><div class='input'><span class='fu'>group_by</span><span class='op'>(</span><span class='va'>mtcars</span>, <span class='va'>am</span>, <span class='va'>cyl</span><span class='op'>)</span>
 </div><div class='output co'>#&gt;                      mpg cyl  disp  hp drat    wt  qsec vs am gear carb
 #&gt; Mazda RX4           21.0   6 160.0 110 3.90 2.620 16.46  0  1    4    4
 #&gt; Mazda RX4 Wag       21.0   6 160.0 110 3.90 2.875 17.02  0  1    4    4
@@ -222,7 +222,7 @@ groups, use <code>.add = TRUE</code>.</p></td>
 #&gt; Ford Pantera L      15.8   8 351.0 264 4.22 3.170 14.50  0  1    5    4
 #&gt; Ferrari Dino        19.7   6 145.0 175 3.62 2.770 15.50  0  1    5    6
 #&gt; Maserati Bora       15.0   8 301.0 335 3.54 3.570 14.60  0  1    5    8
-#&gt; Volvo 142E          21.4   4 121.0 109 4.11 2.780 18.60  1  1    4    2</div><div class='input'><span class='fu'>ungroup</span>(<span class='fu'><a href='mutate.html'>mutate</a></span>(<span class='fu'>group_by</span>(<span class='kw'>mtcars</span>, <span class='kw'>am</span>, <span class='kw'>cyl</span>), sumMpg = <span class='fu'><a href='https://rdrr.io/r/base/sum.html'>sum</a></span>(<span class='kw'>mpg</span>)))
+#&gt; Volvo 142E          21.4   4 121.0 109 4.11 2.780 18.60  1  1    4    2</div><div class='input'><span class='fu'>ungroup</span><span class='op'>(</span><span class='fu'><a href='mutate.html'>mutate</a></span><span class='op'>(</span><span class='fu'>group_by</span><span class='op'>(</span><span class='va'>mtcars</span>, <span class='va'>am</span>, <span class='va'>cyl</span><span class='op'>)</span>, sumMpg <span class='op'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/sum.html'>sum</a></span><span class='op'>(</span><span class='va'>mpg</span><span class='op'>)</span><span class='op'>)</span><span class='op'>)</span>
 </div><div class='output co'>#&gt;                      mpg cyl  disp  hp drat    wt  qsec vs am gear carb sumMpg
 #&gt; Mazda RX4           21.0   6 160.0 110 3.90 2.620 16.46  0  1    4    4   61.7
 #&gt; Mazda RX4 Wag       21.0   6 160.0 110 3.90 2.875 17.02  0  1    4    4   61.7
@@ -255,10 +255,10 @@ groups, use <code>.add = TRUE</code>.</p></td>
 #&gt; Ford Pantera L      15.8   8 351.0 264 4.22 3.170 14.50  0  1    5    4   30.8
 #&gt; Ferrari Dino        19.7   6 145.0 175 3.62 2.770 15.50  0  1    5    6   61.7
 #&gt; Maserati Bora       15.0   8 301.0 335 3.54 3.570 14.60  0  1    5    8   30.8
-#&gt; Volvo 142E          21.4   4 121.0 109 4.11 2.780 18.60  1  1    4    2  224.6</div><div class='input'><span class='kw'>mtcars</span> <span class='op'>%&gt;%</span>
-  <span class='fu'>group_by</span>(<span class='kw'>am</span>, <span class='kw'>cyl</span>) <span class='op'>%&gt;%</span>
-  <span class='fu'><a href='mutate.html'>mutate</a></span>(sumMpg = <span class='fu'><a href='https://rdrr.io/r/base/sum.html'>sum</a></span>(<span class='kw'>mpg</span>)) <span class='op'>%&gt;%</span>
-  <span class='fu'>ungroup</span>()
+#&gt; Volvo 142E          21.4   4 121.0 109 4.11 2.780 18.60  1  1    4    2  224.6</div><div class='input'><span class='va'>mtcars</span> <span class='op'>%&gt;%</span>
+  <span class='fu'>group_by</span><span class='op'>(</span><span class='va'>am</span>, <span class='va'>cyl</span><span class='op'>)</span> <span class='op'>%&gt;%</span>
+  <span class='fu'><a href='mutate.html'>mutate</a></span><span class='op'>(</span>sumMpg <span class='op'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/sum.html'>sum</a></span><span class='op'>(</span><span class='va'>mpg</span><span class='op'>)</span><span class='op'>)</span> <span class='op'>%&gt;%</span>
+  <span class='fu'>ungroup</span><span class='op'>(</span><span class='op'>)</span>
 </div><div class='output co'>#&gt;                      mpg cyl  disp  hp drat    wt  qsec vs am gear carb sumMpg
 #&gt; Mazda RX4           21.0   6 160.0 110 3.90 2.620 16.46  0  1    4    4   61.7
 #&gt; Mazda RX4 Wag       21.0   6 160.0 110 3.90 2.875 17.02  0  1    4    4   61.7
@@ -291,9 +291,9 @@ groups, use <code>.add = TRUE</code>.</p></td>
 #&gt; Ford Pantera L      15.8   8 351.0 264 4.22 3.170 14.50  0  1    5    4   30.8
 #&gt; Ferrari Dino        19.7   6 145.0 175 3.62 2.770 15.50  0  1    5    6   61.7
 #&gt; Maserati Bora       15.0   8 301.0 335 3.54 3.570 14.60  0  1    5    8   30.8
-#&gt; Volvo 142E          21.4   4 121.0 109 4.11 2.780 18.60  1  1    4    2  224.6</div><div class='input'><span class='kw'>mtcars</span> <span class='op'>%&gt;%</span>
-  <span class='fu'>group_by</span>(<span class='kw'>carb</span>) <span class='op'>%&gt;%</span>
-  <span class='fu'><a href='filter.html'>filter</a></span>(<span class='fu'><a href='https://rdrr.io/r/base/any.html'>any</a></span>(<span class='kw'>gear</span> <span class='op'>==</span> <span class='fl'>5</span>))
+#&gt; Volvo 142E          21.4   4 121.0 109 4.11 2.780 18.60  1  1    4    2  224.6</div><div class='input'><span class='va'>mtcars</span> <span class='op'>%&gt;%</span>
+  <span class='fu'>group_by</span><span class='op'>(</span><span class='va'>carb</span><span class='op'>)</span> <span class='op'>%&gt;%</span>
+  <span class='fu'><a href='filter.html'>filter</a></span><span class='op'>(</span><span class='fu'><a href='https://rdrr.io/r/base/any.html'>any</a></span><span class='op'>(</span><span class='va'>gear</span> <span class='op'>==</span> <span class='fl'>5</span><span class='op'>)</span><span class='op'>)</span>
 </div><div class='output co'>#&gt;                      mpg cyl  disp  hp drat    wt  qsec vs am gear carb
 #&gt; Mazda RX4           21.0   6 160.0 110 3.90 2.620 16.46  0  1    4    4
 #&gt; Mazda RX4 Wag       21.0   6 160.0 110 3.90 2.875 17.02  0  1    4    4

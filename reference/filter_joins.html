@@ -170,9 +170,9 @@ matches in <code>y</code>:</h1>
 
     </div>
 
-    <pre class="usage"><span class='fu'>anti_join</span>(<span class='kw'>x</span>, <span class='kw'>y</span>, by = <span class='kw'>NULL</span>)
+    <pre class="usage"><span class='fu'>anti_join</span><span class='op'>(</span><span class='va'>x</span>, <span class='va'>y</span>, by <span class='op'>=</span> <span class='cn'>NULL</span><span class='op'>)</span>
 
-<span class='fu'>semi_join</span>(<span class='kw'>x</span>, <span class='kw'>y</span>, by = <span class='kw'>NULL</span>)</pre>
+<span class='fu'>semi_join</span><span class='op'>(</span><span class='va'>x</span>, <span class='va'>y</span>, by <span class='op'>=</span> <span class='cn'>NULL</span><span class='op'>)</span></pre>
 
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
     <table class="ref-arguments">
@@ -193,19 +193,19 @@ that you want to join).</p></td>
 
 
     <h2 class="hasAnchor" id="examples"><a class="anchor" href="#examples"></a>Examples</h2>
-    <pre class="examples"><div class='input'><span class='kw'>table1</span> <span class='op'>&lt;-</span> <span class='fu'><a href='https://rdrr.io/r/base/data.frame.html'>data.frame</a></span>(
-  pupil = <span class='fu'><a href='https://rdrr.io/r/base/rep.html'>rep</a></span>(<span class='fl'>1</span><span class='op'>:</span><span class='fl'>3</span>, each = <span class='fl'>2</span>),
-  test = <span class='fu'><a href='https://rdrr.io/r/base/rep.html'>rep</a></span>(<span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span>(<span class='st'>"A"</span>, <span class='st'>"B"</span>), <span class='fl'>3</span>),
-  score = <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span>(<span class='fl'>60</span>, <span class='fl'>70</span>, <span class='fl'>65</span>, <span class='fl'>80</span>, <span class='fl'>85</span>, <span class='fl'>70</span>),
-  stringsAsFactors = <span class='fl'>FALSE</span>
-)
-<span class='kw'>table2</span> <span class='op'>&lt;-</span> <span class='kw'>table1</span>[<span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span>(<span class='fl'>1</span>, <span class='fl'>3</span>, <span class='fl'>4</span>), ]
+    <pre class="examples"><div class='input'><span class='va'>table1</span> <span class='op'>&lt;-</span> <span class='fu'><a href='https://rdrr.io/r/base/data.frame.html'>data.frame</a></span><span class='op'>(</span>
+  pupil <span class='op'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/rep.html'>rep</a></span><span class='op'>(</span><span class='fl'>1</span><span class='op'>:</span><span class='fl'>3</span>, each <span class='op'>=</span> <span class='fl'>2</span><span class='op'>)</span>,
+  test <span class='op'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/rep.html'>rep</a></span><span class='op'>(</span><span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span><span class='op'>(</span><span class='st'>"A"</span>, <span class='st'>"B"</span><span class='op'>)</span>, <span class='fl'>3</span><span class='op'>)</span>,
+  score <span class='op'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span><span class='op'>(</span><span class='fl'>60</span>, <span class='fl'>70</span>, <span class='fl'>65</span>, <span class='fl'>80</span>, <span class='fl'>85</span>, <span class='fl'>70</span><span class='op'>)</span>,
+  stringsAsFactors <span class='op'>=</span> <span class='cn'>FALSE</span>
+<span class='op'>)</span>
+<span class='va'>table2</span> <span class='op'>&lt;-</span> <span class='va'>table1</span><span class='op'>[</span><span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span><span class='op'>(</span><span class='fl'>1</span>, <span class='fl'>3</span>, <span class='fl'>4</span><span class='op'>)</span>, <span class='op'>]</span>
 
-<span class='kw'>table1</span> <span class='op'>%&gt;%</span> <span class='fu'>anti_join</span>(<span class='kw'>table2</span>, by = <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span>(<span class='st'>"pupil"</span>, <span class='st'>"test"</span>))
+<span class='va'>table1</span> <span class='op'>%&gt;%</span> <span class='fu'>anti_join</span><span class='op'>(</span><span class='va'>table2</span>, by <span class='op'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span><span class='op'>(</span><span class='st'>"pupil"</span>, <span class='st'>"test"</span><span class='op'>)</span><span class='op'>)</span>
 </div><div class='output co'>#&gt;   pupil test score
 #&gt; 1     1    B    70
 #&gt; 2     3    A    85
-#&gt; 3     3    B    70</div><div class='input'><span class='kw'>table1</span> <span class='op'>%&gt;%</span> <span class='fu'>semi_join</span>(<span class='kw'>table2</span>, by = <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span>(<span class='st'>"pupil"</span>, <span class='st'>"test"</span>))
+#&gt; 3     3    B    70</div><div class='input'><span class='va'>table1</span> <span class='op'>%&gt;%</span> <span class='fu'>semi_join</span><span class='op'>(</span><span class='va'>table2</span>, by <span class='op'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span><span class='op'>(</span><span class='st'>"pupil"</span>, <span class='st'>"test"</span><span class='op'>)</span><span class='op'>)</span>
 </div><div class='output co'>#&gt;   pupil test score
 #&gt; 1     1    A    60
 #&gt; 2     2    A    65

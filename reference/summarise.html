@@ -159,9 +159,9 @@ result in one row in the output for each group." />
 result in one row in the output for each group.</p>
     </div>
 
-    <pre class="usage"><span class='fu'>summarise</span>(<span class='kw'>.data</span>, <span class='kw'>...</span>)
+    <pre class="usage"><span class='fu'>summarise</span><span class='op'>(</span><span class='va'>.data</span>, <span class='va'>...</span><span class='op'>)</span>
 
-<span class='fu'>summarize</span>(<span class='kw'>.data</span>, <span class='kw'>...</span>)</pre>
+<span class='fu'>summarize</span><span class='op'>(</span><span class='va'>.data</span>, <span class='va'>...</span><span class='op'>)</span></pre>
 
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
     <table class="ref-arguments">
@@ -185,11 +185,11 @@ result in one row in the output for each group.</p>
     <p><code>summarise()</code> and <code>summarize()</code> are synonyms.</p>
 
     <h2 class="hasAnchor" id="examples"><a class="anchor" href="#examples"></a>Examples</h2>
-    <pre class="examples"><div class='input'><span class='fu'>summarise</span>(<span class='kw'>mtcars</span>, <span class='fu'><a href='https://rdrr.io/r/base/mean.html'>mean</a></span>(<span class='kw'>mpg</span>))
+    <pre class="examples"><div class='input'><span class='fu'>summarise</span><span class='op'>(</span><span class='va'>mtcars</span>, <span class='fu'><a href='https://rdrr.io/r/base/mean.html'>mean</a></span><span class='op'>(</span><span class='va'>mpg</span><span class='op'>)</span><span class='op'>)</span>
 </div><div class='output co'>#&gt;   mean(mpg)
-#&gt; 1  20.09062</div><div class='input'><span class='fu'>summarise</span>(<span class='kw'>mtcars</span>, meanMpg = <span class='fu'><a href='https://rdrr.io/r/base/mean.html'>mean</a></span>(<span class='kw'>mpg</span>), sumMpg = <span class='fu'><a href='https://rdrr.io/r/base/sum.html'>sum</a></span>(<span class='kw'>mpg</span>))
+#&gt; 1  20.09062</div><div class='input'><span class='fu'>summarise</span><span class='op'>(</span><span class='va'>mtcars</span>, meanMpg <span class='op'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/mean.html'>mean</a></span><span class='op'>(</span><span class='va'>mpg</span><span class='op'>)</span>, sumMpg <span class='op'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/sum.html'>sum</a></span><span class='op'>(</span><span class='va'>mpg</span><span class='op'>)</span><span class='op'>)</span>
 </div><div class='output co'>#&gt;    meanMpg sumMpg
-#&gt; 1 20.09062  642.9</div><div class='input'><span class='kw'>mtcars</span> <span class='op'>%&gt;%</span> <span class='fu'>summarise</span>(<span class='fu'><a href='https://rdrr.io/r/base/mean.html'>mean</a></span>(<span class='kw'>mpg</span>))
+#&gt; 1 20.09062  642.9</div><div class='input'><span class='va'>mtcars</span> <span class='op'>%&gt;%</span> <span class='fu'>summarise</span><span class='op'>(</span><span class='fu'><a href='https://rdrr.io/r/base/mean.html'>mean</a></span><span class='op'>(</span><span class='va'>mpg</span><span class='op'>)</span><span class='op'>)</span>
 </div><div class='output co'>#&gt;   mean(mpg)
 #&gt; 1  20.09062</div><div class='input'>
 </div></pre>

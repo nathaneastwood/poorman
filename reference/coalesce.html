@@ -159,7 +159,7 @@ COALESCE function which does the same thing for NULLs." />
 <code>COALESCE</code> function which does the same thing for <code>NULL</code>s.</p>
     </div>
 
-    <pre class="usage"><span class='fu'>coalesce</span>(<span class='kw'>...</span>)</pre>
+    <pre class="usage"><span class='fu'>coalesce</span><span class='op'>(</span><span class='va'>...</span><span class='op'>)</span></pre>
 
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
     <table class="ref-arguments">
@@ -176,13 +176,13 @@ COALESCE function which does the same thing for NULLs." />
 
     <h2 class="hasAnchor" id="examples"><a class="anchor" href="#examples"></a>Examples</h2>
     <pre class="examples"><div class='input'><span class='co'># Use a single value to replace all missing vectors</span>
-<span class='kw'>x</span> <span class='op'>&lt;-</span> <span class='fu'><a href='https://rdrr.io/r/base/sample.html'>sample</a></span>(<span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span>(<span class='fl'>1</span><span class='op'>:</span><span class='fl'>5</span>, <span class='fl'>NA</span>, <span class='fl'>NA</span>, <span class='fl'>NA</span>))
-<span class='fu'>coalesce</span>(<span class='kw'>x</span>, <span class='fl'>0L</span>)
+<span class='va'>x</span> <span class='op'>&lt;-</span> <span class='fu'><a href='https://rdrr.io/r/base/sample.html'>sample</a></span><span class='op'>(</span><span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span><span class='op'>(</span><span class='fl'>1</span><span class='op'>:</span><span class='fl'>5</span>, <span class='cn'>NA</span>, <span class='cn'>NA</span>, <span class='cn'>NA</span><span class='op'>)</span><span class='op'>)</span>
+<span class='fu'>coalesce</span><span class='op'>(</span><span class='va'>x</span>, <span class='fl'>0L</span><span class='op'>)</span>
 </div><div class='output co'>#&gt; [1] 4 0 3 0 1 5 0 2</div><div class='input'>
 <span class='co'># Or match together a complete vector from missing pieces</span>
-<span class='kw'>y</span> <span class='op'>&lt;-</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span>(<span class='fl'>1</span>, <span class='fl'>2</span>, <span class='fl'>NA</span>, <span class='fl'>NA</span>, <span class='fl'>5</span>)
-<span class='kw'>z</span> <span class='op'>&lt;-</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span>(<span class='fl'>NA</span>, <span class='fl'>NA</span>, <span class='fl'>3</span>, <span class='fl'>4</span>, <span class='fl'>5</span>)
-<span class='fu'>coalesce</span>(<span class='kw'>y</span>, <span class='kw'>z</span>)
+<span class='va'>y</span> <span class='op'>&lt;-</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span><span class='op'>(</span><span class='fl'>1</span>, <span class='fl'>2</span>, <span class='cn'>NA</span>, <span class='cn'>NA</span>, <span class='fl'>5</span><span class='op'>)</span>
+<span class='va'>z</span> <span class='op'>&lt;-</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span><span class='op'>(</span><span class='cn'>NA</span>, <span class='cn'>NA</span>, <span class='fl'>3</span>, <span class='fl'>4</span>, <span class='fl'>5</span><span class='op'>)</span>
+<span class='fu'>coalesce</span><span class='op'>(</span><span class='va'>y</span>, <span class='va'>z</span><span class='op'>)</span>
 </div><div class='output co'>#&gt; [1] 1 2 3 4 5</div><div class='input'>
 </div></pre>
   </div>

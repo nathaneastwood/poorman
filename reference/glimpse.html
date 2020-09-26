@@ -161,7 +161,7 @@ possible to see every column in a <code>data.frame</code>. It is no more than a 
 the input (invisibly) meaning it can be used within a data pipeline.</p>
     </div>
 
-    <pre class="usage"><span class='fu'>glimpse</span>(<span class='kw'>x</span>, width = <span class='fu'><a href='https://rdrr.io/r/base/options.html'>getOption</a></span>(<span class='st'>"width"</span>), <span class='kw'>...</span>)</pre>
+    <pre class="usage"><span class='fu'>glimpse</span><span class='op'>(</span><span class='va'>x</span>, width <span class='op'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/options.html'>getOption</a></span><span class='op'>(</span><span class='st'>"width"</span><span class='op'>)</span>, <span class='va'>...</span><span class='op'>)</span></pre>
 
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
     <table class="ref-arguments">
@@ -185,7 +185,7 @@ the input (invisibly) meaning it can be used within a data pipeline.</p>
     <p><code>x</code>, invisibly.</p>
 
     <h2 class="hasAnchor" id="examples"><a class="anchor" href="#examples"></a>Examples</h2>
-    <pre class="examples"><div class='input'><span class='fu'>glimpse</span>(<span class='kw'>mtcars</span>)
+    <pre class="examples"><div class='input'><span class='fu'>glimpse</span><span class='op'>(</span><span class='va'>mtcars</span><span class='op'>)</span>
 </div><div class='output co'>#&gt; 'data.frame':	32 obs. of  11 variables:
 #&gt;  $ mpg : num  21 21 22.8 21.4 18.7 18.1 14.3 24.4 22.8 19.2 ...
 #&gt;  $ cyl : num  6 6 4 6 8 6 8 4 4 6 ...

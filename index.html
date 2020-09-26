@@ -139,14 +139,12 @@
 </ul>
 <!-- end list --><div class="sourceCode" id="cb1"><pre class="downlit">
 <span class="co"># install.packages("remotes")</span>
-<span class="kw">remotes</span>::<span class="fu"><a href="https://remotes.r-lib.org/reference/install_github.html">install_github</a></span>(<span class="st">"nathaneastwood/poorman"</span>)
-</pre></div>
+<span class="fu">remotes</span><span class="fu">::</span><span class="fu"><a href="https://remotes.r-lib.org/reference/install_github.html">install_github</a></span><span class="op">(</span><span class="st">"nathaneastwood/poorman"</span><span class="op">)</span></pre></div>
 <ul>
 <li>the latest release from CRAN with</li>
 </ul>
 <!-- end list --><div class="sourceCode" id="cb2"><pre class="downlit">
-<span class="fu"><a href="https://rdrr.io/r/utils/install.packages.html">install.packages</a></span>(<span class="st">"poorman"</span>)
-</pre></div>
+<span class="fu"><a href="https://rdrr.io/r/utils/install.packages.html">install.packages</a></span><span class="op">(</span><span class="st">"poorman"</span><span class="op">)</span></pre></div>
 </div>
 <div id="docker" class="section level2">
 <h2 class="hasAnchor">
@@ -158,33 +156,32 @@
 <h2 class="hasAnchor">
 <a href="#usage" class="anchor"></a>Usage</h2>
 <div class="sourceCode" id="cb4"><pre class="downlit">
-<span class="fu"><a href="https://rdrr.io/r/base/library.html">library</a></span>(<span class="kw"><a href="https://nathaneastwood.github.io/poorman">poorman</a></span>, warn.conflicts = <span class="fl">FALSE</span>)
+<span class="kw"><a href="https://rdrr.io/r/base/library.html">library</a></span><span class="op">(</span><span class="va"><a href="https://nathaneastwood.github.io/poorman/">poorman</a></span>, warn.conflicts <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span>
 <span class="co"># </span>
 <span class="co">#   I'd seen my father. He was a poor man, and I watched him do astonishing things.</span>
 <span class="co">#     - Sidney Poitier</span>
 
-<span class="kw">mtcars</span> <span class="op">%&gt;%</span>
-  <span class="fu"><a href="reference/relocate.html">select</a></span>(<span class="kw">mpg</span>, <span class="kw">wt</span>, <span class="fu"><a href="reference/select_helpers.html">starts_with</a></span>(<span class="st">"c"</span>)) <span class="op">%&gt;%</span>
-  <span class="fu"><a href="reference/mutate.html">mutate</a></span>(kpl = (<span class="fl">1.609</span> <span class="op">*</span> <span class="kw">mpg</span>) <span class="op">/</span> <span class="fl">3.785</span>, wt_kg = <span class="kw">wt</span> <span class="op">*</span> <span class="fl">453.5924</span>) <span class="op">%&gt;%</span>
-  <span class="fu"><a href="reference/filter.html">filter</a></span>(<span class="kw">mpg</span> <span class="op">&gt;</span> <span class="fl">28</span>)
+<span class="va">mtcars</span> <span class="op">%&gt;%</span>
+  <span class="fu"><a href="reference/relocate.html">select</a></span><span class="op">(</span><span class="va">mpg</span>, <span class="va">wt</span>, <span class="fu"><a href="reference/select_helpers.html">starts_with</a></span><span class="op">(</span><span class="st">"c"</span><span class="op">)</span><span class="op">)</span> <span class="op">%&gt;%</span>
+  <span class="fu"><a href="reference/mutate.html">mutate</a></span><span class="op">(</span>kpl <span class="op">=</span> <span class="op">(</span><span class="fl">1.609</span> <span class="op">*</span> <span class="va">mpg</span><span class="op">)</span> <span class="op">/</span> <span class="fl">3.785</span>, wt_kg <span class="op">=</span> <span class="va">wt</span> <span class="op">*</span> <span class="fl">453.5924</span><span class="op">)</span> <span class="op">%&gt;%</span>
+  <span class="fu"><a href="reference/filter.html">filter</a></span><span class="op">(</span><span class="va">mpg</span> <span class="op">&gt;</span> <span class="fl">28</span><span class="op">)</span>
 <span class="co">#                 mpg    wt cyl carb      kpl    wt_kg</span>
 <span class="co"># Fiat 128       32.4 2.200   4    1 13.77321 997.9033</span>
 <span class="co"># Honda Civic    30.4 1.615   4    2 12.92301 732.5517</span>
 <span class="co"># Toyota Corolla 33.9 1.835   4    1 14.41086 832.3421</span>
 <span class="co"># Lotus Europa   30.4 1.513   4    2 12.92301 686.2853</span>
 
-<span class="kw">mtcars</span> <span class="op">%&gt;%</span>
-  <span class="fu"><a href="reference/group_by.html">group_by</a></span>(<span class="kw">am</span>, <span class="kw">cyl</span>) <span class="op">%&gt;%</span>
-  <span class="fu"><a href="reference/summarise.html">summarise</a></span>(mean_mpg = <span class="fu"><a href="https://rdrr.io/r/base/mean.html">mean</a></span>(<span class="kw">mpg</span>), sd_mpg = <span class="fu"><a href="https://rdrr.io/r/stats/sd.html">sd</a></span>(<span class="kw">mpg</span>)) <span class="op">%&gt;%</span>
-  <span class="fu"><a href="reference/group_by.html">ungroup</a></span>()
+<span class="va">mtcars</span> <span class="op">%&gt;%</span>
+  <span class="fu"><a href="reference/group_by.html">group_by</a></span><span class="op">(</span><span class="va">am</span>, <span class="va">cyl</span><span class="op">)</span> <span class="op">%&gt;%</span>
+  <span class="fu"><a href="reference/summarise.html">summarise</a></span><span class="op">(</span>mean_mpg <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/mean.html">mean</a></span><span class="op">(</span><span class="va">mpg</span><span class="op">)</span>, sd_mpg <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/stats/sd.html">sd</a></span><span class="op">(</span><span class="va">mpg</span><span class="op">)</span><span class="op">)</span> <span class="op">%&gt;%</span>
+  <span class="fu"><a href="reference/group_by.html">ungroup</a></span><span class="op">(</span><span class="op">)</span>
 <span class="co">#   am cyl mean_mpg    sd_mpg</span>
 <span class="co"># 1  0   4 22.90000 1.4525839</span>
 <span class="co"># 2  0   6 19.12500 1.6317169</span>
 <span class="co"># 3  0   8 15.05000 2.7743959</span>
 <span class="co"># 4  1   4 28.07500 4.4838599</span>
 <span class="co"># 5  1   6 20.56667 0.7505553</span>
-<span class="co"># 6  1   8 15.40000 0.5656854</span>
-</pre></div>
+<span class="co"># 6  1   8 15.40000 0.5656854</span></pre></div>
 </div>
 <div id="related-work" class="section level2">
 <h2 class="hasAnchor">
