@@ -1,4 +1,14 @@
-#' Join two data.frames together
+#' Mutating Joins
+#'
+#' @description
+#' The mutating joins add columns from `y` to `x`, matching rows based on the keys:
+#'
+#' * `inner_join()`: includes all rows in `x` and `y`.
+#' * `left_join()`: includes all rows in `x`.
+#' * `right_join()`: includes all rows in `y`.
+#' * `full_join()`: includes all rows in `x` or `y`.
+#'
+#' If a row in `x` matches multiple rows in `y`, all the rows in `y` will be returned once for each matching row in `x`.
 #'
 #' @param x,y The `data.frame`s to join.
 #' @param by A character vector of variables to join by. If `NULL`, the default,
@@ -13,28 +23,28 @@
 #' these suffixes will be added to the output to disambiguate them. Should be a
 #' character vector of length 2.
 #'
-#' @name joins
+#' @name mutate_joins
 NULL
 
-#' @rdname joins
+#' @rdname mutate_joins
 #' @export
 inner_join <- function(x, y, by = NULL, suffix = c(".x", ".y")) {
   join_worker(x = x, y = y, by = by, suffix = suffix, sort = FALSE)
 }
 
-#' @rdname joins
+#' @rdname mutate_joins
 #' @export
 left_join <- function(x, y, by = NULL, suffix = c(".x", ".y")) {
   join_worker(x = x, y = y, by = by, suffix = suffix, all.x = TRUE)
 }
 
-#' @rdname joins
+#' @rdname mutate_joins
 #' @export
 right_join <- function(x, y, by = NULL, suffix = c(".x", ".y")) {
   join_worker(x = x, y = y, by = by, suffix = suffix, all.y = TRUE)
 }
 
-#' @rdname joins
+#' @rdname mutate_joins
 #' @export
 full_join <- function(x, y, by = NULL, suffix = c(".x", ".y")) {
   join_worker(x = x, y = y, by = by, suffix = suffix, all = TRUE)

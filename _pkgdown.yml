@@ -35,7 +35,7 @@ reference:
 - title: Two table verbs
   contents:
   - filter_joins
-  - joins
+  - mutate_joins
 
 - title: Grouping
   contents:
