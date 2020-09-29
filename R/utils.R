@@ -62,3 +62,14 @@ collapse_to_sentence <- function(x) {
     paste(paste(x[1:(len_x - 1)], collapse = ", "), x[len_x], sep = " and ")
   }
 }
+
+is_named <- function(x) {
+  nms <- names(x)
+  if (is.null(nms)) return(FALSE)
+  if (any(names_are_invalid(nms))) return(FALSE)
+  TRUE
+}
+
+names_are_invalid <- function(x) {
+  x == "" | is.na(x)
+}

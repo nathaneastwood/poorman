@@ -34,6 +34,7 @@ reference:
 
 - title: Two table verbs
   contents:
+  - bind
   - filter_joins
   - mutate_joins
 
