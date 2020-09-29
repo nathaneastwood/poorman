@@ -6,7 +6,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>Pull out a single variable — pull • poorman</title>
+<title>Mutating Joins — mutate_joins • poorman</title>
 
 <!-- favicons -->
 <link rel="icon" type="image/png" sizes="16x16" href="../favicon-16x16.png">
@@ -46,8 +46,15 @@
 
 
 
-<meta property="og:title" content="Pull out a single variable — pull" />
-<meta property="og:description" content="This is a direct replacement for [[.data.frame." />
+<meta property="og:title" content="Mutating Joins — mutate_joins" />
+<meta property="og:description" content="The mutating joins add columns from y to x, matching rows based on the keys:
+inner_join(): includes all rows in x and y.
+left_join(): includes all rows in x.
+right_join(): includes all rows in y.
+full_join(): includes all rows in x or y.
+
+
+If a row in x matches multiple rows in y, all the rows in y will be returned once for each matching row in x." />
 <meta property="og:image" content="/logo.png" />
 
 
@@ -148,46 +155,56 @@
 <div class="row">
   <div class="col-md-9 contents">
     <div class="page-header">
-    <h1>Pull out a single variable</h1>
-    <small class="dont-index">Source: <a href='https://github.com/nathaneastwood/poorman/blob/master/R/pull.R'><code>R/pull.R</code></a></small>
-    <div class="hidden name"><code>pull.Rd</code></div>
+    <h1>Mutating Joins</h1>
+    <small class="dont-index">Source: <a href='https://github.com/nathaneastwood/poorman/blob/master/R/joins.R'><code>R/joins.R</code></a></small>
+    <div class="hidden name"><code>mutate_joins.Rd</code></div>
     </div>
 
     <div class="ref-description">
-    <p>This is a direct replacement for <code>[[.data.frame</code>.</p>
+    <p>The mutating joins add columns from <code>y</code> to <code>x</code>, matching rows based on the keys:</p><ul>
+<li><p><code>inner_join()</code>: includes all rows in <code>x</code> and <code>y</code>.</p></li>
+<li><p><code>left_join()</code>: includes all rows in <code>x</code>.</p></li>
+<li><p><code>right_join()</code>: includes all rows in <code>y</code>.</p></li>
+<li><p><code>full_join()</code>: includes all rows in <code>x</code> or <code>y</code>.</p></li>
+</ul>
+
+<p>If a row in <code>x</code> matches multiple rows in <code>y</code>, all the rows in <code>y</code> will be returned once for each matching row in <code>x</code>.</p>
     </div>
 
-    <pre class="usage"><span class='fu'>pull</span><span class='op'>(</span><span class='va'>.data</span>, var <span class='op'>=</span> <span class='op'>-</span><span class='fl'>1</span><span class='op'>)</span></pre>
+    <pre class="usage"><span class='fu'>inner_join</span><span class='op'>(</span><span class='va'>x</span>, <span class='va'>y</span>, by <span class='op'>=</span> <span class='cn'>NULL</span>, suffix <span class='op'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span><span class='op'>(</span><span class='st'>".x"</span>, <span class='st'>".y"</span><span class='op'>)</span><span class='op'>)</span>
+
+<span class='fu'>left_join</span><span class='op'>(</span><span class='va'>x</span>, <span class='va'>y</span>, by <span class='op'>=</span> <span class='cn'>NULL</span>, suffix <span class='op'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span><span class='op'>(</span><span class='st'>".x"</span>, <span class='st'>".y"</span><span class='op'>)</span><span class='op'>)</span>
+
+<span class='fu'>right_join</span><span class='op'>(</span><span class='va'>x</span>, <span class='va'>y</span>, by <span class='op'>=</span> <span class='cn'>NULL</span>, suffix <span class='op'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span><span class='op'>(</span><span class='st'>".x"</span>, <span class='st'>".y"</span><span class='op'>)</span><span class='op'>)</span>
+
+<span class='fu'>full_join</span><span class='op'>(</span><span class='va'>x</span>, <span class='va'>y</span>, by <span class='op'>=</span> <span class='cn'>NULL</span>, suffix <span class='op'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span><span class='op'>(</span><span class='st'>".x"</span>, <span class='st'>".y"</span><span class='op'>)</span><span class='op'>)</span></pre>
 
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
     <table class="ref-arguments">
     <colgroup><col class="name" /><col class="desc" /></colgroup>
     <tr>
-      <th>.data</th>
-      <td><p>A <code>data.frame</code>.</p></td>
+      <th>x, y</th>
+      <td><p>The <code>data.frame</code>s to join.</p></td>
     </tr>
     <tr>
-      <th>var</th>
-      <td><p>A variable specified as:</p><ul>
-<li><p>a literal variable name</p></li>
-<li><p>a positive integer, giving the position counting from the left</p></li>
-<li><p>a negative integer, giving the position counting from the right</p></li>
-</ul>
-
-<p>The default returns the last column (on the assumption that's the column you've created most recently).</p></td>
+      <th>by</th>
+      <td><p>A character vector of variables to join by. If <code>NULL</code>, the default,
+<code>*_join()</code> will do a natural join, using all variables with common names
+across the two tables. A message lists the variables so that you can check
+they're right (to suppress the message, simply explicitly list the variables
+that you want to join).</p>
+<p>To join by different variables on x and y use a named vector. For example,
+<code>by = c("a" = "b")</code> will match <code>x.a</code> to <code>y.b</code>.</p></td>
+    </tr>
+    <tr>
+      <th>suffix</th>
+      <td><p>If there are non-joined duplicate variables in <code>x</code> and <code>y</code>,
+these suffixes will be added to the output to disambiguate them. Should be a
+character vector of length 2.</p></td>
     </tr>
     </table>
 
 
-    <h2 class="hasAnchor" id="examples"><a class="anchor" href="#examples"></a>Examples</h2>
-    <pre class="examples"><div class='input'><span class='va'>mtcars</span> <span class='op'>%&gt;%</span> <span class='fu'>pull</span><span class='op'>(</span><span class='op'>-</span><span class='fl'>1</span><span class='op'>)</span>
-</div><div class='output co'>#&gt;  [1] 4 4 1 1 2 1 4 2 2 4 4 3 3 3 4 4 4 1 2 1 1 2 2 4 2 1 2 2 4 6 8 2</div><div class='input'><span class='va'>mtcars</span> <span class='op'>%&gt;%</span> <span class='fu'>pull</span><span class='op'>(</span><span class='fl'>1</span><span class='op'>)</span>
-</div><div class='output co'>#&gt;  [1] 21.0 21.0 22.8 21.4 18.7 18.1 14.3 24.4 22.8 19.2 17.8 16.4 17.3 15.2 10.4
-#&gt; [16] 10.4 14.7 32.4 30.4 33.9 21.5 15.5 15.2 13.3 19.2 27.3 26.0 30.4 15.8 19.7
-#&gt; [31] 15.0 21.4</div><div class='input'><span class='va'>mtcars</span> <span class='op'>%&gt;%</span> <span class='fu'>pull</span><span class='op'>(</span><span class='va'>cyl</span><span class='op'>)</span>
-</div><div class='output co'>#&gt;  [1] 6 6 4 6 8 6 8 4 4 6 6 8 8 8 8 8 8 4 4 4 4 8 8 8 8 4 4 4 8 6 8 4</div><div class='input'><span class='va'>mtcars</span> <span class='op'>%&gt;%</span> <span class='fu'>pull</span><span class='op'>(</span><span class='st'>"cyl"</span><span class='op'>)</span>
-</div><div class='output co'>#&gt;  [1] 6 6 4 6 8 6 8 4 4 6 6 8 8 8 8 8 8 4 4 4 4 8 8 8 8 4 4 4 8 6 8 4</div><div class='input'>
-</div></pre>
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="pkgdown-sidebar">
     <nav id="toc" data-toggle="toc" class="sticky-top">
