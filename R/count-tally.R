@@ -37,6 +37,8 @@
 #'
 #' @return A `data.frame`. `count()` and `add_count()` have the same groups as the input.
 #'
+#' @importFrom stats setNames
+#'
 #' @export
 count <- function(x, ..., wt = NULL, sort = FALSE, name = NULL) {
   groups <- get_groups(x)
@@ -52,7 +54,7 @@ count <- function(x, ..., wt = NULL, sort = FALSE, name = NULL) {
 tally <- function(x, wt = NULL, sort = FALSE, name = NULL) {
   name <- check_name(x, name)
   wt <- deparse_var(wt)
-  res <- do.call(summarise, set_names(list(x, tally_n(x, wt)), c(".data", name)))
+  res <- do.call(summarise, setNames(list(x, tally_n(x, wt)), c(".data", name)))
   res <- ungroup(res)
   if (isTRUE(sort)) res <- do.call(arrange, list(res, call("desc", as.name(name))))
   rownames(res) <- NULL
@@ -76,7 +78,7 @@ add_tally <- function(x, wt = NULL, sort = FALSE, name = NULL) {
   wt <- deparse_var(wt)
   n <- tally_n(x, wt)
   name <- check_name(x, name)
-  res <- do.call(mutate, set_names(list(x, n), c(".data", name)))
+  res <- do.call(mutate, setNames(list(x, n), c(".data", name)))
 
   if (isTRUE(sort)) {
     do.call(arrange, list(res, call("desc", as.name(name))))

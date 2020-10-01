@@ -41,6 +41,8 @@
 #' # Grouped operations:
 #' mtcars %>% group_by(am, cyl, gear) %>% slice_head(n = 2)
 #'
+#' @importFrom utils head
+#'
 #' @name slice
 NULL
 
@@ -126,14 +128,14 @@ slice_min.data.frame <- function(.data, order_by, ..., n, prop, with_ties = TRUE
   idx <- if (isTRUE(with_ties)) {
     switch(
       size$type,
-      n = function(x, n) vec_head(order(x), smaller_ranks(x, size$n)),
-      prop = function(x, n) vec_head(order(x), smaller_ranks(x, size$prop * n))
+      n = function(x, n) head(order(x), smaller_ranks(x, size$n)),
+      prop = function(x, n) head(order(x), smaller_ranks(x, size$prop * n))
     )
   } else {
     switch(
       size$type,
-      n = function(x, n) vec_head(order(x), size$n),
-      prop = function(x, n) vec_head(order(x), size$prop * n)
+      n = function(x, n) head(order(x), size$n),
+      prop = function(x, n) head(order(x), size$prop * n)
     )
   }
   order_by <- .data[, deparse_var(order_by)]
@@ -163,14 +165,14 @@ slice_max.data.frame <- function(.data, order_by, ..., n, prop, with_ties = TRUE
   idx <- if (isTRUE(with_ties)) {
     switch(
       size$type,
-      n = function(x, n) vec_head(order(x, decreasing = TRUE), smaller_ranks(desc(x), size$n)),
-      prop = function(x, n) vec_head(order(x, decreasing = TRUE), smaller_ranks(desc(x), size$prop * n))
+      n = function(x, n) head(order(x, decreasing = TRUE), smaller_ranks(desc(x), size$n)),
+      prop = function(x, n) head(order(x, decreasing = TRUE), smaller_ranks(desc(x), size$prop * n))
     )
   } else {
     switch(
       size$type,
-      n = function(x, n) vec_head(order(x, decreasing = TRUE), size$n),
-      prop = function(x, n) vec_head(order(x, decreasing = TRUE), size$prop * n)
+      n = function(x, n) head(order(x, decreasing = TRUE), size$n),
+      prop = function(x, n) head(order(x, decreasing = TRUE), size$prop * n)
     )
   }
   order_by <- .data[, deparse_var(order_by)]
