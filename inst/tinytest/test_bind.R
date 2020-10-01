@@ -83,17 +83,12 @@ expect_equal(
   info = "Columns missing from subsequent data.frames are filled with NAs"
 )
 
+expect_error(
+  bind_rows(c(z = 2), data.frame(x = 1:3), y ~ x),
+  info = "You must pass vector(s) and/or data.frame(s)."
+)
+
 # -- bind_cols() ---------------------------------------------------------------
-
-expect_error(
-  bind_cols(data.frame(x = 1:3), data.frame(y = 1:2)),
-  info = "Rows need to match when column-binding"
-)
-
-expect_error(
-  bind_cols(data.frame(x = 1:3), data.frame()),
-  info = "Rows need to match when column-binding even with 0 columns"
-)
 
 expect_equal(
   bind_cols(one, two),
@@ -138,6 +133,21 @@ expect_equal(
   bind_cols(list(y = data.frame(x = 1:2), z = data.frame(y = 1:2))),
   data.frame(x = 1:2, y = 1:2),
   info = "bind_cols unpacks data.frames"
+)
+
+expect_error(
+  bind_cols(data.frame(x = 1:3), data.frame(y = 1:2)),
+  info = "Rows need to match when column-binding"
+)
+
+expect_error(
+  bind_cols(data.frame(x = 1:3), data.frame()),
+  info = "Rows need to match when column-binding even with 0 columns"
+)
+
+expect_error(
+  bind_cols(list(y = data.frame(x = 1:2), y ~ x)),
+  info = "You must pass vector(s) and/or data.frame(s)"
 )
 
 rm(one, two)

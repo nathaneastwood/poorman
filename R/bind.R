@@ -64,13 +64,14 @@ NULL
 #' @rdname bind
 #' @export
 bind_cols <- function(...) {
-  dots <- list(...)
-  dots <- squash(dots)
-  dots <- Filter(Negate(is.null), dots)
-  if (length(dots) == 0L) return(data.frame())
-  res <- do.call(cbind, dots)
-  if (!is.data.frame(res)) res <- as.data.frame(res)
-  res
+  lsts <- list(...)
+  lsts <- squash(lsts)
+  lsts <- Filter(Negate(is.null), lsts)
+  if (length(lsts) == 0L) return(data.frame())
+  lapply(lsts, function(x) is_df_or_vector(x))
+  lsts <- do.call(cbind, lsts)
+  if (!is.data.frame(lsts)) lsts <- as.data.frame(lsts)
+  lsts
 }
 
 #' @rdname bind
@@ -79,6 +80,7 @@ bind_rows <- function(..., .id = NULL) {
   lsts <- list(...)
   lsts <- flatten(lsts)
   lsts <- Filter(Negate(is.null), lsts)
+  lapply(lsts, function(x) is_df_or_vector(x))
   lapply(lsts, function(x) if (is.atomic(x) && !is_named(x)) stop("Vectors must be named."))
 
   if (!missing(.id)) {
@@ -117,4 +119,12 @@ flatten <- function(lst) {
   nested <- vapply(lst, function(x) inherits(x[1L], "list"), FALSE)
   res <- c(lst[!nested], unlist(lst[nested], recursive = FALSE))
   if (sum(nested)) Recall(res) else return(res)
+}
+
+#' Check whether the input is an atomic vector or a data.frame
+#' @noRd
+is_df_or_vector <- function(x) {
+  res <- is.data.frame(x) || is.atomic(x)
+  if (isFALSE(res)) stop("You must pass vector(s) and/or data.frame(s).")
+  TRUE
 }
