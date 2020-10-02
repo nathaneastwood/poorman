@@ -10,7 +10,10 @@ relocate <- function(.data, ..., .before = NULL, .after = NULL) {
   col_pos <- select_positions(.data, ...)
 
   .before <- deparse_var(.before)
+  if (!is.null(.before)) .before <- colnames(.data)[do.call(select_positions, list(.data, substitute(.before)))]
   .after <- deparse_var(.after)
+  if (!is.null(.after)) .after <- colnames(.data)[do.call(select_positions, list(.data, substitute(.after)))]
+
   has_before <- !is.null(.before)
   has_after <- !is.null(.after)
 

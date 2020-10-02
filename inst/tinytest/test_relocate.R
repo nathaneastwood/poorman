@@ -28,6 +28,18 @@ expect_equal(
   info = "Test .after works when .after is the last column"
 )
 
+expect_equal(
+  mtcars %>% relocate(gear, .before = 1),
+  mtcars[, c("gear", "mpg", "cyl", "disp", "hp", "drat", "wt", "qsec", "vs", "am", "carb")],
+  info = ".before works with a numeric value"
+)
+
+expect_equal(
+  mtcars %>% relocate(gear, .after = 1),
+  mtcars[, c("mpg", "gear", "cyl", "disp", "hp", "drat", "wt", "qsec", "vs", "am", "carb")],
+  info = ".after works with a numeric value"
+)
+
 expect_error(
   mtcars %>% relocate(gear, .after = mpg, .before = cyl),
   info = "relocate() fails when .after and .before are both given"
