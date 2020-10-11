@@ -49,7 +49,8 @@
 <meta property="og:title" content="Recode values — recode" />
 <meta property="og:description" content="This is a vectorised version of switch(): you can replace numeric values based on their position or their name,
 and character or factor values only by their name. This is an S3 generic: {poorman} provides methods for
-numeric,  character, and factors. For logical vectors, use if_else().
+numeric,  character, and factors. For logical vectors, use if_else(). For more complicated criteria, use
+case_when().
 You can use recode() directly with factors; it will preserve the existing order of levels while changing the
 values. Alternatively, you can use recode_factor(), which will change the order of levels to match the order of
 replacements.
@@ -162,7 +163,8 @@ This is a direct port of the dplyr::recode() function." />
     <div class="ref-description">
     <p>This is a vectorised version of <code><a href='https://rdrr.io/r/base/switch.html'>switch()</a></code>: you can replace <code>numeric</code> values based on their position or their name,
 and <code>character</code> or <code>factor</code> values only by their name. This is an S3 generic: <code>{poorman}</code> provides methods for
-<code>numeric</code>,  <code>character</code>, and <code>factor</code>s. For <code>logical</code> vectors, use <code><a href='if_else.html'>if_else()</a></code>.</p>
+<code>numeric</code>,  <code>character</code>, and <code>factor</code>s. For <code>logical</code> vectors, use <code><a href='if_else.html'>if_else()</a></code>. For more complicated criteria, use
+<code><a href='case_when.html'>case_when()</a></code>.</p>
 <p>You can use <code>recode()</code> directly with <code>factor</code>s; it will preserve the existing order of levels while changing the
 values. Alternatively, you can use <code>recode_factor()</code>, which will change the order of levels to match the order of
 replacements.</p>
