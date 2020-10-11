@@ -2,12 +2,31 @@
 
 Sixth CRAN release.
 
-## Documentation changes
+This update has added the following new features:
 
-This release sees a major overhaul of the package documentation focusing on three components:
+* `rename_with()`
+* `group_cols()` (#42)
+* `cur_data_all()`
+* `nest_by()` (#44)
+* `case_when()` (#23)
+* `bind_cols()` (#32)
+* `bind_rows()` (#33)
+* `unite()`
 
-* R function documentation is now more focused and fully fleshed out.
-* Vignettes have been added to showcase the major components of the package (#31).
+Performance upgrades and code improvements:
+
+* `pull()` is now much faster thanks to @markfairbanks.
+* `%>%` now allows you to pipe into a `.`; my thanks go to @moodymudskipper.
+
+The following bugs have been squashed:
+
+* Filter joins will no longer reduce to vectors thanks to @msberends.
+* `contains()` no longer returns lists.
+* `relocate()` can now use "tidy select" style column selections.
+
+New documentation components have been added:
+
+* An FAQ vignette has been added (#31).
 * A `{pkgdown}` website has been added (#30).
 
 # poorman 0.2.1
