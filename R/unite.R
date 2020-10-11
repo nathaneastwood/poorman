@@ -1,6 +1,6 @@
 #' Unite Multiple Columns Into One
 #'
-#' Convenience function to paste toegther multiple columns.
+#' Convenience function to paste together multiple columns.
 #'
 #' @param data A `data.frame`.
 #' @param col `character(1)` or `symbol(1)`. The name of the new column.

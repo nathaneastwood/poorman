@@ -21,7 +21,7 @@ explicit in the data. Each group key is given a single row within the \code{data
 within a list-column of the \code{data.frame}.
 }
 \details{
-Currently there is no pretty-printing provided for the results of \code{nest_by()} and they are not useable with other
+Currently there is no pretty-printing provided for the results of \code{nest_by()} and they are not useble with other
 functions such as \code{\link[=mutate]{mutate()}}.
 }
 \examples{

@@ -23,7 +23,7 @@ unite(data, col, ..., sep = "_", remove = TRUE, na.rm = FALSE)
 A \code{data.frame} with the columns passed via \code{...} pasted together in a new column.
 }
 \description{
-Convenience function to paste toegther multiple columns.
+Convenience function to paste together multiple columns.
 }
 \examples{
 df <- data.frame(x = c("a", "a", NA, NA), y = c("b", NA, "b", NA))
