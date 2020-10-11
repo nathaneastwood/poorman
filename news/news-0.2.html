@@ -79,7 +79,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">poorman</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.2.1.22</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.2.2</span>
       </span>
     </div>
 
@@ -224,16 +224,42 @@
 <a href="#poorman-022" class="anchor"></a>poorman 0.2.2<small> Unreleased </small>
 </h1>
 <p>Sixth CRAN release.</p>
-<div id="documentation-changes" class="section level2">
-<h2 class="hasAnchor">
-<a href="#documentation-changes" class="anchor"></a>Documentation changes</h2>
-<p>This release sees a major overhaul of the package documentation focusing on three components:</p>
+<p>This update has added the following new features:</p>
 <ul>
-<li>R function documentation is now more focused and fully fleshed out.</li>
-<li>Vignettes have been added to showcase the major components of the package (<a href='https://github.com/nathaneastwood/poorman/issues/31'>#31</a>).</li>
+<li><code><a href="../reference/rename.html">rename_with()</a></code></li>
+<li>
+<code><a href="../reference/group_cols.html">group_cols()</a></code> (<a href='https://github.com/nathaneastwood/poorman/issues/42'>#42</a>)</li>
+<li><code><a href="../reference/context.html">cur_data_all()</a></code></li>
+<li>
+<code><a href="../reference/nest_by.html">nest_by()</a></code> (<a href='https://github.com/nathaneastwood/poorman/issues/44'>#44</a>)</li>
+<li>
+<code><a href="../reference/case_when.html">case_when()</a></code> (<a href='https://github.com/nathaneastwood/poorman/issues/23'>#23</a>)</li>
+<li>
+<code><a href="../reference/bind.html">bind_cols()</a></code> (<a href='https://github.com/nathaneastwood/poorman/issues/32'>#32</a>)</li>
+<li>
+<code><a href="../reference/bind.html">bind_rows()</a></code> (<a href='https://github.com/nathaneastwood/poorman/issues/33'>#33</a>)</li>
+<li><code><a href="../reference/unite.html">unite()</a></code></li>
+</ul>
+<p>Performance upgrades and code improvements:</p>
+<ul>
+<li>
+<code><a href="../reference/pull.html">pull()</a></code> is now much faster thanks to <a href='https://github.com/markfairbanks'>@markfairbanks</a>.</li>
+<li>
+<code><a href="../reference/pipe.html">%&gt;%</a></code> now allows you to pipe into a <code>.</code>; my thanks go to <a href='https://github.com/moodymudskipper'>@moodymudskipper</a>.</li>
+</ul>
+<p>The following bugs have been squashed:</p>
+<ul>
+<li>Filter joins will no longer reduce to vectors thanks to <a href='https://github.com/msberends'>@msberends</a>.</li>
+<li>
+<code><a href="../reference/select_helpers.html">contains()</a></code> no longer returns lists.</li>
+<li>
+<code><a href="../reference/relocate.html">relocate()</a></code> can now use “tidy select” style column selections.</li>
+</ul>
+<p>New documentation components have been added:</p>
+<ul>
+<li>An FAQ vignette has been added (<a href='https://github.com/nathaneastwood/poorman/issues/31'>#31</a>).</li>
 <li>A <a href="https://pkgdown.r-lib.org">pkgdown</a> website has been added (<a href='https://github.com/nathaneastwood/poorman/issues/30'>#30</a>).</li>
 </ul>
-</div>
 </div>
   </div>
 
