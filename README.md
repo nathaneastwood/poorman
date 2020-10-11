@@ -1,34 +1,33 @@
-
 <!-- README.md is generated from README.Rmd. Please edit that file -->
 
-# {poorman} <a href='https://nathaneastwood.github.io/tags/poorman/'><img src='man/figures/logo.png' align="right" height="139" /></a>
+{poorman} <a href='https://nathaneastwood.github.io/tags/poorman/'><img src='man/figures/logo.png' align="right" height="139" /></a>
+====================================================================================================================================
 
 [![CRAN
 status](https://www.r-pkg.org/badges/version/poorman)](https://cran.r-project.org/package=poorman)
 [![Dependencies](https://tinyverse.netlify.com/badge/poorman)](https://cran.r-project.org/package=poorman)
 ![CRAN downloads](https://cranlogs.r-pkg.org/badges/poorman)
-![check\_cran](https://github.com/nathaneastwood/poorman/workflows/check_cran/badge.svg?branch=master)
+![check_cran](https://github.com/nathaneastwood/poorman/workflows/check_cran/badge.svg?branch=master)
 [![codecov](https://codecov.io/gh/nathaneastwood/poorman/branch/master/graph/badge.svg)](https://codecov.io/gh/nathaneastwood/poorman)
 
 <blockquote align="center">
-
 I’d seen my father. He was a poor man, and I watched him do astonishing
 things. - Sidney Poitier
-
 </blockquote>
 
-## Overview
+Overview
+--------
 
 {poorman} is a grammar of data manipulation, providing dependency free
 versions of [{dplyr}](https://github.com/tidyverse/dplyr) verbs that
 help you solve the most common data manipulation challenges:
 
-  - `select()` picks variables based on their names.
-  - `mutate()` adds new variables that are functions of existing
+-   `select()` picks variables based on their names.
+-   `mutate()` adds new variables that are functions of existing
     variables.
-  - `filter()` picks cases based on their values.
-  - `summarise()` reduces multiple values down to a single summary.
-  - `arrange()` changes the ordering of the rows.
+-   `filter()` picks cases based on their values.
+-   `summarise()` reduces multiple values down to a single summary.
+-   `arrange()` changes the ordering of the rows.
 
 {poorman} attempts to replicate the {dplyr} API exactly such that your
 {dplyr} code will still run even if you use {poorman} in its place. In
@@ -40,29 +39,27 @@ For more details on the functionality available within {poorman}, check
 out the {poorman} series of blog posts
 [here](https://nathaneastwood.github.io/tags/poorman/).
 
-## Installation
+Installation
+------------
 
 You can install:
 
-  - the development version from
+-   the development version from
     [GitHub](https://github.com/nathaneastwood/poorman) with
-
-<!-- end list -->
 
 ``` r
 # install.packages("remotes")
 remotes::install_github("nathaneastwood/poorman")
 ```
 
-  - the latest release from CRAN with
-
-<!-- end list -->
+-   the latest release from CRAN with
 
 ``` r
 install.packages("poorman")
 ```
 
-## Docker
+Docker
+------
 
 If you’d like to try out the latest version of the package on CRAN using
 Docker, you can run the latest image with:
@@ -71,7 +68,8 @@ Docker, you can run the latest image with:
 docker run --rm -it nathaneastwood/poorman
 ```
 
-## Usage
+Usage
+-----
 
 ``` r
 library(poorman, warn.conflicts = FALSE)
@@ -102,11 +100,12 @@ mtcars %>%
 # 6  1   8 15.40000 0.5656854
 ```
 
-## Related Work
+Related Work
+------------
 
-  - [{dplyr}](https://github.com/tidyverse/dplyr)
-  - [{bplyr}](https://github.com/yonicd/bplyr) - imports {magrittr} and
+-   [{dplyr}](https://github.com/tidyverse/dplyr)
+-   [{bplyr}](https://github.com/yonicd/bplyr) - imports {magrittr} and
     {rlang}; it prepends functions with `b_*()`, e.g. `b_select()`.
-  - [{tbltools}](https://github.com/mkearney/tbltools) - imports
+-   [{tbltools}](https://github.com/mkearney/tbltools) - imports
     {magrittr} and appends `*_data()` to each of its functions,
     e.g. `select_data()`.

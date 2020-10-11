@@ -27,3 +27,8 @@ z <- c(NA, NA, 3, 4, 5)
 coalesce(y, z)
 
 }
+\seealso{
+\code{\link[=na_if]{na_if()}} to replace specified values to a \code{NA}.
+
+\code{\link[=replace_na]{replace_na()}} to replace a \code{NA} with a value.
+}

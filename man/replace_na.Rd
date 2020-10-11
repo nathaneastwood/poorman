@@ -31,6 +31,7 @@ df$y \%>\% replace_na("unknown")
 
 }
 \seealso{
-\code{\link[=na_if]{na_if()}} to replace specified values with a \code{NA}. \code{\link[=coalesce]{coalesce()}} to replace missing values within subsequent
-\code{vector}(s) of value(s).
+\code{\link[=na_if]{na_if()}} to replace specified values with a \code{NA}.
+
+\code{\link[=coalesce]{coalesce()}} to replace missing values within subsequent \code{vector}(s) of value(s).
 }

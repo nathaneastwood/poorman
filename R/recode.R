@@ -3,7 +3,8 @@
 #' @description
 #' This is a vectorised version of [switch()]: you can replace `numeric` values based on their position or their name,
 #' and `character` or `factor` values only by their name. This is an S3 generic: `{poorman}` provides methods for
-#' `numeric`,  `character`, and `factor`s. For `logical` vectors, use [if_else()].
+#' `numeric`,  `character`, and `factor`s. For `logical` vectors, use [if_else()]. For more complicated criteria, use
+#' [case_when()].
 #'
 #' You can use `recode()` directly with `factor`s; it will preserve the existing order of levels while changing the
 #' values. Alternatively, you can use `recode_factor()`, which will change the order of levels to match the order of

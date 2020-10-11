@@ -9,6 +9,10 @@
 #' [coalesce()] to replace missing values within subsequent `vector`(s) of value(s). [replace_na()] to replace `NA` with
 #' a value.
 #'
+#' [replace_na()] to replace `NA` with a value.
+#'
+#' [recode()] to more generally replace values.
+#'
 #' @return
 #' A modified version of `x` that replaces any values that are equal to `y` with `NA`.
 #'

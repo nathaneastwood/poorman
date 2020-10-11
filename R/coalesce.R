@@ -8,6 +8,11 @@
 #'
 #' @param ... Vectors. Inputs should be recyclable (either be length `1L` or `n`) and coercible to a common type.
 #'
+#' @seealso
+#' [na_if()] to replace specified values to a `NA`.
+#'
+#' [replace_na()] to replace a `NA` with a value.
+#'
 #' @examples
 #' # Use a single value to replace all missing vectors
 #' x <- sample(c(1:5, NA, NA, NA))

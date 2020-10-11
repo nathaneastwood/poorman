@@ -8,8 +8,9 @@
 #' @param ... Additional arguments passed onto methods; not currently used.
 #'
 #' @seealso
-#' [na_if()] to replace specified values with a `NA`. [coalesce()] to replace missing values within subsequent
-#' `vector`(s) of value(s).
+#' [na_if()] to replace specified values with a `NA`.
+#'
+#' [coalesce()] to replace missing values within subsequent `vector`(s) of value(s).
 #'
 #' @return
 #' If `data` is a `data.frame`, `replace_na()` returns a `data.frame`. If `data` is a `vector`, `replace_na()` returns a

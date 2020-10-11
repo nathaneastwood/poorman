@@ -49,6 +49,7 @@ reference:
 - title: Vector functions
   contents:
   - between
+  - case_when
   - coalesce
   - desc
   - if_else

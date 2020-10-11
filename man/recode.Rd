@@ -41,7 +41,8 @@ in \code{...}. The levels in \code{.default} and \code{.missing} come last.
 \description{
 This is a vectorised version of \code{\link[=switch]{switch()}}: you can replace \code{numeric} values based on their position or their name,
 and \code{character} or \code{factor} values only by their name. This is an S3 generic: \code{{poorman}} provides methods for
-\code{numeric},  \code{character}, and \code{factor}s. For \code{logical} vectors, use \code{\link[=if_else]{if_else()}}.
+\code{numeric},  \code{character}, and \code{factor}s. For \code{logical} vectors, use \code{\link[=if_else]{if_else()}}. For more complicated criteria, use
+\code{\link[=case_when]{case_when()}}.
 
 You can use \code{recode()} directly with \code{factor}s; it will preserve the existing order of levels while changing the
 values. Alternatively, you can use \code{recode_factor()}, which will change the order of levels to match the order of

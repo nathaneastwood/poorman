@@ -36,4 +36,8 @@ mtcars \%>\%
 \seealso{
 \code{\link[=coalesce]{coalesce()}} to replace missing values within subsequent \code{vector}(s) of value(s). \code{\link[=replace_na]{replace_na()}} to replace \code{NA} with
 a value.
+
+\code{\link[=replace_na]{replace_na()}} to replace \code{NA} with a value.
+
+\code{\link[=recode]{recode()}} to more generally replace values.
 }
