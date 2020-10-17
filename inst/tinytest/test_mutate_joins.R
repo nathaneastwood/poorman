@@ -125,3 +125,16 @@ expect_equal(
   ),
   info = "Non-matching column names"
 )
+
+df1 <- data.frame(x = c(1, NA), y = 2)
+df2 <- data.frame(x = c(1, NA), z = 3)
+expect_equal(
+  invisible(suppressMessages(res <- full_join(df1, df2, suffix = c(".xx", ".yy"), keep = TRUE, na_matches = "never"))),
+  data.frame(
+    x.xx = c(1, NA, NA),
+    y = c(2, 2, NA),
+    z = c(3, NA, 3),
+    x.yy = c(1, NA, NA)
+  ),
+  info = "keep = TRUE keeps the join columns"
+)

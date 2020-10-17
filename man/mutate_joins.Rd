@@ -8,29 +8,90 @@
 \alias{full_join}
 \title{Mutating Joins}
 \usage{
-inner_join(x, y, by = NULL, suffix = c(".x", ".y"))
+inner_join(
+  x,
+  y,
+  by = NULL,
+  suffix = c(".x", ".y"),
+  ...,
+  na_matches = c("na", "never")
+)
 
-left_join(x, y, by = NULL, suffix = c(".x", ".y"))
+left_join(
+  x,
+  y,
+  by = NULL,
+  suffix = c(".x", ".y"),
+  ...,
+  keep = FALSE,
+  na_matches = c("na", "never")
+)
 
-right_join(x, y, by = NULL, suffix = c(".x", ".y"))
+right_join(
+  x,
+  y,
+  by = NULL,
+  suffix = c(".x", ".y"),
+  ...,
+  keep = FALSE,
+  na_matches = c("na", "never")
+)
 
-full_join(x, y, by = NULL, suffix = c(".x", ".y"))
+full_join(
+  x,
+  y,
+  by = NULL,
+  suffix = c(".x", ".y"),
+  ...,
+  keep = FALSE,
+  na_matches = c("na", "never")
+)
 }
 \arguments{
 \item{x, y}{The \code{data.frame}s to join.}
 
-\item{by}{A character vector of variables to join by. If \code{NULL}, the default,
-\verb{*_join()} will do a natural join, using all variables with common names
-across the two tables. A message lists the variables so that you can check
-they're right (to suppress the message, simply explicitly list the variables
-that you want to join).
+\item{by}{A character vector of variables to join by. If \code{NULL}, the default, \verb{*_join()} will do a natural join,
+using all variables with common names across the two tables. A message lists the variables so that you can check
+they're right (to suppress the message, simply explicitly list the variables that you want to join).
 
-To join by different variables on x and y use a named vector. For example,
-\code{by = c("a" = "b")} will match \code{x.a} to \code{y.b}.}
+To join by different variables on x and y use a named vector. For example, \code{by = c("a" = "b")} will match \code{x.a} to
+\code{y.b}.
 
-\item{suffix}{If there are non-joined duplicate variables in \code{x} and \code{y},
-these suffixes will be added to the output to disambiguate them. Should be a
-character vector of length 2.}
+To join by multiple variables, use a vector with length > 1. For example, \code{by = c("a", "b")} will match \code{x$a} to
+\code{y$a} and \code{x$b} to \code{y$b}. Use a named vector to match different variables in \code{x} and \code{y}. For example,
+\code{by = c("a" = "b", "c" = "d")} will match \code{x$a} to \code{y$b} and \code{x$c} to \code{y$d}.
+
+To perform a cross-join, generating all combinations of \code{x} and \code{y}, use \code{by = character()}.}
+
+\item{suffix}{\code{character(2)}. If there are non-joined duplicate variables in \code{x} and \code{y}, these suffixes will be
+added to the output to disambiguate them.}
+
+\item{...}{Additional arguments to pass to \code{\link[=merge]{merge()}}}
+
+\item{na_matches}{Should \code{NA} and \code{NaN} values match one another?
+
+The default, \code{"na"}, treats two \code{NA} or \code{NaN} values as equal, like \code{\%in\%}, \code{\link[=match]{match()}}, \code{\link[=merge]{merge()}}.
+
+Use \code{"never"} to always treat two \code{NA} or \code{NaN} values as different, like joins for database sources, similarly to
+\code{merge(incomparables = FALSE)}.}
+
+\item{keep}{\code{logical(1)}. Should the join keys from both \code{x} and \code{y} be preserved in the output? Only applies to
+\code{left_join()}, \code{right_join()}, and \code{full_join()}.}
+}
+\value{
+A \code{data.frame}. The order of the rows and columns of \code{x} is preserved as much as possible. The output has the
+following properties:
+\itemize{
+\item For \code{inner_join()}, a subset of \code{x} rows.
+For \code{left_join()}, all \code{x} rows.
+For \code{right_join()}, a subset of \code{x} rows, followed by unmatched \code{y} rows.
+For \code{full_join()}, all \code{x} rows, followed by unmatched \code{y} rows.
+\item For all joins, rows will be duplicated if one or more rows in \code{x} matches multiple rows in \code{y}.
+\item Output columns include all \code{x} columns and all \code{y} columns. If columns in \code{x} and \code{y} have the same name (and
+aren't included in \code{by}), \code{suffix}es are added to disambiguate.
+\item Output columns included in \code{by} are coerced to common type across \code{x} and \code{y}.
+\item Groups are taken from \code{x}.
+}
 }
 \description{
 The mutating joins add columns from \code{y} to \code{x}, matching rows based on the keys:
@@ -42,4 +103,22 @@ The mutating joins add columns from \code{y} to \code{x}, matching rows based on
 }
 
 If a row in \code{x} matches multiple rows in \code{y}, all the rows in \code{y} will be returned once for each matching row in \code{x}.
+}
+\examples{
+# If a row in `x` matches multiple rows in `y`, all the rows in `y` will be
+# returned once for each matching row in `x`
+df1 <- data.frame(x = 1:3)
+df2 <- data.frame(x = c(1, 1, 2), y = c("first", "second", "third"))
+df1 \%>\% left_join(df2)
+
+# By default, NAs match other NAs so that there are two
+# rows in the output of this join:
+df1 <- data.frame(x = c(1, NA), y = 2)
+df2 <- data.frame(x = c(1, NA), z = 3)
+left_join(df1, df2)
+
+# You can optionally request that NAs don't match, giving a
+# a result that more closely resembles SQL joins
+left_join(df1, df2, na_matches = "never")
+
 }
