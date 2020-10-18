@@ -7,7 +7,7 @@
 n_distinct(..., na.rm = FALSE)
 }
 \arguments{
-\item{...}{A vectors of values.}
+\item{...}{Vectors of values.}
 
 \item{na.rm}{\code{logical(1)}. If \code{TRUE} missing values don't count.}
 }

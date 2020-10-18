@@ -2,7 +2,7 @@
 #'
 #' This is the equivalent of `length(unique(x))` for multiple vectors.
 #'
-#' @param ... A vectors of values.
+#' @param ... Vectors of values.
 #' @param na.rm `logical(1)`. If `TRUE` missing values don't count.
 #'
 #' @examples
@@ -12,8 +12,7 @@
 #'
 #' @export
 n_distinct <- function(..., na.rm = FALSE) {
-  res <- c(...)
-  if (is.list(res)) return(nrow(unique(as.data.frame(res, stringsAsFactors = FALSE))))
-  if (isTRUE(na.rm)) res <- res[!is.na(res)]
-  length(unique(res))
+  res <- do.call(cbind, list(...))
+  if (isTRUE(na.rm)) res <- res[!is.na(res), , drop = FALSE]
+  nrow(unique(res))
 }

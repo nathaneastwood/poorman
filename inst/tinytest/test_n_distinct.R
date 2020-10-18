@@ -52,3 +52,15 @@ expect_identical(
 )
 
 rm(df_var, x, y)
+
+expect_equal(
+  n_distinct(c(0, 1, 1, 2, 3, 5, 8, NA), na.rm = TRUE),
+  6L,
+  info = "na.rm removes NAs"
+)
+
+expect_equal(
+  n_distinct(list(c(1, 1, 2), c(1, 2, 3))),
+  2L,
+  info = "n_distinct() can handle nested lists"
+)
