@@ -87,7 +87,7 @@ If a row in x matches multiple rows in y, all the rows in y will be returned onc
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">poorman</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.2.2</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.2.2.9002</span>
       </span>
     </div>
 
@@ -171,13 +171,44 @@ If a row in x matches multiple rows in y, all the rows in y will be returned onc
 <p>If a row in <code>x</code> matches multiple rows in <code>y</code>, all the rows in <code>y</code> will be returned once for each matching row in <code>x</code>.</p>
     </div>
 
-    <pre class="usage"><span class='fu'>inner_join</span><span class='op'>(</span><span class='va'>x</span>, <span class='va'>y</span>, by <span class='op'>=</span> <span class='cn'>NULL</span>, suffix <span class='op'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span><span class='op'>(</span><span class='st'>".x"</span>, <span class='st'>".y"</span><span class='op'>)</span><span class='op'>)</span>
+    <pre class="usage"><span class='fu'>inner_join</span><span class='op'>(</span>
+  <span class='va'>x</span>,
+  <span class='va'>y</span>,
+  by <span class='op'>=</span> <span class='cn'>NULL</span>,
+  suffix <span class='op'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span><span class='op'>(</span><span class='st'>".x"</span>, <span class='st'>".y"</span><span class='op'>)</span>,
+  <span class='va'>...</span>,
+  na_matches <span class='op'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span><span class='op'>(</span><span class='st'>"na"</span>, <span class='st'>"never"</span><span class='op'>)</span>
+<span class='op'>)</span>
 
-<span class='fu'>left_join</span><span class='op'>(</span><span class='va'>x</span>, <span class='va'>y</span>, by <span class='op'>=</span> <span class='cn'>NULL</span>, suffix <span class='op'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span><span class='op'>(</span><span class='st'>".x"</span>, <span class='st'>".y"</span><span class='op'>)</span><span class='op'>)</span>
+<span class='fu'>left_join</span><span class='op'>(</span>
+  <span class='va'>x</span>,
+  <span class='va'>y</span>,
+  by <span class='op'>=</span> <span class='cn'>NULL</span>,
+  suffix <span class='op'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span><span class='op'>(</span><span class='st'>".x"</span>, <span class='st'>".y"</span><span class='op'>)</span>,
+  <span class='va'>...</span>,
+  keep <span class='op'>=</span> <span class='cn'>FALSE</span>,
+  na_matches <span class='op'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span><span class='op'>(</span><span class='st'>"na"</span>, <span class='st'>"never"</span><span class='op'>)</span>
+<span class='op'>)</span>
 
-<span class='fu'>right_join</span><span class='op'>(</span><span class='va'>x</span>, <span class='va'>y</span>, by <span class='op'>=</span> <span class='cn'>NULL</span>, suffix <span class='op'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span><span class='op'>(</span><span class='st'>".x"</span>, <span class='st'>".y"</span><span class='op'>)</span><span class='op'>)</span>
+<span class='fu'>right_join</span><span class='op'>(</span>
+  <span class='va'>x</span>,
+  <span class='va'>y</span>,
+  by <span class='op'>=</span> <span class='cn'>NULL</span>,
+  suffix <span class='op'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span><span class='op'>(</span><span class='st'>".x"</span>, <span class='st'>".y"</span><span class='op'>)</span>,
+  <span class='va'>...</span>,
+  keep <span class='op'>=</span> <span class='cn'>FALSE</span>,
+  na_matches <span class='op'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span><span class='op'>(</span><span class='st'>"na"</span>, <span class='st'>"never"</span><span class='op'>)</span>
+<span class='op'>)</span>
 
-<span class='fu'>full_join</span><span class='op'>(</span><span class='va'>x</span>, <span class='va'>y</span>, by <span class='op'>=</span> <span class='cn'>NULL</span>, suffix <span class='op'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span><span class='op'>(</span><span class='st'>".x"</span>, <span class='st'>".y"</span><span class='op'>)</span><span class='op'>)</span></pre>
+<span class='fu'>full_join</span><span class='op'>(</span>
+  <span class='va'>x</span>,
+  <span class='va'>y</span>,
+  by <span class='op'>=</span> <span class='cn'>NULL</span>,
+  suffix <span class='op'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span><span class='op'>(</span><span class='st'>".x"</span>, <span class='st'>".y"</span><span class='op'>)</span>,
+  <span class='va'>...</span>,
+  keep <span class='op'>=</span> <span class='cn'>FALSE</span>,
+  na_matches <span class='op'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span><span class='op'>(</span><span class='st'>"na"</span>, <span class='st'>"never"</span><span class='op'>)</span>
+<span class='op'>)</span></pre>
 
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
     <table class="ref-arguments">
@@ -188,23 +219,81 @@ If a row in x matches multiple rows in y, all the rows in y will be returned onc
     </tr>
     <tr>
       <th>by</th>
-      <td><p>A character vector of variables to join by. If <code>NULL</code>, the default,
-<code>*_join()</code> will do a natural join, using all variables with common names
-across the two tables. A message lists the variables so that you can check
-they're right (to suppress the message, simply explicitly list the variables
-that you want to join).</p>
-<p>To join by different variables on x and y use a named vector. For example,
-<code>by = c("a" = "b")</code> will match <code>x.a</code> to <code>y.b</code>.</p></td>
+      <td><p>A character vector of variables to join by. If <code>NULL</code>, the default, <code>*_join()</code> will do a natural join,
+using all variables with common names across the two tables. A message lists the variables so that you can check
+they're right (to suppress the message, simply explicitly list the variables that you want to join).</p>
+<p>To join by different variables on x and y use a named vector. For example, <code>by = c("a" = "b")</code> will match <code>x.a</code> to
+<code>y.b</code>.</p>
+<p>To join by multiple variables, use a vector with length &gt; 1. For example, <code>by = c("a", "b")</code> will match <code>x$a</code> to
+<code>y$a</code> and <code>x$b</code> to <code>y$b</code>. Use a named vector to match different variables in <code>x</code> and <code>y</code>. For example,
+<code>by = c("a" = "b", "c" = "d")</code> will match <code>x$a</code> to <code>y$b</code> and <code>x$c</code> to <code>y$d</code>.</p>
+<p>To perform a cross-join, generating all combinations of <code>x</code> and <code>y</code>, use <code>by = character()</code>.</p></td>
     </tr>
     <tr>
       <th>suffix</th>
-      <td><p>If there are non-joined duplicate variables in <code>x</code> and <code>y</code>,
-these suffixes will be added to the output to disambiguate them. Should be a
-character vector of length 2.</p></td>
+      <td><p><code><a href='https://rdrr.io/r/base/character.html'>character(2)</a></code>. If there are non-joined duplicate variables in <code>x</code> and <code>y</code>, these suffixes will be
+added to the output to disambiguate them.</p></td>
+    </tr>
+    <tr>
+      <th>...</th>
+      <td><p>Additional arguments to pass to <code><a href='https://rdrr.io/r/base/merge.html'>merge()</a></code></p></td>
+    </tr>
+    <tr>
+      <th>na_matches</th>
+      <td><p>Should <code>NA</code> and <code>NaN</code> values match one another?</p>
+<p>The default, <code>"na"</code>, treats two <code>NA</code> or <code>NaN</code> values as equal, like <code><a href='https://rdrr.io/r/base/match.html'>%in%</a></code>, <code><a href='https://rdrr.io/r/base/match.html'>match()</a></code>, <code><a href='https://rdrr.io/r/base/merge.html'>merge()</a></code>.</p>
+<p>Use <code>"never"</code> to always treat two <code>NA</code> or <code>NaN</code> values as different, like joins for database sources, similarly to
+<code><a href='https://rdrr.io/r/base/merge.html'>merge(incomparables = FALSE)</a></code>.</p></td>
+    </tr>
+    <tr>
+      <th>keep</th>
+      <td><p><code><a href='https://rdrr.io/r/base/logical.html'>logical(1)</a></code>. Should the join keys from both <code>x</code> and <code>y</code> be preserved in the output? Only applies to
+<code>left_join()</code>, <code>right_join()</code>, and <code>full_join()</code>.</p></td>
     </tr>
     </table>
 
+    <h2 class="hasAnchor" id="value"><a class="anchor" href="#value"></a>Value</h2>
 
+    <p>A <code>data.frame</code>. The order of the rows and columns of <code>x</code> is preserved as much as possible. The output has the
+following properties:</p><ul>
+<li><p>For <code>inner_join()</code>, a subset of <code>x</code> rows.
+For <code>left_join()</code>, all <code>x</code> rows.
+For <code>right_join()</code>, a subset of <code>x</code> rows, followed by unmatched <code>y</code> rows.
+For <code>full_join()</code>, all <code>x</code> rows, followed by unmatched <code>y</code> rows.</p></li>
+<li><p>For all joins, rows will be duplicated if one or more rows in <code>x</code> matches multiple rows in <code>y</code>.</p></li>
+<li><p>Output columns include all <code>x</code> columns and all <code>y</code> columns. If columns in <code>x</code> and <code>y</code> have the same name (and
+aren't included in <code>by</code>), <code>suffix</code>es are added to disambiguate.</p></li>
+<li><p>Output columns included in <code>by</code> are coerced to common type across <code>x</code> and <code>y</code>.</p></li>
+<li><p>Groups are taken from <code>x</code>.</p></li>
+</ul>
+
+
+    <h2 class="hasAnchor" id="examples"><a class="anchor" href="#examples"></a>Examples</h2>
+    <pre class="examples"><div class='input'><span class='co'># If a row in `x` matches multiple rows in `y`, all the rows in `y` will be</span>
+<span class='co'># returned once for each matching row in `x`</span>
+<span class='va'>df1</span> <span class='op'>&lt;-</span> <span class='fu'><a href='https://rdrr.io/r/base/data.frame.html'>data.frame</a></span><span class='op'>(</span>x <span class='op'>=</span> <span class='fl'>1</span><span class='op'>:</span><span class='fl'>3</span><span class='op'>)</span>
+<span class='va'>df2</span> <span class='op'>&lt;-</span> <span class='fu'><a href='https://rdrr.io/r/base/data.frame.html'>data.frame</a></span><span class='op'>(</span>x <span class='op'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span><span class='op'>(</span><span class='fl'>1</span>, <span class='fl'>1</span>, <span class='fl'>2</span><span class='op'>)</span>, y <span class='op'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span><span class='op'>(</span><span class='st'>"first"</span>, <span class='st'>"second"</span>, <span class='st'>"third"</span><span class='op'>)</span><span class='op'>)</span>
+<span class='va'>df1</span> <span class='op'>%&gt;%</span> <span class='fu'>left_join</span><span class='op'>(</span><span class='va'>df2</span><span class='op'>)</span>
+</div><div class='output co'>#&gt; <span class='message'>Joining, by = "x"</span></div><div class='output co'>#&gt;   x      y
+#&gt; 1 1  first
+#&gt; 2 1 second
+#&gt; 3 2  third
+#&gt; 4 3   &lt;NA&gt;</div><div class='input'>
+<span class='co'># By default, NAs match other NAs so that there are two</span>
+<span class='co'># rows in the output of this join:</span>
+<span class='va'>df1</span> <span class='op'>&lt;-</span> <span class='fu'><a href='https://rdrr.io/r/base/data.frame.html'>data.frame</a></span><span class='op'>(</span>x <span class='op'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span><span class='op'>(</span><span class='fl'>1</span>, <span class='cn'>NA</span><span class='op'>)</span>, y <span class='op'>=</span> <span class='fl'>2</span><span class='op'>)</span>
+<span class='va'>df2</span> <span class='op'>&lt;-</span> <span class='fu'><a href='https://rdrr.io/r/base/data.frame.html'>data.frame</a></span><span class='op'>(</span>x <span class='op'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span><span class='op'>(</span><span class='fl'>1</span>, <span class='cn'>NA</span><span class='op'>)</span>, z <span class='op'>=</span> <span class='fl'>3</span><span class='op'>)</span>
+<span class='fu'>left_join</span><span class='op'>(</span><span class='va'>df1</span>, <span class='va'>df2</span><span class='op'>)</span>
+</div><div class='output co'>#&gt; <span class='message'>Joining, by = "x"</span></div><div class='output co'>#&gt;    x y z
+#&gt; 1  1 2 3
+#&gt; 2 NA 2 3</div><div class='input'>
+<span class='co'># You can optionally request that NAs don't match, giving a</span>
+<span class='co'># a result that more closely resembles SQL joins</span>
+<span class='fu'>left_join</span><span class='op'>(</span><span class='va'>df1</span>, <span class='va'>df2</span>, na_matches <span class='op'>=</span> <span class='st'>"never"</span><span class='op'>)</span>
+</div><div class='output co'>#&gt; <span class='message'>Joining, by = "x"</span></div><div class='output co'>#&gt;    x y  z
+#&gt; 1  1 2  3
+#&gt; 2 NA 2 NA</div><div class='input'>
+</div></pre>
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="pkgdown-sidebar">
     <nav id="toc" data-toggle="toc" class="sticky-top">
