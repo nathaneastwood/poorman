@@ -149,6 +149,8 @@ select_context <- function(expr) {
   eval(expr, envir = select_env$.data)
 }
 
+# -- Environment ---------------------------------------------------------------
+
 select_env <- new.env()
 select_env$setup <- function(.data, calling_frame) {
   select_env$.data <- .data
@@ -160,3 +162,11 @@ select_env$clean <- function() {
 select_env$get_colnames <- function() colnames(select_env$.data)
 select_env$get_nrow <- function() nrow(select_env$.data)
 select_env$get_ncol <- function() ncol(select_env$.data)
+
+# -- Helpers -------------------------------------------------------------------
+
+#' A cleaner interface to evaluating select_positions when column names are not passed via ...
+#' @noRd
+eval_select_pos <- function(.data, .cols, .group_pos = FALSE) {
+  do.call(select_positions, list(.data = .data, .group_pos = .group_pos, .cols))
+}
