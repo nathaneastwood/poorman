@@ -41,7 +41,15 @@ unite <- function(data, col, ..., sep = "_", remove = TRUE, na.rm = FALSE) {
     }
     data[, to_rm] <- NULL
   } else {
-    data <- do.call(relocate, list(data, col, .before = cols_pos[1]))
+    data <- eval(bquote(relocate(data, col, .before = .(cols_pos[1]))))
   }
   data
+}
+
+substitute_w <- function(x) {
+  caller <- parent.frame()
+  caller2 <- sys.frame(sys.parent(2))   # see appendix for explanation
+  expr <- eval(bquote(substitute(.(substitute(x)),.(caller))))
+  expr <- eval(bquote(.(bquote)(.(expr))), caller2)
+  bquote(with(.(caller2), .(expr)))
 }
