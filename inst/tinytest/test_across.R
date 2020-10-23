@@ -1,0 +1,140 @@
+expect_equal(
+  data.frame(x = 1) %>% mutate(across()),
+  data.frame(x = 1),
+  info = "across() works on one column data.frame"
+)
+
+expect_equivalent(
+  mtcars %>% group_by(cyl) %>% summarise(across(starts_with("c"), mean)) %>% ungroup(),
+  data.frame(cyl = c(4, 6, 8), carb_1 = c(1.54545455, 3.42857, 3.5)),
+  tolerance = 0.00001,
+  info = "across() does not select grouping variables"
+)
+
+gf <- data.frame(x = 1, y = 2, z = 3, s = "") %>% group_by(x)
+expect_named <- function(x, y, info = NA_character_) expect_equal(colnames(x), y, info = info)
+expect_named(
+  summarise(gf, across()),
+  c("x", "y", "z", "s"),
+  "across() correctly names output columns"
+)
+expect_named(
+  summarise(gf, across(where(is.numeric), mean)),
+  c("x", "y", "z"),
+  "across() correctly names output for non-named functions"
+)
+expect_named(
+  summarise(gf, across(where(is.numeric), list(mean = mean, sum = sum))),
+  c("x", "y_mean", "y_sum", "z_mean", "z_sum"),
+  info = "across() correctly names output columns for named lists of functions"
+)
+expect_named(
+  summarise(gf, across(where(is.numeric), list(mean = mean, sum))),
+  c("x", "y_mean", "y_2", "z_mean", "z_2"),
+  info = "across() correctly names output columns for partially named lists of functions"
+)
+expect_named(
+  summarise(gf, across(where(is.numeric), list(mean, sum = sum))),
+  c("x", "y_1", "y_sum", "z_1", "z_sum"),
+  info = "across() correctly names output columns for partially named lists of functions"
+)
+expect_named(
+  summarise(gf, across(where(is.numeric), list(mean, sum))),
+  c("x", "y_1", "y_2", "z_1", "z_2"),
+  info = "across() correctly names output columns for non-named lists of functions"
+)
+
+expect_identical(
+  data.frame(x = 1:2, y = c("a", "b")) %>% summarise(across(everything(), list(cls = class, type = is.numeric))),
+  data.frame(x_cls = "integer", x_type = TRUE, y_cls = "character", y_type = FALSE),
+  info = "across() result locations are aligned with column names"
+)
+
+expect_equal(
+  summarise(data.frame(x = c(1, NA)), across(everything(), mean, na.rm = TRUE)),
+  data.frame(x = 1),
+  info = "across() passes ... to functions"
+)
+
+expect_equal(
+  summarise(data.frame(x = c(1, NA)), across(everything(), list(mean = mean, median = median), na.rm = TRUE)),
+  data.frame(x_mean = 1, x_median = 1),
+  info = "across() passes ... to functions"
+)
+
+df <- data.frame(x = 1)
+expect_equal(
+  mutate(df, across(x, `+`, 1)),
+  data.frame(x = 2),
+  info = "across() passes unnamed arguments following .fns as ..."
+)
+
+expect_equal(
+  summarize(data.frame(x = c(1, 2)), across(x, tail, n = 1)),
+  data.frame(x = 2),
+  info = "across() avoids simple argument name collisions with ..."
+)
+
+df <- data.frame(a = 1)
+expect_equal(
+  mutate(df, x = ncol(across(where(is.numeric))), y = ncol(across(where(is.numeric)))),
+  data.frame(a = 1, x = 1L, y = 2L),
+  info = "across() works sequentially"
+)
+expect_equal(
+  mutate(df, a = "x", y = ncol(across(where(is.numeric)))),
+  data.frame(a = "x", y = 0L),
+  info = "across() works sequentially"
+)
+expect_equal(
+  mutate(df, x = 1, y = ncol(across(where(is.numeric)))),
+  data.frame(a = 1, x = 1, y = 2L),
+  info = "across() works sequentially"
+)
+
+expect_named(
+  mutate(data.frame(a = 1, b = 2), a = 2, x = across()),
+  c("a", "b"),
+  info = "across() retains original ordering"
+)
+
+expect_equal(
+  mutate(data.frame(a = 1, b = 2), x = ncol(across(where(is.numeric))) + ncol(across(a))),
+  data.frame(a = 1, b = 2, x = 3),
+  info = "across() can be used twice in the same expression"
+)
+
+expect_equal(
+  mutate(data.frame(a = 1, b = 2), x = ncol(across(where(is.numeric))), y = ncol(across(a))),
+  data.frame(a = 1, b = 2, x = 2, y = 1),
+  info = "across() can be used in separate expressions"
+)
+
+df <- data.frame(g = 1:2, a = 1:2, b = 3:4) %>% group_by(g)
+expect_equal(
+  mutate(df, x = if_else(cur_group_id() == 1L, across(a)$a, across(b)$b)),
+  {
+    expect <- df
+    expect$x <- c(1L, 4L)
+    expect
+  },
+  info = "across() usage can depend on the group id"
+)
+
+df <- data.frame(g = rep(1:2, each = 2), a = 1:4) %>% group_by(g)
+expect_identical(
+  mutate(df, data.frame(x = across(where(is.numeric), mean)$a, y = across(where(is.numeric), max)$a)),
+  mutate(df, x = mean(a), y = max(a)),
+  info = "across() internal cache key depends on all inputs"
+)
+
+expect_error(
+  data.frame(x = 1) %>% summarise(across(everything(), "foo")),
+  info = "across() fails on non-function"
+)
+
+expect_equal(
+  mutate(data.frame(), across()),
+  data.frame(),
+  info = "across() works with empty data.frames"
+)

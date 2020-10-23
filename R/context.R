@@ -3,8 +3,10 @@ context <- new.env()
 # Data
 context$setup <- function(.data) context$.data <- .data
 context$get_data <- function() context$.data
+context$get_columns <- function(cols) context$.data[, cols, drop = FALSE]
 context$get_nrow <- function() nrow(context$.data)
 context$get_colnames <- function() colnames(context$.data)
+context$is_grouped <- function() has_groups(context$.data)
 context$clean <- function() rm(list = c(".data"), envir = context)
 
 #' Context dependent expressions
@@ -55,6 +57,7 @@ n <- function() {
 #' @description
 #' * `cur_data()` gives the current data for the current group (excluding grouping variables).
 #' @rdname context
+#' @export
 cur_data <- function() {
   check_group_context("`cur_data()`")
   data <- context$get_data()
@@ -64,6 +67,7 @@ cur_data <- function() {
 #' @description
 #' * `cur_data_all()` gives the current data for the current group (including grouping variables).
 #' @rdname context
+#' @export
 cur_data_all <- function() {
   check_group_context("`cur_data_all()`")
   ungroup(context$get_data())
@@ -73,6 +77,7 @@ cur_data_all <- function() {
 #' * `cur_group()` gives the group keys, a single row `data.frame` containing a column for each grouping variable and
 #'   its value.
 #' @rdname context
+#' @export
 cur_group <- function() {
   check_group_context("`cur_group()`")
   data <- context$get_data()
@@ -84,6 +89,7 @@ cur_group <- function() {
 #' @description
 #' * `cur_group_id()` gives a unique numeric identifier for the current group.
 #' @rdname context
+#' @export
 cur_group_id <- function() {
   check_group_context("`cur_group_id()`")
   data <- context$get_data()
@@ -97,6 +103,7 @@ cur_group_id <- function() {
 #' @description
 #' * `cur_group_rows()` gives the rows the groups appear in the data.
 #' @rdname context
+#' @export
 cur_group_rows <- function() {
   check_group_context("`cur_group_rows()`")
   data <- context$get_data()

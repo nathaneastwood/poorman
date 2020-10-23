@@ -32,11 +32,13 @@ mutate <- function(.data, ...) {
 #' @export
 mutate.default <- function(.data, ...) {
   conditions <- dotdotdot(..., .impute_names = TRUE)
-  .data[, setdiff(names(conditions), names(.data))] <- NA
   context$setup(.data)
   on.exit(context$clean(), add = TRUE)
   for (i in seq_along(conditions)) {
-    context$.data[, names(conditions)[i]] <- eval(conditions[[i]], envir = context$.data)
+    res <- eval(conditions[[i]], envir = context$.data)
+    if (!is.list(res)) res <- list(res)
+    if (is.null(names(res))) names(res) <- names(conditions)[[i]]
+    context$.data[, names(res)] <- res
   }
   context$.data
 }

@@ -48,6 +48,7 @@ reference:
 
 - title: Vector functions
   contents:
+  - across
   - between
   - case_when
   - coalesce

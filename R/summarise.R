@@ -29,20 +29,21 @@ summarise.default <- function(.data, ...) {
   fns <- dotdotdot(...)
   context$setup(.data)
   on.exit(context$clean(), add = TRUE)
-  groups_exist <- has_groups(context$.data)
+  groups_exist <- context$is_grouped()
   if (groups_exist) {
-    group <- unique(context$.data[, get_groups(context$.data), drop = FALSE])
+    group <- unique(context$get_columns(get_groups(context$.data)))
   }
-  res <- lapply(
-    fns,
-    function(x) {
-      x_res <- do.call(with, list(context$.data, x))
-      if (is.list(x_res)) I(x_res) else x_res
+  res <- vector(mode = "list", length = length(fns))
+  for (i in seq_along(fns)) {
+    out <- do.call(with, list(context$.data, fns[[i]]))
+    nms <- if (!is_named(out)) {
+      if (!is.null(names(fns)[[i]])) names(fns)[[i]] else deparse(fns[[i]])
+    } else {
+      NULL
     }
-  )
-  res <- as.data.frame(res)
-  fn_names <- names(fns)
-  colnames(res) <- if (is.null(fn_names)) fns else fn_names
+    res[[i]] <- build_data_frame(out, nms)
+  }
+  res <- do.call(cbind, res)
   if (groups_exist) res <- cbind(group, res, row.names = NULL)
   res
 }

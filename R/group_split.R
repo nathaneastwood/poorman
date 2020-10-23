@@ -71,7 +71,7 @@ group_split <- function(.data, ..., .keep = TRUE) {
 group_keys <- function(.data) {
   groups <- get_groups(.data)
   context$setup(.data)
-  res <- context$.data[, context$get_colnames() %in% groups, drop = FALSE]
+  res <- context$get_columns(context$get_colnames() %in% groups)
   res <- res[!duplicated(res), , drop = FALSE]
   if (nrow(res) == 0L) return(res)
   class(res) <- "data.frame"

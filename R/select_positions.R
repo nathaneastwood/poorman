@@ -168,5 +168,5 @@ select_env$get_ncol <- function() ncol(select_env$.data)
 #' A cleaner interface to evaluating select_positions when column names are not passed via ...
 #' @noRd
 eval_select_pos <- function(.data, .cols, .group_pos = FALSE) {
-  do.call(select_positions, list(.data = .data, .group_pos = .group_pos, .cols))
+  do.call(select_positions, list(.data = .data, .cols, .group_pos = .group_pos))
 }
