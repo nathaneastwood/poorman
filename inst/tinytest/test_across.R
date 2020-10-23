@@ -1,3 +1,5 @@
+options(stringsAsFactors = FALSE)
+
 expect_equal(
   data.frame(x = 1) %>% mutate(across()),
   data.frame(x = 1),
