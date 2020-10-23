@@ -55,6 +55,10 @@ iris \%>\%
 # Use the .names argument to control the output names
 iris \%>\%
   group_by(Species) \%>\%
-  summarise(across(starts_with("Sepal"), mean, .names = c("mean_sepal_length", "mean_sepal_width")))
+  summarise(
+    across(starts_with("Sepal"),
+    mean,
+    .names = c("mean_sepal_length", "mean_sepal_width"))
+  )
 
 }
