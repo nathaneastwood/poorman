@@ -16,8 +16,7 @@
 #'   - A function, e.g. `mean`.
 #'   - A list of functions, e.g. `list(mean = mean, sum = sum)`
 #'
-#'   Within these functions you can use [cur_column()] and [cur_group()] to access the current column and grouping keys
-#'   respectively.
+#'   Within these functions you can use [cur_group()] to access the current grouping keys.
 #' @param ... Additional arguments for the function calls in `.fns`.
 #' @param .names `character(n)`. Currently limited to specifying a vector of names to use for the outputs.
 #'

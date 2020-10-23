@@ -15,8 +15,7 @@ Possible values are:
 \item A list of functions, e.g. \code{list(mean = mean, sum = sum)}
 }
 
-Within these functions you can use \code{\link[=cur_column]{cur_column()}} and \code{\link[=cur_group]{cur_group()}} to access the current column and grouping keys
-respectively.}
+Within these functions you can use \code{\link[=cur_group]{cur_group()}} to access the current grouping keys.}
 
 \item{...}{Additional arguments for the function calls in \code{.fns}.}
 
