@@ -3,7 +3,7 @@ expect_equal(
   {
     res <- data.frame(am = c(0L, 1L))
     res[["data"]] <- list(mtcars[mtcars$am == 0, -9], mtcars[mtcars$am == 1, -9])
-    res
+    res %>% group_by(am)
   },
   info = "nest_by() takes group names"
 )
@@ -13,7 +13,7 @@ expect_equal(
   {
     res <- data.frame(am = c(0L, 1L))
     res[["data"]] <- list(mtcars[mtcars$am == 0, -9], mtcars[mtcars$am == 1, -9])
-    res
+    res %>% group_by(am)
   },
   info = "nest_by() works on grouped data sets"
 )
