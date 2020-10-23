@@ -41,7 +41,7 @@ unite <- function(data, col, ..., sep = "_", remove = TRUE, na.rm = FALSE) {
     }
     data[, to_rm] <- NULL
   } else {
-    data <- relocate(data, col, .before = cols_pos[1])
+    data <- do.call(relocate, list(data, col, .before = cols_pos[1]))
   }
   data
 }
