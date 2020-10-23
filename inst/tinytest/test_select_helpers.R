@@ -161,3 +161,21 @@ expect_silent(
   mtcars %>% group_by(am, cyl) %>% select(group_cols()),
   info = "message to say adding missing grouping variables should not appear"
 )
+
+expect_equal(
+  iris %>% select(ends_with("Width") & ends_with("Length")),
+  iris[, c("Sepal.Width", "Petal.Width", "Sepal.Length", "Petal.Length")],
+  info = "`&` works for all positive column positions"
+)
+
+expect_equal(
+  iris %>% select(starts_with("Petal") & !ends_with("Width")),
+  iris[, "Petal.Length", drop = FALSE],
+  info = "`&` works for a mixture of positive and negative column positions"
+)
+
+expect_equal(
+  iris %>% select(!ends_with("Width") & !ends_with("Length")),
+  iris[, "Species", drop = FALSE],
+  info = "`&` works for all negative column positions"
+)

@@ -106,8 +106,17 @@ eval_call <- function(x) {
     `-` = select_minus(x),
     `c` = select_c(x),
     `(` = select_bracket(x),
+    `&` = select_and(x),
     select_context(x)
   )
+}
+
+select_and <- function(expr) {
+  exprs <- as.list(expr)[-1]
+  res <- do.call(c, lapply(exprs, eval_expr))
+  if (all(res > 0) || all(res < 0)) return(unique(res))
+  res <- res[!(duplicated(abs(res)) | duplicated(abs(res), fromLast = TRUE))]
+  res[res > 0]
 }
 
 select_seq <- function(expr) {
