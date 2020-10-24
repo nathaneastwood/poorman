@@ -32,6 +32,7 @@ mutate <- function(.data, ...) {
 #' @export
 mutate.default <- function(.data, ...) {
   conditions <- dotdotdot(..., .impute_names = TRUE)
+  if (length(conditions) == 0L) return(.data)
   context$setup(.data)
   on.exit(context$clean(), add = TRUE)
   for (i in seq_along(conditions)) {
@@ -47,5 +48,5 @@ mutate.default <- function(.data, ...) {
 mutate.grouped_data <- function(.data, ...) {
   rows <- rownames(.data)
   res <- apply_grouped_function("mutate", .data, drop = TRUE, ...)
-  res[rows, ]
+  res[rows, , drop = FALSE]
 }
