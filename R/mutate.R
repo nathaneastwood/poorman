@@ -32,14 +32,25 @@ mutate <- function(.data, ...) {
 #' @export
 mutate.default <- function(.data, ...) {
   conditions <- dotdotdot(..., .impute_names = TRUE)
+  cond_nms <- names(dotdotdot(..., .impute_names = FALSE))
   if (length(conditions) == 0L) return(.data)
   context$setup(.data)
   on.exit(context$clean(), add = TRUE)
   for (i in seq_along(conditions)) {
+    not_named <- (is.null(cond_nms) || cond_nms[i] == "")
     res <- eval(conditions[[i]], envir = context$.data)
     if (!is.list(res)) res <- list(res)
-    if (is.null(names(res))) names(res) <- names(conditions)[[i]]
-    context$.data[, names(res)] <- res
+    res_nms <- names(res)
+    if (is.data.frame(res)) {
+      if (not_named) {
+        context$.data[, res_nms] <- res
+      } else {
+        context$.data[[cond_nms[i]]] <- res
+      }
+    } else {
+      if (is.null(res_nms)) names(res) <- names(conditions)[[i]]
+      context$.data[, names(res)] <- res
+    }
   }
   context$.data
 }

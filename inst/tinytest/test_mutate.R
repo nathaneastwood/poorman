@@ -76,7 +76,7 @@ expect_equal(
   {
     res <- mtcars
     res <- do.call(rbind, unname(lapply(
-      split(res, list(res$am , res$cyl)),
+      split(res, list(res$am, res$cyl)),
       function(x) {
         x[, "mpg2"] <- x$mpg * 2
         x
@@ -137,7 +137,15 @@ expect_identical(
 
 df <- data.frame(x = 1)
 out <- df %>% mutate(y = data.frame(a = x))
-expect_equal(out, data.frame(x = 1, y = data.frame(a = 1)), info = "named data frames are packed")
+expect_equal(
+  out,
+  {
+    res <- data.frame(x = 1)
+    res[["y"]] <- data.frame(a = 1)
+    res
+  },
+  info = "named data frames are packed"
+)
 
 gf <- group_by(data.frame(x = 1:2, y = 2), x)
 out <- mutate(gf, x = 1)

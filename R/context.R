@@ -97,7 +97,7 @@ cur_group_id <- function() {
   details <- get_group_details(data)
   details[, ".group_id"] <- seq_len(nrow(details))
   res <- suppressMessages(semi_join(details, res))
-  res[, ".group_id", drop = FALSE]
+  res[, ".group_id"]
 }
 
 #' @description

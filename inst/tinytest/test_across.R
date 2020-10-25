@@ -95,7 +95,7 @@ expect_equal(
 )
 
 expect_named(
-  mutate(data.frame(a = 1, b = 2), a = 2, x = across()),
+  mutate(data.frame(a = 1, b = 2), a = 2, x = across())$x,
   c("a", "b"),
   info = "across() retains original ordering"
 )
