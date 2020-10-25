@@ -87,3 +87,11 @@ build_data_frame <- function(x, nms = NULL) {
   if (!is.null(nms)) colnames(res) <- nms
   res
 }
+
+#' Check whether any elements of a list are nested
+#' @param lst A `list()`
+#' @examples
+#' is_nested(list(a = 1, b = 2, c = 3))
+#' is_nested(list(a = 1, b = list(c = 2, d = 3)))
+#' @noRd
+is_nested <- function(lst) vapply(lst, function(x) inherits(x[1L], "list"), FALSE)

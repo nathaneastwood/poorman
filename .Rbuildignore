@@ -9,14 +9,14 @@
 ^.*\.sh$
 ^\.github$
 .*.tar.gz
-^.*\.Rcheck$
+.Rcheck$
 ^CRAN-RELEASE$
 ^cran-comments\.md$
 ^Dockerfile$
 ^ci$
 ^\.vscode$
 ^\.Rhistory$
-poorman.code-workspace
+.code-workspace$
 ^_pkgdown\.yml$
 ^docs$
 ^pkgdown$

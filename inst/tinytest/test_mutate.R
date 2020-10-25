@@ -173,6 +173,28 @@ res <- df %>% group_by(x) %>% mutate(z = ifelse(y > 1, 1, 2))
 expect_true(is.na(res$z[2]), info = "mutate() coerces results from one group with all NA values: 1")
 expect_true(inherits(res$z, "numeric"), info = "mutate() coerces results from one group with all NA values: 2")
 
+# List columns
+
+df <- structure(list(), class = "data.frame", row.names = c(NA, -3L), .Names = character(0))
+df[["x"]] <- list(1, 2:3, 4:6)
+df[["y"]] <- 1:3
+expect_equal(
+  df %>% mutate(l = length(x)) %>% .[["l"]],
+  c(3, 3, 3),
+  info = "List columns can be mutated: 1"
+)
+expect_equal(
+  df %>% mutate(l = lengths(x)) %>% .[["l"]],
+  c(1, 2, 3),
+  info = "List columns can be mutated: 2"
+)
+models <- mtcars %>% nest_by(cyl) %>% mutate(model = list(lm(mpg ~ wt, data = data)))
+expect_equal(
+  lapply(models$model, class),
+  list(model = "lm", model = "lm", model = "lm"),
+  info = "List columns can be mutated: 3"
+)
+
 # Errors
 
 df <- data.frame(x = 1:2, y = 1:2)

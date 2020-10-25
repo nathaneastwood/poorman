@@ -38,8 +38,7 @@ mutate.default <- function(.data, ...) {
   on.exit(context$clean(), add = TRUE)
   for (i in seq_along(conditions)) {
     not_named <- (is.null(cond_nms) || cond_nms[i] == "")
-    res <- eval(conditions[[i]], envir = context$.data)
-    if (!is.list(res)) res <- list(res)
+    res <- eval(conditions[[i]], envir = context$as_env())
     res_nms <- names(res)
     if (is.data.frame(res)) {
       if (not_named) {
@@ -47,9 +46,11 @@ mutate.default <- function(.data, ...) {
       } else {
         context$.data[[cond_nms[i]]] <- res
       }
+    } else if (is.atomic(res)) {
+      context$.data[[names(conditions)[[i]]]] <- res
     } else {
       if (is.null(res_nms)) names(res) <- names(conditions)[[i]]
-      context$.data[, names(res)] <- res
+      context$.data[[names(res)]] <- res
     }
   }
   context$.data

@@ -116,7 +116,7 @@ squash <- function(lst) {
 #' Move entries within a list up one level
 #' @noRd
 flatten <- function(lst) {
-  nested <- vapply(lst, function(x) inherits(x[1L], "list"), FALSE)
+  nested <- is_nested(lst)
   res <- c(lst[!nested], unlist(lst[nested], recursive = FALSE))
   if (sum(nested)) Recall(res) else return(res)
 }

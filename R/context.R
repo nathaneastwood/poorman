@@ -7,6 +7,13 @@ context$get_columns <- function(cols) context$.data[, cols, drop = FALSE]
 context$get_nrow <- function() nrow(context$.data)
 context$get_colnames <- function() colnames(context$.data)
 context$is_grouped <- function() has_groups(context$.data)
+context$as_env <- function() {
+  if (any(is_nested(context$.data))) {
+    lapply(as.list(context$.data), function(x) if (is.data.frame(x[[1]])) x[[1]] else x)
+  } else {
+    context$.data
+  }
+}
 context$clean <- function() rm(list = c(".data"), envir = context)
 
 #' Context dependent expressions
