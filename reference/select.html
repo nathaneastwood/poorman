@@ -6,7 +6,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>Select/relocate variables by name — relocate • poorman</title>
+<title>Subset columns using their names and types — select • poorman</title>
 
 <!-- favicons -->
 <link rel="icon" type="image/png" sizes="16x16" href="../favicon-16x16.png">
@@ -46,9 +46,10 @@
 
 
 
-<meta property="og:title" content="Select/relocate variables by name — relocate" />
-<meta property="og:description" content="Choose or relocate variables from a data.frame. select() keeps only the
-variables you mention; relocate() keeps all the variables." />
+<meta property="og:title" content="Subset columns using their names and types — select" />
+<meta property="og:description" content="Select (and optionally rename) variables in a data.frame, using a concise mini-language that makes it easy to refer
+to variables based on their name (e.g. a:f selects all columns from a on the left to f on the right). You can
+also use predicate functions like is.numeric() to select variables based on their properties." />
 <meta property="og:image" content="/logo.png" />
 
 
@@ -81,7 +82,7 @@ variables you mention; relocate() keeps all the variables." />
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">poorman</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.2.2.2</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.2.3</span>
       </span>
     </div>
 
@@ -149,19 +150,18 @@ variables you mention; relocate() keeps all the variables." />
 <div class="row">
   <div class="col-md-9 contents">
     <div class="page-header">
-    <h1>Select/relocate variables by name</h1>
-    <small class="dont-index">Source: <a href='https://github.com/nathaneastwood/poorman/blob/master/R/relocate.R'><code>R/relocate.R</code></a>, <a href='https://github.com/nathaneastwood/poorman/blob/master/R/select.R'><code>R/select.R</code></a></small>
+    <h1>Subset columns using their names and types</h1>
+    <small class="dont-index">Source: <a href='https://github.com/nathaneastwood/poorman/blob/master/R/select.R'><code>R/select.R</code></a></small>
     <div class="hidden name"><code>select.Rd</code></div>
     </div>
 
     <div class="ref-description">
-    <p>Choose or relocate variables from a <code>data.frame</code>. <code>select()</code> keeps only the
-variables you mention; <code>relocate()</code> keeps all the variables.</p>
+    <p>Select (and optionally rename) variables in a <code>data.frame</code>, using a concise mini-language that makes it easy to refer
+to variables based on their name (e.g. <code>a:f</code> selects all columns from <code>a</code> on the left to <code>f</code> on the right). You can
+also use predicate functions like <code><a href='https://rdrr.io/r/base/numeric.html'>is.numeric()</a></code> to select variables based on their properties.</p>
     </div>
 
-    <pre class="usage"><span class='fu'>relocate</span><span class='op'>(</span><span class='va'>.data</span>, <span class='va'>...</span>, .before <span class='op'>=</span> <span class='cn'>NULL</span>, .after <span class='op'>=</span> <span class='cn'>NULL</span><span class='op'>)</span>
-
-<span class='fu'>select</span><span class='op'>(</span><span class='va'>.data</span>, <span class='va'>...</span><span class='op'>)</span></pre>
+    <pre class="usage"><span class='fu'>select</span><span class='op'>(</span><span class='va'>.data</span>, <span class='va'>...</span><span class='op'>)</span></pre>
 
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
     <table class="ref-arguments">
@@ -172,98 +172,66 @@ variables you mention; <code>relocate()</code> keeps all the variables.</p>
     </tr>
     <tr>
       <th>...</th>
-      <td><p>The name(s) of the column(s) to select.</p></td>
-    </tr>
-    <tr>
-      <th>.before, .after</th>
-      <td><p>Destination of the columns selected by <code>...</code>. Supplying neither will move the columns to the
-left-hand side whereas supplying both will result in an error.</p></td>
+      <td><p>&lt;<code><a href='select_helpers.html'>poor-select</a></code>&gt; One or more unquoted expressions separated by commas. Variable names can
+be used as if they were positions in the data frame, so expressions like <code>x:y</code> can be used to select a range of
+variables.</p></td>
     </tr>
     </table>
 
     <h2 class="hasAnchor" id="value"><a class="anchor" href="#value"></a>Value</h2>
 
-    <p>A <code>data.frame</code>.</p>
-    <h2 class="hasAnchor" id="useful-functions"><a class="anchor" href="#useful-functions"></a>Useful functions</h2>
+    <p>An object of the same type as <code>.data</code>. The output has the following properties:</p><ul>
+<li><p>Rows are not affected.</p></li>
+<li><p>Output columns are a subset of input columns, potentially with a different order. Columns will be renamed if
+<code>new_name = old_name</code> form is used.</p></li>
+<li><p>Data frame attributes are preserved.</p></li>
+<li><p>Groups are maintained; you can't select off grouping variables.</p></li>
+</ul>
+
+    <h2 class="hasAnchor" id="details"><a class="anchor" href="#details"></a>Details</h2>
 
     
+<h3 class='hasAnchor' id='arguments'><a class='anchor' href='#arguments'></a>Overview of selection features</h3>
 
-<p>There are a number of special functions which are designed to work in <code>select()</code> and <code>relocate()</code>:</p><ul>
-<li><p><code><a href='select_helpers.html'>starts_with()</a></code>, <code><a href='select_helpers.html'>ends_with()</a></code>, <code><a href='select_helpers.html'>contains()</a></code></p></li>
-<li><p><code><a href='select_helpers.html'>matches()</a></code></p></li>
-<li><p><code><a href='select_helpers.html'>num_range()</a></code></p></li>
-<li><p><code><a href='select_helpers.html'>everything()</a></code></p></li>
+
+<p>poorman selections implement a dialect of R where operators make it easy to select variables:</p><ul>
+<li><p><code><a href='https://rdrr.io/r/base/Colon.html'>:</a></code> for selecting a range of consecutive variables.</p></li>
+<li><p><code><a href='https://rdrr.io/r/base/Logic.html'>!</a></code> for taking the complement of a set of variables.</p></li>
+<li><p><code>&amp;</code> and <code><a href='https://rdrr.io/r/base/Logic.html'>|</a></code> for selecting the intersection or the union of two sets of variables.</p></li>
+<li><p><code><a href='https://rdrr.io/r/base/c.html'>c()</a></code> for combining selections.</p></li>
+</ul>
+
+<p>In addition, you can use <strong>selection helpers</strong>. Some helpers select specific columns:</p><ul>
+<li><p><code><a href='select_helpers.html'>everything()</a></code>: Matches all variables.</p></li>
+<li><p><code><a href='select_helpers.html'>last_col()</a></code>: Select last variable, possibly with an offset.</p></li>
+</ul>
+
+<p>These helpers select variables by matching patterns in their names:</p><ul>
+<li><p><code><a href='select_helpers.html'>starts_with()</a></code>: Starts with a prefix.</p></li>
+<li><p><code><a href='select_helpers.html'>ends_with()</a></code>: Ends with a suffix.</p></li>
+<li><p><code><a href='select_helpers.html'>contains()</a></code>: Contains a literal string.</p></li>
+<li><p><code><a href='select_helpers.html'>matches()</a></code>: Matches a regular expression.</p></li>
+<li><p><code><a href='select_helpers.html'>num_range()</a></code>: Matches a numerical range like <code>x01</code>, <code>x02</code>, <code>x03</code>.</p></li>
+</ul>
+
+<p>These helpers select variables from a character vector:</p><ul>
+<li><p><code><a href='select_helpers.html'>all_of()</a></code>: Matches variable names in a character vector. All names must be present, otherwise an out-of-bounds
+error is thrown.</p></li>
+<li><p><code><a href='select_helpers.html'>any_of()</a></code>: Same as <code><a href='select_helpers.html'>all_of()</a></code>, except that no error is thrown for names that don't exist.</p></li>
+</ul>
+
+<p>This helper selects variables with a function:</p><ul>
+<li><p><code><a href='where.html'>where()</a></code>: Applies a function to all variables and selects those for which the function returns <code>TRUE</code>.</p></li>
 </ul>
 
 
+
     <h2 class="hasAnchor" id="examples"><a class="anchor" href="#examples"></a>Examples</h2>
-    <pre class="examples"><div class='input'><span class='fu'>select</span><span class='op'>(</span><span class='va'>mtcars</span>, <span class='va'>mpg</span><span class='op'>:</span><span class='va'>cyl</span><span class='op'>)</span>
-</div><div class='output co'>#&gt;                      mpg cyl
-#&gt; Mazda RX4           21.0   6
-#&gt; Mazda RX4 Wag       21.0   6
-#&gt; Datsun 710          22.8   4
-#&gt; Hornet 4 Drive      21.4   6
-#&gt; Hornet Sportabout   18.7   8
-#&gt; Valiant             18.1   6
-#&gt; Duster 360          14.3   8
-#&gt; Merc 240D           24.4   4
-#&gt; Merc 230            22.8   4
-#&gt; Merc 280            19.2   6
-#&gt; Merc 280C           17.8   6
-#&gt; Merc 450SE          16.4   8
-#&gt; Merc 450SL          17.3   8
-#&gt; Merc 450SLC         15.2   8
-#&gt; Cadillac Fleetwood  10.4   8
-#&gt; Lincoln Continental 10.4   8
-#&gt; Chrysler Imperial   14.7   8
-#&gt; Fiat 128            32.4   4
-#&gt; Honda Civic         30.4   4
-#&gt; Toyota Corolla      33.9   4
-#&gt; Toyota Corona       21.5   4
-#&gt; Dodge Challenger    15.5   8
-#&gt; AMC Javelin         15.2   8
-#&gt; Camaro Z28          13.3   8
-#&gt; Pontiac Firebird    19.2   8
-#&gt; Fiat X1-9           27.3   4
-#&gt; Porsche 914-2       26.0   4
-#&gt; Lotus Europa        30.4   4
-#&gt; Ford Pantera L      15.8   8
-#&gt; Ferrari Dino        19.7   6
-#&gt; Maserati Bora       15.0   8
-#&gt; Volvo 142E          21.4   4</div><div class='input'><span class='fu'>select</span><span class='op'>(</span><span class='va'>mtcars</span>, MilesPerGallon <span class='op'>=</span> <span class='va'>mpg</span>, Cylinders <span class='op'>=</span> <span class='va'>cyl</span><span class='op'>)</span>
-</div><div class='output co'>#&gt;                     MilesPerGallon Cylinders
-#&gt; Mazda RX4                     21.0         6
-#&gt; Mazda RX4 Wag                 21.0         6
-#&gt; Datsun 710                    22.8         4
-#&gt; Hornet 4 Drive                21.4         6
-#&gt; Hornet Sportabout             18.7         8
-#&gt; Valiant                       18.1         6
-#&gt; Duster 360                    14.3         8
-#&gt; Merc 240D                     24.4         4
-#&gt; Merc 230                      22.8         4
-#&gt; Merc 280                      19.2         6
-#&gt; Merc 280C                     17.8         6
-#&gt; Merc 450SE                    16.4         8
-#&gt; Merc 450SL                    17.3         8
-#&gt; Merc 450SLC                   15.2         8
-#&gt; Cadillac Fleetwood            10.4         8
-#&gt; Lincoln Continental           10.4         8
-#&gt; Chrysler Imperial             14.7         8
-#&gt; Fiat 128                      32.4         4
-#&gt; Honda Civic                   30.4         4
-#&gt; Toyota Corolla                33.9         4
-#&gt; Toyota Corona                 21.5         4
-#&gt; Dodge Challenger              15.5         8
-#&gt; AMC Javelin                   15.2         8
-#&gt; Camaro Z28                    13.3         8
-#&gt; Pontiac Firebird              19.2         8
-#&gt; Fiat X1-9                     27.3         4
-#&gt; Porsche 914-2                 26.0         4
-#&gt; Lotus Europa                  30.4         4
-#&gt; Ford Pantera L                15.8         8
-#&gt; Ferrari Dino                  19.7         6
-#&gt; Maserati Bora                 15.0         8
-#&gt; Volvo 142E                    21.4         4</div><div class='input'><span class='va'>mtcars</span> <span class='op'>%&gt;%</span> <span class='fu'>select</span><span class='op'>(</span><span class='va'>mpg</span><span class='op'>)</span>
+    <pre class="examples"><div class='input'><span class='co'># Here we show the usage for the basic selection operators. See the</span>
+<span class='co'># specific help pages to learn about helpers like [starts_with()].</span>
+
+<span class='co'># Select variables by name:</span>
+<span class='va'>mtcars</span> <span class='op'>%&gt;%</span> <span class='fu'>select</span><span class='op'>(</span><span class='va'>mpg</span><span class='op'>)</span>
 </div><div class='output co'>#&gt;                      mpg
 #&gt; Mazda RX4           21.0
 #&gt; Mazda RX4 Wag       21.0
@@ -296,239 +264,672 @@ left-hand side whereas supplying both will result in an error.</p></td>
 #&gt; Ford Pantera L      15.8
 #&gt; Ferrari Dino        19.7
 #&gt; Maserati Bora       15.0
-#&gt; Volvo 142E          21.4</div><div class='input'><span class='va'>mtcars</span> <span class='op'>%&gt;%</span> <span class='fu'>select</span><span class='op'>(</span><span class='op'>!</span><span class='va'>mpg</span>, <span class='op'>!</span><span class='va'>cyl</span><span class='op'>)</span>
-</div><div class='output co'>#&gt;                      disp  hp drat    wt  qsec vs am gear carb
-#&gt; Mazda RX4           160.0 110 3.90 2.620 16.46  0  1    4    4
-#&gt; Mazda RX4 Wag       160.0 110 3.90 2.875 17.02  0  1    4    4
-#&gt; Datsun 710          108.0  93 3.85 2.320 18.61  1  1    4    1
-#&gt; Hornet 4 Drive      258.0 110 3.08 3.215 19.44  1  0    3    1
-#&gt; Hornet Sportabout   360.0 175 3.15 3.440 17.02  0  0    3    2
-#&gt; Valiant             225.0 105 2.76 3.460 20.22  1  0    3    1
-#&gt; Duster 360          360.0 245 3.21 3.570 15.84  0  0    3    4
-#&gt; Merc 240D           146.7  62 3.69 3.190 20.00  1  0    4    2
-#&gt; Merc 230            140.8  95 3.92 3.150 22.90  1  0    4    2
-#&gt; Merc 280            167.6 123 3.92 3.440 18.30  1  0    4    4
-#&gt; Merc 280C           167.6 123 3.92 3.440 18.90  1  0    4    4
-#&gt; Merc 450SE          275.8 180 3.07 4.070 17.40  0  0    3    3
-#&gt; Merc 450SL          275.8 180 3.07 3.730 17.60  0  0    3    3
-#&gt; Merc 450SLC         275.8 180 3.07 3.780 18.00  0  0    3    3
-#&gt; Cadillac Fleetwood  472.0 205 2.93 5.250 17.98  0  0    3    4
-#&gt; Lincoln Continental 460.0 215 3.00 5.424 17.82  0  0    3    4
-#&gt; Chrysler Imperial   440.0 230 3.23 5.345 17.42  0  0    3    4
-#&gt; Fiat 128             78.7  66 4.08 2.200 19.47  1  1    4    1
-#&gt; Honda Civic          75.7  52 4.93 1.615 18.52  1  1    4    2
-#&gt; Toyota Corolla       71.1  65 4.22 1.835 19.90  1  1    4    1
-#&gt; Toyota Corona       120.1  97 3.70 2.465 20.01  1  0    3    1
-#&gt; Dodge Challenger    318.0 150 2.76 3.520 16.87  0  0    3    2
-#&gt; AMC Javelin         304.0 150 3.15 3.435 17.30  0  0    3    2
-#&gt; Camaro Z28          350.0 245 3.73 3.840 15.41  0  0    3    4
-#&gt; Pontiac Firebird    400.0 175 3.08 3.845 17.05  0  0    3    2
-#&gt; Fiat X1-9            79.0  66 4.08 1.935 18.90  1  1    4    1
-#&gt; Porsche 914-2       120.3  91 4.43 2.140 16.70  0  1    5    2
-#&gt; Lotus Europa         95.1 113 3.77 1.513 16.90  1  1    5    2
-#&gt; Ford Pantera L      351.0 264 4.22 3.170 14.50  0  1    5    4
-#&gt; Ferrari Dino        145.0 175 3.62 2.770 15.50  0  1    5    6
-#&gt; Maserati Bora       301.0 335 3.54 3.570 14.60  0  1    5    8
-#&gt; Volvo 142E          121.0 109 4.11 2.780 18.60  1  1    4    2</div><div class='input'><span class='va'>iris</span> <span class='op'>%&gt;%</span> <span class='fu'>select</span><span class='op'>(</span><span class='fu'><a href='select_helpers.html'>contains</a></span><span class='op'>(</span><span class='st'>"Petal"</span><span class='op'>)</span><span class='op'>)</span>
-</div><div class='output co'>#&gt;     Petal.Length Petal.Width
-#&gt; 1            1.4         0.2
-#&gt; 2            1.4         0.2
-#&gt; 3            1.3         0.2
-#&gt; 4            1.5         0.2
-#&gt; 5            1.4         0.2
-#&gt; 6            1.7         0.4
-#&gt; 7            1.4         0.3
-#&gt; 8            1.5         0.2
-#&gt; 9            1.4         0.2
-#&gt; 10           1.5         0.1
-#&gt; 11           1.5         0.2
-#&gt; 12           1.6         0.2
-#&gt; 13           1.4         0.1
-#&gt; 14           1.1         0.1
-#&gt; 15           1.2         0.2
-#&gt; 16           1.5         0.4
-#&gt; 17           1.3         0.4
-#&gt; 18           1.4         0.3
-#&gt; 19           1.7         0.3
-#&gt; 20           1.5         0.3
-#&gt; 21           1.7         0.2
-#&gt; 22           1.5         0.4
-#&gt; 23           1.0         0.2
-#&gt; 24           1.7         0.5
-#&gt; 25           1.9         0.2
-#&gt; 26           1.6         0.2
-#&gt; 27           1.6         0.4
-#&gt; 28           1.5         0.2
-#&gt; 29           1.4         0.2
-#&gt; 30           1.6         0.2
-#&gt; 31           1.6         0.2
-#&gt; 32           1.5         0.4
-#&gt; 33           1.5         0.1
-#&gt; 34           1.4         0.2
-#&gt; 35           1.5         0.2
-#&gt; 36           1.2         0.2
-#&gt; 37           1.3         0.2
-#&gt; 38           1.4         0.1
-#&gt; 39           1.3         0.2
-#&gt; 40           1.5         0.2
-#&gt; 41           1.3         0.3
-#&gt; 42           1.3         0.3
-#&gt; 43           1.3         0.2
-#&gt; 44           1.6         0.6
-#&gt; 45           1.9         0.4
-#&gt; 46           1.4         0.3
-#&gt; 47           1.6         0.2
-#&gt; 48           1.4         0.2
-#&gt; 49           1.5         0.2
-#&gt; 50           1.4         0.2
-#&gt; 51           4.7         1.4
-#&gt; 52           4.5         1.5
-#&gt; 53           4.9         1.5
-#&gt; 54           4.0         1.3
-#&gt; 55           4.6         1.5
-#&gt; 56           4.5         1.3
-#&gt; 57           4.7         1.6
-#&gt; 58           3.3         1.0
-#&gt; 59           4.6         1.3
-#&gt; 60           3.9         1.4
-#&gt; 61           3.5         1.0
-#&gt; 62           4.2         1.5
-#&gt; 63           4.0         1.0
-#&gt; 64           4.7         1.4
-#&gt; 65           3.6         1.3
-#&gt; 66           4.4         1.4
-#&gt; 67           4.5         1.5
-#&gt; 68           4.1         1.0
-#&gt; 69           4.5         1.5
-#&gt; 70           3.9         1.1
-#&gt; 71           4.8         1.8
-#&gt; 72           4.0         1.3
-#&gt; 73           4.9         1.5
-#&gt; 74           4.7         1.2
-#&gt; 75           4.3         1.3
-#&gt; 76           4.4         1.4
-#&gt; 77           4.8         1.4
-#&gt; 78           5.0         1.7
-#&gt; 79           4.5         1.5
-#&gt; 80           3.5         1.0
-#&gt; 81           3.8         1.1
-#&gt; 82           3.7         1.0
-#&gt; 83           3.9         1.2
-#&gt; 84           5.1         1.6
-#&gt; 85           4.5         1.5
-#&gt; 86           4.5         1.6
-#&gt; 87           4.7         1.5
-#&gt; 88           4.4         1.3
-#&gt; 89           4.1         1.3
-#&gt; 90           4.0         1.3
-#&gt; 91           4.4         1.2
-#&gt; 92           4.6         1.4
-#&gt; 93           4.0         1.2
-#&gt; 94           3.3         1.0
-#&gt; 95           4.2         1.3
-#&gt; 96           4.2         1.2
-#&gt; 97           4.2         1.3
-#&gt; 98           4.3         1.3
-#&gt; 99           3.0         1.1
-#&gt; 100          4.1         1.3
-#&gt; 101          6.0         2.5
-#&gt; 102          5.1         1.9
-#&gt; 103          5.9         2.1
-#&gt; 104          5.6         1.8
-#&gt; 105          5.8         2.2
-#&gt; 106          6.6         2.1
-#&gt; 107          4.5         1.7
-#&gt; 108          6.3         1.8
-#&gt; 109          5.8         1.8
-#&gt; 110          6.1         2.5
-#&gt; 111          5.1         2.0
-#&gt; 112          5.3         1.9
-#&gt; 113          5.5         2.1
-#&gt; 114          5.0         2.0
-#&gt; 115          5.1         2.4
-#&gt; 116          5.3         2.3
-#&gt; 117          5.5         1.8
-#&gt; 118          6.7         2.2
-#&gt; 119          6.9         2.3
-#&gt; 120          5.0         1.5
-#&gt; 121          5.7         2.3
-#&gt; 122          4.9         2.0
-#&gt; 123          6.7         2.0
-#&gt; 124          4.9         1.8
-#&gt; 125          5.7         2.1
-#&gt; 126          6.0         1.8
-#&gt; 127          4.8         1.8
-#&gt; 128          4.9         1.8
-#&gt; 129          5.6         2.1
-#&gt; 130          5.8         1.6
-#&gt; 131          6.1         1.9
-#&gt; 132          6.4         2.0
-#&gt; 133          5.6         2.2
-#&gt; 134          5.1         1.5
-#&gt; 135          5.6         1.4
-#&gt; 136          6.1         2.3
-#&gt; 137          5.6         2.4
-#&gt; 138          5.5         1.8
-#&gt; 139          4.8         1.8
-#&gt; 140          5.4         2.1
-#&gt; 141          5.6         2.4
-#&gt; 142          5.1         2.3
-#&gt; 143          5.1         1.9
-#&gt; 144          5.9         2.3
-#&gt; 145          5.7         2.5
-#&gt; 146          5.2         2.3
-#&gt; 147          5.0         1.9
-#&gt; 148          5.2         2.0
-#&gt; 149          5.4         2.3
-#&gt; 150          5.1         1.8</div><div class='input'>
-<span class='va'>df</span> <span class='op'>&lt;-</span> <span class='fu'><a href='https://rdrr.io/r/base/as.data.frame.html'>as.data.frame</a></span><span class='op'>(</span><span class='fu'><a href='https://rdrr.io/r/base/matrix.html'>matrix</a></span><span class='op'>(</span><span class='fu'><a href='https://rdrr.io/r/stats/Uniform.html'>runif</a></span><span class='op'>(</span><span class='fl'>100</span><span class='op'>)</span>, nrow <span class='op'>=</span> <span class='fl'>10</span><span class='op'>)</span><span class='op'>)</span>
-<span class='va'>df</span> <span class='op'>&lt;-</span> <span class='fu'><a href='https://rdrr.io/r/base/as.data.frame.html'>as.data.frame</a></span><span class='op'>(</span><span class='va'>df</span><span class='op'>[</span><span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span><span class='op'>(</span><span class='fl'>3</span>, <span class='fl'>4</span>, <span class='fl'>7</span>, <span class='fl'>1</span>, <span class='fl'>9</span>, <span class='fl'>8</span>, <span class='fl'>5</span>, <span class='fl'>2</span>, <span class='fl'>6</span>, <span class='fl'>10</span><span class='op'>)</span><span class='op'>]</span><span class='op'>)</span>
-<span class='va'>df</span> <span class='op'>%&gt;%</span> <span class='fu'>select</span><span class='op'>(</span><span class='fu'><a href='select_helpers.html'>num_range</a></span><span class='op'>(</span><span class='st'>"V"</span>, <span class='fl'>4</span><span class='op'>:</span><span class='fl'>6</span><span class='op'>)</span><span class='op'>)</span>
-</div><div class='output co'>#&gt;           V4         V5        V6
-#&gt; 1  0.1046873 0.86413522 0.5199424
-#&gt; 2  0.1271594 0.88893171 0.9108179
-#&gt; 3  0.4747496 0.04592933 0.8982838
-#&gt; 4  0.6385422 0.91140362 0.2008274
-#&gt; 5  0.9631920 0.03305685 0.8375349
-#&gt; 6  0.6223476 0.29074443 0.1223301
-#&gt; 7  0.9350183 0.47655033 0.6002856
-#&gt; 8  0.5772128 0.25764971 0.1775080
-#&gt; 9  0.6208673 0.57022940 0.1077927
-#&gt; 10 0.8873449 0.94492895 0.9661528</div><div class='input'>
-<span class='va'>mtcars</span> <span class='op'>%&gt;%</span> <span class='fu'>relocate</span><span class='op'>(</span><span class='fu'><a href='select_helpers.html'>ends_with</a></span><span class='op'>(</span><span class='st'>"p"</span><span class='op'>)</span>, .before <span class='op'>=</span> <span class='va'>mpg</span><span class='op'>)</span>
-</div><div class='output co'>#&gt;                      disp  hp  mpg cyl drat    wt  qsec vs am gear carb
-#&gt; Mazda RX4           160.0 110 21.0   6 3.90 2.620 16.46  0  1    4    4
-#&gt; Mazda RX4 Wag       160.0 110 21.0   6 3.90 2.875 17.02  0  1    4    4
-#&gt; Datsun 710          108.0  93 22.8   4 3.85 2.320 18.61  1  1    4    1
-#&gt; Hornet 4 Drive      258.0 110 21.4   6 3.08 3.215 19.44  1  0    3    1
-#&gt; Hornet Sportabout   360.0 175 18.7   8 3.15 3.440 17.02  0  0    3    2
-#&gt; Valiant             225.0 105 18.1   6 2.76 3.460 20.22  1  0    3    1
-#&gt; Duster 360          360.0 245 14.3   8 3.21 3.570 15.84  0  0    3    4
-#&gt; Merc 240D           146.7  62 24.4   4 3.69 3.190 20.00  1  0    4    2
-#&gt; Merc 230            140.8  95 22.8   4 3.92 3.150 22.90  1  0    4    2
-#&gt; Merc 280            167.6 123 19.2   6 3.92 3.440 18.30  1  0    4    4
-#&gt; Merc 280C           167.6 123 17.8   6 3.92 3.440 18.90  1  0    4    4
-#&gt; Merc 450SE          275.8 180 16.4   8 3.07 4.070 17.40  0  0    3    3
-#&gt; Merc 450SL          275.8 180 17.3   8 3.07 3.730 17.60  0  0    3    3
-#&gt; Merc 450SLC         275.8 180 15.2   8 3.07 3.780 18.00  0  0    3    3
-#&gt; Cadillac Fleetwood  472.0 205 10.4   8 2.93 5.250 17.98  0  0    3    4
-#&gt; Lincoln Continental 460.0 215 10.4   8 3.00 5.424 17.82  0  0    3    4
-#&gt; Chrysler Imperial   440.0 230 14.7   8 3.23 5.345 17.42  0  0    3    4
-#&gt; Fiat 128             78.7  66 32.4   4 4.08 2.200 19.47  1  1    4    1
-#&gt; Honda Civic          75.7  52 30.4   4 4.93 1.615 18.52  1  1    4    2
-#&gt; Toyota Corolla       71.1  65 33.9   4 4.22 1.835 19.90  1  1    4    1
-#&gt; Toyota Corona       120.1  97 21.5   4 3.70 2.465 20.01  1  0    3    1
-#&gt; Dodge Challenger    318.0 150 15.5   8 2.76 3.520 16.87  0  0    3    2
-#&gt; AMC Javelin         304.0 150 15.2   8 3.15 3.435 17.30  0  0    3    2
-#&gt; Camaro Z28          350.0 245 13.3   8 3.73 3.840 15.41  0  0    3    4
-#&gt; Pontiac Firebird    400.0 175 19.2   8 3.08 3.845 17.05  0  0    3    2
-#&gt; Fiat X1-9            79.0  66 27.3   4 4.08 1.935 18.90  1  1    4    1
-#&gt; Porsche 914-2       120.3  91 26.0   4 4.43 2.140 16.70  0  1    5    2
-#&gt; Lotus Europa         95.1 113 30.4   4 3.77 1.513 16.90  1  1    5    2
-#&gt; Ford Pantera L      351.0 264 15.8   8 4.22 3.170 14.50  0  1    5    4
-#&gt; Ferrari Dino        145.0 175 19.7   6 3.62 2.770 15.50  0  1    5    6
-#&gt; Maserati Bora       301.0 335 15.0   8 3.54 3.570 14.60  0  1    5    8
-#&gt; Volvo 142E          121.0 109 21.4   4 4.11 2.780 18.60  1  1    4    2</div><div class='input'>
+#&gt; Volvo 142E          21.4</div><div class='input'>
+<span class='co'># Select multiple variables by separating them with commas. Note</span>
+<span class='co'># how the order of columns is determined by the order of inputs:</span>
+<span class='va'>mtcars</span> <span class='op'>%&gt;%</span> <span class='fu'>select</span><span class='op'>(</span><span class='va'>disp</span>, <span class='va'>gear</span>, <span class='va'>am</span><span class='op'>)</span>
+</div><div class='output co'>#&gt;                      disp gear am
+#&gt; Mazda RX4           160.0    4  1
+#&gt; Mazda RX4 Wag       160.0    4  1
+#&gt; Datsun 710          108.0    4  1
+#&gt; Hornet 4 Drive      258.0    3  0
+#&gt; Hornet Sportabout   360.0    3  0
+#&gt; Valiant             225.0    3  0
+#&gt; Duster 360          360.0    3  0
+#&gt; Merc 240D           146.7    4  0
+#&gt; Merc 230            140.8    4  0
+#&gt; Merc 280            167.6    4  0
+#&gt; Merc 280C           167.6    4  0
+#&gt; Merc 450SE          275.8    3  0
+#&gt; Merc 450SL          275.8    3  0
+#&gt; Merc 450SLC         275.8    3  0
+#&gt; Cadillac Fleetwood  472.0    3  0
+#&gt; Lincoln Continental 460.0    3  0
+#&gt; Chrysler Imperial   440.0    3  0
+#&gt; Fiat 128             78.7    4  1
+#&gt; Honda Civic          75.7    4  1
+#&gt; Toyota Corolla       71.1    4  1
+#&gt; Toyota Corona       120.1    3  0
+#&gt; Dodge Challenger    318.0    3  0
+#&gt; AMC Javelin         304.0    3  0
+#&gt; Camaro Z28          350.0    3  0
+#&gt; Pontiac Firebird    400.0    3  0
+#&gt; Fiat X1-9            79.0    4  1
+#&gt; Porsche 914-2       120.3    5  1
+#&gt; Lotus Europa         95.1    5  1
+#&gt; Ford Pantera L      351.0    5  1
+#&gt; Ferrari Dino        145.0    5  1
+#&gt; Maserati Bora       301.0    5  1
+#&gt; Volvo 142E          121.0    4  1</div><div class='input'>
+<span class='co'># Rename variables:</span>
+<span class='va'>mtcars</span> <span class='op'>%&gt;%</span> <span class='fu'>select</span><span class='op'>(</span>MilesPerGallon <span class='op'>=</span> <span class='va'>mpg</span>, <span class='fu'><a href='select_helpers.html'>everything</a></span><span class='op'>(</span><span class='op'>)</span><span class='op'>)</span>
+</div><div class='output co'>#&gt;                     MilesPerGallon cyl  disp  hp drat    wt  qsec vs am gear
+#&gt; Mazda RX4                     21.0   6 160.0 110 3.90 2.620 16.46  0  1    4
+#&gt; Mazda RX4 Wag                 21.0   6 160.0 110 3.90 2.875 17.02  0  1    4
+#&gt; Datsun 710                    22.8   4 108.0  93 3.85 2.320 18.61  1  1    4
+#&gt; Hornet 4 Drive                21.4   6 258.0 110 3.08 3.215 19.44  1  0    3
+#&gt; Hornet Sportabout             18.7   8 360.0 175 3.15 3.440 17.02  0  0    3
+#&gt; Valiant                       18.1   6 225.0 105 2.76 3.460 20.22  1  0    3
+#&gt; Duster 360                    14.3   8 360.0 245 3.21 3.570 15.84  0  0    3
+#&gt; Merc 240D                     24.4   4 146.7  62 3.69 3.190 20.00  1  0    4
+#&gt; Merc 230                      22.8   4 140.8  95 3.92 3.150 22.90  1  0    4
+#&gt; Merc 280                      19.2   6 167.6 123 3.92 3.440 18.30  1  0    4
+#&gt; Merc 280C                     17.8   6 167.6 123 3.92 3.440 18.90  1  0    4
+#&gt; Merc 450SE                    16.4   8 275.8 180 3.07 4.070 17.40  0  0    3
+#&gt; Merc 450SL                    17.3   8 275.8 180 3.07 3.730 17.60  0  0    3
+#&gt; Merc 450SLC                   15.2   8 275.8 180 3.07 3.780 18.00  0  0    3
+#&gt; Cadillac Fleetwood            10.4   8 472.0 205 2.93 5.250 17.98  0  0    3
+#&gt; Lincoln Continental           10.4   8 460.0 215 3.00 5.424 17.82  0  0    3
+#&gt; Chrysler Imperial             14.7   8 440.0 230 3.23 5.345 17.42  0  0    3
+#&gt; Fiat 128                      32.4   4  78.7  66 4.08 2.200 19.47  1  1    4
+#&gt; Honda Civic                   30.4   4  75.7  52 4.93 1.615 18.52  1  1    4
+#&gt; Toyota Corolla                33.9   4  71.1  65 4.22 1.835 19.90  1  1    4
+#&gt; Toyota Corona                 21.5   4 120.1  97 3.70 2.465 20.01  1  0    3
+#&gt; Dodge Challenger              15.5   8 318.0 150 2.76 3.520 16.87  0  0    3
+#&gt; AMC Javelin                   15.2   8 304.0 150 3.15 3.435 17.30  0  0    3
+#&gt; Camaro Z28                    13.3   8 350.0 245 3.73 3.840 15.41  0  0    3
+#&gt; Pontiac Firebird              19.2   8 400.0 175 3.08 3.845 17.05  0  0    3
+#&gt; Fiat X1-9                     27.3   4  79.0  66 4.08 1.935 18.90  1  1    4
+#&gt; Porsche 914-2                 26.0   4 120.3  91 4.43 2.140 16.70  0  1    5
+#&gt; Lotus Europa                  30.4   4  95.1 113 3.77 1.513 16.90  1  1    5
+#&gt; Ford Pantera L                15.8   8 351.0 264 4.22 3.170 14.50  0  1    5
+#&gt; Ferrari Dino                  19.7   6 145.0 175 3.62 2.770 15.50  0  1    5
+#&gt; Maserati Bora                 15.0   8 301.0 335 3.54 3.570 14.60  0  1    5
+#&gt; Volvo 142E                    21.4   4 121.0 109 4.11 2.780 18.60  1  1    4
+#&gt;                     carb
+#&gt; Mazda RX4              4
+#&gt; Mazda RX4 Wag          4
+#&gt; Datsun 710             1
+#&gt; Hornet 4 Drive         1
+#&gt; Hornet Sportabout      2
+#&gt; Valiant                1
+#&gt; Duster 360             4
+#&gt; Merc 240D              2
+#&gt; Merc 230               2
+#&gt; Merc 280               4
+#&gt; Merc 280C              4
+#&gt; Merc 450SE             3
+#&gt; Merc 450SL             3
+#&gt; Merc 450SLC            3
+#&gt; Cadillac Fleetwood     4
+#&gt; Lincoln Continental    4
+#&gt; Chrysler Imperial      4
+#&gt; Fiat 128               1
+#&gt; Honda Civic            2
+#&gt; Toyota Corolla         1
+#&gt; Toyota Corona          1
+#&gt; Dodge Challenger       2
+#&gt; AMC Javelin            2
+#&gt; Camaro Z28             4
+#&gt; Pontiac Firebird       2
+#&gt; Fiat X1-9              1
+#&gt; Porsche 914-2          2
+#&gt; Lotus Europa           2
+#&gt; Ford Pantera L         4
+#&gt; Ferrari Dino           6
+#&gt; Maserati Bora          8
+#&gt; Volvo 142E             2</div><div class='input'>
+<span class='co'># The `:` operator selects a range of consecutive variables:</span>
+<span class='fu'>select</span><span class='op'>(</span><span class='va'>mtcars</span>, <span class='va'>mpg</span><span class='op'>:</span><span class='va'>cyl</span><span class='op'>)</span>
+</div><div class='output co'>#&gt;                      mpg cyl
+#&gt; Mazda RX4           21.0   6
+#&gt; Mazda RX4 Wag       21.0   6
+#&gt; Datsun 710          22.8   4
+#&gt; Hornet 4 Drive      21.4   6
+#&gt; Hornet Sportabout   18.7   8
+#&gt; Valiant             18.1   6
+#&gt; Duster 360          14.3   8
+#&gt; Merc 240D           24.4   4
+#&gt; Merc 230            22.8   4
+#&gt; Merc 280            19.2   6
+#&gt; Merc 280C           17.8   6
+#&gt; Merc 450SE          16.4   8
+#&gt; Merc 450SL          17.3   8
+#&gt; Merc 450SLC         15.2   8
+#&gt; Cadillac Fleetwood  10.4   8
+#&gt; Lincoln Continental 10.4   8
+#&gt; Chrysler Imperial   14.7   8
+#&gt; Fiat 128            32.4   4
+#&gt; Honda Civic         30.4   4
+#&gt; Toyota Corolla      33.9   4
+#&gt; Toyota Corona       21.5   4
+#&gt; Dodge Challenger    15.5   8
+#&gt; AMC Javelin         15.2   8
+#&gt; Camaro Z28          13.3   8
+#&gt; Pontiac Firebird    19.2   8
+#&gt; Fiat X1-9           27.3   4
+#&gt; Porsche 914-2       26.0   4
+#&gt; Lotus Europa        30.4   4
+#&gt; Ford Pantera L      15.8   8
+#&gt; Ferrari Dino        19.7   6
+#&gt; Maserati Bora       15.0   8
+#&gt; Volvo 142E          21.4   4</div><div class='input'>
+<span class='co'># The `!` operator negates a selection:</span>
+<span class='va'>mtcars</span> <span class='op'>%&gt;%</span> <span class='fu'>select</span><span class='op'>(</span><span class='op'>!</span><span class='op'>(</span><span class='va'>mpg</span><span class='op'>:</span><span class='va'>qsec</span><span class='op'>)</span><span class='op'>)</span>
+</div><div class='output co'>#&gt;                     vs am gear carb
+#&gt; Mazda RX4            0  1    4    4
+#&gt; Mazda RX4 Wag        0  1    4    4
+#&gt; Datsun 710           1  1    4    1
+#&gt; Hornet 4 Drive       1  0    3    1
+#&gt; Hornet Sportabout    0  0    3    2
+#&gt; Valiant              1  0    3    1
+#&gt; Duster 360           0  0    3    4
+#&gt; Merc 240D            1  0    4    2
+#&gt; Merc 230             1  0    4    2
+#&gt; Merc 280             1  0    4    4
+#&gt; Merc 280C            1  0    4    4
+#&gt; Merc 450SE           0  0    3    3
+#&gt; Merc 450SL           0  0    3    3
+#&gt; Merc 450SLC          0  0    3    3
+#&gt; Cadillac Fleetwood   0  0    3    4
+#&gt; Lincoln Continental  0  0    3    4
+#&gt; Chrysler Imperial    0  0    3    4
+#&gt; Fiat 128             1  1    4    1
+#&gt; Honda Civic          1  1    4    2
+#&gt; Toyota Corolla       1  1    4    1
+#&gt; Toyota Corona        1  0    3    1
+#&gt; Dodge Challenger     0  0    3    2
+#&gt; AMC Javelin          0  0    3    2
+#&gt; Camaro Z28           0  0    3    4
+#&gt; Pontiac Firebird     0  0    3    2
+#&gt; Fiat X1-9            1  1    4    1
+#&gt; Porsche 914-2        0  1    5    2
+#&gt; Lotus Europa         1  1    5    2
+#&gt; Ford Pantera L       0  1    5    4
+#&gt; Ferrari Dino         0  1    5    6
+#&gt; Maserati Bora        0  1    5    8
+#&gt; Volvo 142E           1  1    4    2</div><div class='input'><span class='va'>mtcars</span> <span class='op'>%&gt;%</span> <span class='fu'>select</span><span class='op'>(</span><span class='op'>!</span><span class='fu'><a href='select_helpers.html'>ends_with</a></span><span class='op'>(</span><span class='st'>"p"</span><span class='op'>)</span><span class='op'>)</span>
+</div><div class='output co'>#&gt;                      mpg cyl drat    wt  qsec vs am gear carb
+#&gt; Mazda RX4           21.0   6 3.90 2.620 16.46  0  1    4    4
+#&gt; Mazda RX4 Wag       21.0   6 3.90 2.875 17.02  0  1    4    4
+#&gt; Datsun 710          22.8   4 3.85 2.320 18.61  1  1    4    1
+#&gt; Hornet 4 Drive      21.4   6 3.08 3.215 19.44  1  0    3    1
+#&gt; Hornet Sportabout   18.7   8 3.15 3.440 17.02  0  0    3    2
+#&gt; Valiant             18.1   6 2.76 3.460 20.22  1  0    3    1
+#&gt; Duster 360          14.3   8 3.21 3.570 15.84  0  0    3    4
+#&gt; Merc 240D           24.4   4 3.69 3.190 20.00  1  0    4    2
+#&gt; Merc 230            22.8   4 3.92 3.150 22.90  1  0    4    2
+#&gt; Merc 280            19.2   6 3.92 3.440 18.30  1  0    4    4
+#&gt; Merc 280C           17.8   6 3.92 3.440 18.90  1  0    4    4
+#&gt; Merc 450SE          16.4   8 3.07 4.070 17.40  0  0    3    3
+#&gt; Merc 450SL          17.3   8 3.07 3.730 17.60  0  0    3    3
+#&gt; Merc 450SLC         15.2   8 3.07 3.780 18.00  0  0    3    3
+#&gt; Cadillac Fleetwood  10.4   8 2.93 5.250 17.98  0  0    3    4
+#&gt; Lincoln Continental 10.4   8 3.00 5.424 17.82  0  0    3    4
+#&gt; Chrysler Imperial   14.7   8 3.23 5.345 17.42  0  0    3    4
+#&gt; Fiat 128            32.4   4 4.08 2.200 19.47  1  1    4    1
+#&gt; Honda Civic         30.4   4 4.93 1.615 18.52  1  1    4    2
+#&gt; Toyota Corolla      33.9   4 4.22 1.835 19.90  1  1    4    1
+#&gt; Toyota Corona       21.5   4 3.70 2.465 20.01  1  0    3    1
+#&gt; Dodge Challenger    15.5   8 2.76 3.520 16.87  0  0    3    2
+#&gt; AMC Javelin         15.2   8 3.15 3.435 17.30  0  0    3    2
+#&gt; Camaro Z28          13.3   8 3.73 3.840 15.41  0  0    3    4
+#&gt; Pontiac Firebird    19.2   8 3.08 3.845 17.05  0  0    3    2
+#&gt; Fiat X1-9           27.3   4 4.08 1.935 18.90  1  1    4    1
+#&gt; Porsche 914-2       26.0   4 4.43 2.140 16.70  0  1    5    2
+#&gt; Lotus Europa        30.4   4 3.77 1.513 16.90  1  1    5    2
+#&gt; Ford Pantera L      15.8   8 4.22 3.170 14.50  0  1    5    4
+#&gt; Ferrari Dino        19.7   6 3.62 2.770 15.50  0  1    5    6
+#&gt; Maserati Bora       15.0   8 3.54 3.570 14.60  0  1    5    8
+#&gt; Volvo 142E          21.4   4 4.11 2.780 18.60  1  1    4    2</div><div class='input'>
+<span class='co'># `&amp;` and `|` take the intersection or the union of two selections:</span>
+<span class='va'>iris</span> <span class='op'>%&gt;%</span> <span class='fu'>select</span><span class='op'>(</span><span class='fu'><a href='select_helpers.html'>starts_with</a></span><span class='op'>(</span><span class='st'>"Petal"</span><span class='op'>)</span> <span class='op'>&amp;</span> <span class='fu'><a href='select_helpers.html'>ends_with</a></span><span class='op'>(</span><span class='st'>"Width"</span><span class='op'>)</span><span class='op'>)</span>
+</div><div class='output co'>#&gt;     Petal.Length Petal.Width Sepal.Width
+#&gt; 1            1.4         0.2         3.5
+#&gt; 2            1.4         0.2         3.0
+#&gt; 3            1.3         0.2         3.2
+#&gt; 4            1.5         0.2         3.1
+#&gt; 5            1.4         0.2         3.6
+#&gt; 6            1.7         0.4         3.9
+#&gt; 7            1.4         0.3         3.4
+#&gt; 8            1.5         0.2         3.4
+#&gt; 9            1.4         0.2         2.9
+#&gt; 10           1.5         0.1         3.1
+#&gt; 11           1.5         0.2         3.7
+#&gt; 12           1.6         0.2         3.4
+#&gt; 13           1.4         0.1         3.0
+#&gt; 14           1.1         0.1         3.0
+#&gt; 15           1.2         0.2         4.0
+#&gt; 16           1.5         0.4         4.4
+#&gt; 17           1.3         0.4         3.9
+#&gt; 18           1.4         0.3         3.5
+#&gt; 19           1.7         0.3         3.8
+#&gt; 20           1.5         0.3         3.8
+#&gt; 21           1.7         0.2         3.4
+#&gt; 22           1.5         0.4         3.7
+#&gt; 23           1.0         0.2         3.6
+#&gt; 24           1.7         0.5         3.3
+#&gt; 25           1.9         0.2         3.4
+#&gt; 26           1.6         0.2         3.0
+#&gt; 27           1.6         0.4         3.4
+#&gt; 28           1.5         0.2         3.5
+#&gt; 29           1.4         0.2         3.4
+#&gt; 30           1.6         0.2         3.2
+#&gt; 31           1.6         0.2         3.1
+#&gt; 32           1.5         0.4         3.4
+#&gt; 33           1.5         0.1         4.1
+#&gt; 34           1.4         0.2         4.2
+#&gt; 35           1.5         0.2         3.1
+#&gt; 36           1.2         0.2         3.2
+#&gt; 37           1.3         0.2         3.5
+#&gt; 38           1.4         0.1         3.6
+#&gt; 39           1.3         0.2         3.0
+#&gt; 40           1.5         0.2         3.4
+#&gt; 41           1.3         0.3         3.5
+#&gt; 42           1.3         0.3         2.3
+#&gt; 43           1.3         0.2         3.2
+#&gt; 44           1.6         0.6         3.5
+#&gt; 45           1.9         0.4         3.8
+#&gt; 46           1.4         0.3         3.0
+#&gt; 47           1.6         0.2         3.8
+#&gt; 48           1.4         0.2         3.2
+#&gt; 49           1.5         0.2         3.7
+#&gt; 50           1.4         0.2         3.3
+#&gt; 51           4.7         1.4         3.2
+#&gt; 52           4.5         1.5         3.2
+#&gt; 53           4.9         1.5         3.1
+#&gt; 54           4.0         1.3         2.3
+#&gt; 55           4.6         1.5         2.8
+#&gt; 56           4.5         1.3         2.8
+#&gt; 57           4.7         1.6         3.3
+#&gt; 58           3.3         1.0         2.4
+#&gt; 59           4.6         1.3         2.9
+#&gt; 60           3.9         1.4         2.7
+#&gt; 61           3.5         1.0         2.0
+#&gt; 62           4.2         1.5         3.0
+#&gt; 63           4.0         1.0         2.2
+#&gt; 64           4.7         1.4         2.9
+#&gt; 65           3.6         1.3         2.9
+#&gt; 66           4.4         1.4         3.1
+#&gt; 67           4.5         1.5         3.0
+#&gt; 68           4.1         1.0         2.7
+#&gt; 69           4.5         1.5         2.2
+#&gt; 70           3.9         1.1         2.5
+#&gt; 71           4.8         1.8         3.2
+#&gt; 72           4.0         1.3         2.8
+#&gt; 73           4.9         1.5         2.5
+#&gt; 74           4.7         1.2         2.8
+#&gt; 75           4.3         1.3         2.9
+#&gt; 76           4.4         1.4         3.0
+#&gt; 77           4.8         1.4         2.8
+#&gt; 78           5.0         1.7         3.0
+#&gt; 79           4.5         1.5         2.9
+#&gt; 80           3.5         1.0         2.6
+#&gt; 81           3.8         1.1         2.4
+#&gt; 82           3.7         1.0         2.4
+#&gt; 83           3.9         1.2         2.7
+#&gt; 84           5.1         1.6         2.7
+#&gt; 85           4.5         1.5         3.0
+#&gt; 86           4.5         1.6         3.4
+#&gt; 87           4.7         1.5         3.1
+#&gt; 88           4.4         1.3         2.3
+#&gt; 89           4.1         1.3         3.0
+#&gt; 90           4.0         1.3         2.5
+#&gt; 91           4.4         1.2         2.6
+#&gt; 92           4.6         1.4         3.0
+#&gt; 93           4.0         1.2         2.6
+#&gt; 94           3.3         1.0         2.3
+#&gt; 95           4.2         1.3         2.7
+#&gt; 96           4.2         1.2         3.0
+#&gt; 97           4.2         1.3         2.9
+#&gt; 98           4.3         1.3         2.9
+#&gt; 99           3.0         1.1         2.5
+#&gt; 100          4.1         1.3         2.8
+#&gt; 101          6.0         2.5         3.3
+#&gt; 102          5.1         1.9         2.7
+#&gt; 103          5.9         2.1         3.0
+#&gt; 104          5.6         1.8         2.9
+#&gt; 105          5.8         2.2         3.0
+#&gt; 106          6.6         2.1         3.0
+#&gt; 107          4.5         1.7         2.5
+#&gt; 108          6.3         1.8         2.9
+#&gt; 109          5.8         1.8         2.5
+#&gt; 110          6.1         2.5         3.6
+#&gt; 111          5.1         2.0         3.2
+#&gt; 112          5.3         1.9         2.7
+#&gt; 113          5.5         2.1         3.0
+#&gt; 114          5.0         2.0         2.5
+#&gt; 115          5.1         2.4         2.8
+#&gt; 116          5.3         2.3         3.2
+#&gt; 117          5.5         1.8         3.0
+#&gt; 118          6.7         2.2         3.8
+#&gt; 119          6.9         2.3         2.6
+#&gt; 120          5.0         1.5         2.2
+#&gt; 121          5.7         2.3         3.2
+#&gt; 122          4.9         2.0         2.8
+#&gt; 123          6.7         2.0         2.8
+#&gt; 124          4.9         1.8         2.7
+#&gt; 125          5.7         2.1         3.3
+#&gt; 126          6.0         1.8         3.2
+#&gt; 127          4.8         1.8         2.8
+#&gt; 128          4.9         1.8         3.0
+#&gt; 129          5.6         2.1         2.8
+#&gt; 130          5.8         1.6         3.0
+#&gt; 131          6.1         1.9         2.8
+#&gt; 132          6.4         2.0         3.8
+#&gt; 133          5.6         2.2         2.8
+#&gt; 134          5.1         1.5         2.8
+#&gt; 135          5.6         1.4         2.6
+#&gt; 136          6.1         2.3         3.0
+#&gt; 137          5.6         2.4         3.4
+#&gt; 138          5.5         1.8         3.1
+#&gt; 139          4.8         1.8         3.0
+#&gt; 140          5.4         2.1         3.1
+#&gt; 141          5.6         2.4         3.1
+#&gt; 142          5.1         2.3         3.1
+#&gt; 143          5.1         1.9         2.7
+#&gt; 144          5.9         2.3         3.2
+#&gt; 145          5.7         2.5         3.3
+#&gt; 146          5.2         2.3         3.0
+#&gt; 147          5.0         1.9         2.5
+#&gt; 148          5.2         2.0         3.0
+#&gt; 149          5.4         2.3         3.4
+#&gt; 150          5.1         1.8         3.0</div><div class='input'><span class='va'>iris</span> <span class='op'>%&gt;%</span> <span class='fu'>select</span><span class='op'>(</span><span class='fu'><a href='select_helpers.html'>starts_with</a></span><span class='op'>(</span><span class='st'>"Petal"</span><span class='op'>)</span> <span class='op'>|</span> <span class='fu'><a href='select_helpers.html'>ends_with</a></span><span class='op'>(</span><span class='st'>"Width"</span><span class='op'>)</span><span class='op'>)</span>
+</div><div class='output co'>#&gt;     Sepal.Length Sepal.Width Petal.Length Petal.Width    Species
+#&gt; 1            5.1         3.5          1.4         0.2     setosa
+#&gt; 2            4.9         3.0          1.4         0.2     setosa
+#&gt; 3            4.7         3.2          1.3         0.2     setosa
+#&gt; 4            4.6         3.1          1.5         0.2     setosa
+#&gt; 5            5.0         3.6          1.4         0.2     setosa
+#&gt; 6            5.4         3.9          1.7         0.4     setosa
+#&gt; 7            4.6         3.4          1.4         0.3     setosa
+#&gt; 8            5.0         3.4          1.5         0.2     setosa
+#&gt; 9            4.4         2.9          1.4         0.2     setosa
+#&gt; 10           4.9         3.1          1.5         0.1     setosa
+#&gt; 11           5.4         3.7          1.5         0.2     setosa
+#&gt; 12           4.8         3.4          1.6         0.2     setosa
+#&gt; 13           4.8         3.0          1.4         0.1     setosa
+#&gt; 14           4.3         3.0          1.1         0.1     setosa
+#&gt; 15           5.8         4.0          1.2         0.2     setosa
+#&gt; 16           5.7         4.4          1.5         0.4     setosa
+#&gt; 17           5.4         3.9          1.3         0.4     setosa
+#&gt; 18           5.1         3.5          1.4         0.3     setosa
+#&gt; 19           5.7         3.8          1.7         0.3     setosa
+#&gt; 20           5.1         3.8          1.5         0.3     setosa
+#&gt; 21           5.4         3.4          1.7         0.2     setosa
+#&gt; 22           5.1         3.7          1.5         0.4     setosa
+#&gt; 23           4.6         3.6          1.0         0.2     setosa
+#&gt; 24           5.1         3.3          1.7         0.5     setosa
+#&gt; 25           4.8         3.4          1.9         0.2     setosa
+#&gt; 26           5.0         3.0          1.6         0.2     setosa
+#&gt; 27           5.0         3.4          1.6         0.4     setosa
+#&gt; 28           5.2         3.5          1.5         0.2     setosa
+#&gt; 29           5.2         3.4          1.4         0.2     setosa
+#&gt; 30           4.7         3.2          1.6         0.2     setosa
+#&gt; 31           4.8         3.1          1.6         0.2     setosa
+#&gt; 32           5.4         3.4          1.5         0.4     setosa
+#&gt; 33           5.2         4.1          1.5         0.1     setosa
+#&gt; 34           5.5         4.2          1.4         0.2     setosa
+#&gt; 35           4.9         3.1          1.5         0.2     setosa
+#&gt; 36           5.0         3.2          1.2         0.2     setosa
+#&gt; 37           5.5         3.5          1.3         0.2     setosa
+#&gt; 38           4.9         3.6          1.4         0.1     setosa
+#&gt; 39           4.4         3.0          1.3         0.2     setosa
+#&gt; 40           5.1         3.4          1.5         0.2     setosa
+#&gt; 41           5.0         3.5          1.3         0.3     setosa
+#&gt; 42           4.5         2.3          1.3         0.3     setosa
+#&gt; 43           4.4         3.2          1.3         0.2     setosa
+#&gt; 44           5.0         3.5          1.6         0.6     setosa
+#&gt; 45           5.1         3.8          1.9         0.4     setosa
+#&gt; 46           4.8         3.0          1.4         0.3     setosa
+#&gt; 47           5.1         3.8          1.6         0.2     setosa
+#&gt; 48           4.6         3.2          1.4         0.2     setosa
+#&gt; 49           5.3         3.7          1.5         0.2     setosa
+#&gt; 50           5.0         3.3          1.4         0.2     setosa
+#&gt; 51           7.0         3.2          4.7         1.4 versicolor
+#&gt; 52           6.4         3.2          4.5         1.5 versicolor
+#&gt; 53           6.9         3.1          4.9         1.5 versicolor
+#&gt; 54           5.5         2.3          4.0         1.3 versicolor
+#&gt; 55           6.5         2.8          4.6         1.5 versicolor
+#&gt; 56           5.7         2.8          4.5         1.3 versicolor
+#&gt; 57           6.3         3.3          4.7         1.6 versicolor
+#&gt; 58           4.9         2.4          3.3         1.0 versicolor
+#&gt; 59           6.6         2.9          4.6         1.3 versicolor
+#&gt; 60           5.2         2.7          3.9         1.4 versicolor
+#&gt; 61           5.0         2.0          3.5         1.0 versicolor
+#&gt; 62           5.9         3.0          4.2         1.5 versicolor
+#&gt; 63           6.0         2.2          4.0         1.0 versicolor
+#&gt; 64           6.1         2.9          4.7         1.4 versicolor
+#&gt; 65           5.6         2.9          3.6         1.3 versicolor
+#&gt; 66           6.7         3.1          4.4         1.4 versicolor
+#&gt; 67           5.6         3.0          4.5         1.5 versicolor
+#&gt; 68           5.8         2.7          4.1         1.0 versicolor
+#&gt; 69           6.2         2.2          4.5         1.5 versicolor
+#&gt; 70           5.6         2.5          3.9         1.1 versicolor
+#&gt; 71           5.9         3.2          4.8         1.8 versicolor
+#&gt; 72           6.1         2.8          4.0         1.3 versicolor
+#&gt; 73           6.3         2.5          4.9         1.5 versicolor
+#&gt; 74           6.1         2.8          4.7         1.2 versicolor
+#&gt; 75           6.4         2.9          4.3         1.3 versicolor
+#&gt; 76           6.6         3.0          4.4         1.4 versicolor
+#&gt; 77           6.8         2.8          4.8         1.4 versicolor
+#&gt; 78           6.7         3.0          5.0         1.7 versicolor
+#&gt; 79           6.0         2.9          4.5         1.5 versicolor
+#&gt; 80           5.7         2.6          3.5         1.0 versicolor
+#&gt; 81           5.5         2.4          3.8         1.1 versicolor
+#&gt; 82           5.5         2.4          3.7         1.0 versicolor
+#&gt; 83           5.8         2.7          3.9         1.2 versicolor
+#&gt; 84           6.0         2.7          5.1         1.6 versicolor
+#&gt; 85           5.4         3.0          4.5         1.5 versicolor
+#&gt; 86           6.0         3.4          4.5         1.6 versicolor
+#&gt; 87           6.7         3.1          4.7         1.5 versicolor
+#&gt; 88           6.3         2.3          4.4         1.3 versicolor
+#&gt; 89           5.6         3.0          4.1         1.3 versicolor
+#&gt; 90           5.5         2.5          4.0         1.3 versicolor
+#&gt; 91           5.5         2.6          4.4         1.2 versicolor
+#&gt; 92           6.1         3.0          4.6         1.4 versicolor
+#&gt; 93           5.8         2.6          4.0         1.2 versicolor
+#&gt; 94           5.0         2.3          3.3         1.0 versicolor
+#&gt; 95           5.6         2.7          4.2         1.3 versicolor
+#&gt; 96           5.7         3.0          4.2         1.2 versicolor
+#&gt; 97           5.7         2.9          4.2         1.3 versicolor
+#&gt; 98           6.2         2.9          4.3         1.3 versicolor
+#&gt; 99           5.1         2.5          3.0         1.1 versicolor
+#&gt; 100          5.7         2.8          4.1         1.3 versicolor
+#&gt; 101          6.3         3.3          6.0         2.5  virginica
+#&gt; 102          5.8         2.7          5.1         1.9  virginica
+#&gt; 103          7.1         3.0          5.9         2.1  virginica
+#&gt; 104          6.3         2.9          5.6         1.8  virginica
+#&gt; 105          6.5         3.0          5.8         2.2  virginica
+#&gt; 106          7.6         3.0          6.6         2.1  virginica
+#&gt; 107          4.9         2.5          4.5         1.7  virginica
+#&gt; 108          7.3         2.9          6.3         1.8  virginica
+#&gt; 109          6.7         2.5          5.8         1.8  virginica
+#&gt; 110          7.2         3.6          6.1         2.5  virginica
+#&gt; 111          6.5         3.2          5.1         2.0  virginica
+#&gt; 112          6.4         2.7          5.3         1.9  virginica
+#&gt; 113          6.8         3.0          5.5         2.1  virginica
+#&gt; 114          5.7         2.5          5.0         2.0  virginica
+#&gt; 115          5.8         2.8          5.1         2.4  virginica
+#&gt; 116          6.4         3.2          5.3         2.3  virginica
+#&gt; 117          6.5         3.0          5.5         1.8  virginica
+#&gt; 118          7.7         3.8          6.7         2.2  virginica
+#&gt; 119          7.7         2.6          6.9         2.3  virginica
+#&gt; 120          6.0         2.2          5.0         1.5  virginica
+#&gt; 121          6.9         3.2          5.7         2.3  virginica
+#&gt; 122          5.6         2.8          4.9         2.0  virginica
+#&gt; 123          7.7         2.8          6.7         2.0  virginica
+#&gt; 124          6.3         2.7          4.9         1.8  virginica
+#&gt; 125          6.7         3.3          5.7         2.1  virginica
+#&gt; 126          7.2         3.2          6.0         1.8  virginica
+#&gt; 127          6.2         2.8          4.8         1.8  virginica
+#&gt; 128          6.1         3.0          4.9         1.8  virginica
+#&gt; 129          6.4         2.8          5.6         2.1  virginica
+#&gt; 130          7.2         3.0          5.8         1.6  virginica
+#&gt; 131          7.4         2.8          6.1         1.9  virginica
+#&gt; 132          7.9         3.8          6.4         2.0  virginica
+#&gt; 133          6.4         2.8          5.6         2.2  virginica
+#&gt; 134          6.3         2.8          5.1         1.5  virginica
+#&gt; 135          6.1         2.6          5.6         1.4  virginica
+#&gt; 136          7.7         3.0          6.1         2.3  virginica
+#&gt; 137          6.3         3.4          5.6         2.4  virginica
+#&gt; 138          6.4         3.1          5.5         1.8  virginica
+#&gt; 139          6.0         3.0          4.8         1.8  virginica
+#&gt; 140          6.9         3.1          5.4         2.1  virginica
+#&gt; 141          6.7         3.1          5.6         2.4  virginica
+#&gt; 142          6.9         3.1          5.1         2.3  virginica
+#&gt; 143          5.8         2.7          5.1         1.9  virginica
+#&gt; 144          6.8         3.2          5.9         2.3  virginica
+#&gt; 145          6.7         3.3          5.7         2.5  virginica
+#&gt; 146          6.7         3.0          5.2         2.3  virginica
+#&gt; 147          6.3         2.5          5.0         1.9  virginica
+#&gt; 148          6.5         3.0          5.2         2.0  virginica
+#&gt; 149          6.2         3.4          5.4         2.3  virginica
+#&gt; 150          5.9         3.0          5.1         1.8  virginica</div><div class='input'>
+<span class='co'># To take the difference between two selections, combine the `&amp;` and</span>
+<span class='co'># `!` operators:</span>
+<span class='va'>iris</span> <span class='op'>%&gt;%</span> <span class='fu'>select</span><span class='op'>(</span><span class='fu'><a href='select_helpers.html'>starts_with</a></span><span class='op'>(</span><span class='st'>"Petal"</span><span class='op'>)</span> <span class='op'>&amp;</span> <span class='op'>!</span><span class='fu'><a href='select_helpers.html'>ends_with</a></span><span class='op'>(</span><span class='st'>"Width"</span><span class='op'>)</span><span class='op'>)</span>
+</div><div class='output co'>#&gt;     Petal.Length
+#&gt; 1            1.4
+#&gt; 2            1.4
+#&gt; 3            1.3
+#&gt; 4            1.5
+#&gt; 5            1.4
+#&gt; 6            1.7
+#&gt; 7            1.4
+#&gt; 8            1.5
+#&gt; 9            1.4
+#&gt; 10           1.5
+#&gt; 11           1.5
+#&gt; 12           1.6
+#&gt; 13           1.4
+#&gt; 14           1.1
+#&gt; 15           1.2
+#&gt; 16           1.5
+#&gt; 17           1.3
+#&gt; 18           1.4
+#&gt; 19           1.7
+#&gt; 20           1.5
+#&gt; 21           1.7
+#&gt; 22           1.5
+#&gt; 23           1.0
+#&gt; 24           1.7
+#&gt; 25           1.9
+#&gt; 26           1.6
+#&gt; 27           1.6
+#&gt; 28           1.5
+#&gt; 29           1.4
+#&gt; 30           1.6
+#&gt; 31           1.6
+#&gt; 32           1.5
+#&gt; 33           1.5
+#&gt; 34           1.4
+#&gt; 35           1.5
+#&gt; 36           1.2
+#&gt; 37           1.3
+#&gt; 38           1.4
+#&gt; 39           1.3
+#&gt; 40           1.5
+#&gt; 41           1.3
+#&gt; 42           1.3
+#&gt; 43           1.3
+#&gt; 44           1.6
+#&gt; 45           1.9
+#&gt; 46           1.4
+#&gt; 47           1.6
+#&gt; 48           1.4
+#&gt; 49           1.5
+#&gt; 50           1.4
+#&gt; 51           4.7
+#&gt; 52           4.5
+#&gt; 53           4.9
+#&gt; 54           4.0
+#&gt; 55           4.6
+#&gt; 56           4.5
+#&gt; 57           4.7
+#&gt; 58           3.3
+#&gt; 59           4.6
+#&gt; 60           3.9
+#&gt; 61           3.5
+#&gt; 62           4.2
+#&gt; 63           4.0
+#&gt; 64           4.7
+#&gt; 65           3.6
+#&gt; 66           4.4
+#&gt; 67           4.5
+#&gt; 68           4.1
+#&gt; 69           4.5
+#&gt; 70           3.9
+#&gt; 71           4.8
+#&gt; 72           4.0
+#&gt; 73           4.9
+#&gt; 74           4.7
+#&gt; 75           4.3
+#&gt; 76           4.4
+#&gt; 77           4.8
+#&gt; 78           5.0
+#&gt; 79           4.5
+#&gt; 80           3.5
+#&gt; 81           3.8
+#&gt; 82           3.7
+#&gt; 83           3.9
+#&gt; 84           5.1
+#&gt; 85           4.5
+#&gt; 86           4.5
+#&gt; 87           4.7
+#&gt; 88           4.4
+#&gt; 89           4.1
+#&gt; 90           4.0
+#&gt; 91           4.4
+#&gt; 92           4.6
+#&gt; 93           4.0
+#&gt; 94           3.3
+#&gt; 95           4.2
+#&gt; 96           4.2
+#&gt; 97           4.2
+#&gt; 98           4.3
+#&gt; 99           3.0
+#&gt; 100          4.1
+#&gt; 101          6.0
+#&gt; 102          5.1
+#&gt; 103          5.9
+#&gt; 104          5.6
+#&gt; 105          5.8
+#&gt; 106          6.6
+#&gt; 107          4.5
+#&gt; 108          6.3
+#&gt; 109          5.8
+#&gt; 110          6.1
+#&gt; 111          5.1
+#&gt; 112          5.3
+#&gt; 113          5.5
+#&gt; 114          5.0
+#&gt; 115          5.1
+#&gt; 116          5.3
+#&gt; 117          5.5
+#&gt; 118          6.7
+#&gt; 119          6.9
+#&gt; 120          5.0
+#&gt; 121          5.7
+#&gt; 122          4.9
+#&gt; 123          6.7
+#&gt; 124          4.9
+#&gt; 125          5.7
+#&gt; 126          6.0
+#&gt; 127          4.8
+#&gt; 128          4.9
+#&gt; 129          5.6
+#&gt; 130          5.8
+#&gt; 131          6.1
+#&gt; 132          6.4
+#&gt; 133          5.6
+#&gt; 134          5.1
+#&gt; 135          5.6
+#&gt; 136          6.1
+#&gt; 137          5.6
+#&gt; 138          5.5
+#&gt; 139          4.8
+#&gt; 140          5.4
+#&gt; 141          5.6
+#&gt; 142          5.1
+#&gt; 143          5.1
+#&gt; 144          5.9
+#&gt; 145          5.7
+#&gt; 146          5.2
+#&gt; 147          5.0
+#&gt; 148          5.2
+#&gt; 149          5.4
+#&gt; 150          5.1</div><div class='input'>
 </div></pre>
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="pkgdown-sidebar">

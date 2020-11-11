@@ -38,7 +38,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="index.html">poorman</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.2.2.2</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.2.3</span>
       </span>
     </div>
 
@@ -117,7 +117,7 @@ I’d seen my father. He was a poor man, and I watched him do astonishing things
 <p>{poorman} is a grammar of data manipulation, providing dependency free versions of <a href="https://github.com/tidyverse/dplyr">{dplyr}</a> verbs that help you solve the most common data manipulation challenges:</p>
 <ul>
 <li>
-<code><a href="reference/relocate.html">select()</a></code> picks variables based on their names.</li>
+<code><a href="reference/select.html">select()</a></code> picks variables based on their names.</li>
 <li>
 <code><a href="reference/mutate.html">mutate()</a></code> adds new variables that are functions of existing variables.</li>
 <li>
@@ -137,14 +137,14 @@ I’d seen my father. He was a poor man, and I watched him do astonishing things
 <ul>
 <li>the development version from <a href="https://github.com/nathaneastwood/poorman">GitHub</a> with</li>
 </ul>
-<div class="sourceCode" id="cb1"><pre class="downlit">
-<span class="co"># install.packages("remotes")</span>
-<span class="fu">remotes</span><span class="fu">::</span><span class="fu"><a href="https://remotes.r-lib.org/reference/install_github.html">install_github</a></span><span class="op">(</span><span class="st">"nathaneastwood/poorman"</span><span class="op">)</span></pre></div>
+<div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span class="co"># install.packages("remotes")</span>
+<span class="fu">remotes</span><span class="fu">::</span><span class="fu"><a href="https://remotes.r-lib.org/reference/install_github.html">install_github</a></span><span class="op">(</span><span class="st">"nathaneastwood/poorman"</span><span class="op">)</span></code></pre></div>
 <ul>
 <li>the latest release from CRAN with</li>
 </ul>
-<div class="sourceCode" id="cb2"><pre class="downlit">
-<span class="fu"><a href="https://rdrr.io/r/utils/install.packages.html">install.packages</a></span><span class="op">(</span><span class="st">"poorman"</span><span class="op">)</span></pre></div>
+<div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span class="fu"><a href="https://rdrr.io/r/utils/install.packages.html">install.packages</a></span><span class="op">(</span><span class="st">"poorman"</span><span class="op">)</span></code></pre></div>
 </div>
 <div id="docker" class="section level2">
 <h2 class="hasAnchor">
@@ -155,14 +155,14 @@ I’d seen my father. He was a poor man, and I watched him do astonishing things
 <div id="usage" class="section level2">
 <h2 class="hasAnchor">
 <a href="#usage" class="anchor"></a>Usage</h2>
-<div class="sourceCode" id="cb4"><pre class="downlit">
-<span class="kw"><a href="https://rdrr.io/r/base/library.html">library</a></span><span class="op">(</span><span class="va"><a href="https://nathaneastwood.github.io/poorman/">poorman</a></span>, warn.conflicts <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span>
+<div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span class="kw"><a href="https://rdrr.io/r/base/library.html">library</a></span><span class="op">(</span><span class="va"><a href="https://nathaneastwood.github.io/poorman/">poorman</a></span>, warn.conflicts <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span>
 <span class="co"># </span>
 <span class="co">#   I'd seen my father. He was a poor man, and I watched him do astonishing things.</span>
 <span class="co">#     - Sidney Poitier</span>
 
 <span class="va">mtcars</span> <span class="op">%&gt;%</span>
-  <span class="fu"><a href="reference/relocate.html">select</a></span><span class="op">(</span><span class="va">mpg</span>, <span class="va">wt</span>, <span class="fu"><a href="reference/select_helpers.html">starts_with</a></span><span class="op">(</span><span class="st">"c"</span><span class="op">)</span><span class="op">)</span> <span class="op">%&gt;%</span>
+  <span class="fu"><a href="reference/select.html">select</a></span><span class="op">(</span><span class="va">mpg</span>, <span class="va">wt</span>, <span class="fu"><a href="reference/select_helpers.html">starts_with</a></span><span class="op">(</span><span class="st">"c"</span><span class="op">)</span><span class="op">)</span> <span class="op">%&gt;%</span>
   <span class="fu"><a href="reference/mutate.html">mutate</a></span><span class="op">(</span>kpl <span class="op">=</span> <span class="op">(</span><span class="fl">1.609</span> <span class="op">*</span> <span class="va">mpg</span><span class="op">)</span> <span class="op">/</span> <span class="fl">3.785</span>, wt_kg <span class="op">=</span> <span class="va">wt</span> <span class="op">*</span> <span class="fl">453.5924</span><span class="op">)</span> <span class="op">%&gt;%</span>
   <span class="fu"><a href="reference/filter.html">filter</a></span><span class="op">(</span><span class="va">mpg</span> <span class="op">&gt;</span> <span class="fl">28</span><span class="op">)</span>
 <span class="co">#                 mpg    wt cyl carb      kpl    wt_kg</span>
@@ -181,7 +181,7 @@ I’d seen my father. He was a poor man, and I watched him do astonishing things
 <span class="co"># 3  0   8 15.05000 2.7743959</span>
 <span class="co"># 4  1   4 28.07500 4.4838599</span>
 <span class="co"># 5  1   6 20.56667 0.7505553</span>
-<span class="co"># 6  1   8 15.40000 0.5656854</span></pre></div>
+<span class="co"># 6  1   8 15.40000 0.5656854</span></code></pre></div>
 </div>
 <div id="related-work" class="section level2">
 <h2 class="hasAnchor">
