@@ -20,3 +20,4 @@
 ^_pkgdown\.yml$
 ^docs$
 ^pkgdown$
+^revdep$

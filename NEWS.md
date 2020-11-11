@@ -1,3 +1,20 @@
+# poorman 0.2.3
+
+Seventh CRAN release.
+
+This update has added the following new features:
+
+* `across()` (#37).
+* `na_matches` and `keep` parameters have been added to mutate joins.
+* list columns can now be mutated.
+* Added the missing ability to use `&` in `poor-select`.
+
+Fixes:
+
+* Use of variables in `relocate()`.
+
+In addition there have been lots of improvements to documentation and many, many more tests added.
+
 # poorman 0.2.2
 
 Sixth CRAN release.
