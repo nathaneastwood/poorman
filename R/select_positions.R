@@ -18,7 +18,7 @@
 #' @param group_pos `logical(1)`. Should grouping variable positions be returned (default: `FALSE`)?
 #'
 #' @return
-#' A vector of `integer`s.
+#' A vector of named positive `integer`s.
 #'
 #' @examples
 #' select_positions(mtcars, mpg)
@@ -66,7 +66,17 @@ select_positions <- function(.data, ..., .group_pos = FALSE) {
       names(pos) <- data_names[abs(pos)]
     }
   }
-  pos[!duplicated(pos)]
+  uniques <- pos[!duplicated(pos)]
+  res_nms <- data_names[uniques]
+  res <- match(res_nms, data_names)
+  if (length(res) != 0L) {
+    res <- if (length(setdiff(names(uniques), data_names)) > 0L) {
+      if (all(uniques > 0L)) structure(res, .Names = names(uniques)) else structure(res, .Names = res_nms)
+    } else {
+      structure(res, .Names = res_nms)
+    }
+  }
+  res
 }
 
 eval_expr <- function(x) {

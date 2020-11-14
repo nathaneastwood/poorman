@@ -78,14 +78,8 @@
 #' @export
 select <- function(.data, ...) {
   col_pos <- select_positions(.data, ..., .group_pos = TRUE)
-  map_names <- names(col_pos)
-  map_names_length <- nchar(map_names)
-  if (any(map_names_length == 0L)) {
-    no_new_names <- which(map_names_length == 0L)
-    map_names[no_new_names] <- colnames(.data)[no_new_names]
-  }
   res <- .data[, col_pos, drop = FALSE]
-  if (!is.null(map_names) && all(col_pos > 0L)) colnames(res) <- map_names
+  if (length(names(res)) != 0) colnames(res) <- names(col_pos)
   if (has_groups(.data)) res <- set_groups(res, get_groups(.data))
   res
 }
