@@ -57,6 +57,15 @@ select_positions <- function(.data, ..., .group_pos = FALSE) {
       }
     }
   }
+  if (length(data_names[pos]) != 0L) {
+    nm_pos <- names(pos)
+    if (any(nm_pos == "")) {
+      names(pos)[which(nm_pos == "")] <- data_names[pos[which(nm_pos == "")]]
+    }
+    if (is.null(nm_pos)) {
+      names(pos) <- data_names[abs(pos)]
+    }
+  }
   pos[!duplicated(pos)]
 }
 
