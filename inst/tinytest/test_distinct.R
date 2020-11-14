@@ -18,7 +18,7 @@ expect_equal(
 )
 
 expect_equal(
-  ncol(data.frame()),
+  ncol(distinct(data.frame())),
   0L,
   info = "distinct() works for 0-column data.frames"
 )
