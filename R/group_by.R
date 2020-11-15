@@ -24,6 +24,11 @@
 #' @name group_by
 #' @export
 group_by <- function(.data, ..., .add = FALSE) {
+  UseMethod("group_by")
+}
+
+#' @export
+group_by.data.frame <- function(.data, ..., .add = FALSE) {
   check_is_dataframe(.data)
   pre_groups <- get_groups(.data)
   groups <- deparse_dots(...)

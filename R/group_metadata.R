@@ -31,12 +31,12 @@ group_data <- function(.data) {
 }
 
 group_data_worker <- function(.data, groups) {
+  class(.data) <- "data.frame"
   res <- unique(.data[, groups, drop = FALSE])
-  class(res) <- "data.frame"
   nrow_res <- nrow(res)
   rows <- rep(list(NA), nrow_res)
   for (i in seq_len(nrow_res)) {
-    rows[[i]] <- which(interaction(.data[, groups]) %in% interaction(res[i, groups]))
+    rows[[i]] <- which(interaction(.data[, groups, drop = TRUE]) %in% interaction(res[i, groups]))
   }
   res$`.rows` <- rows
   res <- res[do.call(order, lapply(groups, function(x) res[, x])), , drop = FALSE]
