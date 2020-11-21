@@ -23,6 +23,12 @@ expect_equal(
 )
 
 expect_equal(
+  summarise(data.frame(x = 1:10), y = mean(x), z = y + 1),
+  data.frame(y = 5.5, z = 6.5),
+  info = "Can use freshly create variables"
+)
+
+expect_equal(
   mtcars %>% summarise(n(), range(mpg)),
   structure(list(`n()` = c(32L, 32L), `range(mpg)` = c(10.4, 33.9)), class = "data.frame", row.names = c(NA, -2L)),
   info = "Functions returning multiple values get split over rows"

@@ -34,14 +34,17 @@ summarise.default <- function(.data, ...) {
     group <- unique(context$get_columns(get_groups(context$.data)))
   }
   res <- vector(mode = "list", length = length(fns))
+  eval_env <- c(as.list(context$.data), vector(mode = "list", length = length(fns)))
+  new_pos <- seq(length(context$.data) + 1L, length(eval_env), 1L)
   for (i in seq_along(fns)) {
-    out <- do.call(with, list(context$.data, fns[[i]]))
-    nms <- if (!is_named(out)) {
+    eval_env[[new_pos[i]]] <- do.call(with, list(eval_env, fns[[i]]))
+    nms <- if (!is_named(eval_env[[new_pos[i]]])) {
       if (!is.null(names(fns)[[i]])) names(fns)[[i]] else deparse(fns[[i]])
     } else {
       NULL
     }
-    res[[i]] <- build_data_frame(out, nms)
+    if (!is.null(nms)) names(eval_env)[[new_pos[i]]] <- nms
+    res[[i]] <- build_data_frame(eval_env[[new_pos[i]]], nms = nms)
   }
   res <- do.call(cbind, res)
   if (groups_exist) res <- cbind(group, res, row.names = NULL)
