@@ -140,3 +140,38 @@ expect_equal(
   data.frame(),
   info = "across() works with empty data.frames"
 )
+
+# Formula approach
+
+expect_equal(
+  data.frame(x = 1, y = 2) %>% summarise(across(everything(), ~rep(42, .))),
+  data.frame(x = rep(42, 2), y = rep(42, 2)),
+  info = "across() uses tidy recycling rules"
+)
+
+expect_error(
+  data.frame(x = 2, y = 3) %>% summarise(across(everything(), ~rep(42, .))),
+  info = "across() uses tidy recycling rules #2"
+)
+
+expect_equal(
+  iris %>% group_by(Species) %>% summarise(across(starts_with("Sepal"), ~mean(., na.rm = TRUE))) %>% ungroup(),
+  data.frame(
+    Species = structure(1:3, .Label = c("setosa", "versicolor", "virginica"), class = "factor"),
+    Sepal.Length = c(5.006, 5.936, 6.588),
+    Sepal.Width = c(3.428, 2.77, 2.974)
+  ),
+  info = "purrr style formulas work"
+)
+
+expect_equal(
+  mtcars %>% summarise(across(starts_with("m"), list(~mean(.x), ~sd(.x)))),
+  data.frame(mpg_1 = mean(mtcars$mpg), mpg_2 = sd(mtcars$mpg)),
+  info = "list of purrr style formulas works"
+)
+
+expect_equal(
+  mtcars %>% summarise(across(starts_with("m"), list("mean", "sd"))),
+  data.frame(mpg_1 = mean(mtcars$mpg), mpg_2 = sd(mtcars$mpg)),
+  info = "character vector style functions work"
+)

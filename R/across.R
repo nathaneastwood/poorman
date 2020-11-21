@@ -89,6 +89,7 @@ setup_across <- function(.cols, .fns, .names) {
   if (context$is_grouped()) cols <- setdiff(cols, get_groups(context$.data))
 
   funs <- if (is.null(.fns)) NULL else if (!is.list(.fns)) list(.fns) else .fns
+  if (is.null(funs)) return(list(cols = cols, funs = funs, names = .names))
   f_nms <- names(funs)
   if (is.null(f_nms) && !is.null(.fns)) names(funs) <- seq_along(funs)
   if (any(nchar(f_nms) == 0L)) {
@@ -96,6 +97,8 @@ setup_across <- function(.cols, .fns, .names) {
     names(funs)[miss] <- miss
     f_nms <- names(funs)
   }
+
+  funs <- lapply(funs, as_function)
 
   names <- if (!is.null(.names)) {
     .names

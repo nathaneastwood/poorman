@@ -4,10 +4,6 @@ check_is_dataframe <- function(.data) {
   invisible()
 }
 
-is_wholenumber <- function(x) {
-  x %% 1L == 0L
-}
-
 seq2 <- function (from, to) {
   if (length(from) != 1) stop("`from` must be length one")
   if (length(to) != 1) stop("`to` must be length one")
@@ -25,17 +21,6 @@ collapse_to_sentence <- function(x) {
   } else {
     paste(paste(x[1:(len_x - 1)], collapse = ", "), x[len_x], sep = " and ")
   }
-}
-
-is_named <- function(x) {
-  nms <- names(x)
-  if (is.null(nms)) return(FALSE)
-  if (any(names_are_invalid(nms))) return(FALSE)
-  TRUE
-}
-
-names_are_invalid <- function(x) {
-  x == "" | is.na(x)
 }
 
 #' Build a `data.frame` from a variety of inputs including atomic vectors, lists and other `data.frame`s
