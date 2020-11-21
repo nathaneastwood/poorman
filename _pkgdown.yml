@@ -6,16 +6,17 @@ template:
     bootswatch: flatly
 
 news:
-  one_page: false
   releases:
-  - text: "poorman 0.1.9"
+  - text: "Version 0.1.9"
     href: https://nathaneastwood.github.io/2020/04/01/poorman-first-release-of-a-base-r-dplyr-clone/
-  - text: "poorman 0.1.10"
+  - text: "Version 0.1.10"
     href: https://nathaneastwood.github.io/2020/04/13/poorman-select-helpers-bug-fixes-and-tests-tests-tests/
-  - text: "poorman 0.2.0"
+  - text: "Version 0.2.0"
     href: https://nathaneastwood.github.io/2020/05/17/poorman-the-selectificator-2000/
-  - text: "poorman 0.2.1"
+  - text: "Version 0.2.1"
     href: https://nathaneastwood.github.io/2020/07/01/poorman-version-0.2.1-release/
+  - test: "Version 0.2.2 and 0.2.3"
+    href: https://nathaneastwood.github.io/2020/11/14/poorman-versions-0.2.2-and-0.2.3-releases/
 
 reference:
 - title: One table verbs
@@ -97,3 +98,7 @@ navbar:
     - icon: fa-file-code-o
       text: "Functions"
       href: reference/index.html
+
+authors:
+  Nathan Eastwood:
+    href: https://nathaneastwood.github.io
