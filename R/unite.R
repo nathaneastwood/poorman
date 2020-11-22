@@ -44,11 +44,3 @@ unite <- function(data, col, ..., sep = "_", remove = TRUE, na.rm = FALSE) {
   }
   data
 }
-
-substitute_w <- function(x) {
-  caller <- parent.frame()
-  caller2 <- sys.frame(sys.parent(2))   # see appendix for explanation
-  expr <- eval(bquote(substitute(.(substitute(x)),.(caller))))
-  expr <- eval(bquote(.(bquote)(.(expr))), caller2)
-  bquote(with(.(caller2), .(expr)))
-}
