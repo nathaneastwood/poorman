@@ -46,7 +46,6 @@
 #'
 #' @export
 distinct <- function(.data, ..., .keep_all = FALSE) {
-  check_is_dataframe(.data)
   UseMethod("distinct")
 }
 

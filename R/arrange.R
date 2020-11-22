@@ -15,7 +15,6 @@
 #'
 #' @export
 arrange <- function(.data, ...) {
-  check_is_dataframe(.data)
   UseMethod("arrange")
 }
 

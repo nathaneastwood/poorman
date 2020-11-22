@@ -49,7 +49,6 @@ NULL
 #' @rdname slice
 #' @export
 slice <- function(.data, ...) {
-  check_is_dataframe(.data)
   UseMethod("slice")
 }
 

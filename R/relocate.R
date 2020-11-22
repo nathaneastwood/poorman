@@ -43,7 +43,6 @@
 #'
 #' @export
 relocate <- function(.data, ..., .before = NULL, .after = NULL) {
-  check_is_dataframe(.data)
   data_names <- colnames(.data)
   col_pos <- select_positions(.data, ...)
 

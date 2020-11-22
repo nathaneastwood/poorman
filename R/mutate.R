@@ -25,7 +25,6 @@
 #' @name mutate
 #' @export
 mutate <- function(.data, ...) {
-  check_is_dataframe(.data)
   UseMethod("mutate")
 }
 

@@ -29,7 +29,6 @@ group_by <- function(.data, ..., .add = FALSE) {
 
 #' @export
 group_by.data.frame <- function(.data, ..., .add = FALSE) {
-  check_is_dataframe(.data)
   pre_groups <- get_groups(.data)
   groups <- deparse_dots(...)
   if (isTRUE(.add)) groups <- unique(c(pre_groups, groups))
@@ -45,7 +44,6 @@ group_by.data.frame <- function(.data, ..., .add = FALSE) {
 #' @rdname group_by
 #' @export
 ungroup <- function(x, ...) {
-  check_is_dataframe(x)
   rm_groups <- deparse_dots(...)
   groups <- get_groups(x)
   if (length(rm_groups) == 0L) rm_groups <- groups

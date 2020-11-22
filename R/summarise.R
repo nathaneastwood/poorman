@@ -20,7 +20,6 @@
 #' @name summarise
 #' @export
 summarise <- function(.data, ...) {
-  check_is_dataframe(.data)
   UseMethod("summarise")
 }
 

@@ -11,7 +11,6 @@
 #' @rdname mutate
 #' @export
 transmute <- function(.data, ...) {
-  check_is_dataframe(.data)
   UseMethod("transmute")
 }
 

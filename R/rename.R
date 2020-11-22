@@ -24,7 +24,6 @@
 #'
 #' @export
 rename <- function(.data, ...) {
-  check_is_dataframe(.data)
   new_names <- names(deparse_dots(...))
   if (length(new_names) == 0L) {
     warning("You didn't give any new names")
