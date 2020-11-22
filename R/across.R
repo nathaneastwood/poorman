@@ -10,13 +10,15 @@
 #' @param cols,.cols <[`poor-select`][select_helpers]> Columns to transform. Because `across()` is used within functions
 #' like `summarise()` and `mutate()`, you can't select or compute upon grouping variables.
 #' @param .fns Functions to apply to each of the selected columns.
-#'   Possible values are:
+#' Possible values are:
 #'
-#'   - `NULL`, to returns the columns untransformed.
-#'   - A function, e.g. `mean`.
-#'   - A list of functions, e.g. `list(mean = mean, sum = sum)`
+#' - `NULL`, to returns the columns untransformed.
+#' - A function, e.g. `mean`.
+#' - A lambda, e.g. `~ mean(.x, na.rm = TRUE)`
+#' - A list of functions/lambdas, e.g. `list(mean = mean, n_miss = ~ sum(is.na(.x))`
 #'
-#'   Within these functions you can use [cur_group()] to access the current grouping keys.
+#' Within these functions you can use [cur_column()] and [cur_group()] to access the current column and grouping keys
+#' respectively.
 #' @param ... Additional arguments for the function calls in `.fns`.
 #' @param .names `character(n)`. Currently limited to specifying a vector of names to use for the outputs.
 #'
@@ -71,6 +73,7 @@ across <- function(.cols = everything(), .fns = NULL, ..., .names = NULL) {
   res <- vector(mode = "list", length = n_fns * n_cols)
   k <- 1L
   for (i in seq_len(n_cols)) {
+    context$cur_column <- cols[[i]]
     col <- data[[i]]
     for (j in seq_len(n_fns)) {
       res[[k]] <- funs[[j]](col, ...)

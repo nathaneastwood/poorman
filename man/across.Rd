@@ -12,10 +12,12 @@ Possible values are:
 \itemize{
 \item \code{NULL}, to returns the columns untransformed.
 \item A function, e.g. \code{mean}.
-\item A list of functions, e.g. \code{list(mean = mean, sum = sum)}
+\item A lambda, e.g. \code{~ mean(.x, na.rm = TRUE)}
+\item A list of functions/lambdas, e.g. \verb{list(mean = mean, n_miss = ~ sum(is.na(.x))}
 }
 
-Within these functions you can use \code{\link[=cur_group]{cur_group()}} to access the current grouping keys.}
+Within these functions you can use \code{\link[=cur_column]{cur_column()}} and \code{\link[=cur_group]{cur_group()}} to access the current column and grouping keys
+respectively.}
 
 \item{...}{Additional arguments for the function calls in \code{.fns}.}
 

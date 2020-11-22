@@ -4,6 +4,7 @@ context <- new.env()
 context$setup <- function(.data) context$.data <- .data
 context$get_data <- function() context$.data
 context$get_columns <- function(cols) context$.data[, cols, drop = FALSE]
+context$cur_column <- NULL
 context$get_nrow <- function() nrow(context$.data)
 context$get_colnames <- function() colnames(context$.data)
 context$is_grouped <- function() has_groups(context$.data)
@@ -14,7 +15,10 @@ context$as_env <- function() {
     context$.data
   }
 }
-context$clean <- function() rm(list = c(".data"), envir = context)
+context$clean <- function() {
+  rm(list = c(".data"), envir = context)
+  if (!is.null(context$cur_column)) rm(list = c("cur_column"), envir = context)
+}
 
 #' Context dependent expressions
 #'
@@ -45,6 +49,9 @@ context$clean <- function() rm(list = c(".data"), envir = context)
 #' gf %>% summarise(row = cur_group_rows())
 #' gf %>% summarise(data = list(cur_group()))
 #' gf %>% summarise(data = list(cur_data()))
+#' gf %>% summarise(data = list(cur_data_all()))
+#'
+#' gf %>% mutate(across(everything(), ~ paste(cur_column(), round(.x, 2))))
 #'
 #' @seealso
 #' See [group_data()] for equivalent functions that return values for all groups.
@@ -57,7 +64,7 @@ NULL
 #' @rdname context
 #' @export
 n <- function() {
-  check_group_context("`n()`")
+  check_context("`n()`", context$.data)
   context$get_nrow()
 }
 
@@ -66,7 +73,7 @@ n <- function() {
 #' @rdname context
 #' @export
 cur_data <- function() {
-  check_group_context("`cur_data()`")
+  check_context("`cur_data()`", context$.data)
   data <- context$get_data()
   data[, !(colnames(data) %in% get_groups(data)), drop = FALSE]
 }
@@ -76,7 +83,7 @@ cur_data <- function() {
 #' @rdname context
 #' @export
 cur_data_all <- function() {
-  check_group_context("`cur_data_all()`")
+  check_context("`cur_data_all()`", context$.data)
   ungroup(context$get_data())
 }
 
@@ -86,7 +93,7 @@ cur_data_all <- function() {
 #' @rdname context
 #' @export
 cur_group <- function() {
-  check_group_context("`cur_group()`")
+  check_context("`cur_group()`", context$.data)
   data <- context$get_data()
   res <- data[1L, get_groups(data), drop = FALSE]
   rownames(res) <- NULL
@@ -98,7 +105,7 @@ cur_group <- function() {
 #' @rdname context
 #' @export
 cur_group_id <- function() {
-  check_group_context("`cur_group_id()`")
+  check_context("`cur_group_id()`", context$.data)
   data <- context$get_data()
   res <- data[1L, get_groups(data), drop = FALSE]
   details <- get_group_details(data)
@@ -112,15 +119,22 @@ cur_group_id <- function() {
 #' @rdname context
 #' @export
 cur_group_rows <- function() {
-  check_group_context("`cur_group_rows()`")
+  check_context("`cur_group_rows()`", context$.data)
   data <- context$get_data()
   res <- data[1L, get_groups(data), drop = FALSE]
   res <- suppressMessages(semi_join(get_group_details(data), res))
   unlist(res[, ".rows"])
 }
 
-check_group_context <- function(fn) {
-  if (is.null(context$.data)) {
-    stop(fn, " must only be used inside poorman verbs")
+cur_column <- function() {
+  check_context("`cur_column()`", context$cur_column, "`across`")
+  context$cur_column
+}
+
+## -- Helpers ----------------------------------------------------------------------------------------------------------
+
+check_context <- function(fn, context, name = NULL) {
+  if (is.null(context)) {
+    stop(fn, " must only be used inside ", if (is.null(name)) "poorman verbs" else name)
   }
 }
