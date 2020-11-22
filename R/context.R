@@ -126,6 +126,10 @@ cur_group_rows <- function() {
   unlist(res[, ".rows"])
 }
 
+#' @description
+#' * `cur_column()` gives the name of the current column (in [across()] only).
+#' @rdname context
+#' @export
 cur_column <- function() {
   check_context("`cur_column()`", context$cur_column, "`across`")
   context$cur_column
