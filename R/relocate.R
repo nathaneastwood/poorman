@@ -43,6 +43,11 @@
 #'
 #' @export
 relocate <- function(.data, ..., .before = NULL, .after = NULL) {
+  UseMethod("relocate")
+}
+
+#' @export
+relocate.data.frame <- function(.data, ..., .before = NULL, .after = NULL) {
   data_names <- colnames(.data)
   col_pos <- select_positions(.data, ...)
 

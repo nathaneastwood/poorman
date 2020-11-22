@@ -44,6 +44,11 @@ group_by.data.frame <- function(.data, ..., .add = FALSE) {
 #' @rdname group_by
 #' @export
 ungroup <- function(x, ...) {
+  UseMethod("ungroup")
+}
+
+#' @export
+ungroup.data.frame <- function(x, ...) {
   rm_groups <- deparse_dots(...)
   groups <- get_groups(x)
   if (length(rm_groups) == 0L) rm_groups <- groups
@@ -53,6 +58,11 @@ ungroup <- function(x, ...) {
     class(x) <- class(x)[!(class(x) %in% "grouped_data")]
   }
   x
+}
+
+#' @export
+ungroup.grouped_data <- function(x, ...) {
+  NextMethod("ungroup")
 }
 
 #' Determine the grouping structure of the data

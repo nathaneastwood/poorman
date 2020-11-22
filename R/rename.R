@@ -24,6 +24,11 @@
 #'
 #' @export
 rename <- function(.data, ...) {
+  UseMethod("rename")
+}
+
+#' @export
+rename.data.frame <- function(.data, ...) {
   new_names <- names(deparse_dots(...))
   if (length(new_names) == 0L) {
     warning("You didn't give any new names")
@@ -51,6 +56,11 @@ rename <- function(.data, ...) {
 #' @rdname rename
 #' @export
 rename_with <- function(.data, .fn, .cols = everything(), ...) {
+  UseMethod("rename_with")
+}
+
+#' @export
+rename_with.data.frame <- function(.data, .fn, .cols = everything(), ...) {
   if (!is.function(.fn)) stop("`", .fn, "` is not a valid function")
   grouped <- inherits(.data, "grouped_data")
   if (grouped) grp_pos <- which(colnames(.data) %in% group_vars(.data))
