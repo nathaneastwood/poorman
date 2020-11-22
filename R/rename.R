@@ -29,7 +29,7 @@ rename <- function(.data, ...) {
 
 #' @export
 rename.data.frame <- function(.data, ...) {
-  new_names <- names(deparse_dots(...))
+  new_names <- names(dotdotdot(...))
   if (length(new_names) == 0L) {
     warning("You didn't give any new names")
     return(.data)

@@ -16,7 +16,7 @@ transmute <- function(.data, ...) {
 
 #' @export
 transmute.data.frame <- function(.data, ...) {
-  conditions <- deparse_dots(...)
+  conditions <- dotdotdot(...)
   mutated <- mutate(.data, ...)
   mutated[, names(conditions), drop = FALSE]
 }
