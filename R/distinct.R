@@ -51,7 +51,7 @@ distinct <- function(.data, ..., .keep_all = FALSE) {
 }
 
 #' @export
-distinct.default <- function(.data, ..., .keep_all = FALSE) {
+distinct.data.frame <- function(.data, ..., .keep_all = FALSE) {
   if (ncol(.data) == 0L) return(.data[1, ])
   cols <- deparse_dots(...)
   col_names <- names(cols)

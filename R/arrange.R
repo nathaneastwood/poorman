@@ -20,7 +20,7 @@ arrange <- function(.data, ...) {
 }
 
 #' @export
-arrange.default <- function(.data, ...) {
+arrange.data.frame <- function(.data, ...) {
   context$setup(.data)
   on.exit(context$clean(), add = TRUE)
   rows <- eval(substitute(order(...)), envir = context$.data)

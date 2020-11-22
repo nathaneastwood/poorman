@@ -25,7 +25,7 @@ summarise <- function(.data, ...) {
 }
 
 #' @export
-summarise.default <- function(.data, ...) {
+summarise.data.frame <- function(.data, ...) {
   fns <- dotdotdot(...)
   context$setup(.data)
   on.exit(context$clean(), add = TRUE)
@@ -67,6 +67,6 @@ summarise.grouped_data <- function(.data, ...) {
 #' @export
 summarize <- summarise
 #' @export
-summarize.default <- summarise.default
+summarize.data.frame <- summarise.data.frame
 #' @export
 summarize.grouped_data <- summarise.grouped_data

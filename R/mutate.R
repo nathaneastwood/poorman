@@ -30,7 +30,7 @@ mutate <- function(.data, ...) {
 }
 
 #' @export
-mutate.default <- function(.data, ...) {
+mutate.data.frame <- function(.data, ...) {
   conditions <- dotdotdot(..., .impute_names = TRUE)
   cond_nms <- names(dotdotdot(..., .impute_names = FALSE))
   if (length(conditions) == 0L) return(.data)
