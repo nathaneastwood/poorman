@@ -32,3 +32,7 @@ is_named <- function(x) {
   if (any(names_are_invalid(nms))) return(FALSE)
   TRUE
 }
+
+is_empty_list <- function(x) {
+  inherits(x, "list") && length(x) == 0L
+}

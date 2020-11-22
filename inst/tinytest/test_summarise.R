@@ -76,3 +76,25 @@ expect_equal(
   ),
   info = "Test multiple groups and multiple summary functions"
 )
+
+expect_equal(
+  summarise(mtcars),
+  data.frame(),
+  info = "empty summarise returns empty data.frame"
+)
+
+res <- mtcars %>% group_by(am) %>% summarise()
+expect_equal(
+  class(res),
+  c("grouped_data", "data.frame"),
+  info = "empty grouped summarise() returns groups #1"
+)
+expect_equal(
+  {
+    attr(res, "groups") <- NULL
+    class(res) <- "data.frame"
+    res
+  },
+  data.frame(am = c(0, 1)),
+  info = "empty grouped summarise() returns groups #2"
+)

@@ -33,6 +33,9 @@ summarise.default <- function(.data, ...) {
   if (groups_exist) {
     group <- unique(context$get_columns(get_groups(context$.data)))
   }
+  if (is_empty_list(fns)) {
+    if (groups_exist) return(group) else return(data.frame())
+  }
   res <- vector(mode = "list", length = length(fns))
   eval_env <- c(as.list(context$.data), vector(mode = "list", length = length(fns)))
   new_pos <- seq(length(context$.data) + 1L, length(eval_env), 1L)
@@ -55,7 +58,7 @@ summarise.default <- function(.data, ...) {
 summarise.grouped_data <- function(.data, ...) {
   groups <- get_groups(.data)
   res <- apply_grouped_function("summarise", .data, drop = TRUE, ...)
-  res <- res[do.call(order, lapply(groups, function(x) res[, x])), ]
+  res <- res[do.call(order, lapply(groups, function(x) res[, x])), , drop = FALSE]
   rownames(res) <- NULL
   res
 }
