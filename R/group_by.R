@@ -47,7 +47,7 @@ group_by.data.frame <- function(.data, ..., .add = FALSE) {
   if (any(unknown)) stop("Invalid groups: ", groups[unknown])
   if (length(groups) > 0L) {
     res <- set_groups(res, groups)
-    class(res) <- c("grouped_data", class(res))
+    class(res) <- union("grouped_data", class(res))
     res
   } else {
     res

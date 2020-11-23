@@ -215,24 +215,24 @@ expect_equal(
 
 # NULL
 expect_equal(
-  select_positions(mtcars, NULL),
+  poorman:::select_positions(mtcars, NULL),
   integer(0),
   info = "NULL returns zero column positions"
 )
 
 expect_equal(
-  select_positions(mtcars, am, NULL, cyl),
+  poorman:::select_positions(mtcars, am, NULL, cyl),
   c("am" = 9, "cyl" = 2),
   info = "combinations of NULL and other parameter names ignore the NULLs"
 )
 
 # Errors
 expect_error(
-  select_positions(mtcars, 100),
+  poorman:::select_positions(mtcars, 100),
   info = "Out of range columns error"
 )
 
 expect_error(
-  select_positions(mtcars, TRUE),
+  poorman:::select_positions(mtcars, TRUE),
   info = "Logical selections do not work"
 )
