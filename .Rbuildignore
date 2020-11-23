@@ -9,7 +9,7 @@
 ^.*\.sh$
 ^\.github$
 .*.tar.gz
-.Rcheck$
+poorman.Rcheck
 ^CRAN-RELEASE$
 ^cran-comments\.md$
 ^Dockerfile$
