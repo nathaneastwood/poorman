@@ -34,6 +34,11 @@ group_by <- function(.data, ..., .add = FALSE) {
 #' @export
 group_by.data.frame <- function(.data, ..., .add = FALSE) {
   vars <- dotdotdot(..., .impute_names = TRUE)
+  if (all(vapply(vars, is.null, FALSE))) {
+    res <- set_groups(.data, NULL)
+    class(res) <- class(res)[!(class(res) %in% "grouped_data")]
+    return(res)
+  }
   new_cols <- add_group_columns(.data, vars)
   res <- new_cols$data
   groups <- new_cols$groups

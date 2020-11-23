@@ -36,3 +36,16 @@ is_named <- function(x) {
 is_empty_list <- function(x) {
   inherits(x, "list") && length(x) == 0L
 }
+
+#' Turn an am atomic vector into a list of symbols
+#'
+#' @return
+#' A `list` of symbols.
+#'
+#' @example
+#' as_symbols(c("am", "cyl"))
+#'
+#' @noRd
+as_symbols <- function(x) {
+  lapply(x, as.symbol)
+}

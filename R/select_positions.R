@@ -30,6 +30,8 @@
 #' @noRd
 select_positions <- function(.data, ..., .group_pos = FALSE) {
   cols <- dotdotdot(...)
+  cols <- cols[!vapply(cols, is.null, FALSE)]
+  if (length(cols) == 0L) return(integer(0))
   select_env$setup(.data = .data, calling_frame = parent.frame(2L))
   on.exit(select_env$clean(), add = TRUE)
   data_names <- select_env$get_colnames()
@@ -94,7 +96,7 @@ eval_expr <- function(x) {
 
 select_char <- function(expr) {
   pos <- match(expr, select_env$get_colnames())
-  if (is.na(pos)) stop("Column `", expr, "` does not exist")
+  if (any(is.na(pos))) stop("The following columns do not exist:\n    ", paste(expr, collapse = "\n    "))
   pos
 }
 

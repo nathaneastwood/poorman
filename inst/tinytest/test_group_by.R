@@ -42,4 +42,22 @@ expect_equal(
   info = "group_by() can create new columns #2"
 )
 
+# NULL group
+expect_equal(
+  group_by(mtcars, NULL),
+  mtcars,
+  info = "NULL group returns the original data.frame"
+)
+res <- group_by(mtcars, am, cyl)
+expect_equal(
+  class(group_by(res, NULL)),
+  "data.frame",
+  info = "group_by(., NULL) ungroups data #1"
+)
+expect_equal(
+  attr(group_by(res, NULL), "groups", exact = TRUE),
+  NULL,
+  info = "group_by(., NULL) ungroups data #2"
+)
+
 rm(res)

@@ -23,12 +23,6 @@ expect_equal(
   info = "Selecting the 0th numeric column returns an empty data.frame"
 )
 
-# Logical
-expect_error(
-  mtcars %>% select(TRUE),
-  info = "Logical selections do not work"
-)
-
 # Character
 expect_equal(
   mtcars %>% select("mpg"),
@@ -219,7 +213,26 @@ expect_equal(
   info = "Test selecting with a mixture of selection options"
 )
 
+# NULL
+expect_equal(
+  select_positions(mtcars, NULL),
+  integer(0),
+  info = "NULL returns zero column positions"
+)
+
+expect_equal(
+  select_positions(mtcars, am, NULL, cyl),
+  c("am" = 9, "cyl" = 2),
+  info = "combinations of NULL and other parameter names ignore the NULLs"
+)
+
+# Errors
 expect_error(
-  mtcars %>% select(100),
+  select_positions(mtcars, 100),
   info = "Out of range columns error"
+)
+
+expect_error(
+  select_positions(mtcars, TRUE),
+  info = "Logical selections do not work"
 )
