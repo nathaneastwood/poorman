@@ -38,4 +38,8 @@ mtcars \%>\%
   group_by(carb) \%>\%
   filter(any(gear == 5))
 
+# You can group by expressions: this is just short-hand for
+# a mutate() followed by a group_by()
+mtcars \%>\% group_by(vsam = vs + am)
+
 }

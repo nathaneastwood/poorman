@@ -18,6 +18,10 @@
 #'   group_by(carb) %>%
 #'   filter(any(gear == 5))
 #'
+#' # You can group by expressions: this is just short-hand for
+#' # a mutate() followed by a group_by()
+#' mtcars %>% group_by(vsam = vs + am)
+#'
 #' @return
 #' When using [group_by()], a `data.frame`, grouped by the grouping variables.
 #'
@@ -29,13 +33,31 @@ group_by <- function(.data, ..., .add = FALSE) {
 
 #' @export
 group_by.data.frame <- function(.data, ..., .add = FALSE) {
-  pre_groups <- get_groups(.data)
-  groups <- deparse_dots(...)
-  if (isTRUE(.add)) groups <- unique(c(pre_groups, groups))
-  unknown <- !(groups %in% colnames(.data))
+  vars <- dotdotdot(..., .impute_names = TRUE)
+  new_cols <- add_group_columns(.data, vars)
+  res <- new_cols$data
+  groups <- new_cols$groups
+  if (isTRUE(.add)) groups <- union(group_vars(.data), groups)
+  unknown <- !(groups %in% colnames(res))
   if (any(unknown)) stop("Invalid groups: ", groups[unknown])
-  class(.data) <- c("grouped_data", class(.data))
-  set_groups(.data, groups)
+  if (length(groups) > 0L) {
+    res <- set_groups(res, groups)
+    class(res) <- c("grouped_data", class(res))
+    res
+  } else {
+    res
+  }
+}
+
+add_group_columns <- function(.data, vars) {
+  vars <- vars[!vapply(vars, is.null, FALSE)]
+  types <- do.call(c, lapply(vars, typeof))
+  test <- any(types == "language")
+  needs_mutate <- if (test) unname(which(types == "language")) else NULL
+  if (!is.null(needs_mutate)) {
+    .data <- do.call(mutate, c(list(.data = ungroup(.data)), vars[needs_mutate]))
+  }
+  list(data = .data, groups = names(vars))
 }
 
 #' @param x A `data.frame`.

@@ -30,4 +30,16 @@ expect_equal(
   info = "Test that groups persist in rename()"
 )
 
+res <- mtcars %>% group_by(tmp = am * cyl)
+expect_equal(
+  colnames(res),
+  c("mpg", "cyl", "disp", "hp", "drat", "wt", "qsec", "vs", "am", "gear", "carb", "tmp"),
+  info = "group_by() can create new columns #1"
+)
+expect_equal(
+  res$tmp,
+  mtcars$am * mtcars$cyl,
+  info = "group_by() can create new columns #2"
+)
+
 rm(res)
