@@ -35,7 +35,7 @@ group_by <- function(.data, ..., .add = FALSE) {
 group_by.data.frame <- function(.data, ..., .add = FALSE) {
   vars <- dotdotdot(..., .impute_names = TRUE)
   if (all(vapply(vars, is.null, FALSE))) {
-    res <- set_groups(.data, NULL)
+    res <- groups_set(.data, NULL)
     class(res) <- class(res)[!(class(res) %in% "grouped_data")]
     return(res)
   }
@@ -46,7 +46,7 @@ group_by.data.frame <- function(.data, ..., .add = FALSE) {
   unknown <- !(groups %in% colnames(res))
   if (any(unknown)) stop("Invalid groups: ", groups[unknown])
   if (length(groups) > 0L) {
-    res <- set_groups(res, groups)
+    res <- groups_set(res, groups)
     class(res) <- union("grouped_data", class(res))
     res
   } else {
@@ -79,7 +79,7 @@ ungroup.data.frame <- function(x, ...) {
   rm_groups <- deparse_dots(...)
   groups <- group_vars(x)
   if (length(rm_groups) == 0L) rm_groups <- groups
-  x <- set_groups(x, groups[!(groups %in% rm_groups)])
+  x <- groups_set(x, groups[!(groups %in% rm_groups)])
   if (length(attr(x, "groups")) == 0L) {
     attr(x, "groups") <- NULL
     class(x) <- class(x)[!(class(x) %in% "grouped_data")]
@@ -95,7 +95,7 @@ ungroup.grouped_data <- function(x, ...) {
 #' Determine the grouping structure of the data
 #'
 #' @noRd
-set_groups <- function(x, groups) {
+groups_set <- function(x, groups) {
   attr(x, "groups") <- if (is.null(groups) || length(groups) == 0L) {
     NULL
   } else {
@@ -124,7 +124,7 @@ apply_grouped_function <- function(fn, .data, drop = FALSE, ...) {
   res <- do.call(rbind, unname(lapply(grouped, fn, ...)))
   if (any(groups %in% colnames(res))) {
     class(res) <- c("grouped_data", class(res))
-    res <- set_groups(res, groups[groups %in% colnames(res)])
+    res <- groups_set(res, groups[groups %in% colnames(res)])
   }
   res
 }

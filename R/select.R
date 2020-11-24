@@ -80,6 +80,6 @@ select <- function(.data, ...) {
   col_pos <- select_positions(.data, ..., .group_pos = TRUE)
   res <- .data[, col_pos, drop = FALSE]
   if (length(names(res)) != 0) colnames(res) <- names(col_pos)
-  if (has_groups(.data)) res <- set_groups(res, group_vars(.data))
+  if (has_groups(.data)) res <- groups_set(res, group_vars(.data))
   res
 }

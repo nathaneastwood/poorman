@@ -71,6 +71,6 @@ rename_with.data.frame <- function(.data, .fn, .cols = everything(), ...) {
     stop("New names must be unique however `", deparse(substitute(.fn)), "` returns duplicate column names")
   }
   colnames(.data)[col_pos] <- new_cols
-  if (grouped) .data <- set_groups(.data, colnames(.data)[grp_pos])
+  if (grouped) .data <- groups_set(.data, colnames(.data)[grp_pos])
   .data
 }
