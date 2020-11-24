@@ -41,7 +41,7 @@
 #'
 #' @export
 count <- function(x, ..., wt = NULL, sort = FALSE, name = NULL) {
-  groups <- get_groups(x)
+  groups <- group_vars(x)
   if (!missing(...)) x <- group_by(x, ..., .add = TRUE)
   wt <- deparse_var(wt)
   res <- do.call(tally, list(x, wt, sort, name))

@@ -75,7 +75,7 @@ n <- function() {
 cur_data <- function() {
   check_context("`cur_data()`", context$.data)
   data <- context$get_data()
-  data[, !(colnames(data) %in% get_groups(data)), drop = FALSE]
+  data[, !(colnames(data) %in% group_vars(data)), drop = FALSE]
 }
 
 #' @description
@@ -95,7 +95,7 @@ cur_data_all <- function() {
 cur_group <- function() {
   check_context("`cur_group()`", context$.data)
   data <- context$get_data()
-  res <- data[1L, get_groups(data), drop = FALSE]
+  res <- data[1L, group_vars(data), drop = FALSE]
   rownames(res) <- NULL
   res
 }
@@ -107,7 +107,7 @@ cur_group <- function() {
 cur_group_id <- function() {
   check_context("`cur_group_id()`", context$.data)
   data <- context$get_data()
-  res <- data[1L, get_groups(data), drop = FALSE]
+  res <- data[1L, group_vars(data), drop = FALSE]
   details <- get_group_details(data)
   details[, ".group_id"] <- seq_len(nrow(details))
   res <- suppressMessages(semi_join(details, res))
@@ -121,7 +121,7 @@ cur_group_id <- function() {
 cur_group_rows <- function() {
   check_context("`cur_group_rows()`", context$.data)
   data <- context$get_data()
-  res <- data[1L, get_groups(data), drop = FALSE]
+  res <- data[1L, group_vars(data), drop = FALSE]
   res <- suppressMessages(semi_join(get_group_details(data), res))
   unlist(res[, ".rows"])
 }

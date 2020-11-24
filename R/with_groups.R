@@ -27,7 +27,7 @@
 #'
 #' @export
 with_groups <- function(.data, .groups, .f, ...) {
-  cur_groups <- get_groups(.data)
+  cur_groups <- group_vars(.data)
   .groups <- eval_select_pos(.data = .data, .cols = substitute(.groups))
   val <- as_symbols(names(.data)[.groups])
   out <- do.call(group_by, c(list(.data = .data), val))

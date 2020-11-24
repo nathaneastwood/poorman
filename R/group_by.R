@@ -77,7 +77,7 @@ ungroup <- function(x, ...) {
 #' @export
 ungroup.data.frame <- function(x, ...) {
   rm_groups <- deparse_dots(...)
-  groups <- get_groups(x)
+  groups <- group_vars(x)
   if (length(rm_groups) == 0L) rm_groups <- groups
   x <- set_groups(x, groups[!(groups %in% rm_groups)])
   if (length(attr(x, "groups")) == 0L) {
@@ -104,18 +104,13 @@ set_groups <- function(x, groups) {
   x
 }
 
-get_groups <- function(x) {
-  groups <- attr(x, "groups", exact = TRUE)
-  if (is.null(groups)) character(0) else colnames(groups)[!colnames(groups) %in% c(".group_id", ".rows")]
-}
-
 get_group_details <- function(x) {
   groups <- attr(x, "groups", exact = TRUE)
   if (is.null(groups)) character(0) else groups
 }
 
 has_groups <- function(x) {
-  groups <- get_groups(x)
+  groups <- group_vars(x)
   if (length(groups) == 0L) FALSE else TRUE
 }
 
@@ -124,7 +119,7 @@ has_groups <- function(x) {
 #' @param ... Arguments to be passed to `fn`.
 #' @noRd
 apply_grouped_function <- function(fn, .data, drop = FALSE, ...) {
-  groups <- get_groups(.data)
+  groups <- group_vars(.data)
   grouped <- split_into_groups(.data, groups, drop)
   res <- do.call(rbind, unname(lapply(grouped, fn, ...)))
   if (any(groups %in% colnames(res))) {
@@ -149,5 +144,5 @@ apply_grouped_function <- function(fn, .data, drop = FALSE, ...) {
 print.grouped_data <- function(x, ..., digits = NULL, quote = FALSE, right = TRUE, row.names = TRUE, max = NULL) {
   class(x) <- "data.frame"
   print(x, ..., digits = digits, quote = quote, right = right, row.names = row.names, max = max)
-  cat("\nGroups: ", paste(get_groups(x), collapse = ", "), "\n\n")
+  cat("\nGroups: ", paste(group_vars(x), collapse = ", "), "\n\n")
 }

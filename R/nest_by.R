@@ -35,5 +35,5 @@ nest_by.grouped_data <- function(.data, ..., .key = "data", .keep = FALSE) {
   }
   res <- group_keys(.data)
   res[[.key]] <- group_split(.data, ..., .keep = .keep)
-  do.call(group_by, list(res, as.symbol(get_groups(.data))))
+  do.call(group_by, list(res, as.symbol(group_vars(.data))))
 }

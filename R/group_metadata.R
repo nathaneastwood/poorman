@@ -26,7 +26,7 @@ NULL
 #' @export
 group_data <- function(.data) {
   if (!has_groups(.data)) return(data.frame(.rows = I(list(seq_len(nrow(.data))))))
-  groups <- get_groups(.data)
+  groups <- group_vars(.data)
   group_data_worker(.data, groups)
 }
 
@@ -59,7 +59,7 @@ group_rows <- function(.data) {
 #' @export
 group_indices <- function(.data) {
   if (!has_groups(.data)) return(rep(1L, nrow(.data)))
-  groups <- get_groups(.data)
+  groups <- group_vars(.data)
   res <- unique(.data[, groups, drop = FALSE])
   res <- res[do.call(order, lapply(groups, function(x) res[, x])), , drop = FALSE]
   class(res) <- "data.frame"
@@ -76,7 +76,8 @@ group_indices <- function(.data) {
 #' @rdname group_metadata
 #' @export
 group_vars <- function(x) {
-  get_groups(x)
+  groups <- attr(x, "groups", exact = TRUE)
+  if (is.null(groups)) character(0) else colnames(groups)[!colnames(groups) %in% c(".group_id", ".rows")]
 }
 
 #' @description
@@ -84,7 +85,7 @@ group_vars <- function(x) {
 #' @rdname group_metadata
 #' @export
 groups <- function(x) {
-  lapply(get_groups(x), as.symbol)
+  lapply(group_vars(x), as.symbol)
 }
 
 #' @description

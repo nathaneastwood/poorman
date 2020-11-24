@@ -107,13 +107,13 @@ expect_equal(
 
 gf <- data.frame(x = c(1, 1, 2, 2), y = c(1, 1, 2, 2)) %>% group_by(x)
 expect_equal(
-  gf %>% distinct() %>% poorman:::get_groups(),
+  gf %>% distinct() %>% group_vars(),
   "x",
   info = "distinct() preserves grouping"
 )
 
 expect_equal(
-  poorman:::get_groups(distinct(gf, x = x + 2)),
+  group_vars(distinct(gf, x = x + 2)),
   "x",
   info = "Grouped distinct() preserves grouping"
 )

@@ -30,7 +30,7 @@ summarise.data.frame <- function(.data, ...) {
   on.exit(context$clean(), add = TRUE)
   groups_exist <- context$is_grouped()
   if (groups_exist) {
-    group <- unique(context$get_columns(get_groups(context$.data)))
+    group <- unique(context$get_columns(group_vars(context$.data)))
   }
   if (is_empty_list(fns)) {
     if (groups_exist) return(group) else return(data.frame())
@@ -55,7 +55,7 @@ summarise.data.frame <- function(.data, ...) {
 
 #' @export
 summarise.grouped_data <- function(.data, ...) {
-  groups <- get_groups(.data)
+  groups <- group_vars(.data)
   res <- apply_grouped_function("summarise", .data, drop = TRUE, ...)
   res <- res[do.call(order, lapply(groups, function(x) res[, x])), , drop = FALSE]
   rownames(res) <- NULL

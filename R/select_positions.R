@@ -46,7 +46,7 @@ select_positions <- function(.data, ..., .group_pos = FALSE) {
     )
   }
   if (isTRUE(.group_pos)) {
-    groups <- get_groups(.data)
+    groups <- group_vars(.data)
     missing_groups <- !(groups %in% cols)
     if (any(missing_groups)) {
       sel_missing <- groups[missing_groups]

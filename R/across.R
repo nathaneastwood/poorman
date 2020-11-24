@@ -89,7 +89,7 @@ across <- function(.cols = everything(), .fns = NULL, ..., .names = NULL) {
 setup_across <- function(.cols, .fns, .names) {
   cols <- eval_select_pos(.data = context$.data, .cols, .group_pos = FALSE)
   cols <- context$get_colnames()[cols]
-  if (context$is_grouped()) cols <- setdiff(cols, get_groups(context$.data))
+  if (context$is_grouped()) cols <- setdiff(cols, group_vars(context$.data))
 
   funs <- if (is.null(.fns)) NULL else if (!is.list(.fns)) list(.fns) else .fns
   if (is.null(funs)) return(list(cols = cols, funs = funs, names = .names))
