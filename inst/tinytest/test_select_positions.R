@@ -1,215 +1,188 @@
 # Integer
 expect_equal(
-  mtcars %>% select(1L),
-  mtcars[, 1L, drop = FALSE],
+  poorman:::select_positions(mtcars, 1L),
+  c(mpg = 1),
   info = "Integer selections work"
 )
 
 expect_equal(
-  mtcars %>% select(0L),
-  mtcars[, 0L],
+  poorman:::select_positions(mtcars, 0L),
+  integer(0),
   info = "Selecting the 0th integer column returns an empty data.frame"
 )
 
 # Numeric
 expect_equal(
-  mtcars %>% select(1),
-  mtcars[, 1, drop = FALSE],
+  poorman:::select_positions(mtcars, 1),
+  c(mpg = 1),
   info = "Numeric selections work"
 )
 expect_equal(
-  mtcars %>% select(0),
-  mtcars[, 0],
+  poorman:::select_positions(mtcars, 0),
+  integer(0),
   info = "Selecting the 0th numeric column returns an empty data.frame"
 )
 
 # Character
 expect_equal(
-  mtcars %>% select("mpg"),
-  mtcars[, "mpg", drop = FALSE],
+  poorman:::select_positions(mtcars, "mpg"),
+  c(mpg = 1),
   info = "Selecting by character string works"
 )
 
 # Symbol
 expect_equal(
-  mtcars %>% select(mpg),
-  mtcars[, "mpg", drop = FALSE],
+  poorman:::select_positions(mtcars, mpg),
+  c(mpg = 1),
   info = "Selecting by symbol works"
-)
-expect_equal(
-  {
-    data <- data.frame(a = 1, b = 2)
-    val <- "a"
-    data %>% select(val)
-  },
-  data.frame(a = 1),
-  info = "Selecting by a variable works"
-)
-expect_equal(
-  {
-    data <- data.frame(a = 1, b = 2, c = 3, d = 4)
-    val <- c("a", "c")
-    data %>% select(val)
-  },
-  data.frame(a = 1, c = 3),
-  info = "Selecting by a vector variable works"
-)
-expect_equal(
-  {
-    data <- data.frame(a = 1, b = 2)
-    a <- "b"
-    data %>% select(a)
-  },
-  data.frame(a = 1),
-  info = "Selecting by a variable uses the execution environment"
 )
 
 # Expression
 expect_equal(
-  mtcars %>% select(starts_with("m")),
-  mtcars[, 1, drop = FALSE],
+  poorman:::select_positions(mtcars, starts_with("m")),
+  c(mpg = 1),
   info = "Selecting columns using an expression"
 )
 
 # Sequence
 expect_equal(
-  mtcars %>% select(1:3),
-  mtcars[, 1:3],
+  poorman:::select_positions(mtcars, 1:3),
+  c(mpg = 1, cyl = 2, disp = 3),
   info = "Selecting with a numeric sequence"
 )
 expect_equal(
-  mtcars %>% select("mpg":"cyl"),
-  mtcars[, 1:2],
+  poorman:::select_positions(mtcars, "mpg":"cyl"),
+  c(mpg = 1, cyl = 2),
   info = "Selecting with a character sequence"
 )
 expect_equal(
-  mtcars %>% select(mpg:cyl),
-  mtcars[, 1:2],
+  poorman:::select_positions(mtcars, mpg:cyl),
+  c(mpg = 1, cyl = 2),
   info = "Selecting with a symbol sequence"
 )
 expect_equal(
-  mtcars %>% select(-1:-3),
-  mtcars[, -1:-3],
+  poorman:::select_positions(mtcars, -1:-3),
+  c(hp = 4, drat = 5, wt = 6, qsec = 7, vs = 8, am = 9, gear = 10, carb = 11),
   info = "Dropping columns with a numeric sequence"
 )
 expect_equal(
-  mtcars %>% select(-mpg:-cyl),
-  mtcars[, -1:-2],
+  poorman:::select_positions(mtcars, -mpg:-cyl),
+  c(disp = 3, hp = 4, drat = 5, wt = 6, qsec = 7, vs = 8, am = 9, gear = 10, carb = 11),
   info = "Dropping columns with a symbol sequence"
 )
 expect_equal(
-  mtcars %>% select(-"mpg":-"cyl"),
-  mtcars[, -1:-2],
+  poorman:::select_positions(mtcars, -"mpg":-"cyl"),
+  c(disp = 3, hp = 4, drat = 5, wt = 6, qsec = 7, vs = 8, am = 9, gear = 10, carb = 11),
   info = "Dropping columns with a charatcer sequence"
 )
 
 # Negated
 expect_equal(
-  mtcars %>% select(!mpg),
-  mtcars[, -1],
+  poorman:::select_positions(mtcars, !mpg),
+  c(cyl = 2, disp = 3, hp = 4, drat = 5, wt = 6, qsec = 7, vs = 8, am = 9, gear = 10, carb = 11),
   info = "Dropping columns with a symbol"
 )
 expect_equal(
-  mtcars %>% select(!1),
-  mtcars[, -1],
+  poorman:::select_positions(mtcars, !1),
+  c(cyl = 2, disp = 3, hp = 4, drat = 5, wt = 6, qsec = 7, vs = 8, am = 9, gear = 10, carb = 11),
   info = "Dropping columns with a numeric"
 )
 expect_equal(
-  mtcars %>% select(!"mpg"),
-  mtcars[, -1],
+  poorman:::select_positions(mtcars, !"mpg"),
+  c(cyl = 2, disp = 3, hp = 4, drat = 5, wt = 6, qsec = 7, vs = 8, am = 9, gear = 10, carb = 11),
   info = "Dropping columns with a character vector"
 )
 expect_equal(
-  mtcars %>% select(!mpg:!cyl),
-  mtcars[, -1:-2],
+  poorman:::select_positions(mtcars, !mpg:!cyl),
+  c(disp = 3, hp = 4, drat = 5, wt = 6, qsec = 7, vs = 8, am = 9, gear = 10, carb = 11),
   info = "Dropping columns with symbol sequences"
 )
 expect_equal(
-  mtcars %>% select(!"mpg":!"cyl"),
-  mtcars[, -1:-2],
+  poorman:::select_positions(mtcars, !"mpg":!"cyl"),
+  c(disp = 3, hp = 4, drat = 5, wt = 6, qsec = 7, vs = 8, am = 9, gear = 10, carb = 11),
   info = "Dropping columns with a character sequence"
 )
 expect_equal(
-  mtcars %>% select(!c(mpg, cyl)),
-  mtcars[, -(1:2)],
+  poorman:::select_positions(mtcars, !c(mpg, cyl)),
+  c(disp = 3, hp = 4, drat = 5, wt = 6, qsec = 7, vs = 8, am = 9, gear = 10, carb = 11),
   info = "Dropping columns using a negated c()"
 )
 
 # Minus
 expect_equal(
-  mtcars %>% select(-1),
-  mtcars[, -1],
+  poorman:::select_positions(mtcars, -1),
+  c(cyl = 2, disp = 3, hp = 4, drat = 5, wt = 6, qsec = 7, vs = 8, am = 9, gear = 10, carb = 11),
   info = "Dropping columns with a numeric"
 )
 expect_equal(
-  mtcars %>% select(-1L),
-  mtcars[, -1L],
+  poorman:::select_positions(mtcars, -1L),
+  c(cyl = 2, disp = 3, hp = 4, drat = 5, wt = 6, qsec = 7, vs = 8, am = 9, gear = 10, carb = 11),
   info = "Dropping columns with an integer"
 )
 expect_equal(
-  mtcars %>% select(-mpg),
-  mtcars[, -1],
+  poorman:::select_positions(mtcars, -mpg),
+  c(cyl = 2, disp = 3, hp = 4, drat = 5, wt = 6, qsec = 7, vs = 8, am = 9, gear = 10, carb = 11),
   info = "Dropping columns with a symbol"
 )
 expect_equal(
-  mtcars %>% select(-"mpg"),
-  mtcars[, -1],
+  poorman:::select_positions(mtcars, -"mpg"),
+  c(cyl = 2, disp = 3, hp = 4, drat = 5, wt = 6, qsec = 7, vs = 8, am = 9, gear = 10, carb = 11),
   info = "Dropping columns with a character vector"
 )
 expect_equal(
-  mtcars %>% select(-starts_with("m")),
-  mtcars[, -1],
+  poorman:::select_positions(mtcars, -starts_with("m")),
+  c(cyl = 2, disp = 3, hp = 4, drat = 5, wt = 6, qsec = 7, vs = 8, am = 9, gear = 10, carb = 11),
   info = "Dropping columns using an expression"
 )
 
 # c()
 expect_equal(
-  mtcars %>% select(c(1, 2)),
-  mtcars[, c(1, 2)],
+  poorman:::select_positions(mtcars, c(1, 2)),
+  c(mpg = 1, cyl = 2),
   info = "Selecting columns with c() and numerics"
 )
 expect_equal(
-  mtcars %>% select(c("mpg", "cyl")),
-  mtcars[, c("mpg", "cyl")],
+  poorman:::select_positions(mtcars, c("mpg", "cyl")),
+  c(mpg = 1, cyl = 2),
   info = "Selecting columns with c() and character strings"
 )
 expect_equal(
-  mtcars %>% select(c(mpg, cyl)),
-  mtcars[, c("mpg", "cyl")],
+  poorman:::select_positions(mtcars, c(mpg, cyl)),
+  c(mpg = 1, cyl = 2),
   info = "Selecting columns with c() and symbols"
 )
 expect_equal(
-  mtcars %>% select(c(starts_with("m"), starts_with("c"))),
-  mtcars[, c("mpg", "cyl", "carb")],
+  poorman:::select_positions(mtcars, c(starts_with("m"), starts_with("c"))),
+  c(mpg = 1, cyl = 2, carb = 11),
   info = "Selecting columns with c() and expressions"
 )
 expect_equal(
-  mtcars %>% select(c(-mpg, -cyl)),
-  mtcars[, c(-1, -2)],
+  poorman:::select_positions(mtcars, c(-mpg, -cyl)),
+  c(disp = 3, hp = 4, drat = 5, wt = 6, qsec = 7, vs = 8, am = 9, gear = 10, carb = 11),
   info = "Dropping columns using c() and symbols"
 )
 expect_equal(
-  mtcars %>% select(!c(mpg, cyl)),
-  mtcars[, -(1:2)],
+  poorman:::select_positions(mtcars, !c(mpg, cyl)),
+  c(disp = 3, hp = 4, drat = 5, wt = 6, qsec = 7, vs = 8, am = 9, gear = 10, carb = 11),
   info = "Dropping columns using a negated c()"
 )
 
 # ()
 expect_equal(
-  mtcars %>% select(-(1:2)),
-  mtcars[, -(1:2)],
+  poorman:::select_positions(mtcars, -(1:2)),
+  c(disp = 3, hp = 4, drat = 5, wt = 6, qsec = 7, vs = 8, am = 9, gear = 10, carb = 11),
   info = "Dropping columns using a negative, bracketed sequence"
 )
 expect_equal(
-  mtcars %>% select(!(1:2)),
-  mtcars[, -(1:2)],
+  poorman:::select_positions(mtcars, !(1:2)),
+  c(disp = 3, hp = 4, drat = 5, wt = 6, qsec = 7, vs = 8, am = 9, gear = 10, carb = 11),
   info = "Dropping columns using a negated, bracketed sequence"
 )
 
 # Multiple columns
 expect_equal(
-  mtcars %>% select(1L, 2, "disp", "hp", starts_with("dr"), wt:qsec),
-  mtcars[, c("mpg", "cyl", "disp", "hp", "drat", "wt", "qsec")],
+  poorman:::select_positions(mtcars, 1L, 2, "disp", "hp", starts_with("dr"), wt:qsec),
+  c(mpg = 1, cyl = 2, disp = 3, hp = 4, drat = 5, wt = 6, qsec = 7),
   info = "Test selecting with a mixture of selection options"
 )
 
