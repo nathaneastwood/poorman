@@ -195,6 +195,30 @@ expect_equal(
   info = "List columns can be mutated: 3"
 )
 
+# .before, .after
+
+df <- data.frame(x = 1, y = 2)
+expect_equal(
+  colnames(mutate(df, z = 1)),
+  c("x", "y", "z"),
+  info = "lack of .before and .after doesn't affect column position"
+)
+expect_equal(
+  colnames(mutate(df, z = 1, .before = 1)),
+  c("z", "x", "y"),
+  info = "can use .before to control column position"
+)
+expect_equal(
+  colnames(mutate(df, z = 1, .after = 1)),
+  c("x", "z", "y"),
+  info = "can use .after to control column position"
+)
+expect_equal(
+  colnames(mutate(df, x = 1, .after = y)),
+  c("x", "y"),
+  info = ".after/.before doesn't affect order of existing columns"
+)
+
 # Errors
 
 df <- data.frame(x = 1:2, y = 1:2)

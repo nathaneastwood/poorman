@@ -2,10 +2,13 @@
 % Please edit documentation in R/mutate.R, R/transmute.R
 \name{mutate}
 \alias{mutate}
+\alias{mutate.data.frame}
 \alias{transmute}
 \title{Create or transform variables}
 \usage{
 mutate(.data, ...)
+
+\method{mutate}{data.frame}(.data, ..., .before = NULL, .after = NULL)
 
 transmute(.data, ...)
 }
@@ -15,6 +18,9 @@ transmute(.data, ...)
 \item{...}{Name-value pairs of expressions, each with length \code{1L}. The name of each argument will be the name of a
 new column and the value will be its corresponding value. Use a \code{NULL} value in \code{mutate} to drop a variable. New
 variables overwrite existing variables of the same name.}
+
+\item{.before, .after}{<\code{\link[=select_helpers]{poor-select}}> Optionally, control where new columns should appear (the
+default is to add to the right hand side). See \code{\link[=relocate]{relocate()}} for more details.}
 }
 \description{
 \code{mutate()} adds new variables and preserves existing ones; \code{transmute()} adds new variables and drops existing ones.
@@ -33,6 +39,13 @@ mtcars \%>\% mutate(
   mpg = NULL,
   disp = disp * 0.0163871 # convert to litres
 )
+
+# By default, new columns are placed on the far right.
+# You can override this with `.before` or `.after`.
+df <- data.frame(x = 1, y = 2)
+df \%>\% mutate(z = x + y)
+df \%>\% mutate(z = x + y, .before = 1)
+df \%>\% mutate(z = x + y, .after = x)
 
 # mutate() vs transmute --------------------------
 # mutate() keeps all existing variables

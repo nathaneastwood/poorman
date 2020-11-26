@@ -22,14 +22,24 @@
 #'   disp = disp * 0.0163871 # convert to litres
 #' )
 #'
+#' # By default, new columns are placed on the far right.
+#' # You can override this with `.before` or `.after`.
+#' df <- data.frame(x = 1, y = 2)
+#' df %>% mutate(z = x + y)
+#' df %>% mutate(z = x + y, .before = 1)
+#' df %>% mutate(z = x + y, .after = x)
+#'
 #' @name mutate
 #' @export
 mutate <- function(.data, ...) {
   UseMethod("mutate")
 }
 
+#' @rdname mutate
+#' @param .before,.after <[`poor-select`][select_helpers]> Optionally, control where new columns should appear (the
+#' default is to add to the right hand side). See [relocate()] for more details.
 #' @export
-mutate.data.frame <- function(.data, ...) {
+mutate.data.frame <- function(.data, ..., .before = NULL, .after = NULL) {
   conditions <- dotdotdot(..., .impute_names = TRUE)
   cond_nms <- names(dotdotdot(..., .impute_names = FALSE))
   if (length(conditions) == 0L) return(.data)
@@ -52,6 +62,14 @@ mutate.data.frame <- function(.data, ...) {
       context$.data[[names(res)]] <- res
     }
   }
+
+  .before <- substitute(.before)
+  .after <- substitute(.after)
+  if (!is.null(.before) || !is.null(.after)) {
+    new <- setdiff(cond_nms, names(.data))
+    context$.data <- do.call(relocate, c(list(.data = context$.data), new, .before = .before, .after = .after))
+  }
+
   context$.data
 }
 
