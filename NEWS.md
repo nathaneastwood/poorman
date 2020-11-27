@@ -1,3 +1,30 @@
+# poorman 0.2.4
+
+Eighth CRAN release.
+
+This update has added the following new features:
+
+* `group_by()` can now create new columns, grouping by the result (#58).
+* `with_groups()` (#61).
+* `nth()` (#62).
+* `mutate()` can now relocate resulting mutations (#59).
+* `mutate()` can now keep all, used, unused or none of the resulting mutations (#60).
+* `across()` can now accept lambda style functions (#52).
+* Columns created by `summarise()` are now immediately available (#20).
+* `cur_column()` (#52).
+
+The following fixes were also implemented:
+
+* `across()` can now accept function names as characters (#56) - thanks @Eyayaw for pointing this out.
+* An empty `summarise()` will now correctly return an empty `data.frame` (#55).
+
+Other general refactorisations and improvements of note:
+
+* `group_by()` is now an S3 generic.
+* `.default()` methods are now `.data.frame()` methods.
+* `get_groups()` has been removed in favour of `group_vars()`.
+* `set_groups()` has been replaced with `groups_set()` for API consistency.
+
 # poorman 0.2.3
 
 Seventh CRAN release.
