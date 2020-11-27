@@ -85,11 +85,6 @@ navbar:
   left:
     - icon: fa-home
       href: index.html
-    - text: "Articles"
-      icon: fas fa-book
-      menu:
-      -  text: Getting Started
-         href: articles/introduction.html
     - text: "FAQ"
       icon: fa-question-circle-o
       href: articles/faq.html
