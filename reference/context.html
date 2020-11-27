@@ -73,6 +73,10 @@ cur_group_id() gives a unique numeric identifier for the current group.
 
 cur_group_rows() gives the rows the groups appear in the data.
 
+
+
+cur_column() gives the name of the current column (in across() only).
+
 " />
 <meta property="og:image" content="/logo.png" />
 
@@ -106,7 +110,7 @@ cur_group_rows() gives the rows the groups appear in the data.
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">poorman</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.2.3</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.2.4</span>
       </span>
     </div>
 
@@ -207,6 +211,10 @@ its value.</p></li>
 <li><p><code>cur_group_rows()</code> gives the rows the groups appear in the data.</p></li>
 </ul>
 
+<ul>
+<li><p><code>cur_column()</code> gives the name of the current column (in <code><a href='across.html'>across()</a></code> only).</p></li>
+</ul>
+
     </div>
 
     <pre class="usage"><span class='fu'>n</span><span class='op'>(</span><span class='op'>)</span>
@@ -219,7 +227,9 @@ its value.</p></li>
 
 <span class='fu'>cur_group_id</span><span class='op'>(</span><span class='op'>)</span>
 
-<span class='fu'>cur_group_rows</span><span class='op'>(</span><span class='op'>)</span></pre>
+<span class='fu'>cur_group_rows</span><span class='op'>(</span><span class='op'>)</span>
+
+<span class='fu'>cur_column</span><span class='op'>(</span><span class='op'>)</span></pre>
 
 
     <h2 class="hasAnchor" id="data-table"><a class="anchor" href="#data-table"></a><code>data.table</code></h2>
@@ -273,7 +283,19 @@ its value.</p></li>
 </div><div class='output co'>#&gt;   g         data
 #&gt; 1 a 0.417269....
 #&gt; 2 b c(0.8360....
-#&gt; 3 c c(0.9835....</div><div class='input'>
+#&gt; 3 c c(0.9835....</div><div class='input'><span class='va'>gf</span> <span class='op'>%&gt;%</span> <span class='fu'><a href='summarise.html'>summarise</a></span><span class='op'>(</span>data <span class='op'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/list.html'>list</a></span><span class='op'>(</span><span class='fu'>cur_data_all</span><span class='op'>(</span><span class='op'>)</span><span class='op'>)</span><span class='op'>)</span>
+</div><div class='output co'>#&gt;   g         data
+#&gt; 1 a a, 0.417....
+#&gt; 2 b c("b", "....
+#&gt; 3 c c("c", "....</div><div class='input'>
+<span class='va'>gf</span> <span class='op'>%&gt;%</span> <span class='fu'><a href='mutate.html'>mutate</a></span><span class='op'>(</span><span class='fu'><a href='across.html'>across</a></span><span class='op'>(</span><span class='fu'><a href='select_helpers.html'>everything</a></span><span class='op'>(</span><span class='op'>)</span>, <span class='op'>~</span> <span class='fu'><a href='https://rdrr.io/r/base/paste.html'>paste</a></span><span class='op'>(</span><span class='fu'>cur_column</span><span class='op'>(</span><span class='op'>)</span>, <span class='fu'><a href='https://rdrr.io/r/base/Round.html'>round</a></span><span class='op'>(</span><span class='va'>.x</span>, <span class='fl'>2</span><span class='op'>)</span><span class='op'>)</span><span class='op'>)</span><span class='op'>)</span>
+</div><div class='output co'>#&gt;   g      x      y
+#&gt; 1 c x 0.98 y 0.14
+#&gt; 2 c x 0.59 y 0.08
+#&gt; 3 c x 0.76 y 0.66
+#&gt; 4 b x 0.84  y 0.6
+#&gt; 5 b x 0.76 y 0.66
+#&gt; 6 a x 0.42 y 0.33</div><div class='input'>
 </div></pre>
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="pkgdown-sidebar">
@@ -286,7 +308,7 @@ its value.</p></li>
 
       <footer>
       <div class="copyright">
-  <p>Developed by Nathan Eastwood.</p>
+  <p>Developed by <a href='https://nathaneastwood.github.io'>Nathan Eastwood</a>.</p>
 </div>
 
 <div class="pkgdown">
