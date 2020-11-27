@@ -195,6 +195,69 @@ expect_equal(
   info = "List columns can be mutated: 3"
 )
 
+# .keep
+
+df <- data.frame(x = 1, y = 2)
+out <- mutate(df, x1 = x + 1, y = y, .keep = "unused")
+expect_equal(colnames(out), c("y", "x1"), info = "`.keep` = 'unused' keeps variables explicitly mentioned")
+
+df <- data.frame(x = 1, y = 2, z = 3, a = "a", b = "b", c = "c", stringsAsFactors = FALSE)
+out <- mutate(df, across(where(is.numeric), identity), .keep = "unused")
+expect_equal(colnames(out), colnames(df), info = ".keep = 'used' not affected by across()")
+
+df <- data.frame(a = 1, b = 2, c = 3, x = 1, y = 2)
+out <- mutate(df, xy = x + y, .keep = "used")
+expect_equal(colnames(out), c("x", "y", "xy"), info = ".keep = 'used' keeps variables used in expressions")
+
+df <- data.frame(x = 1, y = 2)
+gf <- group_by(df, x)
+expect_equal(
+  colnames(mutate(df, z = 1, .keep = "none")),
+  "z",
+  info = ".keep = 'none' only keeps mutated variables"
+)
+expect_equal(
+  colnames(mutate(gf, z = 1, .keep = "none")),
+  c("x", "z"),
+  info = ".keep = 'none' only keeps grouping and mutated variables"
+)
+
+df <- data.frame(x = 1, y = 2)
+expect_equal(
+  colnames(mutate(df, y = 1, x = 2, .keep = "none")),
+  c("y", "x"),
+  info = ".keep = 'none' prefers new order"
+)
+
+gf <- group_by(df, x)
+expect_equal(
+  colnames(mutate(gf, y = 1, x = 2, .keep = "none")),
+  c("y", "x"),
+  info = ".keep = 'none' prefers new order even when grouped"
+)
+
+df <- data.frame(x = 1, y = 2, z = 3) %>% group_by(z)
+expect_equal(
+  df %>% mutate(a = x + 1, .keep = "none"),
+  data.frame(z = 3, a = 2) %>% group_by(z),
+  info = ".keep = 'none' always retains grouping variables"
+)
+expect_equal(
+  df %>% mutate(a = x + 1, .keep = "all"),
+  data.frame(x = 1, y = 2, z = 3, a = 2) %>% group_by(z),
+  info = ".keep = 'all' always retains grouping variables"
+)
+expect_equal(
+  df %>% mutate(a = x + 1, .keep = "used"),
+  data.frame(x = 1, z = 3, a = 2) %>% group_by(z),
+  info = ".keep = 'used' always retains grouping variables"
+)
+expect_equal(
+  df %>% mutate(a = x + 1, .keep = "unused"),
+  data.frame(y = 2, z = 3, a = 2) %>% group_by(z),
+  info = ".keep = 'unused' always retains grouping variables"
+)
+
 # .before, .after
 
 df <- data.frame(x = 1, y = 2)

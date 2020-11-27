@@ -18,17 +18,7 @@ expect_equal(
 )
 
 expect_equal(
-  mtcars %>% group_by(am) %>% transmute(sumMpg = sum(mpg)),
-  {
-    rows <- rownames(mtcars)
-    res <- do.call(rbind, unname(lapply(
-      split(mtcars, mtcars$am),
-      function(x) {
-        x[, "sumMpg"] <- sum(x$mpg)
-        x[, "sumMpg", drop = FALSE]
-      }
-    )))
-    res[rows[rows %in% rownames(res)], ]
-  },
-  info = "Transmute grouped dataframe"
+  mtcars %>% group_by(am) %>% transmute(sumMpg = sum(mpg)) %>% colnames(),
+  c("am", "sumMpg"),
+  info = "transmute() keeps groups"
 )
