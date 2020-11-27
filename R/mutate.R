@@ -12,7 +12,7 @@
 #'
 #' * [dense_rank()], [min_rank()], [percent_rank()], [row_number()], [cume_dist()], [ntile()]
 #'
-#' * [cumsum()], [cummean()], [cummin()], [cummax()], [cumany()], [cumall()]
+#' * [cumsum()], [cummin()], [cummax()]
 #'
 #' * [na_if()], [coalesce()]
 #'
