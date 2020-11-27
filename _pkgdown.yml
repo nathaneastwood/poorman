@@ -59,6 +59,7 @@ reference:
   - n_distinct
   - na_if
   - near
+  - nth
   - recode
   - replace_na
   - window_rank
