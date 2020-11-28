@@ -53,6 +53,7 @@ reference:
   - between
   - case_when
   - coalesce
+  - cummean
   - desc
   - if_else
   - lag
