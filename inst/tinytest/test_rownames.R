@@ -41,3 +41,9 @@ expect_equal(
   c("grouped_data", "data.frame"),
   info = "column_to_rownames() retains class"
 )
+
+# Errors
+expect_error(rownames_to_column(mtcars, "mpg"), info = "rownames_to_column: column already exists")
+expect_error(rowid_to_column(mtcars, "mpg"), info = "rowid_to_column: columns already exists")
+expect_error(column_to_rownames(mtcars, "mpg"), info = "column_to_rownames: data already has rownames")
+expect_error(column_to_rownames(iris, "fake_column"), info = "column_to_rownames: column cannot be found")
