@@ -3,9 +3,21 @@
 \name{rownames}
 \alias{rownames}
 \alias{rownames_to_column}
+\alias{rowid_to_column}
+\alias{column_to_rownames}
+\alias{remove_rownames}
+\alias{has_rownames}
 \title{Tools for working with row names}
 \usage{
 rownames_to_column(.data, var = "rowname")
+
+rowid_to_column(.data, var = "rowid")
+
+column_to_rownames(.data, var = "rowname")
+
+remove_rownames(.data)
+
+has_rownames(.data)
 }
 \arguments{
 \item{.data}{A \code{data.frame}.}
@@ -13,12 +25,33 @@ rownames_to_column(.data, var = "rowname")
 \item{var}{\code{character(1)}. The name of the column to use for row names.}
 }
 \value{
-A \code{data.frame}
+\itemize{
+\item \code{column_to_rownames()} always returns a \code{data.frame}.
+\item \code{has_rownames()} returns a \code{logical(1)}.
+\item All other functions return an object of the same class as the input.
+}
 }
 \description{
-Tools for working with row names
+In some quarters, it is considered best to avoid row names, because they are effectively a character column with
+different semantics than every other column.
+These functions allow to you detect if a \code{data.frame} has row names (\code{has_rownames()}), remove them
+(\code{remove_rownames()}), or convert them back-and-forth between an explicit column (\code{rownames_to_column()} and
+\code{column_to_rownames()}). Also included is \code{rowid_to_column()}, which adds a column at the start of the dataframe of
+ascending sequential row ids starting at 1. Note that this will remove any existing row names.
 }
 \examples{
-mtcars \%>\% rownames_to_column()
+# Detect row names
+has_rownames(mtcars)
+has_rownames(iris)
+
+# Remove row names
+remove_rownames(mtcars) \%>\% has_rownames()
+
+# Convert between row names and column
+mtcars <- rownames_to_column(mtcars, var = "car")
+column_to_rownames(mtcars, var = "car") \%>\% head()
+
+# Adding rowid as a column
+rowid_to_column(iris) \%>\% head()
 
 }

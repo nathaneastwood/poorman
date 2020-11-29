@@ -79,6 +79,9 @@ reference:
 - title: data.frame Display
   contents:
   - glimpse
+
+- title: data.frame Attributes
+  contents:
   - rownames
 
 navbar:
