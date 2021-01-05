@@ -173,6 +173,18 @@ res <- df %>% group_by(x) %>% mutate(z = ifelse(y > 1, 1, 2))
 expect_true(is.na(res$z[2]), info = "mutate() coerces results from one group with all NA values: 1")
 expect_true(inherits(res$z, "numeric"), info = "mutate() coerces results from one group with all NA values: 2")
 
+# Evaluation envs
+pass_through <- function(x) x
+test_function <- function(mtcars_df) {
+  pass_through_internal <- function(x) x
+  mutate(.data = mtcars_df, carb = pass_through(carb), gear = pass_through_internal(gear))
+}
+expect_equal(
+  test_function(mtcars),
+  mtcars,
+  info = "Ensure mutations occur in the correct enclosing environment"
+)
+
 # List columns
 
 df <- structure(list(), class = "data.frame", row.names = c(NA, -3L), .Names = character(0))

@@ -99,7 +99,7 @@ mutate.data.frame <- function(
   on.exit(context$clean(), add = TRUE)
   for (i in seq_along(conditions)) {
     not_named <- (is.null(cond_nms) || cond_nms[i] == "")
-    res <- eval(conditions[[i]], envir = context$as_env())
+    res <- eval(conditions[[i]], envir = context$as_env(), enclos = parent.frame())
     res_nms <- names(res)
     if (is.data.frame(res)) {
       if (not_named) {
