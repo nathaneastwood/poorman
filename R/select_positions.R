@@ -36,6 +36,7 @@ select_positions <- function(.data, ..., .group_pos = FALSE) {
   on.exit(select_env$clean(), add = TRUE)
   data_names <- select_env$get_colnames()
   pos <- unlist(lapply(cols, eval_expr))
+  if (length(pos) > 0) pos <- if (pos[1] >= 0) pos[pos >= 0] else pos[pos < 0]
   col_len <- select_env$get_ncol()
   if (any(pos > col_len)) {
     oor <- pos[which(pos > col_len)]

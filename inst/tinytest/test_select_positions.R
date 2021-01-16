@@ -186,6 +186,18 @@ expect_equal(
   info = "Test selecting with a mixture of selection options"
 )
 
+expect_equal(
+  poorman:::select_positions(mtcars, -2, 3),
+  c(mpg = 1, disp = 3, hp = 4, drat = 5, wt = 6, qsec = 7, vs = 8, am = 9, gear = 10, carb = 11),
+  info = "Mixture of negative and positives select only negatives"
+)
+
+expect_equal(
+  poorman:::select_positions(mtcars, 3, -2),
+  c(disp = 3),
+  info = "Mixture of positives and negatives select only negatives"
+)
+
 # NULL
 expect_equal(
   poorman:::select_positions(mtcars, NULL),
