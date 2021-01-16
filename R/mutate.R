@@ -99,7 +99,11 @@ mutate.data.frame <- function(
   on.exit(context$clean(), add = TRUE)
   for (i in seq_along(conditions)) {
     not_named <- (is.null(cond_nms) || cond_nms[i] == "")
-    res <- eval(conditions[[i]], envir = context$as_env(), enclos = parent.frame())
+    res <- eval(
+      conditions[[i]],
+      envir = context$as_env(),
+      enclos = if (!is.null(context$group_env)) context$group_env else parent.frame(n = 1)
+    )
     res_nms <- names(res)
     if (is.data.frame(res)) {
       if (not_named) {
@@ -139,6 +143,8 @@ mutate.data.frame <- function(
 
 #' @export
 mutate.grouped_data <- function(.data, ...) {
+  context$group_env <- parent.frame(n = 1)
+  on.exit(rm(list = c("group_env"), envir = context), add = TRUE)
   rows <- rownames(.data)
   res <- apply_grouped_function("mutate", .data, drop = TRUE, ...)
   res[rows, , drop = FALSE]

@@ -15,6 +15,7 @@ context$as_env <- function() {
     context$.data
   }
 }
+context$group_env <- NULL
 context$clean <- function() {
   rm(list = c(".data"), envir = context)
   if (!is.null(context$cur_column)) rm(list = c("cur_column"), envir = context)

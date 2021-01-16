@@ -185,6 +185,20 @@ expect_equal(
   info = "Ensure mutations occur in the correct enclosing environment"
 )
 
+test_function_grouped <- function(mtcars_df) {
+  pass_through_internal_group <- function(x) x
+
+  mtcars_df %>%
+    group_by(cyl) %>%
+    mutate(carb = pass_through(carb), gear = pass_through_internal_group(gear)) %>%
+    ungroup()
+}
+expect_equal(
+  test_function_grouped(mtcars),
+  mtcars,
+  info = "Ensure mutations occur in the correct enclosing environment for grouped data (#68)"
+)
+
 # List columns
 
 df <- structure(list(), class = "data.frame", row.names = c(NA, -3L), .Names = character(0))
