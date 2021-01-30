@@ -132,13 +132,13 @@ mutate.data.frame <- function(
   } else if (keep == "unused") {
     unused <- setdiff(colnames(.data), used)
     keep <- intersect(context$get_colnames(), c(group_vars(.data), unused, cond_nms))
-    do.call(select, c(list(.data = context$.data), keep))
+    select(.data = context$.data, keep)
   } else if (keep == "used") {
     keep <- intersect(context$get_colnames(), c(group_vars(.data), used, cond_nms))
-    do.call(select, c(list(.data = context$.data), keep))
+    select(.data = context$.data, keep)
   } else if (keep == "none") {
     keep <- c(setdiff(group_vars(.data), cond_nms), intersect(cond_nms, context$get_colnames()))
-    do.call(select, c(list(.data = context$.data), keep))
+    select(.data = context$.data, keep)
   }
 }
 
