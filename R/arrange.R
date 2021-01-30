@@ -19,14 +19,32 @@ arrange <- function(.data, ...) {
 }
 
 #' @export
-arrange.data.frame <- function(.data, ...) {
-  context$setup(.data)
-  on.exit(context$clean(), add = TRUE)
-  rows <- eval(substitute(order(...)), envir = context$.data)
+arrange.data.frame <- function(.data, ..., .by_group = FALSE) {
+  dots <- dotdotdot(...)
+  if (isTRUE(.by_group)) dots <- c(groups(.data), dots)
+  rows <- arrange_rows(.data, dots)
   .data[rows, , drop = FALSE]
 }
 
-#' @export
-arrange.grouped_data <- function(.data, ...) {
-  apply_grouped_function("arrange", .data, drop = TRUE, ...)
+## -- Helpers ------------------------------------------------------------------
+
+arrange_rows <- function(.data, dots) {
+
+  if (length(dots) == 0L) return(seq_len(nrow(.data)))
+
+  directions <- vapply(
+    dots,
+    function(x) if (is.call(x) && deparse(x[[1]]) == "desc") "desc" else "asc",
+    NA_character_
+  )
+
+  dots <- lapply(
+    dots,
+    function(x) if (is.call(x) && deparse(x[[1]]) == "desc") x[[2]] else x
+  )
+
+  data <- do.call(transmute, c(list(.data = ungroup(.data)), dots))
+  descs <- which(directions == "desc")
+  data[, colnames(data)[descs]] <- data[, colnames(data)[descs], drop = FALSE] * -1
+  do.call(order, c(data, list(decreasing = FALSE, na.last = TRUE)))
 }
