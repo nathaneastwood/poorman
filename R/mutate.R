@@ -91,10 +91,55 @@ mutate.data.frame <- function(
   .after = NULL
 ) {
   keep <- match.arg(arg = .keep, choices = c("all", "used", "unused", "none"), several.ok = FALSE)
+
+  res <- mutate_df(.data = .data, ...)
+  data <- res$data
+  new_cols <- res$new_cols
+
+  .before <- substitute(.before)
+  .after <- substitute(.after)
+  if (!is.null(.before) || !is.null(.after)) {
+    new <- setdiff(new_cols, names(.data))
+    data <- do.call(relocate, c(list(.data = data), new, .before = .before, .after = .after))
+  }
+
+  if (keep == "all") {
+    data
+  } else if (keep == "unused") {
+    unused <- setdiff(colnames(.data), res$used_cols)
+    keep <- intersect(colnames(data), c(group_vars(.data), unused, new_cols))
+    select(.data = data, keep)
+  } else if (keep == "used") {
+    keep <- intersect(colnames(data), c(group_vars(.data), res$used_cols, new_cols))
+    select(.data = data, keep)
+  } else if (keep == "none") {
+    keep <- c(setdiff(group_vars(.data), new_cols), intersect(new_cols, colnames(data)))
+    select(.data = data, keep)
+  }
+}
+
+#' @export
+mutate.grouped_data <- function(.data, ...) {
+  context$group_env <- parent.frame(n = 1)
+  on.exit(rm(list = c("group_env"), envir = context), add = TRUE)
+  rows <- rownames(.data)
+  res <- apply_grouped_function("mutate", .data, drop = TRUE, ...)
+  res[rows, , drop = FALSE]
+}
+
+## -- Helpers ----------------------------------------------------------------------------------------------------------
+
+mutate_df <- function(.data, ...) {
   conditions <- dotdotdot(..., .impute_names = TRUE)
   cond_nms <- names(dotdotdot(..., .impute_names = FALSE))
   used <- find_used(.data, conditions)
-  if (length(conditions) == 0L) return(.data)
+  if (length(conditions) == 0L) {
+    return(list(
+      data = .data,
+      used_cols = NULL,
+      new_cols = NULL
+    ))
+  }
   context$setup(.data)
   on.exit(context$clean(), add = TRUE)
   for (i in seq_along(conditions)) {
@@ -102,7 +147,7 @@ mutate.data.frame <- function(
     res <- eval(
       conditions[[i]],
       envir = context$as_env(),
-      enclos = if (!is.null(context$group_env)) context$group_env else parent.frame(n = 1)
+      enclos = if (!is.null(context$group_env)) context$group_env else parent.frame(n = 2)
     )
     res_nms <- names(res)
     if (is.data.frame(res)) {
@@ -119,39 +164,12 @@ mutate.data.frame <- function(
       context$.data[[names(res)]] <- res
     }
   }
-
-  .before <- substitute(.before)
-  .after <- substitute(.after)
-  if (!is.null(.before) || !is.null(.after)) {
-    new <- setdiff(cond_nms, names(.data))
-    context$.data <- do.call(relocate, c(list(.data = context$.data), new, .before = .before, .after = .after))
-  }
-
-  if (keep == "all") {
-    context$.data
-  } else if (keep == "unused") {
-    unused <- setdiff(colnames(.data), used)
-    keep <- intersect(context$get_colnames(), c(group_vars(.data), unused, cond_nms))
-    select(.data = context$.data, keep)
-  } else if (keep == "used") {
-    keep <- intersect(context$get_colnames(), c(group_vars(.data), used, cond_nms))
-    select(.data = context$.data, keep)
-  } else if (keep == "none") {
-    keep <- c(setdiff(group_vars(.data), cond_nms), intersect(cond_nms, context$get_colnames()))
-    select(.data = context$.data, keep)
-  }
+  list(
+    data = context$.data,
+    used_cols = used,
+    new_cols = cond_nms
+  )
 }
-
-#' @export
-mutate.grouped_data <- function(.data, ...) {
-  context$group_env <- parent.frame(n = 1)
-  on.exit(rm(list = c("group_env"), envir = context), add = TRUE)
-  rows <- rownames(.data)
-  res <- apply_grouped_function("mutate", .data, drop = TRUE, ...)
-  res[rows, , drop = FALSE]
-}
-
-## -- Helpers ----------------------------------------------------------------------------------------------------------
 
 find_used <- function(.data, conditions) {
   inputs <- do.call(c, lapply(conditions, as.character))
