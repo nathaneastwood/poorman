@@ -112,7 +112,8 @@ mutate.data.frame <- function(
         context$.data[[cond_nms[i]]] <- res
       }
     } else if (is.atomic(res)) {
-      context$.data[[names(conditions)[[i]]]] <- res
+      cond_nms[i] <- names(conditions)[[i]]
+      context$.data[[cond_nms[i]]] <- res
     } else {
       if (is.null(res_nms)) names(res) <- names(conditions)[[i]]
       context$.data[[names(res)]] <- res

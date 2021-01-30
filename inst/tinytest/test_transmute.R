@@ -1,4 +1,14 @@
 expect_equal(
+  transmute(.data = mtcars, -mpg, neg_am = -am),
+  {
+    mtcars[["-mpg"]] <- mtcars$mpg * -1
+    mtcars[, "neg_am"] <- mtcars$am * -1
+    mtcars[, c("-mpg", "neg_am")]
+  },
+  info = "Transmute works with non-named parameters"
+)
+
+expect_equal(
   mtcars %>% transmute(mpg2 = mpg * 2),
   {
     mtcars[, "mpg2"] <- mtcars$mpg * 2
