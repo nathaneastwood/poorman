@@ -90,8 +90,8 @@ navbar:
     - icon: fa-home
       href: index.html
     - text: "FAQ"
-      icon: fa-question-circle-o
-      href: articles/faq.html
+      # icon: fa-question-circle-o
+      # href: articles/faq.html
     - icon: fa-newspaper-o
       text: "News"
       href: news/index.html
