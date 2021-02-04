@@ -4,6 +4,9 @@
 #' `across()` makes it easy to apply the same transformation to multiple columns, allowing you to use [select()]
 #' semantics inside in "data-masking" functions like [summarise()] and [mutate()].
 #'
+#' `if_any()` and `if_all()` are used to apply the same predicate function to a selection of columns and combine the
+#' results into a single logical vector.
+#'
 #' `across()` supersedes the family of {dplyr} "scoped variants" like `summarise_at()`, `summarise_if()`, and
 #' `summarise_all()` and therefore these functions will not be implemented in {poorman}.
 #'
@@ -23,7 +26,9 @@
 #' @param .names `character(n)`. Currently limited to specifying a vector of names to use for the outputs.
 #'
 #' @return
-#' A `data.frame` with one column for each column in `.cols` and each function in `.fns`.
+#' `across()` returns a `data.frame` with one column for each column in `.cols` and each function in `.fns`.
+#'
+#' `if_any()` and `if_all()` return a logical vector.
 #'
 #' @examples
 #' # across() -----------------------------------------------------------------
@@ -51,6 +56,12 @@
 #'     mean,
 #'     .names = c("mean_sepal_length", "mean_sepal_width"))
 #'   )
+#'
+#' # if_any() and if_all() ----------------------------------------------------
+#' iris %>%
+#'   filter(if_any(ends_with("Width"), ~ . > 4))
+#' iris %>%
+#'   filter(if_all(ends_with("Width"), ~ . > 2))
 #'
 #' @export
 across <- function(.cols = everything(), .fns = NULL, ..., .names = NULL) {
@@ -82,6 +93,33 @@ across <- function(.cols = everything(), .fns = NULL, ..., .names = NULL) {
   }
   if (is.null(names(res))) names(res) <- names
   as.data.frame(res)
+}
+
+#' @rdname across
+#' @export
+if_any <- function(.cols, .fns = NULL, ..., .names = NULL) {
+  df <- do.call(across, list(.cols = substitute(.cols), .fns = .fns, ..., .names = .names))
+  check_if_types(df)
+  Reduce(`|`, df)
+}
+
+#' @rdname across
+#' @export
+if_all <- function(.cols, .fns = NULL, ..., .names = NULL) {
+  df <- do.call(across, list(.cols = substitute(.cols), .fns = .fns, ..., .names = .names))
+  check_if_types(df)
+  Reduce(`&`, df)
+}
+
+check_if_types <- function(df) {
+  types <- vapply(df, class, NA_character_)
+  not_logical <- types != "logical"
+  if (any(not_logical)) {
+    stop(
+      "Cannot convert the following columns to <logical>:\n    ",
+      paste0(colnames(df)[not_logical], " <", types, "> ", collapse = "\n    ")
+    )
+  }
 }
 
 # -- helpers -----------------------------------------------------------------------------------------------------------

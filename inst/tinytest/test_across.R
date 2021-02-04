@@ -175,3 +175,30 @@ expect_equal(
   data.frame(mpg_1 = mean(mtcars$mpg), mpg_2 = sd(mtcars$mpg)),
   info = "character vector style functions work"
 )
+
+# if_all() and if_any()
+
+d <- data.frame(x = 10, y = 10)
+expect_error(filter(d, if_all(x:y, identity)), info = "if_all() enforces logical in filter")
+expect_error(filter(d, if_any(x:y, identity)), info = "if_any() enforces logical in filter")
+expect_error(mutate(d, ok = if_all(x:y, identity)), info = "if_all() enforces logical in mutate")
+expect_error(mutate(d, ok = if_any(x:y, identity)), info = "if_any() enforces logical in mutate")
+
+d <- data.frame(x = c(1, 5, 10, 10), y = c(0, 0, 0, 10), z = c(10, 5, 1, 10))
+res <- mutate(.data = d, any = if_any(x:z, ~ . > 8), all = if_all(x:z, ~ . > 8))
+expect_equal(res$any, c(TRUE, FALSE, TRUE, TRUE), info = "if_any() can be used in mutate")
+expect_equal(res$all, c(FALSE, FALSE, FALSE, TRUE), info = "if_all() can be used in mutate")
+
+df <- expand.grid(
+  x = c(TRUE, FALSE, NA), y = c(TRUE, FALSE, NA)
+)
+expect_identical(
+  filter(df, x & y),
+  filter(df, if_all(c(x, y), identity)),
+  info = "if_all() respects filter()-like NA handling"
+)
+expect_identical(
+  filter(df, x | y),
+  filter(df, if_any(c(x, y), identity)),
+  info = "if_any() respects filter()-like NA handling"
+)

@@ -2,9 +2,15 @@
 % Please edit documentation in R/across.R
 \name{across}
 \alias{across}
+\alias{if_any}
+\alias{if_all}
 \title{Apply a function (or functions) across multiple columns}
 \usage{
 across(.cols = everything(), .fns = NULL, ..., .names = NULL)
+
+if_any(.cols, .fns = NULL, ..., .names = NULL)
+
+if_all(.cols, .fns = NULL, ..., .names = NULL)
 }
 \arguments{
 \item{.fns}{Functions to apply to each of the selected columns.
@@ -27,11 +33,16 @@ respectively.}
 like \code{summarise()} and \code{mutate()}, you can't select or compute upon grouping variables.}
 }
 \value{
-A \code{data.frame} with one column for each column in \code{.cols} and each function in \code{.fns}.
+\code{across()} returns a \code{data.frame} with one column for each column in \code{.cols} and each function in \code{.fns}.
+
+\code{if_any()} and \code{if_all()} return a logical vector.
 }
 \description{
 \code{across()} makes it easy to apply the same transformation to multiple columns, allowing you to use \code{\link[=select]{select()}}
 semantics inside in "data-masking" functions like \code{\link[=summarise]{summarise()}} and \code{\link[=mutate]{mutate()}}.
+
+\code{if_any()} and \code{if_all()} are used to apply the same predicate function to a selection of columns and combine the
+results into a single logical vector.
 
 \code{across()} supersedes the family of {dplyr} "scoped variants" like \code{summarise_at()}, \code{summarise_if()}, and
 \code{summarise_all()} and therefore these functions will not be implemented in {poorman}.
@@ -62,5 +73,11 @@ iris \%>\%
     mean,
     .names = c("mean_sepal_length", "mean_sepal_width"))
   )
+
+# if_any() and if_all() ----------------------------------------------------
+iris \%>\%
+  filter(if_any(ends_with("Width"), ~ . > 4))
+iris \%>\%
+  filter(if_all(ends_with("Width"), ~ . > 2))
 
 }
