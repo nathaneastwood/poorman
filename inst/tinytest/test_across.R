@@ -202,3 +202,14 @@ expect_identical(
   filter(df, if_any(c(x, y), identity)),
   info = "if_any() respects filter()-like NA handling"
 )
+
+expect_equal(
+  mtcars %>% filter(if_any(contains("Width"), ~ . > 4)),
+  mtcars[mtcars$mpg > 100, ],
+  info = "if_any() conditions that return empty data.frames do not fail."
+)
+expect_equal(
+  mtcars %>% filter(if_all(contains("Width"), ~ . > 4)),
+  mtcars[mtcars$mpg > 100, ],
+  info = "if_all() conditions that return empty data.frames do not fail."
+)

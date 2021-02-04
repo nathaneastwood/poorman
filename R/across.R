@@ -99,6 +99,7 @@ across <- function(.cols = everything(), .fns = NULL, ..., .names = NULL) {
 #' @export
 if_any <- function(.cols, .fns = NULL, ..., .names = NULL) {
   df <- do.call(across, list(.cols = substitute(.cols), .fns = .fns, ..., .names = .names))
+  if (nrow(df) == 0L) return(FALSE)
   check_if_types(df)
   Reduce(`|`, df)
 }
@@ -107,6 +108,7 @@ if_any <- function(.cols, .fns = NULL, ..., .names = NULL) {
 #' @export
 if_all <- function(.cols, .fns = NULL, ..., .names = NULL) {
   df <- do.call(across, list(.cols = substitute(.cols), .fns = .fns, ..., .names = .names))
+  if (nrow(df) == 0L) return(FALSE)
   check_if_types(df)
   Reduce(`&`, df)
 }
