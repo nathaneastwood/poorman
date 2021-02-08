@@ -29,7 +29,7 @@ build_data_frame <- function(x, nms = NULL) {
   res <- if (is.atomic(x)) {
     data.frame(x)
   } else if (is.list(x) && !is.data.frame(x)) {
-    data.frame(I(x))
+    structure(list(x = x), class = "data.frame", row.names = c(NA, -1L))
   } else if (is.data.frame(x)) {
     x
   }

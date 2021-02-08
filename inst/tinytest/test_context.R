@@ -41,12 +41,10 @@ expect_equal(
     res <- gf %>% summarise(data = list(cur_group()))
     res[, "data"]
   },
-  structure(
-    list(
-      structure(list(g = "a"), row.names = c(NA, -1L), class = "data.frame"),
-      structure(list(g = "b"), row.names = c(NA, -1L), class = "data.frame"),
-      structure(list(g = "c"), row.names = c(NA, -1L), class = "data.frame")
-    ), class = "AsIs"
+  list(
+    structure(list(g = "a"), row.names = c(NA, -1L), class = "data.frame"),
+    structure(list(g = "b"), row.names = c(NA, -1L), class = "data.frame"),
+    structure(list(g = "c"), row.names = c(NA, -1L), class = "data.frame")
   ),
   info = "cur_group() works as expected"
 )
@@ -56,11 +54,11 @@ expect_equal(
     res <- gf %>% summarise(data = list(cur_data()))
     res[, "data"]
   },
-  structure(list(
+  list(
     structure(list(x = 1, y = 23), class = "data.frame", row.names = 1L),
     structure(list(x = c(4, 5), y = c(46, 7)), class = "data.frame", row.names = 2:3),
     structure(list(x = c(7, 3, 6), y = c(4, 56, 12)), class = "data.frame", row.names = 4:6)
-  ), class = "AsIs"),
+  ),
   info = "cur_data() works as expected"
 )
 

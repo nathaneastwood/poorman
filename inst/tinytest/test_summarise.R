@@ -36,10 +36,7 @@ expect_equal(
 
 expect_equal(
   mtcars %>% summarise(n(), list(range(mpg))),
-  structure(
-    list(`n()` = 32L, `list(range(mpg))` = structure(list(c(10.4, 33.9)), class = "AsIs")),
-    class = "data.frame", row.names = c(NA, -1L)
-  ),
+  structure(list(`n()` = 32L, `list(range(mpg))` = list(c(10.4, 33.9))), class = "data.frame", row.names = c(NA, -1L)),
   info = "Functions returning multiple values that are wrapped in list are returned as nested columns"
 )
 
