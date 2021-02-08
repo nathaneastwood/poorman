@@ -80,6 +80,8 @@ group_keys <- function(.data) {
   res
 }
 
+# -- Helpers -------------------------------------------------------------------
+
 #' Split a `data.frame` into groups.
 #'
 #' @param .data A `data.frame`.

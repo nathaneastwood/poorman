@@ -25,23 +25,11 @@ NULL
 #' @rdname group_metadata
 #' @export
 group_data <- function(.data) {
-  if (!has_groups(.data)) return(data.frame(.rows = I(list(seq_len(nrow(.data))))))
-  groups <- group_vars(.data)
-  group_data_worker(.data, groups)
-}
-
-group_data_worker <- function(.data, groups) {
-  class(.data) <- "data.frame"
-  res <- unique(.data[, groups, drop = FALSE])
-  nrow_res <- nrow(res)
-  rows <- rep(list(NA), nrow_res)
-  for (i in seq_len(nrow_res)) {
-    rows[[i]] <- which(interaction(.data[, groups, drop = TRUE]) %in% interaction(res[i, groups]))
+  if (!has_groups(.data)) {
+    return(structure(list(.rows = list(seq_len(nrow(.data)))), class = "data.frame", row.names = c(NA, -1L)))
   }
-  res$`.rows` <- rows
-  res <- res[do.call(order, lapply(groups, function(x) res[, x])), , drop = FALSE]
-  rownames(res) <- NULL
-  res
+  groups <- group_vars(.data)
+  compute_groups(.data, groups)
 }
 
 #' @description

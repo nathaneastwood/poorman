@@ -2,13 +2,17 @@
 
 res <- data.frame(x = 1:3) %>% group_data()
 expect_identical(class(res), "data.frame", info = "group_data() returns a data frame")
-expect_equal(res, data.frame(.rows = I(list(1:3))), info = "group_data() returns all rows from .data")
+expect_equal(
+  res,
+  structure(list(.rows = list(1:3)), class = "data.frame", row.names = c(NA, -1L)),
+  info = "group_data() returns all rows from .data"
+)
 
 res <- data.frame(x = c(1, 1, 2)) %>% group_by(x) %>% group_data()
 expect_identical(class(res), "data.frame")
 expect_equivalent(
   res,
-  data.frame(x = c(1, 2), .rows = I(list(1:2, 3L))),
+  structure(list(x = c(1, 2), .rows = list(1:2, 3L)), row.names = c(NA, -2L), class = "data.frame"),
   info = "group_data() returns the unique rows for each group"
 )
 
