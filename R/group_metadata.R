@@ -25,11 +25,17 @@ NULL
 #' @rdname group_metadata
 #' @export
 group_data <- function(.data) {
-  if (!has_groups(.data)) {
-    return(structure(list(.rows = list(seq_len(nrow(.data)))), class = "data.frame", row.names = c(NA, -1L)))
-  }
-  groups <- group_vars(.data)
-  compute_groups(.data, groups)
+  UseMethod("group_data")
+}
+
+#' @export
+group_data.data.frame <- function(.data) {
+  structure(list(.rows = list(seq_len(nrow(.data)))), class = "data.frame", row.names = c(NA, -1L))
+}
+
+#' @export
+group_data.grouped_data <- function(.data) {
+  attr(.data, "groups")
 }
 
 #' @description

@@ -5,7 +5,7 @@
 \alias{ungroup}
 \title{Group by one or more variables}
 \usage{
-group_by(.data, ..., .add = FALSE)
+group_by(.data, ..., .add = FALSE, .drop = group_by_drop_default(.data))
 
 ungroup(x, ...)
 }
@@ -16,6 +16,9 @@ ungroup(x, ...)
 
 \item{.add}{\code{logical(1)}. When \code{FALSE} (the default) \code{group_by()} will override existing groups. To add to existing
 groups, use \code{.add = TRUE}.}
+
+\item{.drop}{\code{logical(1)}. Drop groups formed by factor levels that don't appear in the data? The default is \code{TRUE}
+except when \code{.data} has been previously grouped with \code{.drop = FALSE}. See \code{\link[=group_by_drop_default]{group_by_drop_default()}} for details.}
 
 \item{x}{A \code{data.frame}.}
 }

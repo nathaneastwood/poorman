@@ -115,11 +115,14 @@ expect_equal(
 df <- data.frame(g = 1:2, a = 1:2, b = 3:4) %>% group_by(g)
 expect_equal(
   mutate(df, x = if_else(cur_group_id() == 1L, across(a)$a, across(b)$b)),
-  {
-    expect <- df
-    expect$x <- c(1L, 4L)
-    expect
-  },
+  structure(
+    list(g = 1:2, a = 1:2, b = 3:4, x = c(1L, 4L)),
+    groups = structure(list(g = 1:2, .rows = list(1L, 2L)),
+      row.names = 1:2,
+      class = "data.frame",
+      .drop = TRUE
+    ), row.names = 1:2, class = c("grouped_data", "data.frame")
+  ),
   info = "across() usage can depend on the group id"
 )
 

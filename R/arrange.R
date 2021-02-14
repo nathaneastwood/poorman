@@ -21,9 +21,17 @@ arrange <- function(.data, ...) {
 #' @export
 arrange.data.frame <- function(.data, ..., .by_group = FALSE) {
   dots <- dotdotdot(...)
+  is_grouped <- has_groups(.data)
   if (isTRUE(.by_group)) dots <- c(groups(.data), dots)
   rows <- arrange_rows(.data, dots)
-  .data[rows, , drop = FALSE]
+  # If grouped, need to follow the logic in
+  # https://github.com/tidyverse/dplyr/blob/master/R/generics.R#L102
+  # such that the .rows are rearranged
+  out <- .data[rows, , drop = FALSE]
+  if (is_grouped) {
+    attr(out, "groups") <- calculate_groups(out, group_vars(out))
+  }
+  out
 }
 
 ## -- Helpers ------------------------------------------------------------------

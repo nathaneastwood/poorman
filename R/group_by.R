@@ -6,6 +6,8 @@
 #' @param ... One or more unquoted column names to group/ungroup the data by.
 #' @param .add `logical(1)`. When `FALSE` (the default) `group_by()` will override existing groups. To add to existing
 #' groups, use `.add = TRUE`.
+#' @param .drop `logical(1)`. Drop groups formed by factor levels that don't appear in the data? The default is `TRUE`
+#' except when `.data` has been previously grouped with `.drop = FALSE`. See [group_by_drop_default()] for details.
 #'
 #' @examples
 #' group_by(mtcars, am, cyl)
@@ -27,12 +29,12 @@
 #'
 #' @name group_by
 #' @export
-group_by <- function(.data, ..., .add = FALSE) {
+group_by <- function(.data, ..., .add = FALSE, .drop = group_by_drop_default(.data)) {
   UseMethod("group_by")
 }
 
 #' @export
-group_by.data.frame <- function(.data, ..., .add = FALSE) {
+group_by.data.frame <- function(.data, ..., .add = FALSE, .drop = group_by_drop_default(.data)) {
   vars <- dotdotdot(..., .impute_names = TRUE)
   if (all(vapply(vars, is.null, FALSE))) {
     res <- groups_set(.data, NULL)
@@ -46,10 +48,46 @@ group_by.data.frame <- function(.data, ..., .add = FALSE) {
   unknown <- !(groups %in% colnames(res))
   if (any(unknown)) stop("Invalid groups: ", groups[unknown])
   if (length(groups) > 0L) {
-    res <- groups_set(res, groups)
+    res <- groups_set(res, groups, .drop)
     class(res) <- union("grouped_data", class(res))
   }
   res
+}
+
+#' Default value for .drop argument of group_by
+#'
+#' @param .tbl A `data.frame`.
+#'
+#' @examples
+#' group_by_drop_default(iris)
+#'
+#' iris %>%
+#'   group_by(Species) %>%
+#'   group_by_drop_default()
+#'
+#' iris %>%
+#'   group_by(Species, .drop = FALSE) %>%
+#'   group_by_drop_default()
+#'
+#' @return `TRUE` unless `.tbl` is a grouped `data.frame` that was previously obtained by `group_by(.drop = FALSE)`
+#'
+#' @export
+group_by_drop_default <- function(.tbl) {
+  UseMethod("group_by_drop_default")
+}
+
+#' @export
+group_by_drop_default.default <- function(.tbl) {
+  TRUE
+}
+
+#' @export
+group_by_drop_default.grouped_data <- function(.tbl) {
+  tryCatch({
+    !identical(attr(group_data(.tbl), ".drop"), FALSE)
+  }, error = function(e) {
+    TRUE
+  })
 }
 
 # -- Helpers -------------------------------------------------------------------

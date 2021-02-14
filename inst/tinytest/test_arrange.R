@@ -63,11 +63,22 @@ df <- data.frame(g = c(2, 1, 2, 1), x = 4:1)
 gf <- group_by(df, g)
 expect_equal(
   arrange(gf, x),
-  gf[4:1, ,],
+  structure(
+    list(g = c(1, 2, 1, 2), x = 1:4),
+    groups = structure(
+      list(g = c(1, 2), .rows = list(c(1L, 3L), c(2L, 4L))), row.names = 1:2, class = "data.frame", .drop = TRUE
+    ),
+    row.names = 4:1,
+    class = c("grouped_data", "data.frame")
+  ),
   info = "grouped arrange ignores group_by groups"
 )
 expect_equal(
   arrange(gf, x, .by_group = TRUE),
-  gf[c(4, 2, 3, 1), ,],
+  structure(
+    list(g = c(1, 1, 2, 2), x = c(1L, 3L, 2L, 4L)),
+    groups = structure(list(g = c(1, 2), .rows = list(1:2, 3:4)), row.names = 1:2, class = "data.frame", .drop = TRUE),
+    row.names = c(4L, 2L, 3L, 1L), class = c("grouped_data", "data.frame")
+  ),
   info = "grouped arrange ignores group, unless requested with .by_group"
 )

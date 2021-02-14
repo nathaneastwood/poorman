@@ -58,6 +58,7 @@ summarise.grouped_data <- function(.data, ...) {
   groups <- group_vars(.data)
   res <- apply_grouped_function("summarise", .data, drop = TRUE, ...)
   res <- res[do.call(order, lapply(groups, function(x) res[, x])), , drop = FALSE]
+  res <- groups_set(res, groups, group_by_drop_default(res))
   rownames(res) <- NULL
   res
 }

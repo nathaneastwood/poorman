@@ -9,7 +9,7 @@ expect_equal(
   attr(res, "groups"),
   structure(
     list(gear = c(3, 4, 5), .rows = list(1:3, 4:5, 6:8)),
-    class = "data.frame", row.names = c(NA, -3L)
+    class = "data.frame", row.names = c(NA, -3L), .drop = TRUE
   ),
   info = "count() works on a grouped data.frame"
 )

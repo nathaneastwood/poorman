@@ -3,11 +3,11 @@
 #' @param groups `character(n)`. The names of the grouping columns.
 #' @return If `groups` is `NULL` or of length 0, then `x`; otherwise `x` with the attribute `"groups"`.
 #' @noRd
-groups_set <- function(x, groups) {
+groups_set <- function(x, groups, drop = group_by_drop_default(x)) {
   attr(x, "groups") <- if (is.null(groups) || length(groups) == 0L) {
     NULL
   } else {
-    compute_groups(x, groups)
+    calculate_groups(x, groups, drop)
   }
   x
 }
@@ -45,23 +45,42 @@ apply_grouped_function <- function(fn, .data, drop = FALSE, ...) {
   res
 }
 
-#' Compute the
-#' @param .data A `data.frame`.
+#' Calculate the groups
+#' @param data A `data.frame`.
 #' @param groups `character(n)`. The names of the groups.
 #' @return
 #' The columns give the values of the grouping variables. The last column, always called `.rows`, is a list of integer
 #' vectors that gives the location of the rows in each group.
 #' @noRd
-compute_groups <- function(.data, groups) {
-  class(.data) <- "data.frame"
-  res <- unique(.data[, groups, drop = FALSE])
-  nrow_res <- nrow(res)
-  rows <- rep(list(NA), nrow_res)
-  for (i in seq_len(nrow_res)) {
-    rows[[i]] <- which(interaction(.data[, groups, drop = TRUE]) %in% interaction(res[i, groups]))
+calculate_groups <- function(data, groups, drop = group_by_drop_default(data)) {
+  data <- ungroup(data)
+
+  unknown <- setdiff(groups, colnames(data))
+  if (length(unknown) > 0L) {
+    stop(sprintf("`groups` missing from `data`: %s.", paste0(groups, collapse = ", ")))
   }
-  res$`.rows` <- rows
-  res <- res[do.call(order, lapply(groups, function(x) res[, x])), , drop = FALSE]
-  rownames(res) <- NULL
-  res
+
+  unique_groups <- unique(data[, groups, drop = FALSE])
+  is_factor <- do.call(c, lapply(unique_groups, function(x) is.factor(x)))
+  n_comb <- nrow(unique_groups)
+  rows <- rep(list(NA), n_comb)
+  for (i in seq_len(n_comb)) {
+    rows[[i]] <- which(interaction(data[, groups, drop = TRUE]) %in% interaction(unique_groups[i, groups]))
+  }
+
+  if (!isTRUE(drop) && any(is_factor)) {
+    na_lvls <- do.call(
+      expand.grid,
+      lapply(unique_groups, function(x) if (is.factor(x)) levels(x)[!(levels(x) %in% x)] else NA)
+    )
+    unique_groups <- rbind(unique_groups, na_lvls)
+    for (i in seq_len(nrow(na_lvls))) {
+      rows[[length(rows) + 1]] <- integer(0)
+    }
+  }
+
+  unique_groups[[".rows"]] <- rows
+  unique_groups <- unique_groups[do.call(order, lapply(groups, function(x) unique_groups[, x])), , drop = FALSE]
+  rownames(unique_groups) <- NULL
+  structure(unique_groups, .drop = drop)
 }
