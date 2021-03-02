@@ -116,7 +116,7 @@ join_worker <- function(x, y, by = NULL, suffix = c(".x", ".y"), keep = FALSE, n
     merged[, paste0(by, suffix[2L])] <- merged[, x_by]
   }
   rownames(merged) <- NULL
-  merged
+  reconstruct_attrs(merged, x)
 }
 
 join_message <- function(by) {

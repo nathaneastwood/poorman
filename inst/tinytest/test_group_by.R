@@ -119,32 +119,31 @@ df <- data.frame(
   x = 42
 )
 
-# res <- df %>%
-#   group_by(f1, f2, .drop = TRUE)
-# expect_equal(n_groups(res), 1L, info = "summarise maintains the .drop attribute")
+res <- df %>%
+  group_by(f1, f2, .drop = TRUE)
+expect_equal(n_groups(res), 1L, info = "summarise maintains the .drop attribute")
 
-# res2 <- summarise(res, x = sum(x))
-# expect_equal(n_groups(res2), 1L, info = "summarise maintains the .drop attribute")
-# expect_true(group_by_drop_default(res2), info = "summarise maintains the .drop attribute")
+res2 <- summarise(res, x = sum(x))
+expect_equal(n_groups(res2), 1L, info = "summarise maintains the .drop attribute")
+expect_true(group_by_drop_default(res2), info = "summarise maintains the .drop attribute")
 
-# df1 <- group_by(data.frame(
-#   f1 = factor(c("a", "b"), levels = c("a", "b", "c")),
-#   x  = 42:43
-# ), f1, .drop = TRUE)
-# df2 <- group_by(data.frame(
-#   f1 = factor(c("a"), levels = c("a", "b", "c")),
-#   y = 1
-# ), f1, .drop = TRUE)
-# res <- left_join(df1, df2, by = "f1")
-# expect_equal(n_groups(res), 2L, info = "joins maintain the .drop attribute")
+df1 <- group_by(data.frame(
+  f1 = factor(c("a", "b"), levels = c("a", "b", "c")),
+  x  = 42:43
+), f1, .drop = TRUE)
+df2 <- group_by(data.frame(
+  f1 = factor(c("a"), levels = c("a", "b", "c")),
+  y = 1
+), f1, .drop = TRUE)
+res <- left_join(df1, df2, by = "f1")
+expect_equal(n_groups(res), 2L, info = "joins maintain the .drop attribute")
 
-# df2 <- group_by(data.frame(
-#   f1 = factor(c("a", "c"), levels = c("a", "b", "c")),
-#   y = 1:2
-# ), f1, .drop = TRUE)
-# res <- full_join(df1, df2, by = "f1")
-# expect_equal(n_groups(res), 3L, info = "joins maintain the .drop attribute")
-
+df2 <- group_by(data.frame(
+  f1 = factor(c("a", "c"), levels = c("a", "b", "c")),
+  y = 1:2
+), f1, .drop = TRUE)
+res <- full_join(df1, df2, by = "f1")
+expect_equal(n_groups(res), 3L, info = "joins maintain the .drop attribute")
 
 d <- data.frame(
   f1 = factor("b", levels = c("a", "b", "c")),

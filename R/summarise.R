@@ -50,7 +50,7 @@ summarise.data.frame <- function(.data, ...) {
   }
   res <- do.call(cbind, res)
   if (groups_exist) res <- cbind(group, res, row.names = NULL)
-  res
+  reconstruct_attrs(res, .data)
 }
 
 #' @export

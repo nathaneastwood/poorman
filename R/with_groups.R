@@ -33,6 +33,5 @@ with_groups <- function(.data, .groups, .f, ...) {
   out <- do.call(group_by, c(list(.data = .data), val))
   .f <- as_function(.f)
   out <- .f(out, ...)
-  out_groups <- cur_groups[cur_groups %in% colnames(out)]
-  do.call(group_by, c(list(.data = out), as_symbols(out_groups)))
+  reconstruct_attrs(out, .data)
 }

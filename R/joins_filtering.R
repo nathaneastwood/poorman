@@ -48,5 +48,5 @@ filter_join_worker <- function(x, y, by = NULL, type = c("anti", "semi")) {
   if (type == "anti") rows <- !rows
   res <- x[rows, , drop = FALSE]
   rownames(res) <- NULL
-  res
+  reconstruct_attrs(res, x)
 }
