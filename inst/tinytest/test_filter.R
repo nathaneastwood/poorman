@@ -95,3 +95,10 @@ expect_equal(
   ),
   info = ".preserve = FALSE returns the correct row indicies"
 )
+
+# Errors
+
+expect_error(
+  filter(.data = mtcars, mpg > 20, am = 1),
+  info = "Check for named arguments works"
+)

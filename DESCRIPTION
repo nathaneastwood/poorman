@@ -1,7 +1,7 @@
 Package: poorman
 Type: Package
 Title: A Poor Man's Dependency Free Recreation of 'dplyr'
-Version: 0.2.4.16
+Version: 0.2.4.17
 Authors@R: person("Nathan", "Eastwood", "", "nathan.eastwood@icloud.com",
     role = c("aut", "cre"))
 Maintainer: Nathan Eastwood <nathan.eastwood@icloud.com>

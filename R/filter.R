@@ -32,6 +32,7 @@ filter <- function(.data, ..., .preserve = FALSE) {
 #' @export
 filter.data.frame <- function(.data, ..., .preserve = FALSE) {
   conditions <- dotdotdot(...)
+  check_filter(conditions)
   cond_class <- vapply(conditions, typeof, NA_character_)
   cond_class <- cond_class[!cond_class %in% c("language", "logical")]
   if (length(cond_class) > 0L) stop("Conditions must be logical vectors")
@@ -69,4 +70,20 @@ filter.grouped_data <- function(.data, ..., .preserve = FALSE) {
 
   attr(res, "groups") <- post_filtered_groups
   res
+}
+
+# -- Helpers -------------------------------------------------------------------
+
+check_filter <- function(conditions) {
+  named <- have_name(conditions)
+  for (i in which(named)) {
+    if (!is.logical(conditions[[i]])) {
+      stop(
+        sprintf("Problem with `filter()` input `..%s`.\n", i),
+        sprintf("Input `..%s` is named.\n", i),
+        "This usually means that you've used `=` instead of `==`.\n",
+        sprintf("Did you mean `%s == %s`?", names(conditions)[[i]], conditions[[i]])
+      )
+    }
+  }
 }
