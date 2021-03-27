@@ -50,20 +50,6 @@ as_symbols <- function(x) {
   lapply(x, as.symbol)
 }
 
-#' Remove all levels of a list
-#' @noRd
-squash <- function(lst) {
-  do.call(c, lapply(lst, function(x) if (is.list(x) && !is.data.frame(x)) squash(x) else list(x)))
-}
-
-#' Move entries within a list up one level
-#' @noRd
-flatten <- function(lst) {
-  nested <- is_nested(lst)
-  res <- c(lst[!nested], unlist(lst[nested], recursive = FALSE))
-  if (sum(nested)) Recall(res) else return(res)
-}
-
 #' Check whether the input is an atomic vector or a data.frame
 #' @noRd
 is_df_or_vector <- function(x) {
