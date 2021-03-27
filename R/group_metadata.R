@@ -79,7 +79,7 @@ group_vars <- function(x) {
 #' @rdname group_metadata
 #' @export
 groups <- function(x) {
-  lapply(group_vars(x), as.symbol)
+  as_symbols(group_vars(x))
 }
 
 #' @description

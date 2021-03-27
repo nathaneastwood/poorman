@@ -35,7 +35,7 @@ unite <- function(data, col, ..., sep = "_", remove = TRUE, na.rm = FALSE) {
   if (isTRUE(remove)) {
     to_rm <- setdiff(colnames(to_unite), col)
     if (inherits(data, "grouped_data") && length(to_rm) > 0L) {
-      rm_groups <- lapply(intersect(group_vars(data), to_rm), as.symbol)
+      rm_groups <- as_symbols(intersect(group_vars(data), to_rm))
       data <- do.call(ungroup, squash(list(x = data, rm_groups)))
     }
     data[, to_rm] <- NULL

@@ -63,7 +63,7 @@ filter.grouped_data <- function(.data, ..., .preserve = FALSE) {
     filtered_groups <- filtered_groups[, groups, drop = FALSE]
     filtered_groups[[".rows"]] <- rep(list(integer()), length.out = nrow(filtered_groups))
     post_filtered_groups <- bind_rows(post_filtered_groups, filtered_groups)
-    ordered <- do.call(arrange_rows, list(post_filtered_groups, lapply(groups, as.symbol)))
+    ordered <- do.call(arrange_rows, list(post_filtered_groups, as_symbols(groups)))
     post_filtered_groups <- post_filtered_groups[ordered, ]
   }
 
