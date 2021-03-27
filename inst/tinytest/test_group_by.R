@@ -84,19 +84,15 @@ expect_true(group_by_drop_default(res))
 res <- iris %>%
   filter(Species == "setosa") %>%
   group_by(Species, .drop = TRUE)
-res2 <- res %>%
-  filter(Sepal.Length > 5)
+res2 <- filter(res, Sepal.Length > 5)
 expect_true(group_by_drop_default(res2), info = "grouped data.frames remember their .drop")
 
-# res3 <- res %>%
-#   filter(Sepal.Length > 5, .preserve = FALSE)
-# expect_true(group_by_drop_default(res3))
+res3 <- filter(res, Sepal.Length > 5, .preserve = FALSE)
+expect_true(group_by_drop_default(res3), info = "grouped data.frames remember their .drop")
 
-# res4 <- res3 %>%
-#   group_by(Species)
-# expect_true(group_by_drop_default(res4))
-# expect_equal(nrow(group_data(res4)), 1L)
-
+res4 <- group_by(res3, Species)
+expect_true(group_by_drop_default(res4), info = "grouped data.frames remember their .drop")
+expect_equal(nrow(group_data(res4)), 1L, info = "grouped data.frames remember their .drop")
 
 res <- iris %>%
   filter(Species == "setosa") %>%

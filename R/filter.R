@@ -5,6 +5,8 @@
 #' @param .data A `data.frame`.
 #' @param ... Logical predicated defined in terms of the variables in `.data`. Multiple conditions are combined with
 #' `&`. Arguments within `...` are automatically quoted and evaluated within the context of the `data.frame`.
+#' @param .preserve `logical(1)`. Relevant when the .data input is grouped. If `.preserve = FALSE` (the default), the
+#' grouping structure is recalculated based on the resulting data, otherwise the grouping is kept as is.
 #'
 #' @section Useful filter functions:
 #'
@@ -23,15 +25,16 @@
 #' A `data.frame`.
 #'
 #' @export
-filter <- function(.data, ...) {
+filter <- function(.data, ..., .preserve = FALSE) {
   UseMethod("filter")
 }
 
 #' @export
-filter.data.frame <- function(.data, ...) {
+filter.data.frame <- function(.data, ..., .preserve = FALSE) {
   conditions <- dotdotdot(...)
   cond_class <- vapply(conditions, typeof, NA_character_)
-  if (any(cond_class != "language")) stop("Conditions must be logical vectors")
+  cond_class <- cond_class[!cond_class %in% c("language", "logical")]
+  if (length(cond_class) > 0L) stop("Conditions must be logical vectors")
   context$setup(.data)
   on.exit(context$clean(), add = TRUE)
   eval_env$env <- parent.frame()
@@ -46,8 +49,24 @@ filter.data.frame <- function(.data, ...) {
 }
 
 #' @export
-filter.grouped_data <- function(.data, ...) {
+filter.grouped_data <- function(.data, ..., .preserve = FALSE) {
   rows <- rownames(.data)
   res <- apply_grouped_function("filter", .data, drop = TRUE, ...)
-  res[rows[rows %in% rownames(res)], ]
+  res <- res[rows[rows %in% rownames(res)], ]
+
+  groups <- group_vars(.data)
+  pre_filtered_groups <- group_data(.data)
+  post_filtered_groups <- calculate_groups(res, groups)
+
+  if (!(!.preserve && isTRUE(attr(pre_filtered_groups, ".drop")))) {
+    filtered_groups <- anti_join(pre_filtered_groups, post_filtered_groups, by = groups)
+    filtered_groups <- filtered_groups[, groups, drop = FALSE]
+    filtered_groups[[".rows"]] <- rep(list(integer()), length.out = nrow(filtered_groups))
+    post_filtered_groups <- bind_rows(post_filtered_groups, filtered_groups)
+    ordered <- do.call(arrange_rows, list(post_filtered_groups, lapply(groups, as.symbol)))
+    post_filtered_groups <- post_filtered_groups[ordered, ]
+  }
+
+  attr(res, "groups") <- post_filtered_groups
+  res
 }
