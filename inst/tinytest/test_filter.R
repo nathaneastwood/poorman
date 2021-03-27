@@ -67,6 +67,12 @@ expect_equal(
   info = "Test filter works in an anonymous function; factors (#9)"
 )
 
+expect_equal(
+  filter(.data = mtcars),
+  mtcars,
+  info = "filter() returns the input data if no parameters are given"
+)
+
 # Grouped Operations
 expect_equal(
   mtcars %>% group_by(carb) %>% filter(any(mpg > 28)) %>% ungroup(),

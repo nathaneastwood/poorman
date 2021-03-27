@@ -32,6 +32,7 @@ filter <- function(.data, ..., .preserve = FALSE) {
 #' @export
 filter.data.frame <- function(.data, ..., .preserve = FALSE) {
   conditions <- dotdotdot(...)
+  if (length(conditions) == 0L) return(.data)
   check_filter(conditions)
   cond_class <- vapply(conditions, typeof, NA_character_)
   cond_class <- cond_class[!cond_class %in% c("language", "logical")]
