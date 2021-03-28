@@ -4,13 +4,16 @@
 \alias{filter}
 \title{Return rows with matching conditions}
 \usage{
-filter(.data, ...)
+filter(.data, ..., .preserve = FALSE)
 }
 \arguments{
 \item{.data}{A \code{data.frame}.}
 
 \item{...}{Logical predicated defined in terms of the variables in \code{.data}. Multiple conditions are combined with
 \code{&}. Arguments within \code{...} are automatically quoted and evaluated within the context of the \code{data.frame}.}
+
+\item{.preserve}{\code{logical(1)}. Relevant when the .data input is grouped. If \code{.preserve = FALSE} (the default), the
+grouping structure is recalculated based on the resulting data, otherwise the grouping is kept as is.}
 }
 \value{
 A \code{data.frame}.
