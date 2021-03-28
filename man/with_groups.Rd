@@ -15,7 +15,7 @@ variables.
 
 Use \code{NULL} to temporarily \strong{un}group.}
 
-\item{.f}{A \code{function} to apply to regrouped data. Supports lamba-style \code{~} syntax.}
+\item{.f}{A \code{function} to apply to regrouped data. Supports lambda-style \code{~} syntax.}
 
 \item{...}{Additional arguments passed on to \code{.f}.}
 }

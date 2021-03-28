@@ -8,7 +8,7 @@
 #' variables.
 #'
 #' Use `NULL` to temporarily **un**group.
-#' @param .f A `function` to apply to regrouped data. Supports lamba-style `~` syntax.
+#' @param .f A `function` to apply to regrouped data. Supports lambda-style `~` syntax.
 #' @param ... Additional arguments passed on to `.f`.
 #'
 #' @examples

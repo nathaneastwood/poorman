@@ -4,7 +4,7 @@
 #' explicit in the data. Each group key is given a single row within the `data.frame` and the group's data is stored
 #' within a list-column of the `data.frame`.
 #'
-#' Currently there is no pretty-printing provided for the results of `nest_by()` and they are not useble with other
+#' Currently there is no pretty-printing provided for the results of `nest_by()` and they are not useable with other
 #' functions such as [mutate()].
 #'
 #' @inheritParams group_split
