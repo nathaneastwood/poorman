@@ -1,7 +1,6 @@
 <!-- README.md is generated from README.Rmd. Please edit that file -->
 
-{poorman} <a href='https://nathaneastwood.github.io/tags/poorman/'><img src='man/figures/logo.png' align="right" height="139" /></a>
-====================================================================================================================================
+# {poorman} <a href='https://nathaneastwood.github.io/tags/poorman/'><img src='man/figures/logo.png' align="right" height="139" /></a>
 
 [![CRAN
 status](https://www.r-pkg.org/badges/version/poorman)](https://cran.r-project.org/package=poorman)
@@ -15,8 +14,7 @@ I’d seen my father. He was a poor man, and I watched him do astonishing
 things. - Sidney Poitier
 </blockquote>
 
-Overview
---------
+## Overview
 
 {poorman} is a grammar of data manipulation, providing dependency free
 versions of [{dplyr}](https://github.com/tidyverse/dplyr) verbs that
@@ -39,8 +37,7 @@ For more details on the functionality available within {poorman}, check
 out the {poorman} series of blog posts
 [here](https://nathaneastwood.github.io/tags/poorman/).
 
-Installation
-------------
+## Installation
 
 You can install:
 
@@ -58,8 +55,7 @@ remotes::install_github("nathaneastwood/poorman")
 install.packages("poorman")
 ```
 
-Docker
-------
+## Docker
 
 If you’d like to try out the latest version of the package on CRAN using
 Docker, you can run the latest image with:
@@ -68,8 +64,7 @@ Docker, you can run the latest image with:
 docker run --rm -it nathaneastwood/poorman
 ```
 
-Usage
------
+## Usage
 
 ``` r
 library(poorman, warn.conflicts = FALSE)
@@ -100,8 +95,7 @@ mtcars %>%
 # 6  1   8 15.40000 0.5656854
 ```
 
-Related Work
-------------
+## Related Work
 
 -   [{dplyr}](https://github.com/tidyverse/dplyr)
 -   [{bplyr}](https://github.com/yonicd/bplyr) - imports {magrittr} and

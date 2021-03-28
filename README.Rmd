@@ -11,6 +11,7 @@ knitr::opts_chunk$set(
   fig.path = "man/figures/README-",
   out.width = "100%"
 )
+options(poorman.summarise.inform = FALSE)
 ```
 
 # {poorman} <a href='https://nathaneastwood.github.io/tags/poorman/'><img src='man/figures/logo.png' align="right" height="139" /></a>
