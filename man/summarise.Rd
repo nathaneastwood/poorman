@@ -5,14 +5,30 @@
 \alias{summarize}
 \title{Reduce multiple values down to a single value}
 \usage{
-summarise(.data, ...)
+summarise(.data, ..., .groups = NULL)
 
-summarize(.data, ...)
+summarize(.data, ..., .groups = NULL)
 }
 \arguments{
 \item{.data}{A \code{data.frame}.}
 
-\item{...}{Name-value pairs of summary functions. The name will be the name of the variable in the result.
+\item{...}{Name-value pairs of summary functions. The name will be the name of the variable in the result.}
+
+\item{.groups}{\code{character(1)}. Grouping structure of the result.
+\itemize{
+\item \code{"drop_last"}: drops the last level of grouping.
+\item \code{"drop"}: all levels of grouping are dropped.
+\item \code{"keep"}: keeps the same grouping structure as \code{.data}.
+}
+
+When \code{.groups} is not specified, it is chosen based on the number of rows of the results:
+\itemize{
+\item If all the results have 1 row, you get \code{"drop_last"}.
+\item If the number of rows varies, you get \code{"keep"}.
+}
+
+In addition, a message informs you of that choice, unless the result is ungrouped, the option
+\code{"poorman.summarise.inform"} is set to \code{FALSE}.
 
 The value can be:
 \itemize{
@@ -28,8 +44,34 @@ result in one row in the output for each group.
 \code{summarise()} and \code{summarize()} are synonyms.
 }
 \examples{
-summarise(mtcars, mean(mpg))
-summarise(mtcars, meanMpg = mean(mpg), sumMpg = sum(mpg))
-mtcars \%>\% summarise(mean(mpg))
+# A summary applied to ungrouped tbl returns a single row
+mtcars \%>\%
+  summarise(mean = mean(disp), n = n())
+
+# Usually, you'll want to group first
+mtcars \%>\%
+  group_by(cyl) \%>\%
+  summarise(mean = mean(disp), n = n())
+
+# You can summarise to more than one value:
+mtcars \%>\%
+   group_by(cyl) \%>\%
+   summarise(qs = quantile(disp, c(0.25, 0.75)), prob = c(0.25, 0.75))
+
+# You use a data frame to create multiple columns so you can wrap
+# this up into a function:
+my_quantile <- function(x, probs) {
+  data.frame(x = quantile(x, probs), probs = probs)
+}
+mtcars \%>\%
+  group_by(cyl) \%>\%
+  summarise(my_quantile(disp, c(0.25, 0.75)))
+
+# Each summary call removes one grouping level (since that group
+# is now just a single row)
+mtcars \%>\%
+  group_by(cyl, vs) \%>\%
+  summarise(cyl_n = n()) \%>\%
+  group_vars()
 
 }

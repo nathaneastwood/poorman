@@ -47,12 +47,10 @@ expect_equal(
   gd,
   structure(
     list(
-      am = c(0, 0, 0, 0, 0, 1, 1, 1, 1, 1),
-      cyl = c(4, 4, 6, 6, 8, 4, 4, 6, 6, 8),
-      gear = c(3, 4, 3, 4, 3, 4, 5, 4, 5, 5),
-      .rows = list(1L, 2L, 3L, 4L, 5L, 6L, 7L, 8L, 9L, 10L)
-    ),
-    row.names = c(NA, 10L), class = "data.frame", .drop = TRUE
+      am = c(0, 0, 0, 1, 1, 1),
+      cyl = c(4, 6, 8, 4, 6, 8),
+      .rows = list(1:2, 3:4, 5L, 6:7, 8:9, 10L)
+    ), row.names = c(NA, 6L), class = "data.frame", .drop = TRUE
   ),
   info = "Ensure the summarised data still contains group attributes"
 )
@@ -94,4 +92,35 @@ expect_equal(
   },
   data.frame(am = c(0, 1)),
   info = "empty grouped summarise() returns groups #2"
+)
+
+# .groups
+df <- data.frame(x = 1, y = 2) %>% group_by(x, y)
+expect_equal(
+  df %>% summarise() %>% group_vars(),
+  "x",
+  info = ".groups = NULL drops the last grouping variable when the results return a single value"
+)
+expect_equal(
+  df %>% summarise(.groups = "drop_last") %>% group_vars(),
+  "x",
+  info = ".groups = 'drop_last' drops the last grouping variable"
+)
+expect_equal(
+  df %>% summarise(.groups = "drop") %>% group_vars(),
+  character(),
+  info = ".groups = 'drop' drops all grouping variables"
+)
+expect_equal(
+  df %>% summarise(.groups = "keep") %>% group_vars(),
+  c("x", "y"),
+  info = ".groups = 'keep' keeps all grouping variables"
+)
+expect_equal(
+  mtcars %>%
+    group_by(cyl, vs) %>%
+    summarise(cyl_n = n()) %>%
+    group_vars(),
+  "cyl",
+  info = ".groups = NULL drops the last grouping variable when the results return a single value for multiple groups"
 )

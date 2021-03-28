@@ -7,24 +7,62 @@
 #'
 #' @param .data A `data.frame`.
 #' @param ... Name-value pairs of summary functions. The name will be the name of the variable in the result.
+#' @param .groups `character(1)`. Grouping structure of the result.
+#'
+#' * `"drop_last"`: drops the last level of grouping.
+#' * `"drop"`: all levels of grouping are dropped.
+#' * `"keep"`: keeps the same grouping structure as `.data`.
+#'
+#' When `.groups` is not specified, it is chosen based on the number of rows of the results:
+#' * If all the results have 1 row, you get `"drop_last"`.
+#' * If the number of rows varies, you get `"keep"`.
+#'
+#' In addition, a message informs you of that choice, unless the result is ungrouped, the option
+#' `"poorman.summarise.inform"` is set to `FALSE`.
 #'
 #' The value can be:
 #' * A vector of length `1`, e.g. `min(x)`, `n()`, or `sum(is.na(y))`.
 #' * A vector of length `n`, e.g. `quantile()`.
 #'
 #' @examples
-#' summarise(mtcars, mean(mpg))
-#' summarise(mtcars, meanMpg = mean(mpg), sumMpg = sum(mpg))
-#' mtcars %>% summarise(mean(mpg))
+#' # A summary applied to ungrouped tbl returns a single row
+#' mtcars %>%
+#'   summarise(mean = mean(disp), n = n())
+#'
+#' # Usually, you'll want to group first
+#' mtcars %>%
+#'   group_by(cyl) %>%
+#'   summarise(mean = mean(disp), n = n())
+#'
+#' # You can summarise to more than one value:
+#' mtcars %>%
+#'    group_by(cyl) %>%
+#'    summarise(qs = quantile(disp, c(0.25, 0.75)), prob = c(0.25, 0.75))
+#'
+#' # You use a data frame to create multiple columns so you can wrap
+#' # this up into a function:
+#' my_quantile <- function(x, probs) {
+#'   data.frame(x = quantile(x, probs), probs = probs)
+#' }
+#' mtcars %>%
+#'   group_by(cyl) %>%
+#'   summarise(my_quantile(disp, c(0.25, 0.75)))
+#'
+#' # Each summary call removes one grouping level (since that group
+#' # is now just a single row)
+#' mtcars %>%
+#'   group_by(cyl, vs) %>%
+#'   summarise(cyl_n = n()) %>%
+#'   group_vars()
 #'
 #' @name summarise
 #' @export
-summarise <- function(.data, ...) {
+summarise <- function(.data, ..., .groups = NULL) {
   UseMethod("summarise")
 }
 
 #' @export
-summarise.data.frame <- function(.data, ...) {
+summarise.data.frame <- function(.data, ..., .groups = NULL) {
   fns <- dotdotdot(...)
   context$setup(.data)
   on.exit(context$clean(), add = TRUE)
@@ -50,15 +88,40 @@ summarise.data.frame <- function(.data, ...) {
   }
   res <- do.call(cbind, res)
   if (groups_exist) res <- cbind(group, res, row.names = NULL)
-  reconstruct_attrs(res, .data)
+  res
 }
 
 #' @export
-summarise.grouped_data <- function(.data, ...) {
+summarise.grouped_data <- function(.data, ..., .groups = NULL) {
+  if (!is.null(.groups)) {
+    .groups <- match.arg(arg = .groups, choices = c("drop", "drop_last", "keep"), several.ok = FALSE)
+  }
+
   groups <- group_vars(.data)
   res <- apply_grouped_function("summarise", .data, drop = TRUE, ...)
-  res <- res[do.call(order, lapply(groups, function(x) res[, x])), , drop = FALSE]
-  res <- groups_set(res, groups, group_by_drop_default(res))
+  res <- res[arrange_rows(res, as_symbols(groups)), , drop = FALSE]
+
+  verbose <- summarise_verbose(.groups)
+
+  if (is.null(.groups)) {
+    all_one <- as.data.frame(table(res[, groups]))
+    all_one <- all_one[all_one$Freq != 0, ]
+    .groups <- if (all(all_one$Freq == 1)) "drop_last" else "keep"
+  }
+
+  if (.groups == "drop_last") {
+    n <- length(groups)
+    if (n > 1) {
+      if (verbose) summarise_inform(groups[-n])
+      res <- groups_set(res, groups[-n], group_by_drop_default(.data))
+    }
+  } else if (.groups == "keep") {
+    if (verbose) summarise_inform(groups)
+    res <- groups_set(res, groups, group_by_drop_default(.data))
+  } else if (.groups == "drop") {
+    attr(res, "groups") <- NULL
+  }
+
   rownames(res) <- NULL
   res
 }
@@ -70,3 +133,17 @@ summarize <- summarise
 summarize.data.frame <- summarise.data.frame
 #' @export
 summarize.grouped_data <- summarise.grouped_data
+
+# -- Helpers -------------------------------------------------------------------
+
+summarise_inform <- function(new_groups) {
+  message(sprintf(
+    "`summarise()` has grouped output by %s. You can override using the `.groups` argument.",
+    paste0("'", new_groups, "'", collapse = ", ")
+  ))
+}
+
+summarise_verbose <- function(.groups) {
+  is.null(.groups) &&
+    !identical(getOption("poorman.summarise.inform"), FALSE)
+}
