@@ -1,3 +1,25 @@
+# poorman 0.2.5
+
+Ninth CRAN release.
+
+This update has added the following new features:
+
+* `summarise()` can now revise grouping structures with the `.groups` argument (#57).
+* `group_by()` can now drop groups formed by factor levels that don't appear in the data with the `.drop` parameter (#63).
+* New cumulative functions have been added: `cumall()`, `cumany()` and `cummean()` (#64).
+* Additional tools for working with rownames have been added: `has_rownames()`, `remove_rownames()`, `column_to_rownames()`, `rowid_to_column()` (#66).
+* `filter()` gains the `.preserve` parameters (#81).
+* `if_any()` and `if_all()` were added (#80).
+
+The following fixes were also implemented:
+
+* `mutate()` now successfully evaluates functions defined in the scope of a parent function (#68).
+* `select_positions()` now works if passed a combination of positive and negative values (#71).
+* `transmute()` now keeps unnamed columns that it creates (#72).
+
+The following refactorisations took place:
+
+* When grouping data with `group_by()`, it will now create an object of class `grouped_df` and not `grouped_data` which keeps it consistent with the {dplyr} method name (#70). This should hopefully make transitioning packages from {dplyr} to {poorman} a little easier.
 # poorman 0.2.4
 
 Eighth CRAN release.
