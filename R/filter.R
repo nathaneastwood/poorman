@@ -51,7 +51,7 @@ filter.data.frame <- function(.data, ..., .preserve = FALSE) {
 }
 
 #' @export
-filter.grouped_data <- function(.data, ..., .preserve = FALSE) {
+filter.grouped_df <- function(.data, ..., .preserve = FALSE) {
   rows <- rownames(.data)
   res <- apply_grouped_function("filter", .data, drop = TRUE, ...)
   res <- res[rows[rows %in% rownames(res)], ]

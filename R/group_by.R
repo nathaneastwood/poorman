@@ -38,7 +38,7 @@ group_by.data.frame <- function(.data, ..., .add = FALSE, .drop = group_by_drop_
   vars <- dotdotdot(..., .impute_names = TRUE)
   if (all(vapply(vars, is.null, FALSE))) {
     res <- groups_set(.data, NULL)
-    class(res) <- class(res)[!(class(res) %in% "grouped_data")]
+    class(res) <- class(res)[!(class(res) %in% "grouped_df")]
     return(res)
   }
   new_cols <- add_group_columns(.data, vars)
@@ -49,7 +49,7 @@ group_by.data.frame <- function(.data, ..., .add = FALSE, .drop = group_by_drop_
   if (any(unknown)) stop("Invalid groups: ", groups[unknown])
   if (length(groups) > 0L) {
     res <- groups_set(res, groups, .drop)
-    class(res) <- union("grouped_data", class(res))
+    class(res) <- union("grouped_df", class(res))
   }
   res
 }
@@ -82,7 +82,7 @@ group_by_drop_default.default <- function(.tbl) {
 }
 
 #' @export
-group_by_drop_default.grouped_data <- function(.tbl) {
+group_by_drop_default.grouped_df <- function(.tbl) {
   tryCatch({
     !identical(attr(group_data(.tbl), ".drop"), FALSE)
   }, error = function(e) {

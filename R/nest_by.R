@@ -29,7 +29,7 @@ nest_by.data.frame <- function(.data, ..., .key = "data", .keep = FALSE) {
 }
 
 #' @export
-nest_by.grouped_data <- function(.data, ..., .key = "data", .keep = FALSE) {
+nest_by.grouped_df <- function(.data, ..., .key = "data", .keep = FALSE) {
   if (!missing(...)) {
     stop("Can't re-group while nesting. Either `ungroup()` first or don't supply arguments to `nest_by()`")
   }

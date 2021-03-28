@@ -92,7 +92,7 @@ summarise.data.frame <- function(.data, ..., .groups = NULL) {
 }
 
 #' @export
-summarise.grouped_data <- function(.data, ..., .groups = NULL) {
+summarise.grouped_df <- function(.data, ..., .groups = NULL) {
   if (!is.null(.groups)) {
     .groups <- match.arg(arg = .groups, choices = c("drop", "drop_last", "keep"), several.ok = FALSE)
   }
@@ -132,7 +132,7 @@ summarize <- summarise
 #' @export
 summarize.data.frame <- summarise.data.frame
 #' @export
-summarize.grouped_data <- summarise.grouped_data
+summarize.grouped_df <- summarise.grouped_df
 
 # -- Helpers -------------------------------------------------------------------
 

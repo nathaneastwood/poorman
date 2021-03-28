@@ -119,7 +119,7 @@ mutate.data.frame <- function(
 }
 
 #' @export
-mutate.grouped_data <- function(.data, ...) {
+mutate.grouped_df <- function(.data, ...) {
   context$group_env <- parent.frame(n = 1)
   on.exit(rm(list = c("group_env"), envir = context), add = TRUE)
   rows <- rownames(.data)

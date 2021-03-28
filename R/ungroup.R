@@ -15,12 +15,12 @@ ungroup.data.frame <- function(x, ...) {
   x <- groups_set(x, groups[!(groups %in% rm_groups)])
   if (length(attr(x, "groups")) == 0L) {
     attr(x, "groups") <- NULL
-    class(x) <- class(x)[!(class(x) %in% "grouped_data")]
+    class(x) <- class(x)[!(class(x) %in% "grouped_df")]
   }
   x
 }
 
 #' @export
-ungroup.grouped_data <- function(x, ...) {
+ungroup.grouped_df <- function(x, ...) {
   NextMethod("ungroup")
 }

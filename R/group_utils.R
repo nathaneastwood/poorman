@@ -39,7 +39,7 @@ apply_grouped_function <- function(fn, .data, drop = FALSE, ...) {
   grouped <- split_into_groups(.data, groups, drop)
   res <- do.call(rbind, unname(lapply(grouped, fn, ...)))
   if (any(groups %in% colnames(res))) {
-    class(res) <- c("grouped_data", class(res))
+    class(res) <- c("grouped_df", class(res))
     res <- groups_set(res, groups[groups %in% colnames(res)])
   }
   res
@@ -83,4 +83,8 @@ calculate_groups <- function(data, groups, drop = group_by_drop_default(data)) {
   unique_groups <- unique_groups[do.call(order, lapply(groups, function(x) unique_groups[, x])), , drop = FALSE]
   rownames(unique_groups) <- NULL
   structure(unique_groups, .drop = drop)
+}
+
+is.grouped_df <- function(x) {
+  inherits(x, "grouped_df")
 }

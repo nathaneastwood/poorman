@@ -121,7 +121,7 @@ expect_equal(
       row.names = 1:2,
       class = "data.frame",
       .drop = TRUE
-    ), row.names = 1:2, class = c("grouped_data", "data.frame")
+    ), row.names = 1:2, class = c("grouped_df", "data.frame")
   ),
   info = "across() usage can depend on the group id"
 )

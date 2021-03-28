@@ -67,7 +67,7 @@ expect_equal(
       sumDisp = c(120.1, 287.5, 483, 335.2, 4291.4, 533.5, 215.4, 320, 145, 652)
     ),
     row.names = c(NA, 10L),
-    class = c("grouped_data", "data.frame")
+    class = c("grouped_df", "data.frame")
   ),
   info = "Test multiple groups and multiple summary functions"
 )
@@ -81,7 +81,7 @@ expect_equal(
 res <- mtcars %>% group_by(am) %>% summarise()
 expect_equal(
   class(res),
-  c("grouped_data", "data.frame"),
+  c("grouped_df", "data.frame"),
   info = "empty grouped summarise() returns groups #1"
 )
 expect_equal(

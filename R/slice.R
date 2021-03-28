@@ -60,7 +60,7 @@ slice.data.frame <- function(.data, ...) {
 }
 
 #' @export
-slice.grouped_data <- function(.data, ...) {
+slice.grouped_df <- function(.data, ...) {
   apply_grouped_function("slice", .data, drop = TRUE, ...)
 }
 
@@ -83,7 +83,7 @@ slice_head.data.frame <- function(.data, ..., n, prop) {
 }
 
 #' @export
-slice_head.grouped_data <- function(.data, ..., n, prop) {
+slice_head.grouped_df <- function(.data, ..., n, prop) {
   apply_grouped_function("slice_head", .data, drop = TRUE, n = n, prop = prop, ...)
 }
 
@@ -105,7 +105,7 @@ slice_tail.data.frame <- function(.data, ..., n, prop) {
 }
 
 #' @export
-slice_tail.grouped_data <- function(.data, ..., n, prop) {
+slice_tail.grouped_df <- function(.data, ..., n, prop) {
   apply_grouped_function("slice_tail", .data, drop = TRUE, n = n, prop = prop, ...)
 }
 
@@ -142,7 +142,7 @@ slice_min.data.frame <- function(.data, order_by, ..., n, prop, with_ties = TRUE
 }
 
 #' @export
-slice_min.grouped_data <- function(.data, order_by, ..., n, prop, with_ties = TRUE) {
+slice_min.grouped_df <- function(.data, order_by, ..., n, prop, with_ties = TRUE) {
   eval_env$env <- environment()
   on.exit(rm(list = "env", envir = eval_env), add = TRUE)
   apply_grouped_function(
@@ -179,7 +179,7 @@ slice_max.data.frame <- function(.data, order_by, ..., n, prop, with_ties = TRUE
 }
 
 #' @export
-slice_max.grouped_data <- function(.data, order_by, ..., n, prop, with_ties = TRUE) {
+slice_max.grouped_df <- function(.data, order_by, ..., n, prop, with_ties = TRUE) {
   eval_env$env <- environment()
   on.exit(rm(list = "env", envir = eval_env), add = TRUE)
   apply_grouped_function(
@@ -212,7 +212,7 @@ slice_sample.data.frame <- function(.data, ..., n, prop, weight_by = NULL, repla
 }
 
 #' @export
-slice_sample.grouped_data <- function(.data, ..., n, prop, weight_by = NULL, replace = FALSE) {
+slice_sample.grouped_df <- function(.data, ..., n, prop, weight_by = NULL, replace = FALSE) {
   eval_env$env <- environment()
   on.exit(rm(list = "env", envir = eval_env), add = TRUE)
   apply_grouped_function(

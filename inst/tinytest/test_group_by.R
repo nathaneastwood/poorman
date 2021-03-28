@@ -151,7 +151,7 @@ expect_equal(n_groups(res), 1L, info = "group_by(add = TRUE) sets .drop if the o
 expect_true(group_by_drop_default(res), info = "group_by(add = TRUE) sets .drop if the origonal data was .drop = TRUE")
 
 df <- data.frame(x = 1:2, y = 1:2) %>%
-  structure(class = c("grouped_data", "data.frame"))
+  structure(class = c("grouped_df", "data.frame"))
 expect_true(group_by_drop_default(df), info = "group_by_drop_default() is forgiving about corrupt grouped df")
 
 res <- data.frame(x = c("apple", NA, "banana"), y = 1:3, stringsAsFactors = FALSE) %>%

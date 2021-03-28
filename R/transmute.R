@@ -10,7 +10,7 @@ transmute.data.frame <- function(.data, ...) {
 }
 
 #' @export
-transmute.grouped_data <- function(.data, ...) {
+transmute.grouped_df <- function(.data, ...) {
   rows <- rownames(.data)
   res <- apply_grouped_function("transmute", .data, drop = TRUE, ...)
   res[rows, ]

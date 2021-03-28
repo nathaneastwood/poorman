@@ -34,7 +34,7 @@ group_data.data.frame <- function(.data) {
 }
 
 #' @export
-group_data.grouped_data <- function(.data) {
+group_data.grouped_df <- function(.data) {
   attr(.data, "groups")
 }
 
