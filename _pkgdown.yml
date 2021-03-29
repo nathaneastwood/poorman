@@ -15,8 +15,10 @@ news:
     href: https://nathaneastwood.github.io/2020/05/17/poorman-the-selectificator-2000/
   - text: "Version 0.2.1"
     href: https://nathaneastwood.github.io/2020/07/01/poorman-version-0.2.1-release/
-  - test: "Version 0.2.2 and 0.2.3"
+  - text: "Version 0.2.2 and 0.2.3"
     href: https://nathaneastwood.github.io/2020/11/14/poorman-versions-0.2.2-and-0.2.3-releases/
+  - text: "Version 0.2.5"
+    href: https://nathaneastwood.github.io/2021/03/29/poorman-version-0.2.5-release/
 
 reference:
 - title: One table verbs
@@ -89,7 +91,7 @@ navbar:
   left:
     - icon: fa-home
       href: index.html
-    - text: "FAQ"
+    # - text: "FAQ"
       # icon: fa-question-circle-o
       # href: articles/faq.html
     - icon: fa-newspaper-o
