@@ -20,6 +20,7 @@ The following fixes were also implemented:
 The following refactorisations took place:
 
 * When grouping data with `group_by()`, it will now create an object of class `grouped_df` and not `grouped_data` which keeps it consistent with the {dplyr} method name (#70). This should hopefully make transitioning packages from {dplyr} to {poorman} a little easier.
+
 # poorman 0.2.4
 
 Eighth CRAN release.
