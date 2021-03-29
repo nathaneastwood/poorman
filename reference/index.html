@@ -79,7 +79,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">poorman</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.2.4</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.2.5</span>
       </span>
     </div>
 
@@ -87,41 +87,21 @@
       <ul class="nav navbar-nav">
         <li>
   <a href="../index.html">
-    <span class="fa fa-home"></span>
+    <span class="fas fa-home"></span>
      
   </a>
 </li>
-<li class="dropdown">
-  <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">
-    <span class="fas fa fas fa-book"></span>
-     
-    Articles
-     
-    <span class="caret"></span>
-  </a>
-  <ul class="dropdown-menu" role="menu">
-    <li>
-      <a href="../articles/introduction.html">Getting Started</a>
-    </li>
-  </ul>
-</li>
-<li>
-  <a href="../articles/faq.html">
-    <span class="fa fa-question-circle-o"></span>
-     
-    FAQ
-  </a>
-</li>
+<li class="dropdown-header">FAQ</li>
 <li>
   <a href="../news/index.html">
-    <span class="fa fa-newspaper-o"></span>
+    <span class="fas fa-newspaper-o"></span>
      
     News
   </a>
 </li>
 <li>
   <a href="../reference/index.html">
-    <span class="fa fa-file-code-o"></span>
+    <span class="fas fa-file-code-o"></span>
      
     Functions
   </a>
@@ -130,7 +110,7 @@
       <ul class="nav navbar-nav navbar-right">
         <li>
   <a href="https://github.com/nathaneastwood/poorman/">
-    <span class="fab fa fab fa-github fa-lg"></span>
+    <span class="fab fa-github fa-lg"></span>
      
   </a>
 </li>
@@ -327,7 +307,7 @@ matches in <code>y</code>:</p></td>
       <tr>
         
         <td>
-          <p><code><a href="across.html">across()</a></code> </p>
+          <p><code><a href="across.html">across()</a></code> <code><a href="across.html">if_any()</a></code> <code><a href="across.html">if_all()</a></code> </p>
         </td>
         <td><p>Apply a function (or functions) across multiple columns</p></td>
       </tr><tr>
@@ -348,6 +328,12 @@ matches in <code>y</code>:</p></td>
           <p><code><a href="coalesce.html">coalesce()</a></code> </p>
         </td>
         <td><p>Find first non-missing element</p></td>
+      </tr><tr>
+        
+        <td>
+          <p><code><a href="cummean.html">cummean()</a></code> <code><a href="cummean.html">cumany()</a></code> <code><a href="cummean.html">cumall()</a></code> </p>
+        </td>
+        <td><p>Cumulativate versions of any, all, and mean</p></td>
       </tr><tr>
         
         <td>
@@ -483,10 +469,23 @@ matches in <code>y</code>:</p></td>
           <p><code><a href="glimpse.html">glimpse()</a></code> </p>
         </td>
         <td><p>Get a glimpse of your data</p></td>
-      </tr><tr>
+      </tr>
+    </tbody><tbody>
+      <tr>
+        <th colspan="2">
+          <h2 id="section-data-frame-attributes" class="hasAnchor"><a href="#section-data-frame-attributes" class="anchor"></a>data.frame Attributes</h2>
+          <p class="section-desc"></p>
+        </th>
+      </tr>
+      
+      
+    </tbody><tbody>
+      
+      
+      <tr>
         
         <td>
-          <p><code><a href="rownames.html">rownames_to_column()</a></code> </p>
+          <p><code><a href="rownames.html">rownames_to_column()</a></code> <code><a href="rownames.html">rowid_to_column()</a></code> <code><a href="rownames.html">column_to_rownames()</a></code> <code><a href="rownames.html">remove_rownames()</a></code> <code><a href="rownames.html">has_rownames()</a></code> </p>
         </td>
         <td><p>Tools for working with row names</p></td>
       </tr>

@@ -6,7 +6,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>Unite Multiple Columns Into One — unite • poorman</title>
+<title>Cumulativate versions of any, all, and mean — cummean • poorman</title>
 
 <!-- favicons -->
 <link rel="icon" type="image/png" sizes="16x16" href="../favicon-16x16.png">
@@ -46,8 +46,8 @@
 
 
 
-<meta property="og:title" content="Unite Multiple Columns Into One — unite" />
-<meta property="og:description" content="Convenience function to paste together multiple columns." />
+<meta property="og:title" content="Cumulativate versions of any, all, and mean — cummean" />
+<meta property="og:description" content="poorman provides cumall(), cumany(), and cummean() to complete R's set of cumulative functions." />
 <meta property="og:image" content="/logo.png" />
 
 
@@ -128,70 +128,74 @@
 <div class="row">
   <div class="col-md-9 contents">
     <div class="page-header">
-    <h1>Unite Multiple Columns Into One</h1>
-    <small class="dont-index">Source: <a href='https://github.com/nathaneastwood/poorman/blob/master/R/unite.R'><code>R/unite.R</code></a></small>
-    <div class="hidden name"><code>unite.Rd</code></div>
+    <h1>Cumulativate versions of any, all, and mean</h1>
+    <small class="dont-index">Source: <a href='https://github.com/nathaneastwood/poorman/blob/master/R/cumulative.R'><code>R/cumulative.R</code></a></small>
+    <div class="hidden name"><code>cummean.Rd</code></div>
     </div>
 
     <div class="ref-description">
-    <p>Convenience function to paste together multiple columns.</p>
+    <p>poorman provides <code>cumall()</code>, <code>cumany()</code>, and <code>cummean()</code> to complete R's set of cumulative functions.</p>
     </div>
 
-    <pre class="usage"><span class='fu'>unite</span><span class='op'>(</span><span class='va'>data</span>, <span class='va'>col</span>, <span class='va'>...</span>, sep <span class='op'>=</span> <span class='st'>"_"</span>, remove <span class='op'>=</span> <span class='cn'>TRUE</span>, na.rm <span class='op'>=</span> <span class='cn'>FALSE</span><span class='op'>)</span></pre>
+    <pre class="usage"><span class='fu'>cummean</span><span class='op'>(</span><span class='va'>x</span><span class='op'>)</span>
+
+<span class='fu'>cumany</span><span class='op'>(</span><span class='va'>x</span><span class='op'>)</span>
+
+<span class='fu'>cumall</span><span class='op'>(</span><span class='va'>x</span><span class='op'>)</span></pre>
 
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
     <table class="ref-arguments">
     <colgroup><col class="name" /><col class="desc" /></colgroup>
     <tr>
-      <th>data</th>
-      <td><p>A <code>data.frame</code>.</p></td>
-    </tr>
-    <tr>
-      <th>col</th>
-      <td><p><code><a href='https://rdrr.io/r/base/character.html'>character(1)</a></code> or <code><a href='https://rdrr.io/r/grDevices/plotmath.html'>symbol(1)</a></code>. The name of the new column.</p></td>
-    </tr>
-    <tr>
-      <th>...</th>
-      <td><p>The columns to unite.</p></td>
-    </tr>
-    <tr>
-      <th>sep</th>
-      <td><p><code><a href='https://rdrr.io/r/base/character.html'>character(1)</a></code>. Separator to use between the values.</p></td>
-    </tr>
-    <tr>
-      <th>remove</th>
-      <td><p><code><a href='https://rdrr.io/r/base/logical.html'>logical(1)</a></code>. If <code>TRUE</code>, remove the input columns from the output <code>data.frame</code>.</p></td>
-    </tr>
-    <tr>
-      <th>na.rm</th>
-      <td><p><code><a href='https://rdrr.io/r/base/logical.html'>logical(1)</a></code>. If <code>TRUE</code>, missing values will be remove prior to uniting each value.</p></td>
+      <th>x</th>
+      <td><p>For <code>cumall()</code> and <code>cumany()</code>, a logical vector; for <code>cummean()</code> an integer or numeric vector.</p></td>
     </tr>
     </table>
 
     <h2 class="hasAnchor" id="value"><a class="anchor" href="#value"></a>Value</h2>
 
-    <p>A <code>data.frame</code> with the columns passed via <code>...</code> pasted together in a new column.</p>
+    <p>A vector the same length as <code>x</code>.</p>
+    <h2 class="hasAnchor" id="cumulative-logical-functions"><a class="anchor" href="#cumulative-logical-functions"></a>Cumulative logical functions</h2>
+
+    
+
+
+<p>These are particularly useful in conjunction with <code><a href='filter.html'>filter()</a></code>:</p><ul>
+<li><p><code>cumall(x)</code>: all cases until the first <code>FALSE</code>.</p></li>
+<li><p><code>cumall(!x)</code>: all cases until the first <code>TRUE</code>.</p></li>
+<li><p><code>cumany(x)</code>: all cases after the first <code>TRUE</code>.</p></li>
+<li><p><code>cumany(!x)</code>: all cases after the first <code>FALSE</code>.</p></li>
+</ul>
+
 
     <h2 class="hasAnchor" id="examples"><a class="anchor" href="#examples"></a>Examples</h2>
-    <pre class="examples"><div class='input'><span class='va'>df</span> <span class='op'>&lt;-</span> <span class='fu'><a href='https://rdrr.io/r/base/data.frame.html'>data.frame</a></span><span class='op'>(</span>x <span class='op'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span><span class='op'>(</span><span class='st'>"a"</span>, <span class='st'>"a"</span>, <span class='cn'>NA</span>, <span class='cn'>NA</span><span class='op'>)</span>, y <span class='op'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span><span class='op'>(</span><span class='st'>"b"</span>, <span class='cn'>NA</span>, <span class='st'>"b"</span>, <span class='cn'>NA</span><span class='op'>)</span><span class='op'>)</span>
-<span class='va'>df</span>
-</div><div class='output co'>#&gt;      x    y
-#&gt; 1    a    b
-#&gt; 2    a &lt;NA&gt;
-#&gt; 3 &lt;NA&gt;    b
-#&gt; 4 &lt;NA&gt; &lt;NA&gt;</div><div class='input'>
-<span class='va'>df</span> <span class='op'>%&gt;%</span> <span class='fu'>unite</span><span class='op'>(</span><span class='st'>"z"</span>, <span class='va'>x</span><span class='op'>:</span><span class='va'>y</span>, remove <span class='op'>=</span> <span class='cn'>FALSE</span><span class='op'>)</span>
-</div><div class='output co'>#&gt;       z    x    y
-#&gt; 1   a_b    a    b
-#&gt; 2  a_NA    a &lt;NA&gt;
-#&gt; 3  NA_b &lt;NA&gt;    b
-#&gt; 4 NA_NA &lt;NA&gt; &lt;NA&gt;</div><div class='input'><span class='co'># To remove missing values:</span>
-<span class='va'>df</span> <span class='op'>%&gt;%</span> <span class='fu'>unite</span><span class='op'>(</span><span class='st'>"z"</span>, <span class='va'>x</span><span class='op'>:</span><span class='va'>y</span>, na.rm <span class='op'>=</span> <span class='cn'>TRUE</span>, remove <span class='op'>=</span> <span class='cn'>FALSE</span><span class='op'>)</span>
-</div><div class='output co'>#&gt;     z    x    y
-#&gt; 1 a_b    a    b
-#&gt; 2   a    a &lt;NA&gt;
-#&gt; 3   b &lt;NA&gt;    b
-#&gt; 4     &lt;NA&gt; &lt;NA&gt;</div><div class='input'>
+    <pre class="examples"><div class='input'><span class='co'># `cummean()` returns a numeric/integer vector of the same length</span>
+<span class='co'># as the input vector.</span>
+<span class='va'>x</span> <span class='op'>&lt;-</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span><span class='op'>(</span><span class='fl'>1</span>, <span class='fl'>3</span>, <span class='fl'>5</span>, <span class='fl'>2</span>, <span class='fl'>2</span><span class='op'>)</span>
+<span class='fu'>cummean</span><span class='op'>(</span><span class='va'>x</span><span class='op'>)</span>
+</div><div class='output co'>#&gt; [1] 1.00 2.00 3.00 2.75 2.60</div><div class='input'><span class='fu'><a href='https://rdrr.io/r/base/cumsum.html'>cumsum</a></span><span class='op'>(</span><span class='va'>x</span><span class='op'>)</span> <span class='op'>/</span> <span class='fu'><a href='https://rdrr.io/r/base/seq.html'>seq_along</a></span><span class='op'>(</span><span class='va'>x</span><span class='op'>)</span>
+</div><div class='output co'>#&gt; [1] 1.00 2.00 3.00 2.75 2.60</div><div class='input'>
+<span class='co'># `cumall()` and `cumany()` return logicals</span>
+<span class='fu'>cumall</span><span class='op'>(</span><span class='va'>x</span> <span class='op'>&lt;</span> <span class='fl'>5</span><span class='op'>)</span>
+</div><div class='output co'>#&gt; [1]  TRUE  TRUE FALSE FALSE FALSE</div><div class='input'><span class='fu'>cumany</span><span class='op'>(</span><span class='va'>x</span> <span class='op'>==</span> <span class='fl'>3</span><span class='op'>)</span>
+</div><div class='output co'>#&gt; [1] FALSE  TRUE  TRUE  TRUE  TRUE</div><div class='input'>
+<span class='co'># `cumall()` vs. `cumany()`</span>
+<span class='va'>df</span> <span class='op'>&lt;-</span> <span class='fu'><a href='https://rdrr.io/r/base/data.frame.html'>data.frame</a></span><span class='op'>(</span>
+  date <span class='op'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/as.Date.html'>as.Date</a></span><span class='op'>(</span><span class='st'>"2020-01-01"</span><span class='op'>)</span> <span class='op'>+</span> <span class='fl'>0</span><span class='op'>:</span><span class='fl'>6</span>,
+  balance <span class='op'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span><span class='op'>(</span><span class='fl'>100</span>, <span class='fl'>50</span>, <span class='fl'>25</span>, <span class='op'>-</span><span class='fl'>25</span>, <span class='op'>-</span><span class='fl'>50</span>, <span class='fl'>30</span>, <span class='fl'>120</span><span class='op'>)</span>
+<span class='op'>)</span>
+<span class='co'># all rows after first overdraft</span>
+<span class='va'>df</span> <span class='op'>%&gt;%</span> <span class='fu'><a href='filter.html'>filter</a></span><span class='op'>(</span><span class='fu'>cumany</span><span class='op'>(</span><span class='va'>balance</span> <span class='op'>&lt;</span> <span class='fl'>0</span><span class='op'>)</span><span class='op'>)</span>
+</div><div class='output co'>#&gt;         date balance
+#&gt; 4 2020-01-04     -25
+#&gt; 5 2020-01-05     -50
+#&gt; 6 2020-01-06      30
+#&gt; 7 2020-01-07     120</div><div class='input'><span class='co'># all rows until first overdraft</span>
+<span class='va'>df</span> <span class='op'>%&gt;%</span> <span class='fu'><a href='filter.html'>filter</a></span><span class='op'>(</span><span class='fu'>cumall</span><span class='op'>(</span><span class='op'>!</span><span class='op'>(</span><span class='va'>balance</span> <span class='op'>&lt;</span> <span class='fl'>0</span><span class='op'>)</span><span class='op'>)</span><span class='op'>)</span>
+</div><div class='output co'>#&gt;         date balance
+#&gt; 1 2020-01-01     100
+#&gt; 2 2020-01-02      50
+#&gt; 3 2020-01-03      25</div><div class='input'>
 </div></pre>
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="pkgdown-sidebar">

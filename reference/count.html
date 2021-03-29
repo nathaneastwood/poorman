@@ -86,7 +86,7 @@ so that they add a new column with group-wise counts." />
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">poorman</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.2.4</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.2.5</span>
       </span>
     </div>
 
@@ -94,41 +94,21 @@ so that they add a new column with group-wise counts." />
       <ul class="nav navbar-nav">
         <li>
   <a href="../index.html">
-    <span class="fa fa-home"></span>
+    <span class="fas fa-home"></span>
      
   </a>
 </li>
-<li class="dropdown">
-  <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">
-    <span class="fas fa fas fa-book"></span>
-     
-    Articles
-     
-    <span class="caret"></span>
-  </a>
-  <ul class="dropdown-menu" role="menu">
-    <li>
-      <a href="../articles/introduction.html">Getting Started</a>
-    </li>
-  </ul>
-</li>
-<li>
-  <a href="../articles/faq.html">
-    <span class="fa fa-question-circle-o"></span>
-     
-    FAQ
-  </a>
-</li>
+<li class="dropdown-header">FAQ</li>
 <li>
   <a href="../news/index.html">
-    <span class="fa fa-newspaper-o"></span>
+    <span class="fas fa-newspaper-o"></span>
      
     News
   </a>
 </li>
 <li>
   <a href="../reference/index.html">
-    <span class="fa fa-file-code-o"></span>
+    <span class="fas fa-file-code-o"></span>
      
     Functions
   </a>
@@ -137,7 +117,7 @@ so that they add a new column with group-wise counts." />
       <ul class="nav navbar-nav navbar-right">
         <li>
   <a href="https://github.com/nathaneastwood/poorman/">
-    <span class="fab fa fab fa-github fa-lg"></span>
+    <span class="fab fa-github fa-lg"></span>
      
   </a>
 </li>
@@ -221,7 +201,7 @@ already a column called <code>n</code>, it will error, and require you to specif
 #&gt; 1   8 14
 #&gt; 2   4 11
 #&gt; 3   6  7</div><div class='input'><span class='va'>mtcars</span> <span class='op'>%&gt;%</span> <span class='fu'>count</span><span class='op'>(</span><span class='va'>cyl</span>, <span class='va'>am</span>, sort <span class='op'>=</span> <span class='cn'>TRUE</span><span class='op'>)</span>
-</div><div class='output co'>#&gt;   cyl am  n
+</div><div class='output co'>#&gt; <span class='message'>`summarise()` has grouped output by 'cyl'. You can override using the `.groups` argument.</span></div><div class='output co'>#&gt;   cyl am  n
 #&gt; 1   8  0 12
 #&gt; 2   4  1  8
 #&gt; 3   6  0  4
@@ -230,7 +210,7 @@ already a column called <code>n</code>, it will error, and require you to specif
 #&gt; 6   8  1  2</div><div class='input'><span class='co'># Note that if the data are already grouped, count() adds an additional grouping variable</span>
 <span class='co'># which is removed afterwards</span>
 <span class='va'>mtcars</span> <span class='op'>%&gt;%</span> <span class='fu'><a href='group_by.html'>group_by</a></span><span class='op'>(</span><span class='va'>gear</span><span class='op'>)</span> <span class='op'>%&gt;%</span> <span class='fu'>count</span><span class='op'>(</span><span class='va'>cyl</span><span class='op'>)</span>
-</div><div class='output co'>#&gt;   gear cyl  n
+</div><div class='output co'>#&gt; <span class='message'>`summarise()` has grouped output by 'gear'. You can override using the `.groups` argument.</span></div><div class='output co'>#&gt;   gear cyl  n
 #&gt; 1    3   4  1
 #&gt; 2    3   6  2
 #&gt; 3    3   8 12

@@ -49,6 +49,8 @@
 <meta property="og:title" content="Apply a function (or functions) across multiple columns — across" />
 <meta property="og:description" content="across() makes it easy to apply the same transformation to multiple columns, allowing you to use select()
 semantics inside in &quot;data-masking&quot; functions like summarise() and mutate().
+if_any() and if_all() are used to apply the same predicate function to a selection of columns and combine the
+results into a single logical vector.
 across() supersedes the family of dplyr &quot;scoped variants&quot; like summarise_at(), summarise_if(), and
 summarise_all() and therefore these functions will not be implemented in poorman." />
 <meta property="og:image" content="/logo.png" />
@@ -83,7 +85,7 @@ summarise_all() and therefore these functions will not be implemented in poorman
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">poorman</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.2.4</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.2.5</span>
       </span>
     </div>
 
@@ -91,41 +93,21 @@ summarise_all() and therefore these functions will not be implemented in poorman
       <ul class="nav navbar-nav">
         <li>
   <a href="../index.html">
-    <span class="fa fa-home"></span>
+    <span class="fas fa-home"></span>
      
   </a>
 </li>
-<li class="dropdown">
-  <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">
-    <span class="fas fa fas fa-book"></span>
-     
-    Articles
-     
-    <span class="caret"></span>
-  </a>
-  <ul class="dropdown-menu" role="menu">
-    <li>
-      <a href="../articles/introduction.html">Getting Started</a>
-    </li>
-  </ul>
-</li>
-<li>
-  <a href="../articles/faq.html">
-    <span class="fa fa-question-circle-o"></span>
-     
-    FAQ
-  </a>
-</li>
+<li class="dropdown-header">FAQ</li>
 <li>
   <a href="../news/index.html">
-    <span class="fa fa-newspaper-o"></span>
+    <span class="fas fa-newspaper-o"></span>
      
     News
   </a>
 </li>
 <li>
   <a href="../reference/index.html">
-    <span class="fa fa-file-code-o"></span>
+    <span class="fas fa-file-code-o"></span>
      
     Functions
   </a>
@@ -134,7 +116,7 @@ summarise_all() and therefore these functions will not be implemented in poorman
       <ul class="nav navbar-nav navbar-right">
         <li>
   <a href="https://github.com/nathaneastwood/poorman/">
-    <span class="fab fa fab fa-github fa-lg"></span>
+    <span class="fab fa-github fa-lg"></span>
      
   </a>
 </li>
@@ -159,11 +141,17 @@ summarise_all() and therefore these functions will not be implemented in poorman
     <div class="ref-description">
     <p><code>across()</code> makes it easy to apply the same transformation to multiple columns, allowing you to use <code><a href='select.html'>select()</a></code>
 semantics inside in "data-masking" functions like <code><a href='summarise.html'>summarise()</a></code> and <code><a href='mutate.html'>mutate()</a></code>.</p>
+<p><code>if_any()</code> and <code>if_all()</code> are used to apply the same predicate function to a selection of columns and combine the
+results into a single logical vector.</p>
 <p><code>across()</code> supersedes the family of dplyr "scoped variants" like <code>summarise_at()</code>, <code>summarise_if()</code>, and
 <code>summarise_all()</code> and therefore these functions will not be implemented in poorman.</p>
     </div>
 
-    <pre class="usage"><span class='fu'>across</span><span class='op'>(</span>.cols <span class='op'>=</span> <span class='fu'><a href='select_helpers.html'>everything</a></span><span class='op'>(</span><span class='op'>)</span>, .fns <span class='op'>=</span> <span class='cn'>NULL</span>, <span class='va'>...</span>, .names <span class='op'>=</span> <span class='cn'>NULL</span><span class='op'>)</span></pre>
+    <pre class="usage"><span class='fu'>across</span><span class='op'>(</span>.cols <span class='op'>=</span> <span class='fu'><a href='select_helpers.html'>everything</a></span><span class='op'>(</span><span class='op'>)</span>, .fns <span class='op'>=</span> <span class='cn'>NULL</span>, <span class='va'>...</span>, .names <span class='op'>=</span> <span class='cn'>NULL</span><span class='op'>)</span>
+
+<span class='fu'>if_any</span><span class='op'>(</span><span class='va'>.cols</span>, .fns <span class='op'>=</span> <span class='cn'>NULL</span>, <span class='va'>...</span>, .names <span class='op'>=</span> <span class='cn'>NULL</span><span class='op'>)</span>
+
+<span class='fu'>if_all</span><span class='op'>(</span><span class='va'>.cols</span>, .fns <span class='op'>=</span> <span class='cn'>NULL</span>, <span class='va'>...</span>, .names <span class='op'>=</span> <span class='cn'>NULL</span><span class='op'>)</span></pre>
 
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
     <table class="ref-arguments">
@@ -198,7 +186,8 @@ like <code><a href='summarise.html'>summarise()</a></code> and <code><a href='mu
 
     <h2 class="hasAnchor" id="value"><a class="anchor" href="#value"></a>Value</h2>
 
-    <p>A <code>data.frame</code> with one column for each column in <code>.cols</code> and each function in <code>.fns</code>.</p>
+    <p><code>across()</code> returns a <code>data.frame</code> with one column for each column in <code>.cols</code> and each function in <code>.fns</code>.</p>
+<p><code>if_any()</code> and <code>if_all()</code> return a logical vector.</p>
 
     <h2 class="hasAnchor" id="examples"><a class="anchor" href="#examples"></a>Examples</h2>
     <pre class="examples"><div class='input'><span class='co'># across() -----------------------------------------------------------------</span>
@@ -389,6 +378,38 @@ like <code><a href='summarise.html'>summarise()</a></code> and <code><a href='mu
 #&gt; 1     setosa             5.006            3.428
 #&gt; 2 versicolor             5.936            2.770
 #&gt; 3  virginica             6.588            2.974</div><div class='input'>
+<span class='co'># if_any() and if_all() ----------------------------------------------------</span>
+<span class='va'>iris</span> <span class='op'>%&gt;%</span>
+  <span class='fu'><a href='filter.html'>filter</a></span><span class='op'>(</span><span class='fu'>if_any</span><span class='op'>(</span><span class='fu'><a href='select_helpers.html'>ends_with</a></span><span class='op'>(</span><span class='st'>"Width"</span><span class='op'>)</span>, <span class='op'>~</span> <span class='va'>.</span> <span class='op'>&gt;</span> <span class='fl'>4</span><span class='op'>)</span><span class='op'>)</span>
+</div><div class='output co'>#&gt;    Sepal.Length Sepal.Width Petal.Length Petal.Width Species
+#&gt; 16          5.7         4.4          1.5         0.4  setosa
+#&gt; 33          5.2         4.1          1.5         0.1  setosa
+#&gt; 34          5.5         4.2          1.4         0.2  setosa</div><div class='input'><span class='va'>iris</span> <span class='op'>%&gt;%</span>
+  <span class='fu'><a href='filter.html'>filter</a></span><span class='op'>(</span><span class='fu'>if_all</span><span class='op'>(</span><span class='fu'><a href='select_helpers.html'>ends_with</a></span><span class='op'>(</span><span class='st'>"Width"</span><span class='op'>)</span>, <span class='op'>~</span> <span class='va'>.</span> <span class='op'>&gt;</span> <span class='fl'>2</span><span class='op'>)</span><span class='op'>)</span>
+</div><div class='output co'>#&gt;     Sepal.Length Sepal.Width Petal.Length Petal.Width   Species
+#&gt; 101          6.3         3.3          6.0         2.5 virginica
+#&gt; 103          7.1         3.0          5.9         2.1 virginica
+#&gt; 105          6.5         3.0          5.8         2.2 virginica
+#&gt; 106          7.6         3.0          6.6         2.1 virginica
+#&gt; 110          7.2         3.6          6.1         2.5 virginica
+#&gt; 113          6.8         3.0          5.5         2.1 virginica
+#&gt; 115          5.8         2.8          5.1         2.4 virginica
+#&gt; 116          6.4         3.2          5.3         2.3 virginica
+#&gt; 118          7.7         3.8          6.7         2.2 virginica
+#&gt; 119          7.7         2.6          6.9         2.3 virginica
+#&gt; 121          6.9         3.2          5.7         2.3 virginica
+#&gt; 125          6.7         3.3          5.7         2.1 virginica
+#&gt; 129          6.4         2.8          5.6         2.1 virginica
+#&gt; 133          6.4         2.8          5.6         2.2 virginica
+#&gt; 136          7.7         3.0          6.1         2.3 virginica
+#&gt; 137          6.3         3.4          5.6         2.4 virginica
+#&gt; 140          6.9         3.1          5.4         2.1 virginica
+#&gt; 141          6.7         3.1          5.6         2.4 virginica
+#&gt; 142          6.9         3.1          5.1         2.3 virginica
+#&gt; 144          6.8         3.2          5.9         2.3 virginica
+#&gt; 145          6.7         3.3          5.7         2.5 virginica
+#&gt; 146          6.7         3.0          5.2         2.3 virginica
+#&gt; 149          6.2         3.4          5.4         2.3 virginica</div><div class='input'>
 </div></pre>
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="pkgdown-sidebar">

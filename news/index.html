@@ -79,7 +79,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">poorman</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.2.4</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.2.5</span>
       </span>
     </div>
 
@@ -87,41 +87,21 @@
       <ul class="nav navbar-nav">
         <li>
   <a href="../index.html">
-    <span class="fa fa-home"></span>
+    <span class="fas fa-home"></span>
      
   </a>
 </li>
-<li class="dropdown">
-  <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">
-    <span class="fas fa fas fa-book"></span>
-     
-    Articles
-     
-    <span class="caret"></span>
-  </a>
-  <ul class="dropdown-menu" role="menu">
-    <li>
-      <a href="../articles/introduction.html">Getting Started</a>
-    </li>
-  </ul>
-</li>
-<li>
-  <a href="../articles/faq.html">
-    <span class="fa fa-question-circle-o"></span>
-     
-    FAQ
-  </a>
-</li>
+<li class="dropdown-header">FAQ</li>
 <li>
   <a href="../news/index.html">
-    <span class="fa fa-newspaper-o"></span>
+    <span class="fas fa-newspaper-o"></span>
      
     News
   </a>
 </li>
 <li>
   <a href="../reference/index.html">
-    <span class="fa fa-file-code-o"></span>
+    <span class="fas fa-file-code-o"></span>
      
     Functions
   </a>
@@ -130,7 +110,7 @@
       <ul class="nav navbar-nav navbar-right">
         <li>
   <a href="https://github.com/nathaneastwood/poorman/">
-    <span class="fab fa fab fa-github fa-lg"></span>
+    <span class="fab fa-github fa-lg"></span>
      
   </a>
 </li>
@@ -151,9 +131,41 @@
       <small>Source: <a href='https://github.com/nathaneastwood/poorman/blob/master/NEWS.md'><code>NEWS.md</code></a></small>
     </div>
 
+    <div id="poorman-025" class="section level1">
+<h1 class="page-header" data-toc-text="0.2.5">
+<a href="#poorman-025" class="anchor"></a>poorman 0.2.5<small> 2021-03-28 </small>
+</h1>
+<p>Ninth CRAN release.</p>
+<p>This update has added the following new features:</p>
+<ul>
+<li>
+<code><a href="../reference/summarise.html">summarise()</a></code> can now revise grouping structures with the <code>.groups</code> argument (<a href='https://github.com/nathaneastwood/poorman/issues/57'>#57</a>).</li>
+<li>
+<code><a href="../reference/group_by.html">group_by()</a></code> can now drop groups formed by factor levels that don’t appear in the data with the <code>.drop</code> parameter (<a href='https://github.com/nathaneastwood/poorman/issues/63'>#63</a>).</li>
+<li>New cumulative functions have been added: <code><a href="../reference/cummean.html">cumall()</a></code>, <code><a href="../reference/cummean.html">cumany()</a></code> and <code><a href="../reference/cummean.html">cummean()</a></code> (<a href='https://github.com/nathaneastwood/poorman/issues/64'>#64</a>).</li>
+<li>Additional tools for working with rownames have been added: <code><a href="../reference/rownames.html">has_rownames()</a></code>, <code><a href="../reference/rownames.html">remove_rownames()</a></code>, <code><a href="../reference/rownames.html">column_to_rownames()</a></code>, <code><a href="../reference/rownames.html">rowid_to_column()</a></code> (<a href='https://github.com/nathaneastwood/poorman/issues/66'>#66</a>).</li>
+<li>
+<code><a href="../reference/filter.html">filter()</a></code> gains the <code>.preserve</code> parameters (<a href='https://github.com/nathaneastwood/poorman/issues/81'>#81</a>).</li>
+<li>
+<code><a href="../reference/across.html">if_any()</a></code> and <code><a href="../reference/across.html">if_all()</a></code> were added (<a href='https://github.com/nathaneastwood/poorman/issues/80'>#80</a>).</li>
+</ul>
+<p>The following fixes were also implemented:</p>
+<ul>
+<li>
+<code><a href="../reference/mutate.html">mutate()</a></code> now successfully evaluates functions defined in the scope of a parent function (<a href='https://github.com/nathaneastwood/poorman/issues/68'>#68</a>).</li>
+<li>
+<code>select_positions()</code> now works if passed a combination of positive and negative values (<a href='https://github.com/nathaneastwood/poorman/issues/71'>#71</a>).</li>
+<li>
+<code><a href="../reference/mutate.html">transmute()</a></code> now keeps unnamed columns that it creates (<a href='https://github.com/nathaneastwood/poorman/issues/72'>#72</a>).</li>
+</ul>
+<p>The following refactorisations took place:</p>
+<ul>
+<li>When grouping data with <code><a href="../reference/group_by.html">group_by()</a></code>, it will now create an object of class <code>grouped_df</code> and not <code>grouped_data</code> which keeps it consistent with the {dplyr} method name (<a href='https://github.com/nathaneastwood/poorman/issues/70'>#70</a>). This should hopefully make transitioning packages from {dplyr} to {poorman} a little easier.</li>
+</ul>
+</div>
     <div id="poorman-024" class="section level1">
 <h1 class="page-header" data-toc-text="0.2.4">
-<a href="#poorman-024" class="anchor"></a>poorman 0.2.4<small> Unreleased </small>
+<a href="#poorman-024" class="anchor"></a>poorman 0.2.4<small> 2020-11-27 </small>
 </h1>
 <p>Eighth CRAN release.</p>
 <p>This update has added the following new features:</p>

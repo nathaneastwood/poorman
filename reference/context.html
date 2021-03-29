@@ -110,7 +110,7 @@ cur_column() gives the name of the current column (in across() only).
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">poorman</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.2.4</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.2.5</span>
       </span>
     </div>
 
@@ -118,41 +118,21 @@ cur_column() gives the name of the current column (in across() only).
       <ul class="nav navbar-nav">
         <li>
   <a href="../index.html">
-    <span class="fa fa-home"></span>
+    <span class="fas fa-home"></span>
      
   </a>
 </li>
-<li class="dropdown">
-  <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">
-    <span class="fas fa fas fa-book"></span>
-     
-    Articles
-     
-    <span class="caret"></span>
-  </a>
-  <ul class="dropdown-menu" role="menu">
-    <li>
-      <a href="../articles/introduction.html">Getting Started</a>
-    </li>
-  </ul>
-</li>
-<li>
-  <a href="../articles/faq.html">
-    <span class="fa fa-question-circle-o"></span>
-     
-    FAQ
-  </a>
-</li>
+<li class="dropdown-header">FAQ</li>
 <li>
   <a href="../news/index.html">
-    <span class="fa fa-newspaper-o"></span>
+    <span class="fas fa-newspaper-o"></span>
      
     News
   </a>
 </li>
 <li>
   <a href="../reference/index.html">
-    <span class="fa fa-file-code-o"></span>
+    <span class="fas fa-file-code-o"></span>
      
     Functions
   </a>
@@ -161,7 +141,7 @@ cur_column() gives the name of the current column (in across() only).
       <ul class="nav navbar-nav navbar-right">
         <li>
   <a href="https://github.com/nathaneastwood/poorman/">
-    <span class="fab fa fab fa-github fa-lg"></span>
+    <span class="fab fa-github fa-lg"></span>
      
   </a>
 </li>
@@ -269,7 +249,7 @@ its value.</p></li>
 #&gt; 4 b 0.8360753 0.60200386  2
 #&gt; 5 b 0.7628195 0.65699583  2
 #&gt; 6 a 0.4172699 0.32931716  1</div><div class='input'><span class='va'>gf</span> <span class='op'>%&gt;%</span> <span class='fu'><a href='summarise.html'>summarise</a></span><span class='op'>(</span>row <span class='op'>=</span> <span class='fu'>cur_group_rows</span><span class='op'>(</span><span class='op'>)</span><span class='op'>)</span>
-</div><div class='output co'>#&gt;   g row
+</div><div class='output co'>#&gt; <span class='message'>`summarise()` has grouped output by 'g'. You can override using the `.groups` argument.</span></div><div class='output co'>#&gt;   g row
 #&gt; 1 a   6
 #&gt; 2 b   4
 #&gt; 3 b   5
@@ -280,14 +260,18 @@ its value.</p></li>
 #&gt; 1 a    a
 #&gt; 2 b    b
 #&gt; 3 c    c</div><div class='input'><span class='va'>gf</span> <span class='op'>%&gt;%</span> <span class='fu'><a href='summarise.html'>summarise</a></span><span class='op'>(</span>data <span class='op'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/list.html'>list</a></span><span class='op'>(</span><span class='fu'>cur_data</span><span class='op'>(</span><span class='op'>)</span><span class='op'>)</span><span class='op'>)</span>
-</div><div class='output co'>#&gt;   g         data
-#&gt; 1 a 0.417269....
-#&gt; 2 b c(0.8360....
-#&gt; 3 c c(0.9835....</div><div class='input'><span class='va'>gf</span> <span class='op'>%&gt;%</span> <span class='fu'><a href='summarise.html'>summarise</a></span><span class='op'>(</span>data <span class='op'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/list.html'>list</a></span><span class='op'>(</span><span class='fu'>cur_data_all</span><span class='op'>(</span><span class='op'>)</span><span class='op'>)</span><span class='op'>)</span>
-</div><div class='output co'>#&gt;   g         data
-#&gt; 1 a a, 0.417....
-#&gt; 2 b c("b", "....
-#&gt; 3 c c("c", "....</div><div class='input'>
+</div><div class='output co'>#&gt;   g                                                                   data
+#&gt; 1 a                                                   0.4172699, 0.3293172
+#&gt; 2 b                             0.8360753, 0.7628195, 0.6020039, 0.6569958
+#&gt; 3 c 0.98352541, 0.58983756, 0.75915838, 0.13807484, 0.08084496, 0.65598263</div><div class='input'><span class='va'>gf</span> <span class='op'>%&gt;%</span> <span class='fu'><a href='summarise.html'>summarise</a></span><span class='op'>(</span>data <span class='op'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/list.html'>list</a></span><span class='op'>(</span><span class='fu'>cur_data_all</span><span class='op'>(</span><span class='op'>)</span><span class='op'>)</span><span class='op'>)</span>
+</div><div class='output co'>#&gt;   g
+#&gt; 1 a
+#&gt; 2 b
+#&gt; 3 c
+#&gt;                                                                                                                         data
+#&gt; 1                                                                                    a, 0.417269926285371, 0.329317163676023
+#&gt; 2                                           b, b, 0.836075305938721, 0.762819469673559, 0.602003859123215, 0.656995829660445
+#&gt; 3 c, c, c, 0.983525407966226, 0.589837556472048, 0.759158379863948, 0.138074840884656, 0.0808449615724385, 0.655982626136392</div><div class='input'>
 <span class='va'>gf</span> <span class='op'>%&gt;%</span> <span class='fu'><a href='mutate.html'>mutate</a></span><span class='op'>(</span><span class='fu'><a href='across.html'>across</a></span><span class='op'>(</span><span class='fu'><a href='select_helpers.html'>everything</a></span><span class='op'>(</span><span class='op'>)</span>, <span class='op'>~</span> <span class='fu'><a href='https://rdrr.io/r/base/paste.html'>paste</a></span><span class='op'>(</span><span class='fu'>cur_column</span><span class='op'>(</span><span class='op'>)</span>, <span class='fu'><a href='https://rdrr.io/r/base/Round.html'>round</a></span><span class='op'>(</span><span class='va'>.x</span>, <span class='fl'>2</span><span class='op'>)</span><span class='op'>)</span><span class='op'>)</span><span class='op'>)</span>
 </div><div class='output co'>#&gt;   g      x      y
 #&gt; 1 c x 0.98 y 0.14

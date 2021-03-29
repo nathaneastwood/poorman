@@ -80,7 +80,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">poorman</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.2.4</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.2.5</span>
       </span>
     </div>
 
@@ -88,41 +88,21 @@
       <ul class="nav navbar-nav">
         <li>
   <a href="../index.html">
-    <span class="fa fa-home"></span>
+    <span class="fas fa-home"></span>
      
   </a>
 </li>
-<li class="dropdown">
-  <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">
-    <span class="fas fa fas fa-book"></span>
-     
-    Articles
-     
-    <span class="caret"></span>
-  </a>
-  <ul class="dropdown-menu" role="menu">
-    <li>
-      <a href="../articles/introduction.html">Getting Started</a>
-    </li>
-  </ul>
-</li>
-<li>
-  <a href="../articles/faq.html">
-    <span class="fa fa-question-circle-o"></span>
-     
-    FAQ
-  </a>
-</li>
+<li class="dropdown-header">FAQ</li>
 <li>
   <a href="../news/index.html">
-    <span class="fa fa-newspaper-o"></span>
+    <span class="fas fa-newspaper-o"></span>
      
     News
   </a>
 </li>
 <li>
   <a href="../reference/index.html">
-    <span class="fa fa-file-code-o"></span>
+    <span class="fas fa-file-code-o"></span>
      
     Functions
   </a>
@@ -131,7 +111,7 @@
       <ul class="nav navbar-nav navbar-right">
         <li>
   <a href="https://github.com/nathaneastwood/poorman/">
-    <span class="fab fa fab fa-github fa-lg"></span>
+    <span class="fab fa-github fa-lg"></span>
      
   </a>
 </li>
@@ -149,7 +129,7 @@
   <div class="col-md-9 contents">
     <div class="page-header">
     <h1>Group by one or more variables</h1>
-    <small class="dont-index">Source: <a href='https://github.com/nathaneastwood/poorman/blob/master/R/group_by.R'><code>R/group_by.R</code></a></small>
+    <small class="dont-index">Source: <a href='https://github.com/nathaneastwood/poorman/blob/master/R/group_by.R'><code>R/group_by.R</code></a>, <a href='https://github.com/nathaneastwood/poorman/blob/master/R/ungroup.R'><code>R/ungroup.R</code></a></small>
     <div class="hidden name"><code>group_by.Rd</code></div>
     </div>
 
@@ -157,7 +137,7 @@
     <p>Determine the groups within a <code>data.frame</code> to perform operations on. <code>ungroup()</code> removes the grouping levels.</p>
     </div>
 
-    <pre class="usage"><span class='fu'>group_by</span><span class='op'>(</span><span class='va'>.data</span>, <span class='va'>...</span>, .add <span class='op'>=</span> <span class='cn'>FALSE</span><span class='op'>)</span>
+    <pre class="usage"><span class='fu'>group_by</span><span class='op'>(</span><span class='va'>.data</span>, <span class='va'>...</span>, .add <span class='op'>=</span> <span class='cn'>FALSE</span>, .drop <span class='op'>=</span> <span class='fu'><a href='group_by_drop_default.html'>group_by_drop_default</a></span><span class='op'>(</span><span class='va'>.data</span><span class='op'>)</span><span class='op'>)</span>
 
 <span class='fu'>ungroup</span><span class='op'>(</span><span class='va'>x</span>, <span class='va'>...</span><span class='op'>)</span></pre>
 
@@ -176,6 +156,11 @@
       <th>.add</th>
       <td><p><code><a href='https://rdrr.io/r/base/logical.html'>logical(1)</a></code>. When <code>FALSE</code> (the default) <code>group_by()</code> will override existing groups. To add to existing
 groups, use <code>.add = TRUE</code>.</p></td>
+    </tr>
+    <tr>
+      <th>.drop</th>
+      <td><p><code><a href='https://rdrr.io/r/base/logical.html'>logical(1)</a></code>. Drop groups formed by factor levels that don't appear in the data? The default is <code>TRUE</code>
+except when <code>.data</code> has been previously grouped with <code>.drop = FALSE</code>. See <code><a href='group_by_drop_default.html'>group_by_drop_default()</a></code> for details.</p></td>
     </tr>
     <tr>
       <th>x</th>

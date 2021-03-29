@@ -6,7 +6,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>Find first non-missing element — coalesce • poorman</title>
+<title>Default value for .drop argument of group_by — group_by_drop_default • poorman</title>
 
 <!-- favicons -->
 <link rel="icon" type="image/png" sizes="16x16" href="../favicon-16x16.png">
@@ -46,9 +46,8 @@
 
 
 
-<meta property="og:title" content="Find first non-missing element — coalesce" />
-<meta property="og:description" content="Given a set of vectors, coalesce() finds the first non-missing value at each position. This is inspired by the SQL
-COALESCE function which does the same thing for NULLs." />
+<meta property="og:title" content="Default value for .drop argument of group_by — group_by_drop_default" />
+<meta property="og:description" content="Default value for .drop argument of group_by" />
 <meta property="og:image" content="/logo.png" />
 
 
@@ -129,45 +128,41 @@ COALESCE function which does the same thing for NULLs." />
 <div class="row">
   <div class="col-md-9 contents">
     <div class="page-header">
-    <h1>Find first non-missing element</h1>
-    <small class="dont-index">Source: <a href='https://github.com/nathaneastwood/poorman/blob/master/R/coalesce.R'><code>R/coalesce.R</code></a></small>
-    <div class="hidden name"><code>coalesce.Rd</code></div>
+    <h1>Default value for .drop argument of group_by</h1>
+    <small class="dont-index">Source: <a href='https://github.com/nathaneastwood/poorman/blob/master/R/group_by.R'><code>R/group_by.R</code></a></small>
+    <div class="hidden name"><code>group_by_drop_default.Rd</code></div>
     </div>
 
     <div class="ref-description">
-    <p>Given a set of vectors, <code>coalesce()</code> finds the first non-missing value at each position. This is inspired by the SQL
-<code>COALESCE</code> function which does the same thing for <code>NULL</code>s.</p>
+    <p>Default value for .drop argument of group_by</p>
     </div>
 
-    <pre class="usage"><span class='fu'>coalesce</span><span class='op'>(</span><span class='va'>...</span><span class='op'>)</span></pre>
+    <pre class="usage"><span class='fu'>group_by_drop_default</span><span class='op'>(</span><span class='va'>.tbl</span><span class='op'>)</span></pre>
 
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
     <table class="ref-arguments">
     <colgroup><col class="name" /><col class="desc" /></colgroup>
     <tr>
-      <th>...</th>
-      <td><p>Vectors. Inputs should be recyclable (either be length <code>1L</code> or <code>n</code>) and coercible to a common type.</p></td>
+      <th>.tbl</th>
+      <td><p>A <code>data.frame</code>.</p></td>
     </tr>
     </table>
 
-    <h2 class="hasAnchor" id="details"><a class="anchor" href="#details"></a>Details</h2>
+    <h2 class="hasAnchor" id="value"><a class="anchor" href="#value"></a>Value</h2>
 
-    <p>Currently, <code>coalesce()</code> type checking does not take place.</p>
-    <h2 class="hasAnchor" id="see-also"><a class="anchor" href="#see-also"></a>See also</h2>
-
-    <div class='dont-index'><p><code><a href='na_if.html'>na_if()</a></code> to replace specified values to a <code>NA</code>.</p>
-<p><code><a href='replace_na.html'>replace_na()</a></code> to replace a <code>NA</code> with a value.</p></div>
+    <p><code>TRUE</code> unless <code>.tbl</code> is a grouped <code>data.frame</code> that was previously obtained by <code><a href='group_by.html'>group_by(.drop = FALSE)</a></code></p>
 
     <h2 class="hasAnchor" id="examples"><a class="anchor" href="#examples"></a>Examples</h2>
-    <pre class="examples"><div class='input'><span class='co'># Use a single value to replace all missing vectors</span>
-<span class='va'>x</span> <span class='op'>&lt;-</span> <span class='fu'><a href='https://rdrr.io/r/base/sample.html'>sample</a></span><span class='op'>(</span><span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span><span class='op'>(</span><span class='fl'>1</span><span class='op'>:</span><span class='fl'>5</span>, <span class='cn'>NA</span>, <span class='cn'>NA</span>, <span class='cn'>NA</span><span class='op'>)</span><span class='op'>)</span>
-<span class='fu'>coalesce</span><span class='op'>(</span><span class='va'>x</span>, <span class='fl'>0L</span><span class='op'>)</span>
-</div><div class='output co'>#&gt; [1] 4 0 3 0 1 5 0 2</div><div class='input'>
-<span class='co'># Or match together a complete vector from missing pieces</span>
-<span class='va'>y</span> <span class='op'>&lt;-</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span><span class='op'>(</span><span class='fl'>1</span>, <span class='fl'>2</span>, <span class='cn'>NA</span>, <span class='cn'>NA</span>, <span class='fl'>5</span><span class='op'>)</span>
-<span class='va'>z</span> <span class='op'>&lt;-</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span><span class='op'>(</span><span class='cn'>NA</span>, <span class='cn'>NA</span>, <span class='fl'>3</span>, <span class='fl'>4</span>, <span class='fl'>5</span><span class='op'>)</span>
-<span class='fu'>coalesce</span><span class='op'>(</span><span class='va'>y</span>, <span class='va'>z</span><span class='op'>)</span>
-</div><div class='output co'>#&gt; [1] 1 2 3 4 5</div><div class='input'>
+    <pre class="examples"><div class='input'><span class='fu'>group_by_drop_default</span><span class='op'>(</span><span class='va'>iris</span><span class='op'>)</span>
+</div><div class='output co'>#&gt; [1] TRUE</div><div class='input'>
+<span class='va'>iris</span> <span class='op'>%&gt;%</span>
+  <span class='fu'><a href='group_by.html'>group_by</a></span><span class='op'>(</span><span class='va'>Species</span><span class='op'>)</span> <span class='op'>%&gt;%</span>
+  <span class='fu'>group_by_drop_default</span><span class='op'>(</span><span class='op'>)</span>
+</div><div class='output co'>#&gt; [1] TRUE</div><div class='input'>
+<span class='va'>iris</span> <span class='op'>%&gt;%</span>
+  <span class='fu'><a href='group_by.html'>group_by</a></span><span class='op'>(</span><span class='va'>Species</span>, .drop <span class='op'>=</span> <span class='cn'>FALSE</span><span class='op'>)</span> <span class='op'>%&gt;%</span>
+  <span class='fu'>group_by_drop_default</span><span class='op'>(</span><span class='op'>)</span>
+</div><div class='output co'>#&gt; [1] FALSE</div><div class='input'>
 </div></pre>
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="pkgdown-sidebar">

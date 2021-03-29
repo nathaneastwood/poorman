@@ -81,7 +81,7 @@ result in one row in the output for each group." />
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">poorman</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.2.4</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.2.5</span>
       </span>
     </div>
 
@@ -89,41 +89,21 @@ result in one row in the output for each group." />
       <ul class="nav navbar-nav">
         <li>
   <a href="../index.html">
-    <span class="fa fa-home"></span>
+    <span class="fas fa-home"></span>
      
   </a>
 </li>
-<li class="dropdown">
-  <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">
-    <span class="fas fa fas fa-book"></span>
-     
-    Articles
-     
-    <span class="caret"></span>
-  </a>
-  <ul class="dropdown-menu" role="menu">
-    <li>
-      <a href="../articles/introduction.html">Getting Started</a>
-    </li>
-  </ul>
-</li>
-<li>
-  <a href="../articles/faq.html">
-    <span class="fa fa-question-circle-o"></span>
-     
-    FAQ
-  </a>
-</li>
+<li class="dropdown-header">FAQ</li>
 <li>
   <a href="../news/index.html">
-    <span class="fa fa-newspaper-o"></span>
+    <span class="fas fa-newspaper-o"></span>
      
     News
   </a>
 </li>
 <li>
   <a href="../reference/index.html">
-    <span class="fa fa-file-code-o"></span>
+    <span class="fas fa-file-code-o"></span>
      
     Functions
   </a>
@@ -132,7 +112,7 @@ result in one row in the output for each group." />
       <ul class="nav navbar-nav navbar-right">
         <li>
   <a href="https://github.com/nathaneastwood/poorman/">
-    <span class="fab fa fab fa-github fa-lg"></span>
+    <span class="fab fa-github fa-lg"></span>
      
   </a>
 </li>
@@ -159,9 +139,9 @@ result in one row in the output for each group." />
 result in one row in the output for each group.</p>
     </div>
 
-    <pre class="usage"><span class='fu'>summarise</span><span class='op'>(</span><span class='va'>.data</span>, <span class='va'>...</span><span class='op'>)</span>
+    <pre class="usage"><span class='fu'>summarise</span><span class='op'>(</span><span class='va'>.data</span>, <span class='va'>...</span>, .groups <span class='op'>=</span> <span class='cn'>NULL</span><span class='op'>)</span>
 
-<span class='fu'>summarize</span><span class='op'>(</span><span class='va'>.data</span>, <span class='va'>...</span><span class='op'>)</span></pre>
+<span class='fu'>summarize</span><span class='op'>(</span><span class='va'>.data</span>, <span class='va'>...</span>, .groups <span class='op'>=</span> <span class='cn'>NULL</span><span class='op'>)</span></pre>
 
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
     <table class="ref-arguments">
@@ -172,7 +152,23 @@ result in one row in the output for each group.</p>
     </tr>
     <tr>
       <th>...</th>
-      <td><p>Name-value pairs of summary functions. The name will be the name of the variable in the result.</p>
+      <td><p>Name-value pairs of summary functions. The name will be the name of the variable in the result.</p></td>
+    </tr>
+    <tr>
+      <th>.groups</th>
+      <td><p><code><a href='https://rdrr.io/r/base/character.html'>character(1)</a></code>. Grouping structure of the result.</p><ul>
+<li><p><code>"drop_last"</code>: drops the last level of grouping.</p></li>
+<li><p><code>"drop"</code>: all levels of grouping are dropped.</p></li>
+<li><p><code>"keep"</code>: keeps the same grouping structure as <code>.data</code>.</p></li>
+</ul>
+
+<p>When <code>.groups</code> is not specified, it is chosen based on the number of rows of the results:</p><ul>
+<li><p>If all the results have 1 row, you get <code>"drop_last"</code>.</p></li>
+<li><p>If the number of rows varies, you get <code>"keep"</code>.</p></li>
+</ul>
+
+<p>In addition, a message informs you of that choice, unless the result is ungrouped, the option
+<code>"poorman.summarise.inform"</code> is set to <code>FALSE</code>.</p>
 <p>The value can be:</p><ul>
 <li><p>A vector of length <code>1</code>, e.g. <code><a href='https://rdrr.io/r/base/Extremes.html'>min(x)</a></code>, <code><a href='context.html'>n()</a></code>, or <code><a href='https://rdrr.io/r/base/sum.html'>sum(is.na(y))</a></code>.</p></li>
 <li><p>A vector of length <code>n</code>, e.g. <code><a href='https://rdrr.io/r/stats/quantile.html'>quantile()</a></code>.</p></li>
@@ -185,13 +181,46 @@ result in one row in the output for each group.</p>
     <p><code>summarise()</code> and <code>summarize()</code> are synonyms.</p>
 
     <h2 class="hasAnchor" id="examples"><a class="anchor" href="#examples"></a>Examples</h2>
-    <pre class="examples"><div class='input'><span class='fu'>summarise</span><span class='op'>(</span><span class='va'>mtcars</span>, <span class='fu'><a href='https://rdrr.io/r/base/mean.html'>mean</a></span><span class='op'>(</span><span class='va'>mpg</span><span class='op'>)</span><span class='op'>)</span>
-</div><div class='output co'>#&gt;   mean(mpg)
-#&gt; 1  20.09062</div><div class='input'><span class='fu'>summarise</span><span class='op'>(</span><span class='va'>mtcars</span>, meanMpg <span class='op'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/mean.html'>mean</a></span><span class='op'>(</span><span class='va'>mpg</span><span class='op'>)</span>, sumMpg <span class='op'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/sum.html'>sum</a></span><span class='op'>(</span><span class='va'>mpg</span><span class='op'>)</span><span class='op'>)</span>
-</div><div class='output co'>#&gt;    meanMpg sumMpg
-#&gt; 1 20.09062  642.9</div><div class='input'><span class='va'>mtcars</span> <span class='op'>%&gt;%</span> <span class='fu'>summarise</span><span class='op'>(</span><span class='fu'><a href='https://rdrr.io/r/base/mean.html'>mean</a></span><span class='op'>(</span><span class='va'>mpg</span><span class='op'>)</span><span class='op'>)</span>
-</div><div class='output co'>#&gt;   mean(mpg)
-#&gt; 1  20.09062</div><div class='input'>
+    <pre class="examples"><div class='input'><span class='co'># A summary applied to ungrouped tbl returns a single row</span>
+<span class='va'>mtcars</span> <span class='op'>%&gt;%</span>
+  <span class='fu'>summarise</span><span class='op'>(</span>mean <span class='op'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/mean.html'>mean</a></span><span class='op'>(</span><span class='va'>disp</span><span class='op'>)</span>, n <span class='op'>=</span> <span class='fu'><a href='context.html'>n</a></span><span class='op'>(</span><span class='op'>)</span><span class='op'>)</span>
+</div><div class='output co'>#&gt;       mean  n
+#&gt; 1 230.7219 32</div><div class='input'>
+<span class='co'># Usually, you'll want to group first</span>
+<span class='va'>mtcars</span> <span class='op'>%&gt;%</span>
+  <span class='fu'><a href='group_by.html'>group_by</a></span><span class='op'>(</span><span class='va'>cyl</span><span class='op'>)</span> <span class='op'>%&gt;%</span>
+  <span class='fu'>summarise</span><span class='op'>(</span>mean <span class='op'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/mean.html'>mean</a></span><span class='op'>(</span><span class='va'>disp</span><span class='op'>)</span>, n <span class='op'>=</span> <span class='fu'><a href='context.html'>n</a></span><span class='op'>(</span><span class='op'>)</span><span class='op'>)</span>
+</div><div class='output co'>#&gt;   cyl     mean  n
+#&gt; 1   4 105.1364 11
+#&gt; 2   6 183.3143  7
+#&gt; 3   8 353.1000 14</div><div class='input'>
+<span class='co'># You can summarise to more than one value:</span>
+<span class='va'>mtcars</span> <span class='op'>%&gt;%</span>
+   <span class='fu'><a href='group_by.html'>group_by</a></span><span class='op'>(</span><span class='va'>cyl</span><span class='op'>)</span> <span class='op'>%&gt;%</span>
+   <span class='fu'>summarise</span><span class='op'>(</span>qs <span class='op'>=</span> <span class='fu'><a href='https://rdrr.io/r/stats/quantile.html'>quantile</a></span><span class='op'>(</span><span class='va'>disp</span>, <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span><span class='op'>(</span><span class='fl'>0.25</span>, <span class='fl'>0.75</span><span class='op'>)</span><span class='op'>)</span>, prob <span class='op'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span><span class='op'>(</span><span class='fl'>0.25</span>, <span class='fl'>0.75</span><span class='op'>)</span><span class='op'>)</span>
+</div><div class='output co'>#&gt; <span class='message'>`summarise()` has grouped output by 'cyl'. You can override using the `.groups` argument.</span></div><div class='output co'>#&gt;   cyl      x prob
+#&gt; 1   4  78.85 0.25
+#&gt; 2   4 120.65 0.75
+#&gt; 3   6 160.00 0.25
+#&gt; 4   6 196.30 0.75
+#&gt; 5   8 301.75 0.25
+#&gt; 6   8 390.00 0.75</div><div class='input'>
+<span class='co'># You use a data frame to create multiple columns so you can wrap</span>
+<span class='co'># this up into a function:</span>
+<span class='va'>my_quantile</span> <span class='op'>&lt;-</span> <span class='kw'>function</span><span class='op'>(</span><span class='va'>x</span>, <span class='va'>probs</span><span class='op'>)</span> <span class='op'>{</span>
+  <span class='fu'><a href='https://rdrr.io/r/base/data.frame.html'>data.frame</a></span><span class='op'>(</span>x <span class='op'>=</span> <span class='fu'><a href='https://rdrr.io/r/stats/quantile.html'>quantile</a></span><span class='op'>(</span><span class='va'>x</span>, <span class='va'>probs</span><span class='op'>)</span>, probs <span class='op'>=</span> <span class='va'>probs</span><span class='op'>)</span>
+<span class='op'>}</span>
+<span class='va'>mtcars</span> <span class='op'>%&gt;%</span>
+  <span class='fu'><a href='group_by.html'>group_by</a></span><span class='op'>(</span><span class='va'>cyl</span><span class='op'>)</span> <span class='op'>%&gt;%</span>
+  <span class='fu'>summarise</span><span class='op'>(</span><span class='fu'>my_quantile</span><span class='op'>(</span><span class='va'>disp</span>, <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span><span class='op'>(</span><span class='fl'>0.25</span>, <span class='fl'>0.75</span><span class='op'>)</span><span class='op'>)</span><span class='op'>)</span>
+</div><div class='output co'>#&gt; <span class='error'>Error in my_quantile(disp, c(0.25, 0.75)): could not find function "my_quantile"</span></div><div class='input'>
+<span class='co'># Each summary call removes one grouping level (since that group</span>
+<span class='co'># is now just a single row)</span>
+<span class='va'>mtcars</span> <span class='op'>%&gt;%</span>
+  <span class='fu'><a href='group_by.html'>group_by</a></span><span class='op'>(</span><span class='va'>cyl</span>, <span class='va'>vs</span><span class='op'>)</span> <span class='op'>%&gt;%</span>
+  <span class='fu'>summarise</span><span class='op'>(</span>cyl_n <span class='op'>=</span> <span class='fu'><a href='context.html'>n</a></span><span class='op'>(</span><span class='op'>)</span><span class='op'>)</span> <span class='op'>%&gt;%</span>
+  <span class='fu'><a href='group_metadata.html'>group_vars</a></span><span class='op'>(</span><span class='op'>)</span>
+</div><div class='output co'>#&gt; <span class='message'>`summarise()` has grouped output by 'cyl'. You can override using the `.groups` argument.</span></div><div class='output co'>#&gt; [1] "cyl"</div><div class='input'>
 </div></pre>
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="pkgdown-sidebar">
