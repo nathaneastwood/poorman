@@ -132,7 +132,6 @@ mutate.grouped_df <- function(.data, ...) {
 mutate_df <- function(.data, ...) {
   conditions <- dotdotdot(..., .impute_names = TRUE)
   cond_nms <- names(dotdotdot(..., .impute_names = FALSE))
-  used <- find_used(.data, conditions)
   if (length(conditions) == 0L) {
     return(list(
       data = .data,
@@ -140,6 +139,8 @@ mutate_df <- function(.data, ...) {
       new_cols = NULL
     ))
   }
+  used <- unname(do.call(c, lapply(conditions, find_used)))
+  used <- used[used %in% colnames(.data)]
   context$setup(.data)
   on.exit(context$clean(), add = TRUE)
   for (i in seq_along(conditions)) {
@@ -171,7 +172,23 @@ mutate_df <- function(.data, ...) {
   )
 }
 
-find_used <- function(.data, conditions) {
-  inputs <- do.call(c, lapply(conditions, as.character))
-  unique(inputs[inputs %in% colnames(.data)])
+#' Recursively find used variables in an expression
+#'
+#' @param expr An expression.
+#'
+#' @return `character(n)`.
+#'
+#' @examples
+#' \dontrun{
+#' expr <- quote(x * var + ifelse(x < y, 1, 0) + n())
+#' find_used(expr)
+#' }
+#'
+#' @noRd
+find_used <- function(expr) {
+  if (is.symbol(expr)) {
+    as.character(expr)
+  } else {
+    unique(unlist(lapply(expr[-1], find_used)))
+  }
 }

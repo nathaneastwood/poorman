@@ -235,6 +235,17 @@ df <- data.frame(a = 1, b = 2, c = 3, x = 1, y = 2)
 out <- mutate(df, xy = x + y, .keep = "used")
 expect_equal(colnames(out), c("x", "y", "xy"), info = ".keep = 'used' keeps variables used in expressions")
 
+test_df <- data.frame(x = 1:3, y = 1:3, z = 1:3)
+var <- 1
+test_expr <- quote(x * var + ifelse(x < y, 1, 0) + n())
+used <- poorman:::find_used(test_expr)
+expect_equal(
+  used[used %in% colnames(test_df)],
+  c("x", "y"),
+  info = "find_used() works for variables used inside of functions"
+)
+rm(test_df, var, test_expr, used)
+
 df <- data.frame(x = 1, y = 2)
 gf <- group_by(df, x)
 expect_equal(
