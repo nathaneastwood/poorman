@@ -1,7 +1,7 @@
 Package: poorman
 Type: Package
 Title: A Poor Man's Dependency Free Recreation of 'dplyr'
-Version: 0.2.5.4
+Version: 0.2.5.5
 Authors@R: person("Nathan", "Eastwood", "", "nathan.eastwood@icloud.com",
     role = c("aut", "cre"))
 Maintainer: Nathan Eastwood <nathan.eastwood@icloud.com>
@@ -12,6 +12,7 @@ Depends: R (>= 3.5)
 Suggests:
     knitr,
     pkgdown,
+    markdown,
     rmarkdown,
     roxygen2,
     tinytest
@@ -19,5 +20,5 @@ License: MIT + file LICENSE
 Encoding: UTF-8
 RoxygenNote: 7.1.1
 Roxygen: list(markdown = TRUE)
-VignetteBuilder: rmarkdown
+VignetteBuilder: knitr
 Language: en-GB
