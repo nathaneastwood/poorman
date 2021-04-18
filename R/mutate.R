@@ -184,6 +184,8 @@ mutate_df <- function(.data, ...) {
 #' find_used(expr)
 #' }
 #'
+#' @author Mark T Fairbanks, \email{mark.t.fairbanks@@gmail.com}
+#'
 #' @noRd
 find_used <- function(expr) {
   if (is.symbol(expr)) {
