@@ -210,9 +210,7 @@ pivot_wider <- function(
         }
       }
     } else {
-      if (verbose) {
-        stop("`values_fill` must be of length 1.", call. = FALSE)
-      }
+      stop("`values_fill` must be of length 1.", call. = FALSE)
     }
   }
 

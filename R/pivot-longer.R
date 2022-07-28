@@ -18,8 +18,6 @@
 #'   `values_to` column. This effectively converts explicit missing values to
 #'   implicit missing values, and should generally be used only when missing values
 #'   in data were created by its structure.
-#' @param rows_to The name of the column that will contain the row names or row
-#'   numbers from the original data. If `NULL`, will be removed.
 #' @param ... Additional arguments passed on to methods.
 #'
 #' @return If a tibble was provided as input, `pivot_longer()` also returns a
@@ -145,9 +143,10 @@ pivot_longer <- function(
   # remove names prefix if specified
   if (!is.null(names_prefix)) {
     if (length(names_to) > 1) {
-      stop(insight::format_message(
-        "`names_prefix` only works when `names_to` is of length 1."
-      ), call. = FALSE)
+      stop(
+        "`names_prefix` only works when `names_to` is of length 1.",
+        call. = FALSE
+      )
     }
     long[[names_to]] <- gsub(paste0("^", names_prefix), "", long[[names_to]])
   }

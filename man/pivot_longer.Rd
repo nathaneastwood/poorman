@@ -40,9 +40,6 @@ implicit missing values, and should generally be used only when missing values
 in data were created by its structure.}
 
 \item{...}{Additional arguments passed on to methods.}
-
-\item{rows_to}{The name of the column that will contain the row names or row
-numbers from the original data. If \code{NULL}, will be removed.}
 }
 \value{
 If a tibble was provided as input, \code{pivot_longer()} also returns a
