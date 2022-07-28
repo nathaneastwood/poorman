@@ -37,19 +37,32 @@ arrange_rows <- function(.data, dots) {
 
   if (length(dots) == 0L) return(seq_len(nrow(.data)))
 
-  directions <- vapply(
-    dots,
-    function(x) if (is.call(x) && deparse(x[[1]]) == "desc") "desc" else "asc",
-    NA_character_
-  )
+  # desc(x) -> -x
+  for (i in seq_along(dots)) {
+    tmp <- deparse(dots[[i]])
+    if (startsWith(tmp, "desc(")) {
+      tmp <- gsub("^desc\\(", "-", tmp)
+      tmp <- gsub("\\)$", "", tmp)
+    }
+    dots[[i]] <- str2lang(tmp)
+  }
 
-  dots <- lapply(
-    dots,
-    function(x) if (is.call(x) && deparse(x[[1]]) == "desc") x[[2]] else x
-  )
+  # convert character colums used to arrange to factor columns, so that we can
+  # use a minus sign with character columns
+  used <- unname(do.call(c, lapply(dots, find_used)))
+  used <- used[used %in% colnames(.data)]
+  for (i in seq_along(dots)) {
+    if (is.character(.data[[used[[i]]]])) {
+      .data[[used[[i]]]] <- factor(.data[[used[[i]]]])
+    }
+    if (is.factor(.data[[used[[i]]]]) &&
+        (startsWith(deparse(dots[[i]]), "desc(") ||
+         startsWith(deparse(dots[[i]]), "-"))) {
+      dots[[i]] <- str2lang(paste0("-xtfrm(", used[[i]], ")"))
+    }
+  }
 
   data <- do.call(transmute, c(list(.data = ungroup(.data)), dots))
-  descs <- which(directions == "desc")
-  data[, colnames(data)[descs]] <- data[, colnames(data)[descs], drop = FALSE] * -1
   do.call(order, c(data, list(decreasing = FALSE, na.last = TRUE)))
+
 }

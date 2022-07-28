@@ -1,3 +1,7 @@
+# poorman 0.2.6 (devel)
+
+* `arrange()` now works for descending character vectors (@etiennebacher).
+
 # poorman 0.2.5
 
 Ninth CRAN release.

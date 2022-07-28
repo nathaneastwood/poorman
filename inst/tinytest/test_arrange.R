@@ -148,3 +148,45 @@ expect_equal(
   ),
   info = "grouped arrange() ignores group, unless requested with .by_group"
 )
+
+# with character columns
+df <- data.frame(x = c("a", "b", "a", "b"),
+                 y = c("c", "c", "c", "d"),
+                 z = c(4, 2, 1, 3))
+expect_equal(
+  df %>% arrange(-x),
+  df[order(df$x, decreasing = TRUE), ]
+)
+expect_equal(
+  df %>% arrange(-x, y),
+  data.frame(x = c("b", "b", "a", "a"),
+             y = c("c", "d", "c", "c"),
+             z = c(2, 3, 4, 1)) %>%
+    structure(row.names = c(2L, 4L, 1L, 3L))
+)
+expect_equal(
+  df %>% arrange(-x, y, z),
+  data.frame(x = c("b", "b", "a", "a"),
+             y = c("c", "d", "c", "c"),
+             z = c(2, 3, 1, 4)) %>%
+    structure(row.names = c(2L, 4L, 3L, 1L))
+)
+
+expect_equal(
+  df %>% arrange(desc(x)),
+  df[order(df$x, decreasing = TRUE), ]
+)
+expect_equal(
+  df %>% arrange(desc(x), y),
+  data.frame(x = c("b", "b", "a", "a"),
+             y = c("c", "d", "c", "c"),
+             z = c(2, 3, 4, 1)) %>%
+    structure(row.names = c(2L, 4L, 1L, 3L))
+)
+expect_equal(
+  df %>% arrange(desc(x), y, z),
+  data.frame(x = c("b", "b", "a", "a"),
+             y = c("c", "d", "c", "c"),
+             z = c(2, 3, 1, 4)) %>%
+    structure(row.names = c(2L, 4L, 3L, 1L))
+)
