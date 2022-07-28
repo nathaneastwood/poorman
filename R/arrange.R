@@ -44,7 +44,7 @@ arrange_rows <- function(.data, dots) {
       tmp <- gsub("^desc\\(", "-", tmp)
       tmp <- gsub("\\)$", "", tmp)
     }
-    dots[[i]] <- str2lang(tmp)
+    dots[[i]] <- parse(text = tmp, keep.source = FALSE)[[1]]
   }
 
   # convert character colums used to arrange to factor columns, so that we can
