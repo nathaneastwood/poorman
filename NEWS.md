@@ -1,6 +1,6 @@
 # poorman 0.2.6 (devel)
 
-* `arrange()` now works for descending character vectors (@etiennebacher).
+* `arrange()` now works for descending character vectors (#99, @etiennebacher).
 
 # poorman 0.2.5
 
