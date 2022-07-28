@@ -23,7 +23,11 @@
 #' Within these functions you can use [cur_column()] and [cur_group()] to access the current column and grouping keys
 #' respectively.
 #' @param ... Additional arguments for the function calls in `.fns`.
-#' @param .names `character(n)`. Currently limited to specifying a vector of names to use for the outputs.
+#' @param .names A glue specification that describes how to name the output
+#'  columns. This can use `{.col}` to stand for the selected column name, and `{.fn}`
+#'  to stand for the name of the function being applied. The default (`NULL`) is
+#'  equivalent to "`{.col}`" for the single function case and "`{.col}_{.fn}`" for
+#'  the case where a list is used for `.fns`.
 #'
 #' @return
 #' `across()` returns a `data.frame` with one column for each column in `.cols` and each function in `.fns`.
@@ -66,6 +70,20 @@
 #' @export
 across <- function(.cols = everything(), .fns = NULL, ..., .names = NULL) {
   setup <- setup_across(substitute(.cols), .fns, .names)
+  # deal with {.fn} and {.col} in .names
+  if (length(setup$names) == 1 && grepl("\\{\\.col\\}|\\{\\.fn\\}", setup$names)) {
+    ref <- setup$names
+    id <- 1
+    fn_names <- unique(names(setup$funs))
+    for (i in seq_along(setup$cols)) {
+      .col <- setup$cols[i]
+      for (j in seq_along(fn_names)) {
+        .fn <- fn_names[j]
+        setup$names[id] <- gluestick(ref)
+        id <- id + 1
+      }
+    }
+  }
   cols <- setup$cols
   n_cols <- length(cols)
   if (n_cols == 0L) return(data.frame())

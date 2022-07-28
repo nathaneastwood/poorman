@@ -31,6 +31,12 @@ expect_named(
   info = "across() correctly names output columns for named lists of functions"
 )
 expect_named(
+  summarise(gf, across(where(is.numeric), list(mean = mean, sum = sum),
+                       .names = "my_col_{.col}_{.fn}")),
+  c("x", "my_col_y_mean", "my_col_y_sum", "my_col_z_mean", "my_col_z_sum"),
+  info = "across() correctly names output columns for named lists of functions and custom names"
+)
+expect_named(
   summarise(gf, across(where(is.numeric), list(mean = mean, sum))),
   c("x", "y_mean", "y_2", "z_mean", "z_2"),
   info = "across() correctly names output columns for partially named lists of functions"
@@ -41,9 +47,20 @@ expect_named(
   info = "across() correctly names output columns for partially named lists of functions"
 )
 expect_named(
+  summarise(gf, across(where(is.numeric), list(mean, sum = sum),
+                       .names = "my_col_{.col}_{.fn}")),
+  c("x", "my_col_y_1", "my_col_y_sum", "my_col_z_1", "my_col_z_sum"),
+  info = "across() correctly names output columns for partially named lists of functions and custom names"
+)
+expect_named(
   summarise(gf, across(where(is.numeric), list(mean, sum))),
   c("x", "y_1", "y_2", "z_1", "z_2"),
   info = "across() correctly names output columns for non-named lists of functions"
+)
+expect_named(
+  summarise(gf, across(where(is.numeric), list(mean, sum), .names = "my_col_{.col}_{.fn}")),
+  c("x", "my_col_y_1", "my_col_y_2", "my_col_z_1", "my_col_z_2"),
+  info = "across() correctly names output columns for non-named lists of functions and custom names"
 )
 
 expect_identical(

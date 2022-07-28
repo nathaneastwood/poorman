@@ -27,7 +27,11 @@ respectively.}
 
 \item{...}{Additional arguments for the function calls in \code{.fns}.}
 
-\item{.names}{\code{character(n)}. Currently limited to specifying a vector of names to use for the outputs.}
+\item{.names}{A glue specification that describes how to name the output
+columns. This can use \code{{.col}} to stand for the selected column name, and \code{{.fn}}
+to stand for the name of the function being applied. The default (\code{NULL}) is
+equivalent to "\code{{.col}}" for the single function case and "\verb{\{.col\}_\{.fn\}}" for
+the case where a list is used for \code{.fns}.}
 
 \item{cols, .cols}{<\code{\link[=select_helpers]{poor-select}}> Columns to transform. Because \code{across()} is used within functions
 like \code{summarise()} and \code{mutate()}, you can't select or compute upon grouping variables.}

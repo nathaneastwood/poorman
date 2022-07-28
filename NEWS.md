@@ -1,3 +1,8 @@
+# poorman 0.2.6 (devel)
+
+* The `.names` argument in `across()` now accepts `{.col}` and `{.fn}` to 
+automatically name new columns.
+
 # poorman 0.2.5
 
 Ninth CRAN release.
