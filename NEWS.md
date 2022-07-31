@@ -2,6 +2,7 @@
 
 * The `.names` argument in `across()` now accepts `{.col}` and `{.fn}` to 
 automatically name new columns (#100, @etiennebacher).
+* `arrange()` now works for descending character vectors (#99, @etiennebacher).
 
 # poorman 0.2.5
 
