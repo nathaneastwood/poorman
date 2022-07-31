@@ -1,7 +1,7 @@
 # poorman 0.2.6 (devel)
 
-* The `.names` argument in `across()` now accepts `{.col}` and `{.fn}` to 
-automatically name new columns (#100, @etiennebacher).
+* Initial versions of `pivot_longer()` and `pivot_wider()` have been added (#101, @etiennebacher).
+* The `.names` argument in `across()` now accepts `{.col}` and `{.fn}` to automatically name new columns (#100, @etiennebacher).
 * `arrange()` now works for descending character vectors (#99, @etiennebacher).
 
 # poorman 0.2.5
