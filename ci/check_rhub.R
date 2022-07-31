@@ -10,6 +10,7 @@ if (!is.element(platform, c("cran", rhub::platforms()[[1L]]))) {
 }
 
 install.packages("knitr")
+install.packages("rmarkdown")
 if (platform == "cran") {
   system("apt-get update && apt-get -y install libxml2-dev")
   install.packages("xml2")
