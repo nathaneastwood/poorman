@@ -24,7 +24,11 @@ arrange.data.frame <- function(.data, ..., .by_group = FALSE) {
   is_grouped <- has_groups(.data)
   if (isTRUE(.by_group)) dots <- c(groups(.data), dots)
   rows <- arrange_rows(.data = .data, dots)
+  row_number <- attr(.data, "row.names") # row.names returns a character vector
   out <- .data[rows, , drop = FALSE]
+  if (is.numeric(row_number)) {
+    row.names(out) <- row_number
+  }
   if (is_grouped) {
     attr(out, "groups") <- calculate_groups(out, group_vars(out))
   }
