@@ -13,7 +13,7 @@ expect_equal(
 )
 expect_equal(
   distinct(df, y, .keep_all = FALSE),
-  unique(df["y"]),
+  data.frame(y = 1:2),
   info = "distinct() for single column works as expected"
 )
 
@@ -46,6 +46,19 @@ expect_equal(
   "a",
   "distinct() doesn't duplicate columns"
 )
+
+expect_equal(
+  row.names(distinct(df, y)),
+  c("1", "2"),
+  info = "distinct() reset row names when they are numeric"
+)
+
+expect_equal(
+  row.names(distinct(head(mtcars, 3), mpg)),
+  c("Mazda RX4", "Datsun 710"),
+  info = "distinct() keeps row names when they are character"
+)
+
 expect_equal(
   data.frame(a = 1:3, b = 4:6) %>% group_by(a) %>% distinct(a) %>% colnames(),
   "a",

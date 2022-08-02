@@ -4,6 +4,7 @@
 * The `.names` argument in `across()` now accepts `{.col}` and `{.fn}` to automatically name new columns (#100, @etiennebacher).
 * `arrange()` now works for descending character vectors (#99, @etiennebacher).
 * `arrange()` now resets row names when they are numeric (#102, @etiennebacher).
+* `distinct()` now resets row names when they are numeric (#106, @etiennebacher).
 
 # poorman 0.2.5
 
