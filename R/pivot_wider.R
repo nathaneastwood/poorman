@@ -61,10 +61,9 @@
 #'   product = c("A", "B"),
 #'   country = c("AI", "EI"),
 #'   year = 2000:2014
-#' )
-#' production <- filter(production, (product == "A" & country == "AI") | product == "B")
-#'
-#' production$production <- rnorm(nrow(production))
+#' ) %>%
+#'   filter((product == "A" & country == "AI") | product == "B") %>%
+#'   mutate(production = rnorm(nrow(.)))
 #'
 #' pivot_wider(
 #'   production,
@@ -87,6 +86,9 @@ pivot_wider <- function(
 ) {
 
   old_names <- names(data)
+
+  names_from <- names(eval_select_pos(data, substitute(names_from)))
+  values_from <- names(eval_select_pos(data, substitute(values_from)))
 
   # Preserve attributes
   variable_attr <- lapply(data, attributes)
