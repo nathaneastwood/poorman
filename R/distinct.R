@@ -78,6 +78,9 @@ distinct.data.frame <- function(.data, ..., .keep_all = FALSE) {
     res <- cbind(res, .data[rownames(res), setdiff(colnames(.data), colnames(res)), drop = FALSE])
   }
   common_cols <- c(intersect(colnames(.data), colnames(res)), setdiff(col_names, colnames(.data)))
+  if (is.numeric(attr(res, "row.names"))) {
+    row.names(res) <- 1:nrow(res)
+  }
   if (length(common_cols) > 0L) res[, common_cols, drop = FALSE] else res
 }
 
