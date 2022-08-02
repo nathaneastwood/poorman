@@ -121,6 +121,10 @@ select_symbol <- function(expr) {
 
 eval_call <- function(x) {
   type <- as.character(x[[1]])
+  if (length(type) > 1L) {
+    # This helps when pkg::fn is used in a select helper
+    type <- "context"
+  }
   switch(
     type,
     `:` = select_seq(x),

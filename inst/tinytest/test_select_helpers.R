@@ -179,3 +179,9 @@ expect_equal(
   iris[, "Species", drop = FALSE],
   info = "`&` works for all negative column positions"
 )
+
+df <- data.frame(
+  `a/b` = 1,
+  check.names = FALSE
+)
+
