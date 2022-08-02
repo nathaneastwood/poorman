@@ -3,6 +3,7 @@
 * Initial versions of `pivot_longer()` and `pivot_wider()` have been added (#101, @etiennebacher).
 * The `.names` argument in `across()` now accepts `{.col}` and `{.fn}` to automatically name new columns (#100, @etiennebacher).
 * `arrange()` now works for descending character vectors (#99, @etiennebacher).
+* `arrange()` now resets row names when they are numeric (#102, @etiennebacher).
 
 # poorman 0.2.5
 
