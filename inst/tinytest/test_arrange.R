@@ -35,7 +35,7 @@ expect_equal(
 df <- data.frame(x = 1:3, y = 3:1 + 2i)
 expect_equal(
   arrange(df, y),
-  df[3:1, ],
+  data.frame(x = 3:1, y = 1:3 + 2i),
   info = "arrange() handles complex columns"
 )
 
@@ -48,7 +48,7 @@ setMethod(
 df <- data.frame(x = 1:3, y = TestS4(3:1))
 expect_equal(
   arrange(df, y),
-  df[3:1, ],
+  data.frame(x = 3:1, y = TestS4(1:3)),
   info = "arrange handles S4 classes"
 )
 removeClass("TestS4")
@@ -106,7 +106,7 @@ expect_equal(
 df <- data.frame(x = 1:4, y = 5:8)
 expect_equal(
   arrange(df, -x * y),
-  structure(list(x = 4:1, y = 8:5), row.names = 4:1, class = "data.frame"),
+  structure(list(x = 4:1, y = 8:5), row.names = 1:4, class = "data.frame"),
   info = "arrange() can add and arrange by new columns (#89)"
 )
 
@@ -134,7 +134,7 @@ expect_equal(
     groups = structure(
       list(g = c(1, 2), .rows = list(c(1L, 3L), c(2L, 4L))), row.names = 1:2, class = "data.frame", .drop = TRUE
     ),
-    row.names = 4:1,
+    row.names = 1:4,
     class = c("grouped_df", "data.frame")
   ),
   info = "grouped arrange() ignores group_by groups"
@@ -144,7 +144,7 @@ expect_equal(
   structure(
     list(g = c(1, 1, 2, 2), x = c(1L, 3L, 2L, 4L)),
     groups = structure(list(g = c(1, 2), .rows = list(1:2, 3:4)), row.names = 1:2, class = "data.frame", .drop = TRUE),
-    row.names = c(4L, 2L, 3L, 1L), class = c("grouped_df", "data.frame")
+    row.names = 1:4, class = c("grouped_df", "data.frame")
   ),
   info = "grouped arrange() ignores group, unless requested with .by_group"
 )
@@ -155,38 +155,42 @@ df <- data.frame(x = c("a", "b", "a", "b"),
                  z = c(4, 2, 1, 3))
 expect_equal(
   df %>% arrange(-x),
-  df[order(df$x, decreasing = TRUE), ]
+  data.frame(x = c("b", "b", "a", "a"),
+             y = c("c", "d", "c", "c"),
+             z = c(2, 3, 4, 1))
 )
 expect_equal(
   df %>% arrange(-x, y),
   data.frame(x = c("b", "b", "a", "a"),
              y = c("c", "d", "c", "c"),
              z = c(2, 3, 4, 1)) %>%
-    structure(row.names = c(2L, 4L, 1L, 3L))
+    structure(row.names = 1:4)
 )
 expect_equal(
   df %>% arrange(-x, y, z),
   data.frame(x = c("b", "b", "a", "a"),
              y = c("c", "d", "c", "c"),
              z = c(2, 3, 1, 4)) %>%
-    structure(row.names = c(2L, 4L, 3L, 1L))
+    structure(row.names = 1:4)
 )
 
 expect_equal(
   df %>% arrange(desc(x)),
-  df[order(df$x, decreasing = TRUE), ]
+  data.frame(x = c("b", "b", "a", "a"),
+             y = c("c", "d", "c", "c"),
+             z = c(2, 3, 4, 1))
 )
 expect_equal(
   df %>% arrange(desc(x), y),
   data.frame(x = c("b", "b", "a", "a"),
              y = c("c", "d", "c", "c"),
              z = c(2, 3, 4, 1)) %>%
-    structure(row.names = c(2L, 4L, 1L, 3L))
+    structure(row.names = 1:4)
 )
 expect_equal(
   df %>% arrange(desc(x), y, z),
   data.frame(x = c("b", "b", "a", "a"),
              y = c("c", "d", "c", "c"),
              z = c(2, 3, 1, 4)) %>%
-    structure(row.names = c(2L, 4L, 3L, 1L))
+    structure(row.names = 1:4)
 )
