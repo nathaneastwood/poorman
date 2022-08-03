@@ -124,7 +124,7 @@ separate <- function(
         tmp <- splitted[[i]][1:length(into)]
         tmp[length(into)] <- paste0(
           splitted[[i]][length(into):length(splitted[[i]])],
-          collapse = separators
+          collapse = ""
         )
         splitted[[i]] <- tmp
       }
