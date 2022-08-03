@@ -91,7 +91,7 @@ separate <- function(
   stopifnot(length(col) == 1)
   stopifnot(is.character(into))
 
-  if (is.numeric(data[[col]])) {
+  if (is.numeric(data[[col]]) | is.factor(data[[col]])) {
     data[[col]] <- as.character(data[[col]])
   }
 
