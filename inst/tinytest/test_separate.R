@@ -27,6 +27,17 @@ expect_equal(
   info = "separate() argument 'remove' works"
 )
 
+df <- data.frame(x = c(NA, 1.5, 1.3, 1.2))
+
+expect_equal(
+  separate(df, x,  c("A", "B")),
+  data.frame(
+    A = c(NA, "1", "1", "1"),
+    B = c(NA, "5", "3", "2")
+  ),
+  info = "separate() works with basic example"
+)
+
 df <- data.frame(x = c("x", "x y", "x y z", NA))
 
 expect_warning(

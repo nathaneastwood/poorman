@@ -91,6 +91,12 @@ separate <- function(
   stopifnot(length(col) == 1)
   stopifnot(is.character(into))
 
+  if (is.numeric(data[[col]])) {
+    data[[col]] <- as.character(data[[col]])
+  }
+
+  location <- which(colnames(data) == col)
+
   # split each value of "col" with the pattern
   if (is.character(sep)) {
     splitted <- strsplit(data[[col]], sep)
@@ -150,6 +156,10 @@ separate <- function(
   }
 
   if (isTRUE(remove)) data[[col]] <- NULL
+
+  # not working
+  # data %>%
+  #   relocate(into, .after = location)
 
   data
 
