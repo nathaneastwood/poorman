@@ -88,10 +88,9 @@ production <- expand.grid(
   product = c("A", "B"),
   country = c("AI", "EI"),
   year = 2000:2014
-)
-production <- filter(production, (product == "A" & country == "AI") | product == "B")
-
-production$production <- rnorm(nrow(production))
+) \%>\%
+  filter((product == "A" & country == "AI") | product == "B") \%>\%
+  mutate(production = rnorm(nrow(.)))
 
 pivot_wider(
   production,
