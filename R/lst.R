@@ -28,7 +28,7 @@ lst <- function(...) {
 
   out <- vector(mode = "list", length = length(listToEval))
   names(out) <- names(listToEval)
-  exprs <- sapply(substitute(list(...)), deparse)[-1]
+  exprs <- lapply(substitute(list(...)), deparse)[-1]
   for (element in seq_along(listToEval)) {
     value <- listToEval[[element]]
     if (is.language(value)) {
@@ -47,7 +47,7 @@ lst <- function(...) {
       )
     }
     if (is.null(value)) {
-      out[element] <- list(NULL) # set a list element to NULL
+      out[element] <- list(NULL)
     } else {
       out[[element]] <- value
     }
@@ -59,9 +59,8 @@ lst <- function(...) {
       names(out)[element] == ""
 
     if (invalid_name) {
-      if (exprs[element] != "NULL" |
-          (exprs[element] == "NULL" & is.null(out[[element]]))) {
-        names(out)[element] <- exprs[element]
+      if (exprs[[element]] != "NULL" | (exprs[[element]] == "NULL" & is.null(out[[element]]))) {
+        names(out)[element] <- exprs[[element]]
       }
     }
   }
@@ -80,16 +79,14 @@ drop_dup_list <- function(x) {
   dupes <- names(count[count > 1])
   uniques <- names(count[count == 1])
 
-  to_drop <- c()
-  for (i in dupes) {
-    matches <- which(list_names == i)
-    to_drop <- c(to_drop, matches[-length(matches)])
-  }
-  for (i in uniques) {
-    if (is.null(x[[i]])) {
-      x[[i]] <- NULL
+  to_drop <- do.call(c, lapply(
+    dupes,
+    function(x) {
+      matches <- which(list_names == x)
+      matches[-length(matches)]
     }
-  }
+  ))
+  x[uniques] <- Filter(Negate(is.null), x[uniques])
 
   return(x[-to_drop])
 
