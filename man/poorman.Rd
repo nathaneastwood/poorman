@@ -6,7 +6,7 @@
 \alias{poorman-package}
 \title{poorman: A Poor Man's Dependency Free Recreation of 'dplyr'}
 \description{
-\if{html}{\figure{logo.png}{options: align='right' alt='logo' width='120'}}
+\if{html}{\figure{logo.png}{options: style='float: right' alt='logo' width='120'}}
 
 A replication of key functionality from 'dplyr' and the wider 'tidyverse' using only 'base'.
 }
