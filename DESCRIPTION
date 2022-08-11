@@ -2,8 +2,11 @@ Package: poorman
 Type: Package
 Title: A Poor Man's Dependency Free Recreation of 'dplyr'
 Version: 0.2.5.7
-Authors@R: person("Nathan", "Eastwood", "", "nathan.eastwood@icloud.com",
-    role = c("aut", "cre"))
+Authors@R: c(
+    person("Nathan", "Eastwood", "", "nathan.eastwood@icloud.com",
+           role = c("aut", "cre")),
+    person("Etienne", "Bacher", , "etienne.bacher@protonmail.com", role = "ctb",
+           comment = c(ORCID = "0000-0002-9271-5075")))
 Maintainer: Nathan Eastwood <nathan.eastwood@icloud.com>
 Description: A replication of key functionality from 'dplyr' and the wider 'tidyverse' using only 'base'.
 URL: https://nathaneastwood.github.io/poorman/, https://github.com/nathaneastwood/poorman
