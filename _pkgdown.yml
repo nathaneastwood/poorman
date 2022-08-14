@@ -1,9 +1,12 @@
 home:
-  strip_header: true
+  strip_header: false
 
 template:
-  params:
-    bootswatch: flatly
+  bootstrap: 5
+  theme: github-light
+  bslib:
+    primary: "#EF60A3"
+    code_font: {google: "Fira Code"}
 
 news:
   releases:
