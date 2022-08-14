@@ -101,13 +101,13 @@ pivot_longer <- function(
         ))
         long[[names_to[i]]] <- new_vals
       } else {
-        colPattern <- regmatches(
+        col_pattern <- regmatches(
           x = unique(long[[names_to_2]]),
           m = regexec(names_pattern, unique(long[[names_to_2]]))
         )
-        colPattern <- as.data.frame(do.call(rbind, colPattern))[, c(1, i + 1)]
-        names(colPattern) <- c(names_to_2, names_to[i])
-        long <- left_join(x = long, y = colPattern, by = names_to_2)
+        col_pattern <- as.data.frame(do.call(rbind, col_pattern))[, c(1, i + 1)]
+        names(col_pattern) <- c(names_to_2, names_to[i])
+        long <- left_join(x = long, y = col_pattern, by = names_to_2)
       }
     }
     long[[names_to_2]] <- NULL

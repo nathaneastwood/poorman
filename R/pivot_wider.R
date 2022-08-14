@@ -166,7 +166,7 @@ pivot_wider <- function(
       tmp1 <- wide[, which(!startsWith(names(wide), i))]
       tmp2 <- wide[, which(startsWith(names(wide), i))]
       wide <- cbind(tmp1, tmp2)
-      # doesn't work
+      # TODO: Fix relocate() when using numeric values for .before and .after
       # wide <- relocate(wide, starts_with(i), .after = -1)
     }
   }

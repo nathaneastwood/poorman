@@ -41,7 +41,6 @@ arrange_rows <- function(.data, dots) {
 
   if (length(dots) == 0L) return(seq_len(nrow(.data)))
 
-  # desc(x) -> -x
   for (i in seq_along(dots)) {
     tmp <- deparse(dots[[i]])
     if (startsWith(tmp, "desc(")) {
@@ -51,8 +50,6 @@ arrange_rows <- function(.data, dots) {
     dots[[i]] <- parse(text = tmp, keep.source = FALSE)[[1]]
   }
 
-  # convert character colums used to arrange to factor columns, so that we can
-  # use a minus sign with character columns
   used <- unname(do.call(c, lapply(dots, find_used)))
   used <- used[used %in% colnames(.data)]
   for (i in seq_along(dots)) {

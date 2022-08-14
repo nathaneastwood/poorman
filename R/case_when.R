@@ -100,7 +100,7 @@
 #'   )
 #'
 #' @export
-case_when <- function (...) {
+case_when <- function(...) {
   fs <- list(...)
   lapply(fs, function(x) if (!inherits(x, "formula")) stop("`case_when()` requires formula inputs."))
   n <- length(fs)

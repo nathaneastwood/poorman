@@ -29,7 +29,7 @@ coalesce <- function(...) {
 
   vectors <- list(...)
   vectors_lens <- unique(lengths(vectors))
-  if (length(vectors_lens) > 2L || (length(vectors_lens) == 2L & !1 %in% vectors_lens)) {
+  if (length(vectors_lens) > 2L || (length(vectors_lens) == 2L && !1 %in% vectors_lens)) {
     stop("Vectors must all be of length 1 and/or n")
   }
   max_len <- max(vectors_lens)

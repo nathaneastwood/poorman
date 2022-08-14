@@ -64,7 +64,6 @@ ntile <- function(x = row_number(), n) {
     rep(NA_integer_, length(x))
   } else {
     n_larger <- as.integer(len %% n)
-    n_smaller <- as.integer(n - n_larger)
     size <- len / n
     larger_size <- as.integer(ceiling(size))
     smaller_size <- as.integer(floor(size))

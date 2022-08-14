@@ -1,4 +1,3 @@
-# Integer
 expect_equal(
   poorman:::select_positions(mtcars, 1L),
   c(mpg = 1),
@@ -11,7 +10,6 @@ expect_equal(
   info = "Selecting the 0th integer column returns an empty data.frame"
 )
 
-# Numeric
 expect_equal(
   poorman:::select_positions(mtcars, 1),
   c(mpg = 1),
@@ -23,28 +21,24 @@ expect_equal(
   info = "Selecting the 0th numeric column returns an empty data.frame"
 )
 
-# Character
 expect_equal(
   poorman:::select_positions(mtcars, "mpg"),
   c(mpg = 1),
   info = "Selecting by character string works"
 )
 
-# Symbol
 expect_equal(
   poorman:::select_positions(mtcars, mpg),
   c(mpg = 1),
   info = "Selecting by symbol works"
 )
 
-# Expression
 expect_equal(
   poorman:::select_positions(mtcars, starts_with("m")),
   c(mpg = 1),
   info = "Selecting columns using an expression"
 )
 
-# Sequence
 expect_equal(
   poorman:::select_positions(mtcars, 1:3),
   c(mpg = 1, cyl = 2, disp = 3),
@@ -76,7 +70,6 @@ expect_equal(
   info = "Dropping columns with a charatcer sequence"
 )
 
-# Negated
 expect_equal(
   poorman:::select_positions(mtcars, !mpg),
   c(cyl = 2, disp = 3, hp = 4, drat = 5, wt = 6, qsec = 7, vs = 8, am = 9, gear = 10, carb = 11),
@@ -108,7 +101,6 @@ expect_equal(
   info = "Dropping columns using a negated c()"
 )
 
-# Minus
 expect_equal(
   poorman:::select_positions(mtcars, -1),
   c(cyl = 2, disp = 3, hp = 4, drat = 5, wt = 6, qsec = 7, vs = 8, am = 9, gear = 10, carb = 11),
@@ -135,7 +127,6 @@ expect_equal(
   info = "Dropping columns using an expression"
 )
 
-# c()
 expect_equal(
   poorman:::select_positions(mtcars, c(1, 2)),
   c(mpg = 1, cyl = 2),
@@ -167,7 +158,6 @@ expect_equal(
   info = "Dropping columns using a negated c()"
 )
 
-# ()
 expect_equal(
   poorman:::select_positions(mtcars, -(1:2)),
   c(disp = 3, hp = 4, drat = 5, wt = 6, qsec = 7, vs = 8, am = 9, gear = 10, carb = 11),
@@ -179,7 +169,6 @@ expect_equal(
   info = "Dropping columns using a negated, bracketed sequence"
 )
 
-# Multiple columns
 expect_equal(
   poorman:::select_positions(mtcars, 1L, 2, "disp", "hp", starts_with("dr"), wt:qsec),
   c(mpg = 1, cyl = 2, disp = 3, hp = 4, drat = 5, wt = 6, qsec = 7),
@@ -198,7 +187,6 @@ expect_equal(
   info = "Mixture of positives and negatives select only negatives"
 )
 
-# NULL
 expect_equal(
   poorman:::select_positions(mtcars, NULL),
   integer(0),
@@ -211,7 +199,6 @@ expect_equal(
   info = "combinations of NULL and other parameter names ignore the NULLs"
 )
 
-# Errors
 expect_error(
   poorman:::select_positions(mtcars, 100),
   info = "Out of range columns error"

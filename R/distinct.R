@@ -79,7 +79,7 @@ distinct.data.frame <- function(.data, ..., .keep_all = FALSE) {
   }
   common_cols <- c(intersect(colnames(.data), colnames(res)), setdiff(col_names, colnames(.data)))
   if (is.numeric(attr(res, "row.names"))) {
-    row.names(res) <- 1:nrow(res)
+    row.names(res) <- seq_len(nrow(res))
   }
   if (length(common_cols) > 0L) res[, common_cols, drop = FALSE] else res
 }

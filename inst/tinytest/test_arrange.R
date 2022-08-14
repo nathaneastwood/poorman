@@ -41,7 +41,7 @@ expect_equal(
 
 TestS4 <- suppressWarnings(setClass("TestS4", contains = "integer"))
 setMethod(
-  '[',
+  "[",
   'TestS4',
   function(x, i, ...) TestS4(unclass(x)[i, ...])
 )
@@ -98,7 +98,7 @@ expect_equal(
 
 expect_equal(
   mtcars %>% arrange(cyl, -mpg),
-  mtcars[order(mtcars$cyl -mtcars$mpg), ],
+  mtcars[order(mtcars$cyl - mtcars$mpg), ],
   info = "Test multiple ascending and descending column arrangement"
 )
 
