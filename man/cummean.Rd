@@ -4,7 +4,7 @@
 \alias{cummean}
 \alias{cumany}
 \alias{cumall}
-\title{Cumulativate versions of any, all, and mean}
+\title{Cumulative versions of any, all, and mean}
 \usage{
 cummean(x)
 
