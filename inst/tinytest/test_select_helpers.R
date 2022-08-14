@@ -180,8 +180,8 @@ expect_equal(
   info = "`&` works for all negative column positions"
 )
 
-df <- data.frame(
-  `a/b` = 1,
-  check.names = FALSE
+expect_equal(
+  select(mtcars, poorman::everything()),
+  mtcars,
+  info = "pkg::fun() selecters do not fail"
 )
-
