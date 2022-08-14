@@ -26,6 +26,8 @@
 <![endif]-->
 </head>
 <body data-spy="scroll" data-target="#toc">
+    
+
     <div class="container template-home">
       <header><div class="navbar navbar-inverse navbar-fixed-top" role="navigation">
   <div class="container">
@@ -38,7 +40,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="index.html">poorman</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.2.5</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">0.2.5.7</span>
       </span>
     </div>
 
@@ -46,21 +48,20 @@
       <ul class="nav navbar-nav">
 <li>
   <a href="index.html">
-    <span class="fas fa-home"></span>
+    <span class="fa fa-home"></span>
      
   </a>
 </li>
-<li class="dropdown-header">FAQ</li>
 <li>
   <a href="news/index.html">
-    <span class="fas fa-newspaper-o"></span>
+    <span class="fa fa-newspaper-o"></span>
      
     News
   </a>
 </li>
 <li>
   <a href="reference/index.html">
-    <span class="fas fa-file-code-o"></span>
+    <span class="fa fa-file-code-o"></span>
      
     Functions
   </a>
@@ -68,7 +69,7 @@
       </ul>
 <ul class="nav navbar-nav navbar-right">
 <li>
-  <a href="https://github.com/nathaneastwood/poorman/">
+  <a href="https://github.com/nathaneastwood/poorman/" class="external-link">
     <span class="fab fa-github fa-lg"></span>
      
   </a>
@@ -85,16 +86,14 @@
 
       </header><div class="row">
   <div class="contents col-md-9">
-<div id="poorman-" class="section level1">
+<div class="section level1">
 
 
-<blockquote align="center">
-I’d seen my father. He was a poor man, and I watched him do astonishing things. - Sidney Poitier
-</blockquote>
-<div id="overview" class="section level2">
-<h2 class="hasAnchor">
-<a href="#overview" class="anchor"></a>Overview</h2>
-<p>{poorman} is a grammar of data manipulation, providing dependency free versions of <a href="https://github.com/tidyverse/dplyr">{dplyr}</a> verbs that help you solve the most common data manipulation challenges:</p>
+<blockquote align="center">I’d seen my father. He was a poor man, and I watched him do astonishing things. - Sidney Poitier</blockquote>
+<div class="section level2">
+<h2 id="overview">Overview<a class="anchor" aria-label="anchor" href="#overview"></a>
+</h2>
+<p>{poorman} is a grammar of data manipulation, providing dependency free versions of <a href="https://github.com/tidyverse/dplyr" class="external-link">{dplyr}</a> verbs that help you solve the most common data manipulation challenges:</p>
 <ul>
 <li>
 <code><a href="reference/select.html">select()</a></code> picks variables based on their names.</li>
@@ -107,71 +106,67 @@ I’d seen my father. He was a poor man, and I watched him do astonishing things
 <li>
 <code><a href="reference/arrange.html">arrange()</a></code> changes the ordering of the rows.</li>
 </ul>
-<p>{poorman} attempts to replicate the {dplyr} API exactly such that your {dplyr} code will still run even if you use {poorman} in its place. In addition to replicating {dplyr} functionality, {poorman} implements other functionality from the wider {tidyverse} such as select helpers and the pipe, <code><a href="reference/pipe.html">%&gt;%</a></code>.</p>
-<p>For more details on the functionality available within {poorman}, check out the {poorman} series of blog posts <a href="https://nathaneastwood.github.io/tags/poorman/">here</a>.</p>
+<p>{poorman} attempts to replicate the {dplyr} API exactly such that your {dplyr} code will still run even if you use {poorman} in its place. In addition to replicating {dplyr} functionality, {poorman} implements other functionality from the wider {tidyverse} such as select helpers and the pipe, <code>%&gt;%</code>.</p>
+<p>For more details on the functionality available within {poorman}, check out the {poorman} series of blog posts <a href="https://nathaneastwood.github.io/tags/poorman/" class="external-link">here</a>.</p>
 </div>
-<div id="installation" class="section level2">
-<h2 class="hasAnchor">
-<a href="#installation" class="anchor"></a>Installation</h2>
+<div class="section level2">
+<h2 id="installation">Installation<a class="anchor" aria-label="anchor" href="#installation"></a>
+</h2>
 <p>You can install:</p>
-<ul>
-<li>the development version from <a href="https://github.com/nathaneastwood/poorman">GitHub</a> with</li>
-</ul>
+<ul><li>the development version from <a href="https://github.com/nathaneastwood/poorman" class="external-link">GitHub</a> with</li></ul>
 <div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="co"># install.packages("remotes")</span>
-<span class="fu">remotes</span><span class="fu">::</span><span class="fu"><a href="https://remotes.r-lib.org/reference/install_github.html">install_github</a></span><span class="op">(</span><span class="st">"nathaneastwood/poorman"</span><span class="op">)</span></code></pre></div>
-<ul>
-<li>the latest release from CRAN with</li>
-</ul>
+<code class="sourceCode R"><span><span class="co"># install.packages("remotes")</span></span>
+<span><span class="fu">remotes</span><span class="fu">::</span><span class="fu">install_github</span><span class="op">(</span><span class="st">"nathaneastwood/poorman"</span><span class="op">)</span></span></code></pre></div>
+<ul><li>the latest release from CRAN with</li></ul>
 <div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="fu"><a href="https://rdrr.io/r/utils/install.packages.html">install.packages</a></span><span class="op">(</span><span class="st">"poorman"</span><span class="op">)</span></code></pre></div>
+<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/utils/install.packages.html" class="external-link">install.packages</a></span><span class="op">(</span><span class="st">"poorman"</span><span class="op">)</span></span></code></pre></div>
 </div>
-<div id="docker" class="section level2">
-<h2 class="hasAnchor">
-<a href="#docker" class="anchor"></a>Docker</h2>
+<div class="section level2">
+<h2 id="docker">Docker<a class="anchor" aria-label="anchor" href="#docker"></a>
+</h2>
 <p>If you’d like to try out the latest version of the package on CRAN using Docker, you can run the latest image with:</p>
-<div class="sourceCode" id="cb3"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb3-1"><a href="#cb3-1"></a><span class="ex">docker</span> run --rm -it nathaneastwood/poorman</span></code></pre></div>
+<div class="sourceCode" id="cb3"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="ex">docker</span> run <span class="at">--rm</span> <span class="at">-it</span> nathaneastwood/poorman</span></code></pre></div>
 </div>
-<div id="usage" class="section level2">
-<h2 class="hasAnchor">
-<a href="#usage" class="anchor"></a>Usage</h2>
+<div class="section level2">
+<h2 id="usage">Usage<a class="anchor" aria-label="anchor" href="#usage"></a>
+</h2>
 <div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="kw"><a href="https://rdrr.io/r/base/library.html">library</a></span><span class="op">(</span><span class="va"><a href="https://nathaneastwood.github.io/poorman/">poorman</a></span>, warn.conflicts <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span>
-<span class="co"># </span>
-<span class="co">#   I'd seen my father. He was a poor man, and I watched him do astonishing things.</span>
-<span class="co">#     - Sidney Poitier</span>
-
-<span class="va">mtcars</span> <span class="op">%&gt;%</span>
-  <span class="fu"><a href="reference/select.html">select</a></span><span class="op">(</span><span class="va">mpg</span>, <span class="va">wt</span>, <span class="fu"><a href="reference/select_helpers.html">starts_with</a></span><span class="op">(</span><span class="st">"c"</span><span class="op">)</span><span class="op">)</span> <span class="op">%&gt;%</span>
-  <span class="fu"><a href="reference/mutate.html">mutate</a></span><span class="op">(</span>kpl <span class="op">=</span> <span class="op">(</span><span class="fl">1.609</span> <span class="op">*</span> <span class="va">mpg</span><span class="op">)</span> <span class="op">/</span> <span class="fl">3.785</span>, wt_kg <span class="op">=</span> <span class="va">wt</span> <span class="op">*</span> <span class="fl">453.5924</span><span class="op">)</span> <span class="op">%&gt;%</span>
-  <span class="fu"><a href="reference/filter.html">filter</a></span><span class="op">(</span><span class="va">mpg</span> <span class="op">&gt;</span> <span class="fl">28</span><span class="op">)</span>
-<span class="co">#                 mpg    wt cyl carb      kpl    wt_kg</span>
-<span class="co"># Fiat 128       32.4 2.200   4    1 13.77321 997.9033</span>
-<span class="co"># Honda Civic    30.4 1.615   4    2 12.92301 732.5517</span>
-<span class="co"># Toyota Corolla 33.9 1.835   4    1 14.41086 832.3421</span>
-<span class="co"># Lotus Europa   30.4 1.513   4    2 12.92301 686.2853</span>
-
-<span class="va">mtcars</span> <span class="op">%&gt;%</span>
-  <span class="fu"><a href="reference/group_by.html">group_by</a></span><span class="op">(</span><span class="va">am</span>, <span class="va">cyl</span><span class="op">)</span> <span class="op">%&gt;%</span>
-  <span class="fu"><a href="reference/summarise.html">summarise</a></span><span class="op">(</span>mean_mpg <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/mean.html">mean</a></span><span class="op">(</span><span class="va">mpg</span><span class="op">)</span>, sd_mpg <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/stats/sd.html">sd</a></span><span class="op">(</span><span class="va">mpg</span><span class="op">)</span><span class="op">)</span> <span class="op">%&gt;%</span>
-  <span class="fu"><a href="reference/group_by.html">ungroup</a></span><span class="op">(</span><span class="op">)</span>
-<span class="co">#   am cyl mean_mpg    sd_mpg</span>
-<span class="co"># 1  0   4 22.90000 1.4525839</span>
-<span class="co"># 2  0   6 19.12500 1.6317169</span>
-<span class="co"># 3  0   8 15.05000 2.7743959</span>
-<span class="co"># 4  1   4 28.07500 4.4838599</span>
-<span class="co"># 5  1   6 20.56667 0.7505553</span>
-<span class="co"># 6  1   8 15.40000 0.5656854</span></code></pre></div>
+<code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://nathaneastwood.github.io/poorman/" class="external-link">poorman</a></span>, warn.conflicts <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span>
+<span><span class="co"># </span></span>
+<span><span class="co">#   I'd seen my father. He was a poor man, and I watched him do astonishing things.</span></span>
+<span><span class="co">#     - Sidney Poitier</span></span>
+<span></span>
+<span><span class="va">mtcars</span> <span class="op"><a href="reference/pipe.html">%&gt;%</a></span></span>
+<span>  <span class="fu"><a href="reference/select.html">select</a></span><span class="op">(</span><span class="va">mpg</span>, <span class="va">wt</span>, <span class="fu"><a href="reference/select_helpers.html">starts_with</a></span><span class="op">(</span><span class="st">"c"</span><span class="op">)</span><span class="op">)</span> <span class="op"><a href="reference/pipe.html">%&gt;%</a></span></span>
+<span>  <span class="fu"><a href="reference/mutate.html">mutate</a></span><span class="op">(</span>kpl <span class="op">=</span> <span class="op">(</span><span class="fl">1.609</span> <span class="op">*</span> <span class="va">mpg</span><span class="op">)</span> <span class="op">/</span> <span class="fl">3.785</span>, wt_kg <span class="op">=</span> <span class="va">wt</span> <span class="op">*</span> <span class="fl">453.5924</span><span class="op">)</span> <span class="op"><a href="reference/pipe.html">%&gt;%</a></span></span>
+<span>  <span class="fu"><a href="reference/filter.html">filter</a></span><span class="op">(</span><span class="va">mpg</span> <span class="op">&gt;</span> <span class="fl">28</span><span class="op">)</span></span>
+<span><span class="co">#                 mpg    wt cyl carb      kpl    wt_kg</span></span>
+<span><span class="co"># Fiat 128       32.4 2.200   4    1 13.77321 997.9033</span></span>
+<span><span class="co"># Honda Civic    30.4 1.615   4    2 12.92301 732.5517</span></span>
+<span><span class="co"># Toyota Corolla 33.9 1.835   4    1 14.41086 832.3421</span></span>
+<span><span class="co"># Lotus Europa   30.4 1.513   4    2 12.92301 686.2853</span></span>
+<span></span>
+<span><span class="va">mtcars</span> <span class="op"><a href="reference/pipe.html">%&gt;%</a></span></span>
+<span>  <span class="fu"><a href="reference/group_by.html">group_by</a></span><span class="op">(</span><span class="va">am</span>, <span class="va">cyl</span><span class="op">)</span> <span class="op"><a href="reference/pipe.html">%&gt;%</a></span></span>
+<span>  <span class="fu"><a href="reference/summarise.html">summarise</a></span><span class="op">(</span>mean_mpg <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/mean.html" class="external-link">mean</a></span><span class="op">(</span><span class="va">mpg</span><span class="op">)</span>, sd_mpg <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/stats/sd.html" class="external-link">sd</a></span><span class="op">(</span><span class="va">mpg</span><span class="op">)</span><span class="op">)</span> <span class="op"><a href="reference/pipe.html">%&gt;%</a></span></span>
+<span>  <span class="fu"><a href="reference/group_by.html">ungroup</a></span><span class="op">(</span><span class="op">)</span></span>
+<span><span class="co">#   am cyl mean_mpg    sd_mpg</span></span>
+<span><span class="co"># 1  0   4 22.90000 1.4525839</span></span>
+<span><span class="co"># 2  0   6 19.12500 1.6317169</span></span>
+<span><span class="co"># 3  0   8 15.05000 2.7743959</span></span>
+<span><span class="co"># 4  1   4 28.07500 4.4838599</span></span>
+<span><span class="co"># 5  1   6 20.56667 0.7505553</span></span>
+<span><span class="co"># 6  1   8 15.40000 0.5656854</span></span></code></pre></div>
 </div>
-<div id="related-work" class="section level2">
-<h2 class="hasAnchor">
-<a href="#related-work" class="anchor"></a>Related Work</h2>
+<div class="section level2">
+<h2 id="related-work">Related Work<a class="anchor" aria-label="anchor" href="#related-work"></a>
+</h2>
 <ul>
-<li><a href="https://github.com/tidyverse/dplyr">{dplyr}</a></li>
+<li><a href="https://github.com/tidyverse/dplyr" class="external-link">{dplyr}</a></li>
 <li>
-<a href="https://github.com/yonicd/bplyr">{bplyr}</a> - imports {magrittr} and {rlang}; it prepends functions with <code>b_*()</code>, e.g. <code>b_select()</code>.</li>
+<a href="https://github.com/yonicd/bplyr" class="external-link">{bplyr}</a> - imports {magrittr} and {rlang}; it prepends functions with <code>b_*()</code>, e.g. <code>b_select()</code>.</li>
 <li>
-<a href="https://github.com/mkearney/tbltools">{tbltools}</a> - imports {magrittr} and appends <code>*_data()</code> to each of its functions, e.g. <code>select_data()</code>.</li>
+<a href="https://github.com/mkearney/tbltools" class="external-link">{tbltools}</a> - imports {magrittr} and appends <code>*_data()</code> to each of its functions, e.g. <code>select_data()</code>.</li>
 </ul>
 </div>
 </div>
@@ -179,56 +174,61 @@ I’d seen my father. He was a poor man, and I watched him do astonishing things
 
   <div class="col-md-3 hidden-xs hidden-sm" id="pkgdown-sidebar">
     <div class="links">
-<h2>Links</h2>
+<h2 data-toc-skip>Links</h2>
 <ul class="list-unstyled">
-<li>Download from CRAN at <br><a href="https://cloud.r-project.org/package=poorman">https://​cloud.r-project.org/​package=poorman</a>
-</li>
-<li>Browse source code at <br><a href="https://github.com/nathaneastwood/poorman/">https://​github.com/​nathaneastwood/​poorman/​</a>
-</li>
-<li>Report a bug at <br><a href="https://github.com/nathaneastwood/poorman/issues">https://​github.com/​nathaneastwood/​poorman/​issues</a>
-</li>
-</ul>
-</div>
-<div class="license">
-<h2>License</h2>
-<ul class="list-unstyled">
-<li>
-<a href="https://opensource.org/licenses/mit-license.php">MIT</a> + file <a href="LICENSE-text.html">LICENSE</a>
-</li>
-</ul>
-</div>
-<div class="community">
-<h2>Community</h2>
-<ul class="list-unstyled">
-<li><a href="CONTRIBUTING.html">Contributing guide</a></li>
-</ul>
-</div>
-<div class="developers">
-<h2>Developers</h2>
-<ul class="list-unstyled">
-<li>
-<a href="https://nathaneastwood.github.io">Nathan Eastwood</a> <br><small class="roles"> Author, maintainer </small>  </li>
+<li><a href="https://cloud.r-project.org/package=poorman" class="external-link">View on CRAN</a></li>
+<li><a href="https://github.com/nathaneastwood/poorman/" class="external-link">Browse source code</a></li>
+<li><a href="https://github.com/nathaneastwood/poorman/issues" class="external-link">Report a bug</a></li>
 </ul>
 </div>
 
-  <div class="dev-status">
-<h2>Dev status</h2>
+<div class="license">
+<h2 data-toc-skip>License</h2>
 <ul class="list-unstyled">
-<li><a href="https://cran.r-project.org/package=poorman"><img src="https://www.r-pkg.org/badges/version/poorman" alt="CRAN status"></a></li>
-<li><a href="https://cran.r-project.org/package=poorman"><img src="https://tinyverse.netlify.com/badge/poorman" alt="Dependencies"></a></li>
-<li><a href="https://codecov.io/gh/nathaneastwood/poorman"><img src="https://codecov.io/gh/nathaneastwood/poorman/branch/master/graph/badge.svg" alt="codecov"></a></li>
+<li>
+<a href="https://opensource.org/licenses/mit-license.php" class="external-link">MIT</a> + file <a href="LICENSE-text.html">LICENSE</a>
+</li>
 </ul>
 </div>
+
+
+<div class="citation">
+<h2 data-toc-skip>Citation</h2>
+<ul class="list-unstyled">
+<li><a href="authors.html#citation">Citing poorman</a></li>
+</ul>
 </div>
+
+<div class="developers">
+<h2 data-toc-skip>Developers</h2>
+<ul class="list-unstyled">
+<li>
+<a href="https://nathaneastwood.github.io" class="external-link">Nathan Eastwood</a> <br><small class="roles"> Author, maintainer </small>  </li>
+<li><a href="authors.html">More about authors...</a></li>
+</ul>
+</div>
+
+<div class="dev-status">
+<h2 data-toc-skip>Dev status</h2>
+<ul class="list-unstyled">
+<li><a href="https://cran.r-project.org/package=poorman" class="external-link"><img src="https://www.r-pkg.org/badges/version/poorman" alt="CRAN status"></a></li>
+<li><a href="https://cran.r-project.org/package=poorman" class="external-link"><img src="https://tinyverse.netlify.com/badge/poorman" alt="Dependencies"></a></li>
+<li><a href="https://codecov.io/gh/nathaneastwood/poorman" class="external-link"><img src="https://codecov.io/gh/nathaneastwood/poorman/branch/master/graph/badge.svg" alt="codecov"></a></li>
+</ul>
+</div>
+
+  </div>
 </div>
 
 
       <footer><div class="copyright">
-  <p>Developed by <a href="https://nathaneastwood.github.io">Nathan Eastwood</a>.</p>
+  <p></p>
+<p>Developed by <a href="https://nathaneastwood.github.io" class="external-link">Nathan Eastwood</a>.</p>
 </div>
 
 <div class="pkgdown">
-  <p>Site built with <a href="https://pkgdown.r-lib.org/">pkgdown</a> 1.6.1.</p>
+  <p></p>
+<p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.0.6.</p>
 </div>
 
       </footer>
@@ -236,6 +236,8 @@ I’d seen my father. He was a poor man, and I watched him do astonishing things
 
   
 
+
+  
 
   </body>
 </html>
