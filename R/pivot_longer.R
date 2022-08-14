@@ -9,7 +9,7 @@
 #' @param names_prefix `character(1)`. A regular expression used to remove matching text from the start of each variable
 #' name.
 #' @param names_sep,names_pattern `character(1)`. If `names_to` contains multiple values, this argument controls how the
-#' column name is broken up. `names_pattern` takes a regular expression containing matching groups (`()`⁠).
+#' column name is broken up. `names_pattern` takes a regular expression containing matching groups (`()`).
 #' @param values_to `character(n)`. The name of the new column(s) that will contain the values of the pivoted variables.
 #' @param values_drop_na `logical(1)`. If `TRUE`, will drop rows that contain only `NA` in the `values_to` column. This
 #' effectively converts explicit missing values to implicit missing values, and should generally be used only when
