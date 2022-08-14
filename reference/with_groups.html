@@ -94,40 +94,40 @@ variables.</p>
     <h2 id="ref-examples">Examples<a class="anchor" aria-label="anchor" href="#ref-examples"></a></h2>
     <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="va">df</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/data.frame.html" class="external-link">data.frame</a></span><span class="op">(</span>g <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">1</span>, <span class="fl">1</span>, <span class="fl">2</span>, <span class="fl">2</span>, <span class="fl">3</span><span class="op">)</span>, x <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/stats/Uniform.html" class="external-link">runif</a></span><span class="op">(</span><span class="fl">5</span><span class="op">)</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="va">df</span> <span class="op"><a href="pipe.html">%&gt;%</a></span> <span class="fu">with_groups</span><span class="op">(</span><span class="va">g</span>, <span class="va">mutate</span>, x_mean <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/mean.html" class="external-link">mean</a></span><span class="op">(</span><span class="va">x</span><span class="op">)</span><span class="op">)</span></span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   g          x     x_mean</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 1 1 0.62179152 0.58981670</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 2 1 0.55784187 0.58981670</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 3 2 0.03984088 0.07079816</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 4 2 0.10175544 0.07079816</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 5 3 0.98978280 0.98978280</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   g          x    x_mean</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 1 1 0.63826297 0.3545272</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 2 1 0.07079142 0.3545272</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 3 2 0.92672567 0.7871733</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 4 2 0.64762098 0.7871733</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 5 3 0.80787444 0.8078744</span>
 <span class="r-in"><span><span class="va">df</span> <span class="op"><a href="pipe.html">%&gt;%</a></span> <span class="fu">with_groups</span><span class="op">(</span><span class="va">g</span>, <span class="op">~</span> <span class="fu"><a href="mutate.html">mutate</a></span><span class="op">(</span><span class="va">.x</span>, x_mean <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/mean.html" class="external-link">mean</a></span><span class="op">(</span><span class="va">x</span><span class="op">)</span><span class="op">)</span><span class="op">)</span></span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   g          x     x_mean</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 1 1 0.62179152 0.58981670</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 2 1 0.55784187 0.58981670</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 3 2 0.03984088 0.07079816</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 4 2 0.10175544 0.07079816</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 5 3 0.98978280 0.98978280</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   g          x    x_mean</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 1 1 0.63826297 0.3545272</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 2 1 0.07079142 0.3545272</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 3 2 0.92672567 0.7871733</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 4 2 0.64762098 0.7871733</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 5 3 0.80787444 0.8078744</span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="va">df</span> <span class="op"><a href="pipe.html">%&gt;%</a></span></span></span>
 <span class="r-in"><span>  <span class="fu"><a href="group_by.html">group_by</a></span><span class="op">(</span><span class="va">g</span><span class="op">)</span> <span class="op"><a href="pipe.html">%&gt;%</a></span></span></span>
 <span class="r-in"><span>  <span class="fu">with_groups</span><span class="op">(</span><span class="cn">NULL</span>, <span class="va">mutate</span>, x_mean <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/mean.html" class="external-link">mean</a></span><span class="op">(</span><span class="va">x</span><span class="op">)</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   g          x    x_mean</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 1 1 0.62179152 0.4622025</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 2 1 0.55784187 0.4622025</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 3 2 0.03984088 0.4622025</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 4 2 0.10175544 0.4622025</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 5 3 0.98978280 0.4622025</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 1 1 0.63826297 0.6182551</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 2 1 0.07079142 0.6182551</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 3 2 0.92672567 0.6182551</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 4 2 0.64762098 0.6182551</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 5 3 0.80787444 0.6182551</span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># NB: grouping can't be restored if you remove the grouping variables</span></span></span>
 <span class="r-in"><span><span class="va">df</span> <span class="op"><a href="pipe.html">%&gt;%</a></span></span></span>
 <span class="r-in"><span>  <span class="fu"><a href="group_by.html">group_by</a></span><span class="op">(</span><span class="va">g</span><span class="op">)</span> <span class="op"><a href="pipe.html">%&gt;%</a></span></span></span>
 <span class="r-in"><span>  <span class="fu">with_groups</span><span class="op">(</span><span class="cn">NULL</span>, <span class="va">mutate</span>, g <span class="op">=</span> <span class="cn">NULL</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>            x</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 1 0.62179152</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 2 0.55784187</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 3 0.03984088</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 4 0.10175544</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 5 0.98978280</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 1 0.63826297</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 2 0.07079142</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 3 0.92672567</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 4 0.64762098</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 5 0.80787444</span>
 <span class="r-in"><span></span></span>
 </code></pre></div>
     </div>
