@@ -1,6 +1,3 @@
-home:
-  strip_header: false
-
 template:
   bootstrap: 5
   theme: github-light
@@ -103,7 +100,6 @@ reference:
   - lst
 
 navbar:
-  type: inverse
   left:
     - icon: fa-home
       href: index.html
