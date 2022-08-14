@@ -34,20 +34,29 @@ reference:
   - select
   - summarise
   - slice
+  - unite
 
 - title: Two table verbs
   contents:
   - bind
   - filter_joins
   - mutate_joins
+  - union_all
+
+- title: Pivoting
+  contents:
+  - pivot_longer
+  - pivot_wider
 
 - title: Grouping
   contents:
   - group_by
+  - group_by_drop_default
   - group_metadata
   - group_split
   - context
   - nest_by
+  - with_groups
 
 - title: Vector functions
   contents:
@@ -86,14 +95,15 @@ reference:
   contents:
   - rownames
 
+- title: Utilities
+  contents:
+  - lst
+
 navbar:
   type: inverse
   left:
     - icon: fa-home
       href: index.html
-    # - text: "FAQ"
-      # icon: fa-question-circle-o
-      # href: articles/faq.html
     - icon: fa-newspaper-o
       text: "News"
       href: news/index.html
