@@ -43,14 +43,14 @@
 #'
 #' @export
 group_split <- function(.data, ..., .keep = TRUE) {
-  dots_len <- ...length() > 0L
+  dots_len <- length(dotdotdot(...)) > 0L
   if (has_groups(.data) && isTRUE(dots_len)) {
     warning("... is ignored in group_split(<grouped_df>), please use group_by(..., .add = TRUE) %>% group_split()")
   }
   if (!has_groups(.data) && isTRUE(dots_len)) {
     .data <- group_by(.data, ...)
   }
-  if (!has_groups(.data) && isFALSE(dots_len)) {
+  if (!has_groups(.data) && !isTRUE(dots_len)) {
     return(list(.data))
   }
   context$setup(.data)
@@ -59,7 +59,7 @@ group_split <- function(.data, ..., .keep = TRUE) {
   attr(context$.data, "groups") <- NULL
   res <- split_into_groups(context$.data, groups)
   names(res) <- NULL
-  if (isFALSE(.keep)) {
+  if (!isTRUE(.keep)) {
     res <- lapply(res, function(x) x[, !colnames(x) %in% groups])
   }
   any_empty <- unlist(lapply(res, function(x) !(nrow(x) == 0L)))

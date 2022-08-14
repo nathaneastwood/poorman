@@ -62,7 +62,7 @@ arrange_rows <- function(.data, dots) {
     if (is.factor(.data[[used[[i]]]]) &&
         (startsWith(deparse(dots[[i]]), "desc(") ||
          startsWith(deparse(dots[[i]]), "-"))) {
-      dots[[i]] <- str2lang(paste0("-xtfrm(", used[[i]], ")"))
+      dots[[i]] <- bquote(-xtfrm(.(as.name(used[[i]]))))
     }
   }
 
