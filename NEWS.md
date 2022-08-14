@@ -1,22 +1,18 @@
-# poorman 0.2.6 (devel)
+# poorman 0.2.6
 
 This update adds the following features:
 
-* Initial versions of `pivot_longer()` and `pivot_wider()` have been added (#101,
-  @etiennebacher).
-* The `.names` argument in `across()` now accepts `{.col}` and `{.fn}` to    
-  automatically name new columns (#100, @etiennebacher).
-* New function `lst()` to reproduce the outputs of `tibble::lst()`. It enables
-  the creation of lists where elements are build sequentially (i.e depend on the
-  previous ones) and are self-named (i.e the expression is used if no name is 
-  given) (#108).
-
+* Initial versions of `pivot_longer()` and `pivot_wider()` have been added (#101, @etiennebacher).
+* The `.names` argument in `across()` now accepts `{.col}` and `{.fn}` to automatically name new columns (#100, @etiennebacher).
+* New function `lst()` to reproduce the outputs of `tibble::lst()`. It enables the creation of lists where elements are build sequentially (i.e depend on the previous ones) and are self-named (i.e the expression is used if no name is given) (#108).
 
 The following fixes were also implemented:
 
 * `arrange()` now works for descending character vectors (#99, @etiennebacher).
 * `arrange()` now resets row names when they are numeric (#102, @etiennebacher).
 * `distinct()` now resets row names when they are numeric (#106, @etiennebacher).
+
+The CICD pipeline was also fixed such that users can now tests pull requests. The documentation is now built using HTML5.
 
 # poorman 0.2.5
 
