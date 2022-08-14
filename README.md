@@ -6,7 +6,7 @@
 status](https://www.r-pkg.org/badges/version/poorman)](https://cran.r-project.org/package=poorman)
 [![Dependencies](https://tinyverse.netlify.com/badge/poorman)](https://cran.r-project.org/package=poorman)
 ![CRAN downloads](https://cranlogs.r-pkg.org/badges/poorman)
-![check_cran](https://github.com/nathaneastwood/poorman/workflows/check_cran/badge.svg?branch=master)
+[![R-CMD-check](https://github.com/nathaneastwood/poorman/actions/workflows/R-CMD-check.yaml/badge.svg)](https://github.com/nathaneastwood/poorman/actions/workflows/R-CMD-check.yaml)
 [![codecov](https://codecov.io/gh/nathaneastwood/poorman/branch/master/graph/badge.svg?token=YPQSSEEHZJ)](https://codecov.io/gh/nathaneastwood/poorman)
 
 <blockquote align="center">
