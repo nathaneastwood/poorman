@@ -22,5 +22,10 @@ Useful links:
 \author{
 \strong{Maintainer}: Nathan Eastwood \email{nathan.eastwood@icloud.com}
 
+Other contributors:
+\itemize{
+  \item Etienne Bacher \email{etienne.bacher@protonmail.com} (\href{https://orcid.org/0000-0002-9271-5075}{ORCID}) [contributor]
+}
+
 }
 \keyword{internal}
