@@ -10,7 +10,7 @@
     
     <a class="navbar-brand me-2" href="../index.html">poorman</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.2.5.7</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.2.6</small>
 
     
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -59,11 +59,10 @@
     </div>
 
     <div class="section level2">
-<h2 class="pkg-version" data-toc-text="0.2.6" id="poorman-026-devel">poorman 0.2.6 (devel)<a class="anchor" aria-label="anchor" href="#poorman-026-devel"></a></h2>
+<h2 class="pkg-version" data-toc-text="0.2.6" id="poorman-026">poorman 0.2.6<a class="anchor" aria-label="anchor" href="#poorman-026"></a></h2>
 <p>This update adds the following features:</p>
 <ul><li>Initial versions of <code><a href="../reference/pivot_longer.html">pivot_longer()</a></code> and <code><a href="../reference/pivot_wider.html">pivot_wider()</a></code> have been added (<a href="https://github.com/nathaneastwood/poorman/issues/101" class="external-link">#101</a>, <a href="https://github.com/etiennebacher" class="external-link">@etiennebacher</a>).</li>
-<li>The <code>.names</code> argument in <code><a href="../reference/across.html">across()</a></code> now accepts <code>{.col}</code> and <code>{.fn}</code> to<br>
-automatically name new columns (<a href="https://github.com/nathaneastwood/poorman/issues/100" class="external-link">#100</a>, <a href="https://github.com/etiennebacher" class="external-link">@etiennebacher</a>).</li>
+<li>The <code>.names</code> argument in <code><a href="../reference/across.html">across()</a></code> now accepts <code>{.col}</code> and <code>{.fn}</code> to automatically name new columns (<a href="https://github.com/nathaneastwood/poorman/issues/100" class="external-link">#100</a>, <a href="https://github.com/etiennebacher" class="external-link">@etiennebacher</a>).</li>
 <li>New function <code><a href="../reference/lst.html">lst()</a></code> to reproduce the outputs of <code><a href="https://tibble.tidyverse.org/reference/lst.html" class="external-link">tibble::lst()</a></code>. It enables the creation of lists where elements are build sequentially (i.e depend on the previous ones) and are self-named (i.e the expression is used if no name is given) (<a href="https://github.com/nathaneastwood/poorman/issues/108" class="external-link">#108</a>).</li>
 </ul><p>The following fixes were also implemented:</p>
 <ul><li>
@@ -72,7 +71,8 @@ automatically name new columns (<a href="https://github.com/nathaneastwood/poorm
 <code><a href="../reference/arrange.html">arrange()</a></code> now resets row names when they are numeric (<a href="https://github.com/nathaneastwood/poorman/issues/102" class="external-link">#102</a>, <a href="https://github.com/etiennebacher" class="external-link">@etiennebacher</a>).</li>
 <li>
 <code><a href="../reference/distinct.html">distinct()</a></code> now resets row names when they are numeric (<a href="https://github.com/nathaneastwood/poorman/issues/106" class="external-link">#106</a>, <a href="https://github.com/etiennebacher" class="external-link">@etiennebacher</a>).</li>
-</ul></div>
+</ul><p>The CICD pipeline was also fixed such that users can now tests pull requests. The documentation is now built using HTML5.</p>
+</div>
     <div class="section level2">
 <h2 class="pkg-version" data-toc-text="0.2.5" id="poorman-025">poorman 0.2.5<a class="anchor" aria-label="anchor" href="#poorman-025"></a></h2><p class="text-muted">CRAN release: 2021-03-28</p>
 <p>Ninth CRAN release.</p>
