@@ -139,17 +139,17 @@ in <code>...</code>. The levels in <code>.default</code> and <code>.missing</cod
 <span class="r-in"><span><span class="co"># values are unchanged.</span></span></span>
 <span class="r-in"><span><span class="va">char_vec</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/sample.html" class="external-link">sample</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"a"</span>, <span class="st">"b"</span>, <span class="st">"c"</span><span class="op">)</span>, <span class="fl">10</span>, replace <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="fu">recode</span><span class="op">(</span><span class="va">char_vec</span>, a <span class="op">=</span> <span class="st">"Apple"</span><span class="op">)</span></span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  [1] "Apple" "b"     "b"     "b"     "Apple" "c"     "c"     "Apple" "Apple"</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [10] "b"    </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  [1] "b"     "Apple" "b"     "b"     "b"     "Apple" "c"     "c"     "Apple"</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [10] "c"    </span>
 <span class="r-in"><span><span class="fu">recode</span><span class="op">(</span><span class="va">char_vec</span>, a <span class="op">=</span> <span class="st">"Apple"</span>, b <span class="op">=</span> <span class="st">"Banana"</span><span class="op">)</span></span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  [1] "Apple"  "Banana" "Banana" "Banana" "Apple"  "c"      "c"      "Apple" </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  [9] "Apple"  "Banana"</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  [1] "Banana" "Apple"  "Banana" "Banana" "Banana" "Apple"  "c"      "c"     </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  [9] "Apple"  "c"     </span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># Use .default as replacement for unmatched values. Note that NA and</span></span></span>
 <span class="r-in"><span><span class="co"># replacement values need to be of the same type.</span></span></span>
 <span class="r-in"><span><span class="fu">recode</span><span class="op">(</span><span class="va">char_vec</span>, a <span class="op">=</span> <span class="st">"Apple"</span>, b <span class="op">=</span> <span class="st">"Banana"</span>, .default <span class="op">=</span> <span class="cn">NA_character_</span><span class="op">)</span></span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  [1] "Apple"  "Banana" "Banana" "Banana" "Apple"  NA       NA       "Apple" </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  [9] "Apple"  "Banana"</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  [1] "Banana" "Apple"  "Banana" "Banana" "Banana" "Apple"  NA       NA      </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  [9] "Apple"  NA      </span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># Throws an error as NA is logical, not character.</span></span></span>
 <span class="r-in"><span><span class="kw">if</span> <span class="op">(</span><span class="cn">FALSE</span><span class="op">)</span> <span class="op">{</span></span></span>
