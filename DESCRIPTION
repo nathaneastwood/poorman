@@ -14,8 +14,6 @@ BugReports: https://github.com/nathaneastwood/poorman/issues
 Depends: R (>= 3.3)
 Suggests:
     knitr,
-    pkgdown,
-    markdown,
     rmarkdown,
     roxygen2,
     tinytest
