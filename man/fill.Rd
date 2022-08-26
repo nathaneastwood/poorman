@@ -4,7 +4,7 @@
 \alias{fill}
 \title{Fill in missing values with previous or next value}
 \usage{
-fill(data, ...)
+fill(data, ..., .direction = c("down", "up", "downup", "updown"))
 }
 \arguments{
 \item{data}{A \code{data.frame}.}

@@ -68,21 +68,21 @@
 #'
 #' # Using `.direction = "updown"` accomplishes the same goal in this example
 
-fill <- function(data, ...) {
+fill <- function(data, ..., .direction = c("down", "up", "downup", "updown")) {
   UseMethod("fill")
 }
 
 #' @export
 fill.data.frame <- function(data, ..., .direction = c("down", "up", "downup", "updown")) {
-  
+
   col_pos <- select_positions(data, ..., .group_pos = TRUE)
   if (length(col_pos) == 0) return(data)
   .direction <- match.arg(.direction)
-  
+
   # If "updown", then we apply direction = "up" for all non-NA, and then
   # we apply direction = "down" for all non-NA (and similarly for "downup").
   # So it's not the same as apply "up" and "down" consecutively for each non-NA
-  
+
   steps <- switch(
     .direction,
     "up" = "up",
@@ -90,26 +90,26 @@ fill.data.frame <- function(data, ..., .direction = c("down", "up", "downup", "u
     "updown" = c("up", "down"),
     "downup" = c("down", "up")
   )
-  
+
   names(col_pos) <- NULL
 
   for (i in col_pos) {
 
     for (k in steps) {
-      
+
       # code adapted from https://stackoverflow.com/a/13810615/11598948
-      
+
       if (all(is.na(data[[i]]))) next
-      
-      if (k == "up") data[[i]] <- rev(data[[i]])        
-      ind <- which(!is.na(data[[i]])) 
-      
+
+      if (k == "up") data[[i]] <- rev(data[[i]])
+      ind <- which(!is.na(data[[i]]))
+
       if (is.na(data[[i]][1])) {
-        ind <- c(1, ind)   
-      }      
-      rep_times <- diff(c(ind, length(data[[i]]) + 1))  
-      data[[i]] <- rep(data[[i]][ind], times = rep_times) 
-      if (k == "up") data[[i]] <- rev(data[[i]]) 
+        ind <- c(1, ind)
+      }
+      rep_times <- diff(c(ind, length(data[[i]]) + 1))
+      data[[i]] <- rep(data[[i]][ind], times = rep_times)
+      if (k == "up") data[[i]] <- rev(data[[i]])
     }
   }
 
