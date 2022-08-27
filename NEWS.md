@@ -1,3 +1,10 @@
+# poorman 0.2.7.9000 (devel)
+
+The following fixes were also implemented:
+
+* `relocate()` now works correctly when its arguments `.before` and `.after`
+  are passed through a function (#114, @etiennebacher).
+
 # poorman 0.2.6
 
 This update adds the following features:

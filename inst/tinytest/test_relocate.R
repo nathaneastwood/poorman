@@ -44,3 +44,23 @@ expect_error(
   mtcars %>% relocate(gear, .after = mpg, .before = cyl),
   info = "relocate() fails when .after and .before are both given"
 )
+
+myFun <- function(location) {
+  relocate(mtcars, gear, .after = location)
+}
+
+expect_equal(
+  myFun(1),
+  mtcars[, c("mpg", "gear", "cyl", "disp", "hp", "drat", "wt", "qsec", "vs", "am", "carb")],
+  info = "relocate() works when .after is passed through a function"
+)
+
+myFun <- function(location) {
+  relocate(mtcars, gear, .before = location)
+}
+
+expect_equal(
+  myFun(1),
+  mtcars[, c("gear", "mpg", "cyl", "disp", "hp", "drat", "wt", "qsec", "vs", "am", "carb")],
+  info = "relocate() works when .before is passed through a function"
+)

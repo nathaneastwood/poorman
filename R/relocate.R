@@ -51,8 +51,22 @@ relocate.data.frame <- function(.data, ..., .before = NULL, .after = NULL) {
   data_names <- colnames(.data)
   col_pos <- select_positions(.data, ...)
 
-  if (!missing(.before)) .before <- colnames(.data)[eval_select_pos(.data, substitute(.before))]
-  if (!missing(.after)) .after <- colnames(.data)[eval_select_pos(.data, substitute(.after))]
+  if (!missing(.before)) {
+    x <- try(eval_expr(.before), silent = TRUE)
+    if (inherits(x, "try-error")) {
+      .before <- colnames(.data)[eval_select_pos(.data, substitute(.before))]
+    } else {
+      .before <- colnames(.data)[eval_select_pos(.data, .before)]
+    }
+  }
+  if (!missing(.after)) {
+    x <- try(eval_expr(.after), silent = TRUE)
+    if (inherits(x, "try-error")) {
+      .after <- colnames(.data)[eval_select_pos(.data, substitute(.after))]
+    } else {
+      .after <- colnames(.data)[eval_select_pos(.data, .after)]
+    }
+  }
 
   has_before <- !is.null(.before)
   has_after <- !is.null(.after)
