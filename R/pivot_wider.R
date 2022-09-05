@@ -95,12 +95,12 @@ pivot_wider <- function(
 
   # Create an id for stats::reshape
   if (is.null(id_cols)) {
-    data[["_Rows"]] <- apply(
-      X = data[, !names(data) %in% c(values_from, names_from), drop = FALSE],
-      MARGIN = 1,
-      FUN = paste,
-      collapse = "_"
+    row_index <- do.call(
+      paste, 
+      c(data[, !names(data) %in% c(values_from, names_from), drop = FALSE], sep = "_")
     )
+    if (length(row_index) == 0) row_index <- rep("", nrow(data))
+    data[["_Rows"]] <- row_index
     id_cols <- "_Rows"
   }
 
@@ -109,7 +109,7 @@ pivot_wider <- function(
   current_colnames <- colnames(data)
   current_colnames <- current_colnames[current_colnames != "_Rows"]
   if (is.null(names_glue)) {
-    future_colnames <- unique(apply(data, 1, function(x) paste(x[c(names_from)], collapse = names_sep)))
+    future_colnames <- unique(do.call(paste, c(data[, names_from, drop = FALSE], sep = names_sep)))
   } else {
     vars <- regmatches(names_glue, gregexpr("\\{\\K[^{}]+(?=\\})", names_glue, perl = TRUE))[[1]]
     tmp_data <- unique(data[, vars])
@@ -139,7 +139,7 @@ pivot_wider <- function(
 
   # stats::reshape works strangely when several variables are in idvar/timevar so we unite all ids in a single temporary
   # column that will be used by stats::reshape
-  data$new_time <- apply(data, 1, function(x) paste(x[names_from], collapse = "_"))
+  data$new_time <- do.call(paste, c(data[, names_from, drop = FALSE], sep = "_"))
   data[, names_from] <- NULL
 
   wide <- stats::reshape(
