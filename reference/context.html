@@ -180,21 +180,21 @@ its value.</p></li>
 <span class="r-out co"><span class="r-pr">#&gt;</span> 3 c 3</span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="va">gf</span> <span class="op"><a href="pipe.html">%&gt;%</a></span> <span class="fu"><a href="mutate.html">mutate</a></span><span class="op">(</span>id <span class="op">=</span> <span class="fu">cur_group_id</span><span class="op">(</span><span class="op">)</span><span class="op">)</span></span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   g          x         y id</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 1 a 0.55803276 0.9447737  1</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 2 b 0.26770967 0.6160817  2</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 3 c 0.91572694 0.1939974  3</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 4 b 0.04580937 0.3321616  2</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 5 c 0.21394827 0.2799777  3</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 6 c 0.86723788 0.1374076  3</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   g         x         y id</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 1 c 0.4027718 0.2397542  3</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 2 b 0.3656344 0.1846332  2</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 3 a 0.1876539 0.9422748  1</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 4 c 0.5894307 0.8907756  3</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 5 b 0.9135131 0.1103067  2</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 6 c 0.3279667 0.8832027  3</span>
 <span class="r-in"><span><span class="va">gf</span> <span class="op"><a href="pipe.html">%&gt;%</a></span> <span class="fu"><a href="summarise.html">summarise</a></span><span class="op">(</span>row <span class="op">=</span> <span class="fu">cur_group_rows</span><span class="op">(</span><span class="op">)</span><span class="op">)</span></span></span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> `summarise()` has grouped output by 'g'. You can override using the `.groups` argument.</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   g row</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 1 a   1</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 1 a   3</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> 2 b   2</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 3 b   4</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 4 c   3</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 5 c   5</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 3 b   5</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 4 c   1</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 5 c   4</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> 6 c   6</span>
 <span class="r-in"><span><span class="va">gf</span> <span class="op"><a href="pipe.html">%&gt;%</a></span> <span class="fu"><a href="summarise.html">summarise</a></span><span class="op">(</span>data <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span><span class="fu">cur_group</span><span class="op">(</span><span class="op">)</span><span class="op">)</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   g data</span>
@@ -203,27 +203,27 @@ its value.</p></li>
 <span class="r-out co"><span class="r-pr">#&gt;</span> 3 c    c</span>
 <span class="r-in"><span><span class="va">gf</span> <span class="op"><a href="pipe.html">%&gt;%</a></span> <span class="fu"><a href="summarise.html">summarise</a></span><span class="op">(</span>data <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span><span class="fu">cur_data</span><span class="op">(</span><span class="op">)</span><span class="op">)</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   g                                                             data</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 1 a                                             0.5580328, 0.9447737</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 2 b                   0.26770967, 0.04580937, 0.61608171, 0.33216164</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 3 c 0.9157269, 0.2139483, 0.8672379, 0.1939974, 0.2799777, 0.1374076</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 1 a                                             0.1876539, 0.9422748</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 2 b                       0.3656344, 0.9135131, 0.1846332, 0.1103067</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 3 c 0.4027718, 0.5894307, 0.3279667, 0.2397542, 0.8907756, 0.8832027</span>
 <span class="r-in"><span><span class="va">gf</span> <span class="op"><a href="pipe.html">%&gt;%</a></span> <span class="fu"><a href="summarise.html">summarise</a></span><span class="op">(</span>data <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span><span class="fu">cur_data_all</span><span class="op">(</span><span class="op">)</span><span class="op">)</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   g</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> 1 a</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> 2 b</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> 3 c</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>                                                                                                                        data</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 1                                                                                   a, 0.558032761560753, 0.944773718947545</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 2                                         b, b, 0.267709665000439, 0.0458093737252057, 0.616081705549732, 0.332161644473672</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 3 c, c, c, 0.915726938284934, 0.213948270771652, 0.867237879894674, 0.193997447146103, 0.279977667843923, 0.137407593429089</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>                                                                                                                      data</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 1                                                                                 a, 0.187653874978423, 0.942274785134941</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 2                                        b, b, 0.365634423214942, 0.913513098144904, 0.184633162105456, 0.110306689981371</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 3 c, c, c, 0.402771807275712, 0.58943066210486, 0.327966745244339, 0.239754236768931, 0.89077560743317, 0.883202653145418</span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="va">gf</span> <span class="op"><a href="pipe.html">%&gt;%</a></span> <span class="fu"><a href="mutate.html">mutate</a></span><span class="op">(</span><span class="fu"><a href="across.html">across</a></span><span class="op">(</span><span class="fu"><a href="select_helpers.html">everything</a></span><span class="op">(</span><span class="op">)</span>, <span class="op">~</span> <span class="fu"><a href="https://rdrr.io/r/base/paste.html" class="external-link">paste</a></span><span class="op">(</span><span class="fu">cur_column</span><span class="op">(</span><span class="op">)</span>, <span class="fu"><a href="https://rdrr.io/r/base/Round.html" class="external-link">round</a></span><span class="op">(</span><span class="va">.x</span>, <span class="fl">2</span><span class="op">)</span><span class="op">)</span><span class="op">)</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   g      x      y</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 1 a x 0.56 y 0.94</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 2 b x 0.27 y 0.62</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 3 c x 0.92 y 0.19</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 4 b x 0.05 y 0.33</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 5 c x 0.21 y 0.28</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 6 c x 0.87 y 0.14</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 1 c  x 0.4 y 0.24</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 2 b x 0.37 y 0.18</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 3 a x 0.19 y 0.94</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 4 c x 0.59 y 0.89</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 5 b x 0.91 y 0.11</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 6 c x 0.33 y 0.88</span>
 <span class="r-in"><span></span></span>
 </code></pre></div>
     </div>
