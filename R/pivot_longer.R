@@ -93,22 +93,23 @@ pivot_longer <- function(
 
   # if several variable in names_to, split the names either with names_sep or with names_pattern
   if (length(names_to) > 1) {
-    for (i in seq_along(names_to)) {
-      if (is.null(names_pattern)) {
+    if (is.null(names_pattern)) {
+      for (i in seq_along(names_to)) {
         new_vals <- unlist(lapply(
           strsplit(unique(long[[names_to_2]]), names_sep, fixed = TRUE),
           function(x) x[i]
         ))
         long[[names_to[i]]] <- new_vals
-      } else {
-        col_pattern <- regmatches(
-          x = unique(long[[names_to_2]]),
-          m = regexec(names_pattern, unique(long[[names_to_2]]))
-        )
-        col_pattern <- as.data.frame(do.call(rbind, col_pattern))[, c(1, i + 1)]
-        names(col_pattern) <- c(names_to_2, names_to[i])
-        long <- left_join(x = long, y = col_pattern, by = names_to_2)
       }
+    } else {
+      tmp <- regmatches(
+        unique(long[[names_to_2]]),
+        regexec(names_pattern, unique(long[[names_to_2]]))
+      )
+      tmp <- as.data.frame(do.call(rbind, tmp), stringsAsFactors = FALSE)
+      names(tmp) <- c(names_to_2, names_to)
+      # faster than merge
+      long <- cbind(long, tmp[match(long[[names_to_2]], tmp[[names_to_2]]), -1])
     }
     long[[names_to_2]] <- NULL
   }
