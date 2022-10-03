@@ -11,14 +11,12 @@ fill(data, ..., .direction = c("down", "up", "downup", "updown"))
 
 \item{...}{Columns to fill.}
 
-\item{.direction}{Direction in which to fill missing values. Currently
-either "down" (the default), "up", "downup" (i.e. first down and then up)
-or "updown" (first up and then down).}
+\item{.direction}{Direction in which to fill missing values. Currently either \code{"down"} (the default), \code{"up"},
+\code{"downup"} (i.e. first down and then up) or \code{"updown"} (first up and then down).}
 }
 \description{
-Fills missing values in selected columns using the next or previous entry.
-This is useful in the common output format where values are not repeated,
-and are only recorded when they change.
+Fills missing values in selected columns using the next or previous entry. This is useful in the common output format
+where values are not repeated, and are only recorded when they change.
 }
 \details{
 Missing values are replaced in atomic vectors; \code{NULL}s are replaced in lists.
@@ -78,4 +76,5 @@ squirrels \%>\%
   ungroup()
 
 # Using `.direction = "updown"` accomplishes the same goal in this example
+
 }

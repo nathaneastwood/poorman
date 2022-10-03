@@ -1,17 +1,15 @@
 #' Fill in missing values with previous or next value
 #'
-#' Fills missing values in selected columns using the next or previous entry.
-#' This is useful in the common output format where values are not repeated,
-#' and are only recorded when they change.
+#' Fills missing values in selected columns using the next or previous entry. This is useful in the common output format
+#' where values are not repeated, and are only recorded when they change.
 #'
 #' Missing values are replaced in atomic vectors; `NULL`s are replaced in lists.
 #'
 #' @param data A `data.frame`.
 #' @param ... Columns to fill.
-#' @param .direction Direction in which to fill missing values. Currently
-#'   either "down" (the default), "up", "downup" (i.e. first down and then up)
-#'   or "updown" (first up and then down).
-#' @export
+#' @param .direction Direction in which to fill missing values. Currently either `"down"` (the default), `"up"`,
+#' `"downup"` (i.e. first down and then up) or `"updown"` (first up and then down).
+#'
 #' @examples
 #' # Value (year) is recorded only when it changes
 #' sales <- data.frame(
@@ -67,7 +65,9 @@
 #'   ungroup()
 #'
 #' # Using `.direction = "updown"` accomplishes the same goal in this example
-
+#'
+#' @name fill
+#' @export
 fill <- function(data, ..., .direction = c("down", "up", "downup", "updown")) {
   UseMethod("fill")
 }
