@@ -1,3 +1,9 @@
+# poorman 0.2.7.9000 (devel)
+
+This update adds the following features:
+
+* New function `fill()` that mimics `tidyr::fill()` (#113, @etiennebacher).
+
 # poorman 0.2.6
 
 This update adds the following features:

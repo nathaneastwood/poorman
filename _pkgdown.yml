@@ -26,6 +26,7 @@ reference:
   - arrange
   - count
   - distinct
+  - fill
   - filter
   - mutate
   - pull
