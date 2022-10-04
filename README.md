@@ -1,5 +1,7 @@
 <!-- README.md is generated from README.Rmd. Please edit that file -->
 
+<a name="readme-top"></a>
+
 # {poorman} <a href='https://nathaneastwood.github.io/tags/poorman/'><img src='man/figures/logo.png' align="right" height="139" /></a>
 
 [![CRAN
@@ -37,6 +39,10 @@ For more details on the functionality available within {poorman}, check
 out the {poorman} series of blog posts
 [here](https://nathaneastwood.github.io/tags/poorman/).
 
+<p align="right">
+(<a href="#readme-top">back to top</a>)
+</p>
+
 ## Installation
 
 You can install:
@@ -55,6 +61,10 @@ remotes::install_github("nathaneastwood/poorman")
 install.packages("poorman")
 ```
 
+<p align="right">
+(<a href="#readme-top">back to top</a>)
+</p>
+
 ## Docker
 
 If you’d like to try out the latest version of the package on CRAN using
@@ -63,6 +73,10 @@ Docker, you can run the latest image with:
 ``` bash
 docker run --rm -it nathaneastwood/poorman
 ```
+
+<p align="right">
+(<a href="#readme-top">back to top</a>)
+</p>
 
 ## Usage
 
@@ -95,6 +109,10 @@ mtcars %>%
 # 6  1   8 15.40000 0.5656854
 ```
 
+<p align="right">
+(<a href="#readme-top">back to top</a>)
+</p>
+
 ## Related Work
 
 -   [{dplyr}](https://github.com/tidyverse/dplyr)
@@ -103,3 +121,7 @@ mtcars %>%
 -   [{tbltools}](https://github.com/mkearney/tbltools) - imports
     {magrittr} and appends `*_data()` to each of its functions,
     e.g. `select_data()`.
+
+<p align="right">
+(<a href="#readme-top">back to top</a>)
+</p>
