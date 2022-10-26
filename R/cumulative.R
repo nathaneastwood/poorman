@@ -1,4 +1,4 @@
-#' Cumulativate versions of any, all, and mean
+#' Cumulative versions of any, all, and mean
 #'
 #' {poorman} provides `cumall()`, `cumany()`, and `cummean()` to complete R's set of cumulative functions.
 #'

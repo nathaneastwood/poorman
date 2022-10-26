@@ -1,6 +1,3 @@
-home:
-  strip_header: false
-
 template:
   bootstrap: 5
   theme: github-light
@@ -29,6 +26,7 @@ reference:
   - arrange
   - count
   - distinct
+  - fill
   - filter
   - mutate
   - pull
@@ -103,7 +101,6 @@ reference:
   - lst
 
 navbar:
-  type: inverse
   left:
     - icon: fa-home
       href: index.html

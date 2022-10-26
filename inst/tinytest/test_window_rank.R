@@ -132,37 +132,37 @@ res <- data %>%
   )
 expect_true(all(is.na(res$min_rank[c(3, 6)])), info = "min_rank() deals correctly with NA")
 expect_equal(
-  res$min_rank[ c(1, 2, 4, 5) ],
+  res$min_rank[c(1, 2, 4, 5)],
   c(2L, 4L, 2L, 1L),
   info = "min_rank() deals correctly with NA"
 )
 expect_true(all(is.na(res$dense_rank[c(3, 6)])), info = "dense_rank() deals correctly with NA")
 expect_equal(
-  res$dense_rank[ c(1, 2, 4, 5) ],
+  res$dense_rank[c(1, 2, 4, 5)],
   c(2L, 3L, 2L, 1L),
   info = "dense_rank() deals correctly with NA"
 )
 expect_true(all(is.na(res$percent_rank[c(3, 6)])), info = "percent_rank() deals correctly with NA")
 expect_equal(
-  res$percent_rank[ c(1, 2, 4, 5) ],
+  res$percent_rank[c(1, 2, 4, 5)],
   c(1 / 3, 1, 1 / 3, 0),
   info = "percent_rank() deals correctly with NA"
 )
 expect_true(all(is.na(res$cume_dist[c(3, 6)])), info = "cume_dist() deals correctly with NA")
 expect_equal(
-  res$cume_dist[ c(1, 2, 4, 5) ],
+  res$cume_dist[c(1, 2, 4, 5)],
   c(.75, 1, .75, .25),
   info = "cume_dist() deals correctly with NA"
 )
 expect_true(all(is.na(res$ntile[c(3, 6)])), info = "ntile() deals correctly with NA")
 expect_equal(
-  res$ntile[ c(1, 2, 4, 5) ],
+  res$ntile[c(1, 2, 4, 5)],
   c(1L, 2L, 2L, 1L),
   info = "ntile() deals correctly with NA"
 )
 expect_true(all(is.na(res$row_number[c(3, 6)])), info = "row_number() deals correctly with NA")
 expect_equal(
-  res$row_number[ c(1, 2, 4, 5) ],
+  res$row_number[c(1, 2, 4, 5)],
   c(2L, 4L, 3L, 1L),
   info = "row_number() deals correctly with NA"
 )
@@ -182,37 +182,37 @@ res <- data %>%
   )
 expect_true(all(is.na(res$min_rank[c(3, 6, 9, 12)])), info = "min_rank() deals correctly with NA")
 expect_equal(
-  res$min_rank[ c(1, 2, 4, 5, 7, 8, 10, 11) ],
+  res$min_rank[c(1, 2, 4, 5, 7, 8, 10, 11)],
   rep(c(2L, 4L, 2L, 1L), 2),
   info = "min_rank() deals correctly with NA"
 )
 expect_true(all(is.na(res$dense_rank[c(3, 6, 9, 12)])), info = "dense_rank() deals correctly with NA")
 expect_equal(
-  res$dense_rank[ c(1, 2, 4, 5, 7, 8, 10, 11) ],
+  res$dense_rank[c(1, 2, 4, 5, 7, 8, 10, 11)],
   rep(c(2L, 3L, 2L, 1L), 2),
   info = "dense_rank() deals correctly with NA"
 )
 expect_true(all(is.na(res$percent_rank[c(3, 6, 9, 12)])), info = "percent_rank() deals correctly with NA")
 expect_equal(
-  res$percent_rank[ c(1, 2, 4, 5, 7, 8, 10, 11) ],
+  res$percent_rank[c(1, 2, 4, 5, 7, 8, 10, 11)],
   rep(c(1 / 3, 1, 1 / 3, 0), 2),
   info = "percent_rank() deals correctly with NA"
 )
 expect_true(all(is.na(res$cume_dist[c(3, 6, 9, 12)])), info = "cume_dist() deals correctly with NA")
 expect_equal(
-  res$cume_dist[ c(1, 2, 4, 5, 7, 8, 10, 11) ],
+  res$cume_dist[c(1, 2, 4, 5, 7, 8, 10, 11)],
   rep(c(.75, 1, .75, .25), 2),
   info = "cume_dist() deals correctly with NA"
 )
 expect_true(all(is.na(res$ntile[c(3, 6, 9, 12)])), info = "ntile() deals correctly with NA")
 expect_equal(
-  res$ntile[ c(1, 2, 4, 5, 7, 8, 10, 11) ],
+  res$ntile[c(1, 2, 4, 5, 7, 8, 10, 11)],
   rep(c(1L, 2L, 2L, 1L), 2),
   info = "ntile() deals correctly with NA"
 )
 expect_true(all(is.na(res$row_number[c(3, 6, 9, 12)])), info = "row_number() deals correctly with NA")
 expect_equal(
-  res$row_number[ c(1, 2, 4, 5, 7, 8, 10, 11) ],
+  res$row_number[c(1, 2, 4, 5, 7, 8, 10, 11)],
   rep(c(2L, 4L, 3L, 1L), 2),
   info = "row_number() deals correctly with NA"
 )

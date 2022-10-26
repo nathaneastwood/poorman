@@ -1,7 +1,7 @@
 Package: poorman
 Type: Package
 Title: A Poor Man's Dependency Free Recreation of 'dplyr'
-Version: 0.2.5.7
+Version: 0.2.6
 Authors@R: c(
     person("Nathan", "Eastwood", "", "nathan.eastwood@icloud.com",
            role = c("aut", "cre")),
@@ -11,11 +11,9 @@ Maintainer: Nathan Eastwood <nathan.eastwood@icloud.com>
 Description: A replication of key functionality from 'dplyr' and the wider 'tidyverse' using only 'base'.
 URL: https://nathaneastwood.github.io/poorman/, https://github.com/nathaneastwood/poorman
 BugReports: https://github.com/nathaneastwood/poorman/issues
-Depends: R (>= 3.5)
+Depends: R (>= 3.3)
 Suggests:
     knitr,
-    pkgdown,
-    markdown,
     rmarkdown,
     roxygen2,
     tinytest

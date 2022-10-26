@@ -20,7 +20,7 @@ glimpse <- function(x, width = getOption("width"), ...) {
 }
 
 #' @export
-glimpse.default <- function (x, width = getOption("width"), max.level = 3, ...) {
+glimpse.default <- function(x, width = getOption("width"), max.level = 3, ...) {
   utils::str(x, width = width, max.level = max.level, ...)
   invisible(x)
 }

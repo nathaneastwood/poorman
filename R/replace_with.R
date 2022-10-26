@@ -6,8 +6,7 @@ replace_with <- function(x, i, val, arg_name) {
   i[is.na(i)] <- FALSE
   if (length(val) == 1L) {
     x[i] <- val
-  }
-  else {
+  } else {
     x[i] <- val[i]
   }
   x

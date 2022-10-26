@@ -27,7 +27,7 @@ pivot_longer(
 name.}
 
 \item{names_sep, names_pattern}{\code{character(1)}. If \code{names_to} contains multiple values, this argument controls how the
-column name is broken up. \code{names_pattern} takes a regular expression containing matching groups (\verb{()}⁠).}
+column name is broken up. \code{names_pattern} takes a regular expression containing matching groups (\verb{()}).}
 
 \item{values_to}{\code{character(n)}. The name of the new column(s) that will contain the values of the pivoted variables.}
 

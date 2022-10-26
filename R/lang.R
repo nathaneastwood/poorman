@@ -59,6 +59,6 @@ as_symbols <- function(x) {
 #' @noRd
 is_df_or_vector <- function(x) {
   res <- is.data.frame(x) || is.atomic(x)
-  if (isFALSE(res)) stop("You must pass vector(s) and/or data.frame(s).")
+  if (!isTRUE(res)) stop("You must pass vector(s) and/or data.frame(s).")
   TRUE
 }

@@ -23,14 +23,14 @@
 #' lst(a, b)
 
 lst <- function(...) {
-  fnCall <- match.call()
-  listToEval <- as.list(fnCall)[-1]
+  fn_call <- match.call()
+  list_to_eval <- as.list(fn_call)[-1]
 
-  out <- vector(mode = "list", length = length(listToEval))
-  names(out) <- names(listToEval)
+  out <- vector(mode = "list", length = length(list_to_eval))
+  names(out) <- names(list_to_eval)
   exprs <- lapply(substitute(list(...)), deparse)[-1]
-  for (element in seq_along(listToEval)) {
-    value <- listToEval[[element]]
+  for (element in seq_along(list_to_eval)) {
+    value <- list_to_eval[[element]]
     if (is.language(value)) {
       # need to update the environment in which the values are obtained
       # ex: lst(a = 1, a = a + 1, b = a), 'b' needs the updated value of 'a',
@@ -38,7 +38,7 @@ lst <- function(...) {
       value <- eval(
         value,
         envir = if (length(out) == 0) {
-          listToEval
+          list_to_eval
         } else {
           # restrict the environment to the previous elements of the list (and
           # to the last value for each name if there are duplicated names)
@@ -59,7 +59,7 @@ lst <- function(...) {
       names(out)[element] == ""
 
     if (invalid_name) {
-      if (exprs[[element]] != "NULL" | (exprs[[element]] == "NULL" & is.null(out[[element]]))) {
+      if (exprs[[element]] != "NULL" || (exprs[[element]] == "NULL" && is.null(out[[element]]))) {
         names(out)[element] <- exprs[[element]]
       }
     }
@@ -67,9 +67,12 @@ lst <- function(...) {
   out
 }
 
-# if several elements of a list have the same name, only keep the last one
-# with this name.
-# Ex: list(a = 1, a = 2, b = 1) -> list(a = 2, b = 1)
+#' Drop List Duplicated
+#' If several elements of a list have the same name, only keep the last one with this name.
+#' @examples
+#' list(a = 1, a = 2, b = 1)
+#' # list(a = 2, b = 1)
+#' @noRd
 drop_dup_list <- function(x) {
 
   list_names <- names(x)

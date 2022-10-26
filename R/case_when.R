@@ -100,9 +100,9 @@
 #'   )
 #'
 #' @export
-case_when <- function (...) {
+case_when <- function(...) {
   fs <- list(...)
-  lapply(fs, function(x) if (class(x) != "formula") stop("`case_when()` requires formula inputs."))
+  lapply(fs, function(x) if (!inherits(x, "formula")) stop("`case_when()` requires formula inputs."))
   n <- length(fs)
   if (n == 0L) stop("No cases provided.")
   query <- vector("list", n)

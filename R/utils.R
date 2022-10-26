@@ -4,7 +4,7 @@ check_is_dataframe <- function(.data) {
   invisible()
 }
 
-seq2 <- function (from, to) {
+seq2 <- function(from, to) {
   if (length(from) != 1) stop("`from` must be length one")
   if (length(to) != 1) stop("`to` must be length one")
   if (from > to) integer() else seq.int(from, to)

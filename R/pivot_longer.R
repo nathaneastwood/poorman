@@ -9,7 +9,7 @@
 #' @param names_prefix `character(1)`. A regular expression used to remove matching text from the start of each variable
 #' name.
 #' @param names_sep,names_pattern `character(1)`. If `names_to` contains multiple values, this argument controls how the
-#' column name is broken up. `names_pattern` takes a regular expression containing matching groups (`()`⁠).
+#' column name is broken up. `names_pattern` takes a regular expression containing matching groups (`()`).
 #' @param values_to `character(n)`. The name of the new column(s) that will contain the values of the pivoted variables.
 #' @param values_drop_na `logical(1)`. If `TRUE`, will drop rows that contain only `NA` in the `values_to` column. This
 #' effectively converts explicit missing values to implicit missing values, and should generally be used only when
@@ -93,22 +93,23 @@ pivot_longer <- function(
 
   # if several variable in names_to, split the names either with names_sep or with names_pattern
   if (length(names_to) > 1) {
-    for (i in seq_along(names_to)) {
-      if (is.null(names_pattern)) {
+    if (is.null(names_pattern)) {
+      for (i in seq_along(names_to)) {
         new_vals <- unlist(lapply(
           strsplit(unique(long[[names_to_2]]), names_sep, fixed = TRUE),
           function(x) x[i]
         ))
         long[[names_to[i]]] <- new_vals
-      } else {
-        colPattern <- regmatches(
-          x = unique(long[[names_to_2]]),
-          m = regexec(names_pattern, unique(long[[names_to_2]]))
-        )
-        colPattern <- as.data.frame(do.call(rbind, colPattern))[, c(1, i + 1)]
-        names(colPattern) <- c(names_to_2, names_to[i])
-        long <- left_join(x = long, y = colPattern, by = names_to_2)
       }
+    } else {
+      tmp <- regmatches(
+        unique(long[[names_to_2]]),
+        regexec(names_pattern, unique(long[[names_to_2]]))
+      )
+      tmp <- as.data.frame(do.call(rbind, tmp), stringsAsFactors = FALSE)
+      names(tmp) <- c(names_to_2, names_to)
+      # faster than merge
+      long <- cbind(long, tmp[match(long[[names_to_2]], tmp[[names_to_2]]), -1])
     }
     long[[names_to_2]] <- NULL
   }
