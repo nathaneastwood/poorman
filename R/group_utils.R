@@ -64,8 +64,9 @@ calculate_groups <- function(data, groups, drop = group_by_drop_default(data)) {
   is_factor <- do.call(c, lapply(unique_groups, function(x) is.factor(x)))
   n_comb <- nrow(unique_groups)
   rows <- rep(list(NA), n_comb)
+  data_groups <- interaction(data[, groups, drop = TRUE])
   for (i in seq_len(n_comb)) {
-    rows[[i]] <- which(interaction(data[, groups, drop = TRUE]) %in% interaction(unique_groups[i, groups]))
+    rows[[i]] <- which(data_groups %in% interaction(unique_groups[i, groups]))
   }
 
   if (!isTRUE(drop) && any(is_factor)) {
