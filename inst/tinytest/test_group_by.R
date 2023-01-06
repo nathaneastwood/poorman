@@ -177,7 +177,7 @@ expect_identical(
 d <- data.frame(
   orig = rep(c("France", "UK"), each = 4),
   dest = rep(c("Spain", "Germany"), times = 4),
-  year = rep(c(2010, 2011), each = 4),
+  year = rep(rep(c(2010, 2011), each = 2), 2),
   value = 1:8
 )
 d[2, 1] <- NA
