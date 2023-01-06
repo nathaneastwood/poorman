@@ -65,8 +65,13 @@ calculate_groups <- function(data, groups, drop = group_by_drop_default(data)) {
   n_comb <- nrow(unique_groups)
   rows <- rep(list(NA), n_comb)
   data_groups <- interaction(data[, groups, drop = TRUE])
+  
+  # Concatenate group variables
+  pasted_groups <- do.call(paste, c(unique_groups[, groups, drop = FALSE], sep = "."))
+  pasted_groups[is.na(unique_groups)] <- NA
+  
   for (i in seq_len(n_comb)) {
-    rows[[i]] <- which(data_groups %in% interaction(unique_groups[i, groups]))
+    rows[[i]] <- which(data_groups %in% pasted_groups[i])
   }
 
   if (!isTRUE(drop) && any(is_factor)) {
