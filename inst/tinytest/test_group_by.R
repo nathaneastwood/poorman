@@ -154,8 +154,48 @@ df <- data.frame(x = 1:2, y = 1:2) %>%
   structure(class = c("grouped_df", "data.frame"))
 expect_true(group_by_drop_default(df), info = "group_by_drop_default() is forgiving about corrupt grouped df")
 
+
+# with NA in groups ---------------------------------------------------
+
+# One group
 res <- data.frame(x = c("apple", NA, "banana"), y = 1:3, stringsAsFactors = FALSE) %>%
   group_by(x) %>%
   group_data()
-expect_identical(res$x, c("apple", "banana", NA_character_), info = "group_by() puts NA groups last in STRSXP")
-expect_identical(res$.rows, list(1L, 3L, 2L), info = "group_by() puts NA groups last in STRSXP")
+
+expect_identical(
+  res$x, 
+  c("apple", "banana", NA_character_), 
+  info = "group_by() puts NA groups last in STRSXP"
+)
+expect_identical(
+  res$.rows, 
+  list(1L, 3L, 2L), 
+  info = "group_by() puts NA groups last in STRSXP"
+)
+
+# Several groups
+d <- data.frame(
+  orig = rep(c("France", "UK"), each = 4),
+  dest = rep(c("Spain", "Germany"), times = 4),
+  year = rep(c(2010, 2011), each = 4),
+  value = 1:8
+)
+d[2, 1] <- NA
+d[7, 2] <- NA
+
+res <- d %>%
+  group_by(orig, dest) %>%
+  group_data()
+
+expect_identical(nrow(res), 6L)
+expect_identical(
+  res[5:6, 1:2],
+  structure(
+    data.frame(orig = c("UK", NA), dest = c(NA, "Germany")),
+    row.names = 5:6
+  )
+)
+expect_identical(
+  vapply(res$.rows, length, FUN.VALUE = numeric(1L)),
+  c(1, 2, 2, 1, 0, 2)
+)
