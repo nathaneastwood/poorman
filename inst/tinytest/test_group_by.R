@@ -189,13 +189,19 @@ res <- d %>%
 
 expect_identical(nrow(res), 6L)
 expect_identical(
-  res[5:6, 1:2],
+  res[5:6, 1:3],
   structure(
-    data.frame(orig = c("UK", NA), dest = c(NA, "Germany")),
+    list2DF(
+      list(
+        orig = c("UK", NA), 
+        dest = c(NA, "Germany"), 
+        .rows = list(7L, 2L)
+      )
+    ),
     row.names = 5:6
   )
 )
 expect_identical(
   vapply(res$.rows, length, FUN.VALUE = numeric(1L)),
-  c(1, 2, 2, 1, 0, 2)
+  c(1, 2, 2, 1, 1, 1)
 )
