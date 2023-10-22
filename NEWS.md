@@ -1,10 +1,14 @@
-# poorman 0.2.7.9000 (devel)
+# poorman 0.2.7
 
-This update adds the following features:
+Eleventh CRAN release. This release:
 
-* New function `fill()` that mimics `tidyr::fill()` (#113, @etiennebacher).
+* Adds a new function `fill()` that mimics `tidyr::fill()` (#113, @etiennebacher).
+* Includes various performance improvements for grouped operations, `pivot_wider()` and `pivot_longer()` (@etiennebacher).
+* Fixes CRAN issues.
 
 # poorman 0.2.6
+
+Tenth CRAN release.
 
 This update adds the following features:
 
