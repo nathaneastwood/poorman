@@ -217,7 +217,7 @@ expect_equal(
 models <- mtcars %>% nest_by(cyl) %>% mutate(model = list(lm(mpg ~ wt, data = data)))
 expect_equal(
   lapply(models$model, class),
-  list(model = "lm", model = "lm", model = "lm"),
+  list("lm", "lm", "lm"),
   info = "List columns can be mutated: 3"
 )
 
