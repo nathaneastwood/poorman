@@ -161,8 +161,7 @@ mutate_df <- function(.data, ...) {
       cond_nms[i] <- names(conditions)[[i]]
       context$.data[[cond_nms[i]]] <- res
     } else {
-      if (is.null(res_nms)) names(res) <- names(conditions)[[i]]
-      context$.data[[names(res)]] <- res
+      context$.data[[names(conditions)[[i]]]] <- res
     }
   }
   list(
