@@ -7,8 +7,8 @@
 #' `if_any()` and `if_all()` are used to apply the same predicate function to a selection of columns and combine the
 #' results into a single logical vector.
 #'
-#' `across()` supersedes the family of {dplyr} "scoped variants" like `summarise_at()`, `summarise_if()`, and
-#' `summarise_all()` and therefore these functions will not be implemented in {poorman}.
+#' `across()` supersedes the family of `dplyr` "scoped variants" like `summarise_at()`, `summarise_if()`, and
+#' `summarise_all()` and therefore these functions will not be implemented in `poorman`.
 #'
 #' @param cols,.cols <[`poor-select`][select_helpers]> Columns to transform. Because `across()` is used within functions
 #' like `summarise()` and `mutate()`, you can't select or compute upon grouping variables.

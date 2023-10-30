@@ -48,8 +48,8 @@ semantics inside in "data-masking" functions like \code{\link[=summarise]{summar
 \code{if_any()} and \code{if_all()} are used to apply the same predicate function to a selection of columns and combine the
 results into a single logical vector.
 
-\code{across()} supersedes the family of {dplyr} "scoped variants" like \code{summarise_at()}, \code{summarise_if()}, and
-\code{summarise_all()} and therefore these functions will not be implemented in {poorman}.
+\code{across()} supersedes the family of \code{dplyr} "scoped variants" like \code{summarise_at()}, \code{summarise_if()}, and
+\code{summarise_all()} and therefore these functions will not be implemented in \code{poorman}.
 }
 \examples{
 # across() -----------------------------------------------------------------
