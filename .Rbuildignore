@@ -21,3 +21,4 @@ poorman.Rcheck
 ^docs$
 ^pkgdown$
 ^revdep$
+^CRAN-SUBMISSION$
