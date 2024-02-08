@@ -10,8 +10,8 @@
 #' @details
 #' **Grouped `data.frame`s:**
 #'
-#' The primary use case for `group_split()` is with already groups `data.frame`s, typically a result of [group_by()]. In
-#' this case, `group_split()` only uses the first argument, the grouped `data.frame`, and warns when `...` is used.
+#' The primary use case for `group_split()` is with already grouped `data.frame`s, typically a result of [group_by()].
+#' In this case, `group_split()` only uses the first argument, the grouped `data.frame`, and warns when `...` is used.
 #'
 #' Because some of these groups may be empty, it is best paired with `group_keys()` which identifies the representatives
 #' of each grouping variable for the group.
@@ -60,7 +60,7 @@ group_split <- function(.data, ..., .keep = TRUE) {
   res <- split_into_groups(context$.data, groups)
   names(res) <- NULL
   if (!isTRUE(.keep)) {
-    res <- lapply(res, function(x) x[, !colnames(x) %in% groups])
+    res <- lapply(res, function(x) x[, !colnames(x) %in% groups, drop = FALSE])
   }
   any_empty <- unlist(lapply(res, function(x) !(nrow(x) == 0L)))
   res[any_empty]

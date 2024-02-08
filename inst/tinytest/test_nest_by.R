@@ -9,6 +9,26 @@ expect_equal(
 )
 
 expect_equal(
+  mtcars |> select(mpg, cyl, am) |> nest_by(am, cyl),
+  {
+    res <- data.frame(
+      am = c(0, 0, 0, 1, 1, 1),
+      cyl = c(4, 6, 8, 4, 6, 8)
+    )
+    res[["data"]] <- list(
+      mtcars[mtcars$am == 0 & mtcars$cyl == 4, "mpg", drop = FALSE],
+      mtcars[mtcars$am == 0 & mtcars$cyl == 6, "mpg", drop = FALSE],
+      mtcars[mtcars$am == 0 & mtcars$cyl == 8, "mpg", drop = FALSE],
+      mtcars[mtcars$am == 1 & mtcars$cyl == 4, "mpg", drop = FALSE],
+      mtcars[mtcars$am == 1 & mtcars$cyl == 6, "mpg", drop = FALSE],
+      mtcars[mtcars$am == 1 & mtcars$cyl == 8, "mpg", drop = FALSE]
+    )
+    group_by(res, am)
+  },
+  info = "nest_by() works with only one non-group column (#124)"
+)
+
+expect_equal(
   mtcars %>% group_by(am) %>% nest_by(),
   {
     res <- data.frame(am = c(0L, 1L))

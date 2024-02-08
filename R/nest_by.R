@@ -33,7 +33,18 @@ nest_by.grouped_df <- function(.data, ..., .key = "data", .keep = FALSE) {
   if (!missing(...)) {
     stop("Can't re-group while nesting. Either `ungroup()` first or don't supply arguments to `nest_by()`")
   }
-  res <- group_keys(.data)
-  res[[.key]] <- group_split(.data, ..., .keep = .keep)
-  do.call(group_by, list(res, as.symbol(group_vars(.data))))
+  nests <- group_split(.data, ..., .keep = TRUE)
+  groups <- group_vars(.data)
+  res <- lapply(
+    nests,
+    function(x) {
+      df <- x[1, groups, drop = FALSE]
+      df[[.key]] <- list(x[, !colnames(x) %in% groups, drop = FALSE])
+      df
+    }
+  )
+  res <- do.call(rbind, res)
+  rownames(res) <- NULL
+  res <- do.call(arrange, list(res, as.symbol(groups)))
+  do.call(group_by, list(res, as.symbol(groups)))
 }

@@ -34,8 +34,8 @@ confusing
 \details{
 \strong{Grouped \code{data.frame}s:}
 
-The primary use case for \code{group_split()} is with already groups \code{data.frame}s, typically a result of \code{\link[=group_by]{group_by()}}. In
-this case, \code{group_split()} only uses the first argument, the grouped \code{data.frame}, and warns when \code{...} is used.
+The primary use case for \code{group_split()} is with already grouped \code{data.frame}s, typically a result of \code{\link[=group_by]{group_by()}}.
+In this case, \code{group_split()} only uses the first argument, the grouped \code{data.frame}, and warns when \code{...} is used.
 
 Because some of these groups may be empty, it is best paired with \code{group_keys()} which identifies the representatives
 of each grouping variable for the group.
