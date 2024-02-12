@@ -63,11 +63,18 @@ calculate_groups <- function(data, groups, drop = group_by_drop_default(data)) {
   unique_groups <- unique(data[, groups, drop = FALSE])
   is_factor <- do.call(c, lapply(unique_groups, function(x) is.factor(x)))
   n_comb <- nrow(unique_groups)
+  
+  temp_id <- paste(sample(letters), collapse = "")
+
+  # Concatenate group variables
+  pasted_groups <- do.call(paste, c(unique_groups, sep = "."))
+  data[[temp_id]] <- do.call(paste, c(data[, groups, drop = FALSE], sep = "."))
+
   rows <- rep(list(NA), n_comb)
-  data_groups <- interaction(data[, groups, drop = TRUE])
   for (i in seq_len(n_comb)) {
-    rows[[i]] <- which(data_groups %in% interaction(unique_groups[i, groups]))
+    rows[[i]] <- which(data[[temp_id]] %in% pasted_groups[i])
   }
+  data[[temp_id]] <- NULL
 
   if (!isTRUE(drop) && any(is_factor)) {
     na_lvls <- do.call(
