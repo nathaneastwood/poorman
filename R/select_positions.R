@@ -74,9 +74,9 @@ select_positions <- function(.data, ..., .group_pos = FALSE) {
   res <- match(res_nms, data_names)
   if (length(res) != 0L) {
     res <- if (length(setdiff(names(uniques), data_names)) > 0L) {
-      if (all(uniques > 0L)) structure(res, .Names = names(uniques)) else structure(res, .Names = res_nms)
+      if (all(uniques > 0L)) structure(res, names = names(uniques)) else structure(res, names = res_nms)
     } else {
-      structure(res, .Names = res_nms)
+      structure(res, names = res_nms)
     }
   }
   res
