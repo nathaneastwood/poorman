@@ -1,0 +1,423 @@
+# Changelog
+
+## poorman 0.2.7
+
+CRAN release: 2023-10-30
+
+Eleventh CRAN release. This release:
+
+- Adds a new function [`fill()`](../reference/fill.md) that mimics
+  `tidyr::fill()`
+  ([\#113](https://github.com/nathaneastwood/poorman/issues/113),
+  [@etiennebacher](https://github.com/etiennebacher)).
+- Includes various performance improvements for grouped operations,
+  [`pivot_wider()`](../reference/pivot_wider.md) and
+  [`pivot_longer()`](../reference/pivot_longer.md)
+  ([@etiennebacher](https://github.com/etiennebacher)).
+- Fixes CRAN issues.
+
+## poorman 0.2.6
+
+CRAN release: 2022-08-17
+
+Tenth CRAN release.
+
+This update adds the following features:
+
+- Initial versions of [`pivot_longer()`](../reference/pivot_longer.md)
+  and [`pivot_wider()`](../reference/pivot_wider.md) have been added
+  ([\#101](https://github.com/nathaneastwood/poorman/issues/101),
+  [@etiennebacher](https://github.com/etiennebacher)).
+- The `.names` argument in [`across()`](../reference/across.md) now
+  accepts `{.col}` and `{.fn}` to automatically name new columns
+  ([\#100](https://github.com/nathaneastwood/poorman/issues/100),
+  [@etiennebacher](https://github.com/etiennebacher)).
+- New function [`lst()`](../reference/lst.md) to reproduce the outputs
+  of [`tibble::lst()`](https://tibble.tidyverse.org/reference/lst.html).
+  It enables the creation of lists where elements are build sequentially
+  (i.e depend on the previous ones) and are self-named (i.e the
+  expression is used if no name is given)
+  ([\#108](https://github.com/nathaneastwood/poorman/issues/108)).
+
+The following fixes were also implemented:
+
+- [`arrange()`](../reference/arrange.md) now works for descending
+  character vectors
+  ([\#99](https://github.com/nathaneastwood/poorman/issues/99),
+  [@etiennebacher](https://github.com/etiennebacher)).
+- [`arrange()`](../reference/arrange.md) now resets row names when they
+  are numeric
+  ([\#102](https://github.com/nathaneastwood/poorman/issues/102),
+  [@etiennebacher](https://github.com/etiennebacher)).
+- [`distinct()`](../reference/distinct.md) now resets row names when
+  they are numeric
+  ([\#106](https://github.com/nathaneastwood/poorman/issues/106),
+  [@etiennebacher](https://github.com/etiennebacher)).
+
+The CICD pipeline was also fixed such that users can now tests pull
+requests. The documentation is now built using HTML5.
+
+## poorman 0.2.5
+
+CRAN release: 2021-03-28
+
+Ninth CRAN release.
+
+This update has added the following new features:
+
+- [`summarise()`](../reference/summarise.md) can now revise grouping
+  structures with the `.groups` argument
+  ([\#57](https://github.com/nathaneastwood/poorman/issues/57)).
+- [`group_by()`](../reference/group_by.md) can now drop groups formed by
+  factor levels that don’t appear in the data with the `.drop` parameter
+  ([\#63](https://github.com/nathaneastwood/poorman/issues/63)).
+- New cumulative functions have been added:
+  [`cumall()`](../reference/cummean.md),
+  [`cumany()`](../reference/cummean.md) and
+  [`cummean()`](../reference/cummean.md)
+  ([\#64](https://github.com/nathaneastwood/poorman/issues/64)).
+- Additional tools for working with rownames have been added:
+  [`has_rownames()`](../reference/rownames.md),
+  [`remove_rownames()`](../reference/rownames.md),
+  [`column_to_rownames()`](../reference/rownames.md),
+  [`rowid_to_column()`](../reference/rownames.md)
+  ([\#66](https://github.com/nathaneastwood/poorman/issues/66)).
+- [`filter()`](../reference/filter.md) gains the `.preserve` parameters
+  ([\#81](https://github.com/nathaneastwood/poorman/issues/81)).
+- [`if_any()`](../reference/across.md) and
+  [`if_all()`](../reference/across.md) were added
+  ([\#80](https://github.com/nathaneastwood/poorman/issues/80)).
+
+The following fixes were also implemented:
+
+- [`mutate()`](../reference/mutate.md) now successfully evaluates
+  functions defined in the scope of a parent function
+  ([\#68](https://github.com/nathaneastwood/poorman/issues/68)).
+- `select_positions()` now works if passed a combination of positive and
+  negative values
+  ([\#71](https://github.com/nathaneastwood/poorman/issues/71)).
+- [`transmute()`](../reference/mutate.md) now keeps unnamed columns that
+  it creates
+  ([\#72](https://github.com/nathaneastwood/poorman/issues/72)).
+
+The following refactorisations took place:
+
+- When grouping data with [`group_by()`](../reference/group_by.md), it
+  will now create an object of class `grouped_df` and not `grouped_data`
+  which keeps it consistent with the {dplyr} method name
+  ([\#70](https://github.com/nathaneastwood/poorman/issues/70)). This
+  should hopefully make transitioning packages from {dplyr} to {poorman}
+  a little easier.
+
+## poorman 0.2.4
+
+CRAN release: 2020-11-27
+
+Eighth CRAN release.
+
+This update has added the following new features:
+
+- [`group_by()`](../reference/group_by.md) can now create new columns,
+  grouping by the result
+  ([\#58](https://github.com/nathaneastwood/poorman/issues/58)).
+- [`with_groups()`](../reference/with_groups.md)
+  ([\#61](https://github.com/nathaneastwood/poorman/issues/61)).
+- [`nth()`](../reference/nth.md)
+  ([\#62](https://github.com/nathaneastwood/poorman/issues/62)).
+- [`mutate()`](../reference/mutate.md) can now relocate resulting
+  mutations
+  ([\#59](https://github.com/nathaneastwood/poorman/issues/59)).
+- [`mutate()`](../reference/mutate.md) can now keep all, used, unused or
+  none of the resulting mutations
+  ([\#60](https://github.com/nathaneastwood/poorman/issues/60)).
+- [`across()`](../reference/across.md) can now accept lambda style
+  functions
+  ([\#52](https://github.com/nathaneastwood/poorman/issues/52)).
+- Columns created by [`summarise()`](../reference/summarise.md) are now
+  immediately available
+  ([\#20](https://github.com/nathaneastwood/poorman/issues/20)).
+- [`cur_column()`](../reference/context.md)
+  ([\#52](https://github.com/nathaneastwood/poorman/issues/52)).
+
+The following fixes were also implemented:
+
+- [`across()`](../reference/across.md) can now accept function names as
+  characters
+  ([\#56](https://github.com/nathaneastwood/poorman/issues/56)) - thanks
+  [@Eyayaw](https://github.com/Eyayaw) for pointing this out.
+- An empty [`summarise()`](../reference/summarise.md) will now correctly
+  return an empty `data.frame`
+  ([\#55](https://github.com/nathaneastwood/poorman/issues/55)).
+
+Other general refactorisations and improvements of note:
+
+- [`group_by()`](../reference/group_by.md) is now an S3 generic.
+- `.default()` methods are now `.data.frame()` methods.
+- `get_groups()` has been removed in favour of
+  [`group_vars()`](../reference/group_metadata.md).
+- `set_groups()` has been replaced with `groups_set()` for API
+  consistency.
+
+## poorman 0.2.3
+
+CRAN release: 2020-11-12
+
+Seventh CRAN release.
+
+This update has added the following new features:
+
+- [`across()`](../reference/across.md)
+  ([\#37](https://github.com/nathaneastwood/poorman/issues/37)).
+- `na_matches` and `keep` parameters have been added to mutate joins.
+- list columns can now be mutated.
+- Added the missing ability to use `&` in `poor-select`.
+
+Fixes:
+
+- Use of variables in [`relocate()`](../reference/relocate.md).
+
+In addition there have been lots of improvements to documentation and
+many, many more tests added.
+
+## poorman 0.2.2
+
+CRAN release: 2020-10-11
+
+Sixth CRAN release.
+
+This update has added the following new features:
+
+- [`rename_with()`](../reference/rename.md)
+- [`group_cols()`](../reference/group_cols.md)
+  ([\#42](https://github.com/nathaneastwood/poorman/issues/42))
+- [`cur_data_all()`](../reference/context.md)
+- [`nest_by()`](../reference/nest_by.md)
+  ([\#44](https://github.com/nathaneastwood/poorman/issues/44))
+- [`case_when()`](../reference/case_when.md)
+  ([\#23](https://github.com/nathaneastwood/poorman/issues/23))
+- [`bind_cols()`](../reference/bind.md)
+  ([\#32](https://github.com/nathaneastwood/poorman/issues/32))
+- [`bind_rows()`](../reference/bind.md)
+  ([\#33](https://github.com/nathaneastwood/poorman/issues/33))
+- [`unite()`](../reference/unite.md)
+
+Performance upgrades and code improvements:
+
+- [`pull()`](../reference/pull.md) is now much faster thanks to
+  [@markfairbanks](https://github.com/markfairbanks).
+- `%>%` now allows you to pipe into a `.`; my thanks go to
+  [@moodymudskipper](https://github.com/moodymudskipper).
+
+The following bugs have been squashed:
+
+- Filter joins will no longer reduce to vectors thanks to
+  [@msberends](https://github.com/msberends).
+- [`contains()`](../reference/select_helpers.md) no longer returns
+  lists.
+- [`relocate()`](../reference/relocate.md) can now use “tidy select”
+  style column selections.
+
+New documentation components have been added:
+
+- An FAQ vignette has been added
+  ([\#31](https://github.com/nathaneastwood/poorman/issues/31)).
+- A [pkgdown](https://pkgdown.r-lib.org/) website has been added
+  ([\#30](https://github.com/nathaneastwood/poorman/issues/30)).
+
+## poorman 0.2.1
+
+CRAN release: 2020-07-01
+
+Fifth CRAN release.
+
+The update has added the following new features:
+
+- [`distinct()`](../reference/distinct.md)
+  ([\#17](https://github.com/nathaneastwood/poorman/issues/17))
+- [`slice_head()`](../reference/slice.md),
+  [`slice_tail()`](../reference/slice.md),
+  [`slice_min()`](../reference/slice.md),
+  [`slice_max()`](../reference/slice.md),
+  [`slice_sample()`](../reference/slice.md)
+  ([\#22](https://github.com/nathaneastwood/poorman/issues/22))
+- [`where()`](../reference/where.md)
+  ([\#27](https://github.com/nathaneastwood/poorman/issues/27))
+- [`coalesce()`](../reference/coalesce.md)
+  ([\#28](https://github.com/nathaneastwood/poorman/issues/28))
+- [`group_split()`](../reference/group_split.md),
+  [`group_keys()`](../reference/group_split.md)
+  ([\#29](https://github.com/nathaneastwood/poorman/issues/29))
+- [`na_if()`](../reference/na_if.md)
+  ([\#34](https://github.com/nathaneastwood/poorman/issues/34))
+- [`recode()`](../reference/recode.md)
+  ([\#35](https://github.com/nathaneastwood/poorman/issues/35))
+- [`near()`](../reference/near.md)
+  ([\#36](https://github.com/nathaneastwood/poorman/issues/36))
+- [`replace_na()`](../reference/replace_na.md)
+  ([\#38](https://github.com/nathaneastwood/poorman/issues/38))
+- [`group_data()`](../reference/group_metadata.md),
+  [`group_indices()`](../reference/group_metadata.md),
+  [`group_vars()`](../reference/group_metadata.md),
+  [`group_rows()`](../reference/group_metadata.md),
+  [`group_size()`](../reference/group_metadata.md),
+  [`n_groups()`](../reference/group_metadata.md),
+  [`groups()`](../reference/group_metadata.md)
+  ([\#39](https://github.com/nathaneastwood/poorman/issues/39))
+- [`glimpse()`](../reference/glimpse.md)
+  ([\#40](https://github.com/nathaneastwood/poorman/issues/40))
+- [`cur_data()`](../reference/context.md),
+  [`cur_group()`](../reference/context.md),
+  [`cur_group_id()`](../reference/context.md),
+  [`cur_group_rows()`](../reference/context.md)
+  ([\#41](https://github.com/nathaneastwood/poorman/issues/41))
+
+There have also been a lot of refactoring for the internals of the
+package, particularly focusing on context awareness which allows for
+quite a few of these features
+([\#40](https://github.com/nathaneastwood/poorman/issues/40),
+[\#41](https://github.com/nathaneastwood/poorman/issues/41)) and grouped
+operations should now be more consistent. This update of course comes
+with a host of bug fixes including the renaming of multiple columns when
+using [poorman](https://nathaneastwood.github.io/poorman/)’s version of
+[tidyselect](https://tidyselect.r-lib.org).
+
+## poorman 0.2.0
+
+CRAN release: 2020-05-10
+
+Fourth CRAN release.
+
+This update has added the following new features:
+
+- [`if_else()`](../reference/if_else.md)
+  ([\#11](https://github.com/nathaneastwood/poorman/issues/11))
+- [`between()`](../reference/between.md)
+  ([\#12](https://github.com/nathaneastwood/poorman/issues/12))
+- [`lead()`](../reference/lag.md) and [`lag()`](../reference/lag.md)
+  ([\#13](https://github.com/nathaneastwood/poorman/issues/13))
+- [`n_distinct()`](../reference/n_distinct.md)
+  ([\#16](https://github.com/nathaneastwood/poorman/issues/16))
+- window rank functions: [`cume_dist()`](../reference/window_rank.md),
+  [`dense_rank()`](../reference/window_rank.md),
+  [`min_rank()`](../reference/window_rank.md),
+  [`ntile()`](../reference/window_rank.md),
+  [`percent_rank()`](../reference/window_rank.md),
+  [`row_number()`](../reference/window_rank.md)
+  ([\#18](https://github.com/nathaneastwood/poorman/issues/18))
+
+My thanks go to [@msberends](https://github.com/msberends) for their
+help on these features!
+
+This update also refactors a lot of the code, hence the minor version
+bump. This includes:
+
+- More support for “tidyselect” features such as `!`, `:`, `-`,
+  [`c()`](https://rdrr.io/r/base/c.html) and `()`
+- Removal of `eval(parse(text = ...)`
+- Rework of grouped summaries
+
+Finally, 0.2.0 includes many bug fixes:
+
+- Joins now maintain their original order
+  ([\#10](https://github.com/nathaneastwood/poorman/issues/10))
+- [`group_by()`](../reference/group_by.md) +
+  [`mutate()`](../reference/mutate.md) now preserve row order
+  ([\#14](https://github.com/nathaneastwood/poorman/issues/14))
+- Quote names are allowed in [`pull()`](../reference/pull.md)
+  ([\#15](https://github.com/nathaneastwood/poorman/issues/15))
+
+## poorman 0.1.11
+
+CRAN release: 2020-04-22
+
+Third CRAN release.
+
+This update adds the functions [`count()`](../reference/count.md),
+[`tally()`](../reference/count.md),
+[`add_count()`](../reference/count.md) and
+[`add_tally()`](../reference/count.md). In order to achieve these, the
+functions [`n()`](../reference/context.md) and
+[`desc()`](../reference/desc.md) have also been added. In addition,
+[`group_by()`](../reference/group_by.md) can now add additional groups
+to an already grouped `data.frame`.
+
+## poorman 0.1.10
+
+CRAN release: 2020-04-13
+
+Second CRAN release.
+
+This update adds selection helper functions. See
+[`?select_helpers`](../reference/select_helpers.md) for more
+information.
+
+The following bugs have been fixed:
+
+- [`mutate()`](../reference/mutate.md) column creations are immediately
+  available, e.g. `mtcars %>% mutate(mpg2 = mpg * 2, mpg4 = mpg2 * 2)`
+  will create columns named `mpg2` and `mpg4`
+- [`group_by()`](../reference/group_by.md) groups now persist in
+  selections, e.g. `mtcars %>% group_by(am) %>% select(mpg)` will return
+  `am` and `mpg` columns
+- [`slice()`](../reference/slice.md) now duplicates rows,
+  e.g. `mtcars %>% slice(2, 2, 2)` will return row 2 three times
+- [`summarize()`](../reference/summarise.md) is now exported
+
+## poorman 0.1.9
+
+CRAN release: 2020-04-01
+
+First CRAN release
+
+## poorman 0.1.8
+
+This update adds [`relocate()`](../reference/relocate.md) and
+consolidates the selection method for
+[`select()`](../reference/select.md),
+[`rename()`](../reference/rename.md) and
+[`relocate()`](../reference/relocate.md) using `select_positions()`.
+
+## poorman 0.1.7
+
+This update adds [`semi_join()`](../reference/filter_joins.md) and
+[`anti_join()`](../reference/filter_joins.md).
+
+## poorman 0.1.6
+
+This update adds [`inner_join()`](../reference/mutate_joins.md),
+[`left_join()`](../reference/mutate_joins.md),
+[`right_join()`](../reference/mutate_joins.md) and
+[`full_join()`](../reference/mutate_joins.md).
+
+## poorman 0.1.5
+
+This update adds a full set of tests for the functions available in
+v0.1.5.
+
+## poorman 0.1.4
+
+This update adds a copy of the pipe (`%>%`).
+
+## poorman 0.1.3
+
+This update adds [`summarise()`](../reference/summarise.md).
+
+## poorman 0.1.2
+
+This update adds [`rename()`](../reference/rename.md).
+
+## poorman 0.1.1
+
+This update includes [`group_by()`](../reference/group_by.md) and
+[`ungroup()`](../reference/group_by.md) operations.
+
+## poorman 0.1.0
+
+This initial version includes the [`select()`](../reference/select.md),
+[`pull()`](../reference/pull.md),
+[`arrange()`](../reference/arrange.md),
+[`filter()`](../reference/filter.md),
+[`slice()`](../reference/slice.md), [`mutate()`](../reference/mutate.md)
+and [`transmute()`](../reference/mutate.md) functions. See the [blog
+post](https://nathaneastwood.github.io/2020/02/15/building-a-base-dplyr-with-primitives/)
+for more details.
