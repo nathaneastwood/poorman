@@ -53,16 +53,10 @@ group_rows <- function(.data) {
 #' @export
 group_indices <- function(.data) {
   if (!has_groups(.data)) return(rep(1L, nrow(.data)))
-  groups <- group_vars(.data)
-  res <- unique(.data[, groups, drop = FALSE])
-  res <- res[do.call(order, lapply(groups, function(x) res[, x])), , drop = FALSE]
-  class(res) <- "data.frame"
-  nrow_data <- nrow(.data)
-  rows <- rep(NA, nrow_data)
-  for (i in seq_len(nrow_data)) {
-    rows[i] <- which(interaction(res[, groups]) %in% interaction(.data[i, groups]))
-  }
-  rows
+  rows <- get_groups(.data)[[".rows"]]
+  res <- integer(nrow(.data))
+  res[unlist(rows)] <- rep(seq_along(rows), lengths(rows))
+  res
 }
 
 #' @description

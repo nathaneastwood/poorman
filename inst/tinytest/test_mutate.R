@@ -327,3 +327,32 @@ expect_error(
   df %>% group_by(x) %>% mutate(y = NULL, a = sum(y)),
   info = "setting column to NULL makes it unavailable for grouped df"
 )
+
+# Grouped mutate --------------------------------------------------------------
+
+gf <- data.frame(a = c(2, 1, 2), b = 1:3) %>% group_by(a)
+expect_equal(
+  group_rows(mutate(gf, z = 1)),
+  list(2L, c(1L, 3L)),
+  info = "mutate() keeps the group rows in step with the data"
+)
+expect_equal(
+  group_rows(transmute(gf, z = 1)),
+  list(2L, c(1L, 3L)),
+  info = "transmute() keeps the group rows in step with the data"
+)
+expect_equal(mutate(gf, f = b * 2L)$f, c(2L, 4L, 6L), info = "mutate() on grouped data accepts a column called `f`")
+
+df <- data.frame(g = c("a", NA, "a", NA), v = 1:4, stringsAsFactors = FALSE)
+expect_equal(
+  ungroup(mutate(group_by(df, g), s = sum(v))),
+  data.frame(g = c("a", NA, "a", NA), v = 1:4, s = c(4L, 6L, 4L, 6L), stringsAsFactors = FALSE),
+  info = "mutate() keeps rows with missing grouping values"
+)
+
+df <- data.frame(g1 = numeric(0), g2 = integer(0), v = integer(0))
+res <- ungroup(mutate(group_by(df, g1, g2), m = mean(v), id = cur_group_id()))
+expect_equal(nrow(res), 0L, info = "mutate() on empty grouped data returns an empty data.frame #1")
+expect_equal(colnames(res), c("g1", "g2", "v", "m", "id"), info = "mutate() on empty grouped data returns an empty data.frame #2")
+
+rm(df, gf, res)

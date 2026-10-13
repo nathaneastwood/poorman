@@ -86,5 +86,5 @@ distinct.data.frame <- function(.data, ..., .keep_all = FALSE) {
 
 #' @export
 distinct.grouped_df <- function(.data, ..., .keep_all = FALSE) {
-  apply_grouped_function("distinct", .data, drop = TRUE, ..., .keep_all = .keep_all)
+  apply_grouped_function(.fn = "distinct", .data = .data, .drop = TRUE, ..., .keep_all = .keep_all)
 }

@@ -61,7 +61,7 @@ slice.data.frame <- function(.data, ...) {
 
 #' @export
 slice.grouped_df <- function(.data, ...) {
-  apply_grouped_function("slice", .data, drop = TRUE, ...)
+  apply_grouped_function(.fn = "slice", .data = .data, .drop = TRUE, ...)
 }
 
 
@@ -84,7 +84,7 @@ slice_head.data.frame <- function(.data, ..., n, prop) {
 
 #' @export
 slice_head.grouped_df <- function(.data, ..., n, prop) {
-  apply_grouped_function("slice_head", .data, drop = TRUE, n = n, prop = prop, ...)
+  apply_grouped_function(.fn = "slice_head", .data = .data, .drop = TRUE, n = n, prop = prop, ...)
 }
 
 #' @rdname slice
@@ -106,7 +106,7 @@ slice_tail.data.frame <- function(.data, ..., n, prop) {
 
 #' @export
 slice_tail.grouped_df <- function(.data, ..., n, prop) {
-  apply_grouped_function("slice_tail", .data, drop = TRUE, n = n, prop = prop, ...)
+  apply_grouped_function(.fn = "slice_tail", .data = .data, .drop = TRUE, n = n, prop = prop, ...)
 }
 
 #' @param order_by The variable to order by.
@@ -146,7 +146,8 @@ slice_min.grouped_df <- function(.data, order_by, ..., n, prop, with_ties = TRUE
   eval_env$env <- environment()
   on.exit(rm(list = "env", envir = eval_env), add = TRUE)
   apply_grouped_function(
-    "slice_min", .data, drop = TRUE, order_by = order_by, n = n, prop = prop, with_ties = with_ties, ...
+    .fn = "slice_min", .data = .data, .drop = TRUE,
+    order_by = order_by, n = n, prop = prop, with_ties = with_ties, ...
   )
 }
 
@@ -183,7 +184,8 @@ slice_max.grouped_df <- function(.data, order_by, ..., n, prop, with_ties = TRUE
   eval_env$env <- environment()
   on.exit(rm(list = "env", envir = eval_env), add = TRUE)
   apply_grouped_function(
-    "slice_max", .data, drop = TRUE, order_by = order_by, n = n, prop = prop, with_ties = with_ties, ...
+    .fn = "slice_max", .data = .data, .drop = TRUE,
+    order_by = order_by, n = n, prop = prop, with_ties = with_ties, ...
   )
 }
 
@@ -216,7 +218,8 @@ slice_sample.grouped_df <- function(.data, ..., n, prop, weight_by = NULL, repla
   eval_env$env <- environment()
   on.exit(rm(list = "env", envir = eval_env), add = TRUE)
   apply_grouped_function(
-    "slice_sample", .data, drop = TRUE, n = n, prop = prop, weight_by = weight_by, replace = replace, ...
+    .fn = "slice_sample", .data = .data, .drop = TRUE,
+    n = n, prop = prop, weight_by = weight_by, replace = replace, ...
   )
 }
 

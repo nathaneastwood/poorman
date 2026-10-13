@@ -48,3 +48,17 @@ expect_equal(
 )
 
 rm(res, df, gd, gf)
+
+df <- data.frame(f = factor(c("c", "a"), levels = c("a", "b", "c")))
+expect_equal(
+  group_indices(group_by(df, f, .drop = FALSE)),
+  c(3L, 1L),
+  info = "group_indices() counts empty groups"
+)
+df <- data.frame(g = c("b", NA, "a", NA), stringsAsFactors = FALSE)
+expect_equal(group_indices(group_by(df, g)), c(2L, 3L, 1L, 3L), info = "group_indices() handles missing values")
+
+df <- data.frame(g = c(2, 1, 2), x = 1:3) %>% group_by(g)
+expect_equal(group_indices(df[c(2, 1, 3), ]), c(1L, 2L, 2L), info = "group_indices() recalculates out of date groups")
+
+rm(df)

@@ -108,3 +108,27 @@ expect_error(
   filter(.data = mtcars, mpg > 20, am = 1),
   info = "Check for named arguments works"
 )
+
+# Grouped filter ----------------------------------------------------------------
+
+expect_equal(
+  ungroup(filter(group_by(data.frame(g = c(1, 1, 2)), g), g > 1)),
+  data.frame(g = 2, row.names = 3L),
+  info = "filter() returns a data.frame for single column grouped data"
+)
+
+df <- data.frame(g = c("a", NA, "a", NA), v = 1:4, stringsAsFactors = FALSE)
+expect_equal(
+  ungroup(filter(group_by(df, g), v > 1)),
+  df[2:4, ],
+  info = "filter() keeps rows with missing grouping values"
+)
+
+df <- data.frame(g1 = numeric(0), g2 = integer(0), v = integer(0))
+expect_equal(
+  nrow(filter(group_by(df, g1, g2, .drop = FALSE), v > 1)),
+  0L,
+  info = "filter() works on empty grouped data"
+)
+
+rm(df)

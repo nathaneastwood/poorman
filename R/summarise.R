@@ -68,7 +68,12 @@ summarise.data.frame <- function(.data, ..., .groups = NULL) {
   on.exit(context$clean(), add = TRUE)
   groups_exist <- context$is_grouped()
   if (groups_exist) {
-    group <- unique(context$get_columns(group_vars(context$.data)))
+    id <- attr(context$.data, "group_id", exact = TRUE)
+    group <- if (is.null(id) || is.na(id)) {
+      unique(context$get_columns(group_vars(context$.data)))
+    } else {
+      get_group_details(context$.data)[id, group_vars(context$.data), drop = FALSE]
+    }
   }
   if (is_empty_list(fns)) {
     if (groups_exist) return(group) else return(data.frame())
@@ -87,7 +92,10 @@ summarise.data.frame <- function(.data, ..., .groups = NULL) {
     res[[i]] <- build_data_frame(eval_env[[new_pos[i]]], nms = nms)
   }
   res <- do.call(cbind, res)
-  if (groups_exist) res <- cbind(group, res, row.names = NULL)
+  if (groups_exist) {
+    if (nrow(group) == 0L) res <- res[0L, , drop = FALSE]
+    res <- cbind(group, res, row.names = NULL)
+  }
   res
 }
 
@@ -98,15 +106,12 @@ summarise.grouped_df <- function(.data, ..., .groups = NULL) {
   }
 
   groups <- group_vars(.data)
-  res <- apply_grouped_function("summarise", .data, drop = TRUE, ...)
-  res <- res[arrange_rows(res, as_symbols(groups)), , drop = FALSE]
+  res <- apply_grouped_function(.fn = "summarise", .data = .data, .drop = FALSE, ...)
 
   verbose <- summarise_verbose(.groups)
 
   if (is.null(.groups)) {
-    all_one <- as.data.frame(table(res[, groups]))
-    all_one <- all_one[all_one$Freq != 0, ]
-    .groups <- if (all(all_one$Freq == 1)) "drop_last" else "keep"
+    .groups <- if (anyDuplicated(group_ids(.subset(res, groups)))) "keep" else "drop_last"
   }
 
   if (.groups == "drop_last") {
@@ -119,7 +124,7 @@ summarise.grouped_df <- function(.data, ..., .groups = NULL) {
     if (verbose) summarise_inform(groups)
     res <- groups_set(res, groups, group_by_drop_default(.data))
   } else if (.groups == "drop") {
-    attr(res, "groups") <- NULL
+    res <- ungroup(res)
   }
 
   rownames(res) <- NULL

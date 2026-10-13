@@ -76,7 +76,9 @@ n <- function() {
 cur_data <- function() {
   check_context("`cur_data()`", context$.data)
   data <- context$get_data()
-  data[, !(colnames(data) %in% group_vars(data)), drop = FALSE]
+  res <- data[, !(colnames(data) %in% group_vars(data)), drop = FALSE]
+  attr(res, "group_id") <- NULL
+  res
 }
 
 #' @description
@@ -85,7 +87,9 @@ cur_data <- function() {
 #' @export
 cur_data_all <- function() {
   check_context("`cur_data_all()`", context$.data)
-  ungroup(context$get_data())
+  res <- ungroup(context$get_data())
+  attr(res, "group_id") <- NULL
+  res
 }
 
 #' @description
@@ -108,6 +112,9 @@ cur_group <- function() {
 cur_group_id <- function() {
   check_context("`cur_group_id()`", context$.data)
   data <- context$get_data()
+  if (!has_groups(data)) return(1L)
+  id <- attr(data, "group_id", exact = TRUE)
+  if (!is.null(id) && !is.na(id)) return(id)
   res <- data[1L, group_vars(data), drop = FALSE]
   details <- get_group_details(data)
   details[, ".group_id"] <- seq_len(nrow(details))
@@ -122,6 +129,9 @@ cur_group_id <- function() {
 cur_group_rows <- function() {
   check_context("`cur_group_rows()`", context$.data)
   data <- context$get_data()
+  if (!has_groups(data)) return(seq_len(nrow(data)))
+  id <- attr(data, "group_id", exact = TRUE)
+  if (!is.null(id) && !is.na(id)) return(get_group_details(data)[[".rows"]][[id]])
   res <- data[1L, group_vars(data), drop = FALSE]
   res <- suppressMessages(semi_join(get_group_details(data), res))
   unlist(res[, ".rows"])

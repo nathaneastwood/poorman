@@ -159,3 +159,62 @@ res <- data.frame(x = c("apple", NA, "banana"), y = 1:3, stringsAsFactors = FALS
   group_data()
 expect_identical(res$x, c("apple", "banana", NA_character_), info = "group_by() puts NA groups last in STRSXP")
 expect_identical(res$.rows, list(1L, 3L, 2L), info = "group_by() puts NA groups last in STRSXP")
+
+# Grouping keys -----------------------------------------------------------------
+
+df <- data.frame(x = c("a.b", "a"), y = c("c", "b.c"), v = 1:2, stringsAsFactors = FALSE)
+expect_equal(
+  group_rows(group_by(df, x, y)),
+  list(2L, 1L),
+  info = "group_by() keeps groups apart when their pasted values are the same"
+)
+
+df <- data.frame(g = c("a", NA, "a", NA), h = c(1, 1, 2, 2), stringsAsFactors = FALSE)
+expect_equal(
+  group_rows(group_by(df, g)),
+  list(c(1L, 3L), c(2L, 4L)),
+  info = "group_by() puts missing values in their own group, which comes last"
+)
+expect_equal(
+  group_rows(group_by(df, h, g)),
+  list(1L, 2L, 3L, 4L),
+  info = "group_by() keeps missing values in different groups apart"
+)
+
+df <- data.frame(x = c(0.1 + 0.2, 0.3))
+expect_equal(
+  group_rows(group_by(df, x)),
+  list(2L, 1L),
+  info = "group_by() compares numeric values exactly"
+)
+
+df <- data.frame(
+  f1 = factor(c("a", "b"), levels = c("a", "b", "c")),
+  f2 = factor(c("x", "y"))
+)
+res <- group_data(group_by(df, f1, f2, .drop = FALSE))
+expect_equal(
+  data.frame(f1 = as.character(res$f1), f2 = as.character(res$f2), stringsAsFactors = FALSE),
+  data.frame(f1 = rep(c("a", "b", "c"), each = 2), f2 = rep(c("x", "y"), 3), stringsAsFactors = FALSE),
+  info = "group_by(.drop = FALSE) includes every combination of factor levels"
+)
+expect_equal(
+  res$.rows,
+  list(1L, integer(), integer(), 2L, integer(), integer()),
+  info = "group_by(.drop = FALSE) gives empty combinations no rows"
+)
+
+df <- data.frame(x = ordered(c("a", "b"), levels = c("a", "b", "c")))
+expect_true(
+  is.ordered(group_data(group_by(df, x, .drop = FALSE))$x),
+  info = "group_by(.drop = FALSE) preserves ordered factors when levels are unused"
+)
+
+df <- data.frame(a = seq_len(500), b = rev(seq_len(500)), c = rep(1:5, 100))
+expect_equal(
+  n_groups(group_by(df, a, b, c)),
+  500L,
+  info = "group_by() does not build every combination of several high cardinality columns"
+)
+
+rm(df, res)

@@ -12,7 +12,7 @@ expect_equal(
 
 expect_equal(
   mtcars %>% group_by(am, cyl) %>% slice(1, 2) %>% ungroup(),
-  do.call(rbind, unname(lapply(split(mtcars, list(mtcars$am, mtcars$cyl)), function(x) x[1:2, ]))),
+  do.call(rbind, unname(lapply(split(mtcars, list(mtcars$cyl, mtcars$am)), function(x) x[1:2, ]))),
   info = "Test that grouped slice() operations handle numeric input"
 )
 
