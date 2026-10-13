@@ -89,8 +89,13 @@ summarise.data.frame <- function(.data, ..., .groups = NULL) {
       NULL
     }
     if (!is.null(nms)) names(eval_env)[[new_pos[i]]] <- nms
-    res[[i]] <- build_data_frame(eval_env[[new_pos[i]]], nms = nms)
+    res[i] <- list(nms)
   }
+  values <- eval_env[new_pos]
+  if (all(vapply(values, is_simple_summary, NA))) {
+    return(simple_summary(values, if (groups_exist) group))
+  }
+  res <- lapply(seq_along(values), function(i) build_data_frame(values[[i]], nms = res[[i]]))
   res <- do.call(cbind, res)
   if (groups_exist) {
     if (nrow(group) == 0L) res <- res[0L, , drop = FALSE]
@@ -140,6 +145,31 @@ summarize.data.frame <- summarise.data.frame
 summarize.grouped_df <- summarise.grouped_df
 
 # -- Helpers -------------------------------------------------------------------
+
+# An unnamed atomic vector without dimensions; `build_data_frame()` would turn it into a single column `data.frame`.
+is_simple_summary <- function(x) {
+  is.atomic(x) && length(x) > 0L && is.null(dim(x)) && is.null(names(x)) &&
+    !(is.character(x) && isTRUE(getOption("stringsAsFactors")))
+}
+
+# A faster equivalent of `cbind(group, do.call(cbind, lapply(x, build_data_frame)), row.names = NULL)` for results
+# which all pass `is_simple_summary()` and have the same length.
+simple_summary <- function(x, group = NULL) {
+  n <- unique(lengths(x))
+  if (length(n) != 1L || anyDuplicated(names(x)) || (!is.null(group) && !nrow(group) %in% c(1L, n))) {
+    res <- do.call(cbind, lapply(names(x), function(nm) build_data_frame(x[[nm]], nms = nm)))
+    if (!is.null(group)) {
+      if (nrow(group) == 0L) res <- res[0L, , drop = FALSE]
+      res <- cbind(group, res, row.names = NULL)
+    }
+    return(res)
+  }
+  if (!is.null(group)) {
+    group <- lapply(group, function(col) if (length(col) == n) col else rep(col, length.out = n))
+    x <- c(group, x)
+  }
+  structure(x, class = "data.frame", row.names = .set_row_names(n))
+}
 
 summarise_inform <- function(new_groups) {
   message(sprintf(
