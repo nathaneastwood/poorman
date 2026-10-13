@@ -1,3 +1,21 @@
+# poorman 0.2.8
+
+Grouped operations are now considerably faster. Groups are identified in a single pass over the data rather than by comparing every group against every row, so the cost of `group_by()` no longer grows with the number of groups. On 100,000 rows with 1,000 groups, `group_by()`, `mutate()`, `filter()` and `arrange()` are 10-100x faster, `group_indices()` over 1,000x faster, and grouping by several high cardinality columns no longer exhausts memory.
+
+The following fixes were also implemented, bringing grouped operations in line with `dplyr`:
+
+* Groups whose values paste to the same string (e.g. `"a.b"` and `"c"` vs `"a"` and `"b.c"`) are no longer merged; the same applies to the keys of `semi_join()` and `anti_join()`.
+* Rows with missing values in grouping columns are no longer dropped by grouped verbs.
+* Numeric grouping values are compared exactly.
+* `group_by(.drop = FALSE)` now includes every combination of factor levels and preserves ordered factors.
+* `group_split()` now returns groups in the same order as `group_keys()`, and both include empty groups.
+* `group_indices()` and `cur_group_id()` now count empty groups.
+* `group_data()` is now correct after a grouped `mutate()`, `transmute()` or `fill()`.
+* `filter()`, `arrange()` and `summarise()` now respect zero-length groups, and `summarise(.groups = "drop")` returns an ungrouped `data.frame`.
+* Grouped verbs now accept new columns named `f`.
+* Grouped verbs now work with zero-row data, and `filter()` now works with single column data.
+* `cur_group_id()` now returns `1` for ungrouped data.
+
 # poorman 0.2.7
 
 Eleventh CRAN release. This release:
