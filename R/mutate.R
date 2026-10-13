@@ -122,9 +122,7 @@ mutate.data.frame <- function(
 mutate.grouped_df <- function(.data, ...) {
   context$group_env <- parent.frame(n = 1)
   on.exit(rm(list = c("group_env"), envir = context), add = TRUE)
-  rows <- rownames(.data)
-  res <- apply_grouped_function("mutate", .data, drop = TRUE, ...)
-  res[rows, , drop = FALSE]
+  apply_grouped_function(.fn = "mutate", .data = .data, .drop = TRUE, ..., .reorder = TRUE)
 }
 
 ## -- Helpers ----------------------------------------------------------------------------------------------------------
@@ -151,6 +149,7 @@ mutate_df <- function(.data, ...) {
       enclos = if (!is.null(context$group_env)) context$group_env else parent.frame(n = 2)
     )
     res_nms <- names(res)
+    if (is.atomic(res) && length(res) == 1L && nrow(context$.data) == 0L) res <- res[0L]
     if (is.data.frame(res)) {
       if (not_named) {
         context$.data[, res_nms] <- res

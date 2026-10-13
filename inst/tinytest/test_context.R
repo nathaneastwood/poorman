@@ -87,3 +87,23 @@ expect_error(
   mtcars %>% select(cur_group_rows()),
   info = "`cur_group_rows()` cannot be used outside of the context"
 )
+
+expect_equal(
+  mutate(data.frame(x = 1:2), id = cur_group_id())$id,
+  c(1L, 1L),
+  info = "`cur_group_id()` is 1 for ungrouped data"
+)
+
+df <- data.frame(f = factor(c("c", "a"), levels = c("a", "b", "c")), x = 1:2)
+expect_equal(
+  mutate(group_by(df, f, .drop = FALSE), id = cur_group_id())$id,
+  c(3L, 1L),
+  info = "`cur_group_id()` counts empty groups"
+)
+expect_equal(
+  summarise(group_by(df, f), rows = list(cur_group_rows()))$rows,
+  list(2L, 1L),
+  info = "`cur_group_rows()` gives the rows of the current group"
+)
+
+rm(df)

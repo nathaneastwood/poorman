@@ -124,3 +124,38 @@ expect_equal(
   "cyl",
   info = ".groups = NULL drops the last grouping variable when the results return a single value for multiple groups"
 )
+
+# Grouped summarise -------------------------------------------------------------
+
+df <- data.frame(g = c("a", NA, "a", NA), v = 1:4, stringsAsFactors = FALSE)
+res <- summarise(group_by(df, g), s = sum(v), .groups = "drop")
+expect_equal(
+  res,
+  data.frame(g = c("a", NA), s = c(4L, 6L), stringsAsFactors = FALSE),
+  info = "summarise() keeps missing grouping values as their own group"
+)
+expect_equal(class(res), "data.frame", info = "summarise(.groups = 'drop') returns an ungrouped data.frame")
+
+df <- data.frame(x = c("a.b", "a"), y = c("c", "b.c"), v = 1:2, stringsAsFactors = FALSE)
+expect_equal(
+  summarise(group_by(df, x, y), v = sum(v), .groups = "drop")$v,
+  c(2L, 1L),
+  info = "summarise() keeps groups apart when their pasted values are the same"
+)
+
+gf <- data.frame(g = c(1, 1, 2), x = 1:3) %>% group_by(g)
+expect_equal(summarise(gf, f = sum(x))$f, c(3L, 3L), info = "summarise() on grouped data accepts a column called `f`")
+
+df <- data.frame(g = character(0), v = integer(0), stringsAsFactors = FALSE)
+res <- summarise(group_by(df, g), n = n())
+expect_equal(nrow(res), 0L, info = "summarise() on empty grouped data returns an empty data.frame #1")
+expect_equal(colnames(res), c("g", "n"), info = "summarise() on empty grouped data returns an empty data.frame #2")
+
+df <- data.frame(a = seq_len(300), b = rev(seq_len(300)), c = rep(1:3, 100))
+expect_equal(
+  nrow(summarise(group_by(df, a, b, c), n = n())),
+  300L,
+  info = "summarise() chooses .groups without tabulating every combination of the groups"
+)
+
+rm(df, gf, res)

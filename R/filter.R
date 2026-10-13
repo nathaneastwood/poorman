@@ -47,28 +47,28 @@ filter.data.frame <- function(.data, ..., .preserve = FALSE) {
     frame = eval_env$env
   )
   rows <- Reduce("&", rows)
-  .data[rows & !is.na(rows), ]
+  .data[rows & !is.na(rows), , drop = FALSE]
 }
 
 #' @export
 filter.grouped_df <- function(.data, ..., .preserve = FALSE) {
-  rows <- rownames(.data)
-  res <- apply_grouped_function("filter", .data, drop = TRUE, ...)
-  res <- res[rows[rows %in% rownames(res)], ]
+  res <- apply_grouped_function(.fn = "filter", .data = .data, .drop = TRUE, ..., .reorder = TRUE)
 
   groups <- group_vars(.data)
   pre_filtered_groups <- group_data(.data)
-  post_filtered_groups <- calculate_groups(res, groups)
+  post_filtered_groups <- calculate_groups(res, groups, drop = TRUE)
 
   if (!(!.preserve && isTRUE(attr(pre_filtered_groups, ".drop")))) {
     filtered_groups <- anti_join(pre_filtered_groups, post_filtered_groups, by = groups)
     filtered_groups <- filtered_groups[, groups, drop = FALSE]
     filtered_groups[[".rows"]] <- rep(list(integer()), length.out = nrow(filtered_groups))
     post_filtered_groups <- bind_rows(post_filtered_groups, filtered_groups)
-    ordered <- do.call(arrange_rows, list(post_filtered_groups, as_symbols(groups)))
-    post_filtered_groups <- post_filtered_groups[ordered, ]
+    ordered <- do.call(order, unname(.subset(post_filtered_groups, groups)))
+    post_filtered_groups <- post_filtered_groups[ordered, , drop = FALSE]
   }
 
+  rownames(post_filtered_groups) <- NULL
+  attr(post_filtered_groups, ".drop") <- group_by_drop_default(.data)
   attr(res, "groups") <- post_filtered_groups
   res
 }

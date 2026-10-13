@@ -53,47 +53,22 @@ group_split <- function(.data, ..., .keep = TRUE) {
   if (!has_groups(.data) && !isTRUE(dots_len)) {
     return(list(.data))
   }
-  context$setup(.data)
-  on.exit(context$clean(), add = TRUE)
   groups <- group_vars(.data)
-  attr(context$.data, "groups") <- NULL
-  res <- split_into_groups(context$.data, groups)
-  names(res) <- NULL
-  if (!isTRUE(.keep)) {
-    res <- lapply(res, function(x) x[, !colnames(x) %in% groups, drop = FALSE])
-  }
-  any_empty <- unlist(lapply(res, function(x) !(nrow(x) == 0L)))
-  res[any_empty]
+  rows <- get_groups(.data, groups)[[".rows"]]
+  .data <- ungroup(.data)
+  if (!isTRUE(.keep)) .data <- .data[, !colnames(.data) %in% groups, drop = FALSE]
+  lapply(rows, function(i) subset_rows(.data, i))
 }
 
 #' @rdname group_split
 #' @export
 group_keys <- function(.data) {
   groups <- group_vars(.data)
-  context$setup(.data)
-  res <- context$get_columns(context$get_colnames() %in% groups)
-  res <- res[!duplicated(res), , drop = FALSE]
-  if (nrow(res) == 0L) return(res)
-  class(res) <- "data.frame"
-  res <- res[do.call(order, lapply(groups, function(x) res[, x])), , drop = FALSE]
-  rownames(res) <- NULL
+  if (length(groups) == 0L) {
+    return(structure(list(), names = character(0), row.names = c(NA, -1L), class = "data.frame"))
+  }
+  res <- get_groups(.data, groups)
+  res[[".rows"]] <- NULL
+  attr(res, ".drop") <- NULL
   res
-}
-
-# -- Helpers -------------------------------------------------------------------
-
-#' Split a `data.frame` into groups.
-#'
-#' @param .data A `data.frame`.
-#' @param groups `character(n)`. A `vector` of grouping variables to split by.
-#' @param drop `logical(1)`. Drop levels that do not occur?
-#' @param ... Additional parameters to be passed to [split()].
-#'
-#' @return A `list` with a `data.frame` in each level.
-#' @seealso [split()]
-#' @noRd
-split_into_groups <- function(.data, groups, drop = FALSE, ...) {
-  class(.data) <- "data.frame"
-  group_factors <- lapply(groups, function(x, .data) as.factor(.data[, x]), .data)
-  split(x = .data, f = group_factors, drop = drop, ...)
 }

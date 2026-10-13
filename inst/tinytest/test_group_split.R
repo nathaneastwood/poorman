@@ -16,7 +16,7 @@ rm(res)
 expect_equal(
   mtcars %>% group_by(cyl, am) %>% group_split(.keep = FALSE),
   {
-    res <- split(mtcars, list(mtcars$cyl, mtcars$am))
+    res <- split(mtcars, list(mtcars$am, mtcars$cyl))
     res <- lapply(res, function(x) x[, !colnames(x) %in% c("cyl", "am")])
     names(res) <- NULL
     res
@@ -27,7 +27,7 @@ expect_equal(
 expect_equal(
   mtcars %>% group_by(cyl, am, gear) %>% group_split(),
   {
-    res <- split(mtcars, list(mtcars$cyl, mtcars$am, mtcars$gear))
+    res <- split(mtcars, list(mtcars$gear, mtcars$am, mtcars$cyl))
     names(res) <- NULL
     any_empty <- unlist(lapply(res, function(x) !(nrow(x) == 0L)))
     res[any_empty]
@@ -55,3 +55,39 @@ expect_warning(
   mtcars %>% group_by(am) %>% group_split(cyl),
   info = "group_split() warns if data are already grouped"
 )
+
+df <- data.frame(f = factor(c("a", "b"), levels = c("a", "b", "c")), x = 1:2)
+gf <- group_by(df, f, .drop = FALSE)
+expect_equal(
+  group_keys(gf),
+  data.frame(f = factor(c("a", "b", "c"))),
+  info = "group_keys() includes empty groups"
+)
+expect_equal(
+  vapply(group_split(gf), nrow, integer(1)),
+  c(1L, 1L, 0L),
+  info = "group_split() includes empty groups"
+)
+
+df <- data.frame(g = c("a", NA, "a"), x = 1:3, stringsAsFactors = FALSE)
+expect_equal(
+  lapply(group_split(group_by(df, g)), function(x) x$x),
+  list(c(1L, 3L), 2L),
+  info = "group_split() keeps rows with missing grouping values"
+)
+
+gf <- group_by(mtcars, cyl, am)
+expect_equal(
+  do.call(rbind, lapply(group_split(gf), function(x) x[1L, c("cyl", "am")])),
+  {
+    res <- group_keys(gf)
+    rownames(res) <- rownames(do.call(rbind, lapply(group_split(gf), function(x) x[1L, c("cyl", "am")])))
+    res
+  },
+  info = "group_split() returns the groups in the same order as group_keys()"
+)
+
+invisible(group_keys(gf))
+expect_error(n(), info = "group_keys() does not leave its data in the context")
+
+rm(df, gf, res)

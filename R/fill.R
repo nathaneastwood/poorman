@@ -120,7 +120,5 @@ fill.data.frame <- function(data, ..., .direction = c("down", "up", "downup", "u
 fill.grouped_df <- function(data, ...) {
   context$group_env <- parent.frame(n = 1)
   on.exit(rm(list = c("group_env"), envir = context), add = TRUE)
-  rows <- rownames(data)
-  res <- apply_grouped_function("fill", data, drop = TRUE, ...)
-  res[rows, , drop = FALSE]
+  apply_grouped_function(.fn = "fill", .data = data, .drop = TRUE, ..., .reorder = TRUE)
 }
