@@ -1,6 +1,6 @@
 # poorman 0.2.8
 
-Grouped operations are now considerably faster. Groups are identified in a single pass over the data rather than by comparing every group against every row, so the cost of `group_by()` no longer grows with the number of groups. On 100,000 rows with 1,000 groups, `group_by()`, `mutate()`, `filter()` and `arrange()` are 10-100x faster, `group_indices()` over 1,000x faster, and grouping by several high cardinality columns no longer exhausts memory.
+Grouped operations are now considerably faster. Groups are identified in a single pass over the data rather than by comparing every group against every row, so the cost of `group_by()` no longer grows with the number of groups. On 100,000 rows with 1,000 groups, `group_by()` and `arrange()` are over 100x faster, `filter()`, `mutate()` and `count()` 7-20x faster, `group_indices()` over 1,000x faster, and grouping by several high cardinality columns no longer exhausts memory.
 
 The following fixes were also implemented, bringing grouped operations in line with `dplyr`:
 
