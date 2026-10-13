@@ -44,7 +44,13 @@ filter_join_worker <- function(x, y, by = NULL, type = c("anti", "semi")) {
     by <- intersect(names(x), names(y))
     join_message(by)
   }
-  rows <- interaction(x[, by]) %in% interaction(y[, by])
+  keys <- lapply(by, function(col) {
+    x_col <- x[[col]]
+    y_col <- y[[col]]
+    if (is.factor(x_col) || is.factor(y_col)) c(as.character(x_col), as.character(y_col)) else c(x_col, y_col)
+  })
+  ids <- group_ids(keys)
+  rows <- ids[seq_len(nrow(x))] %in% ids[nrow(x) + seq_len(nrow(y))]
   if (type == "anti") rows <- !rows
   res <- x[rows, , drop = FALSE]
   rownames(res) <- NULL

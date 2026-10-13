@@ -60,3 +60,17 @@ expect_equal(
   ),
   info = "Ensure `drop = FALSE` for single column data.frames."
 )
+
+df1 <- data.frame(x = "a.b", y = "c", stringsAsFactors = FALSE)
+df2 <- data.frame(x = "a", y = "b.c", stringsAsFactors = FALSE)
+expect_equal(
+  nrow(semi_join(df1, df2, by = c("x", "y"))),
+  0L,
+  info = "semi_join() does not match keys whose pasted values are the same"
+)
+expect_equal(
+  nrow(anti_join(df1, df2, by = c("x", "y"))),
+  1L,
+  info = "anti_join() does not match keys whose pasted values are the same"
+)
+rm(df1, df2)
