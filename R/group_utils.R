@@ -111,9 +111,8 @@ is_valid_groups <- function(.data, details, groups) {
   rows <- details[[".rows"]]
   idx <- unlist(rows, use.names = FALSE)
   n <- nrow(.data)
-  if (!is.numeric(idx) || length(idx) != n || anyNA(idx) || anyDuplicated(idx) || any(idx < 1L | idx > n)) {
-    return(FALSE)
-  }
+  # Every row must appear exactly once; tabulate() ignores missing and out of range values so they fail this too
+  if (!is.numeric(idx) || length(idx) != n || any(tabulate(idx, n) != 1L)) return(FALSE)
   group <- rep.int(seq_along(rows), lengths(rows))
   for (col in groups) {
     if (!identical(unname(.subset2(.data, col)[idx]), unname(.subset2(details, col)[group]))) return(FALSE)
