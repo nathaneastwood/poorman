@@ -18,6 +18,7 @@ The following fixes were also implemented, bringing grouped operations in line w
 * `summarise()` now ignores `NULL` results, as in `dplyr` 1.0.4, rather than failing.
 * `summarise()` without any columns on ungrouped data now returns one row, as in `dplyr`.
 * `tally()` and `count()` no longer report the grouping of their summary. `tally()` now drops only the last grouping variable, and `count()` now keeps every grouping variable of its input and its `.drop` setting rather than only the first grouping variable.
+* `filter()` now combines the columns of a data frame result, e.g. from `across()`, with `&` and warns that this is deprecated, as in `dplyr` 1.0.8. Previously, it used the data frame as a matrix index and returned rows of `NA`. Matrix results must have one column.
 * `summarise()` now drops the last group when there is only one grouping variable, so the result is ungrouped. Previously, empty summaries, list results, zero row data and `.drop = FALSE` groups kept the grouping.
 
 # poorman 0.2.7

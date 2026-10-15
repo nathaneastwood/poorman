@@ -132,3 +132,45 @@ expect_equal(
 )
 
 rm(df)
+
+# Data frame and matrix results
+df <- data.frame(g = c(2, 1, 2, NA), v = 1:4)
+expect_warning(
+  res <- filter(df, across(c(g, v), ~ !is.na(.x))),
+  "Using `across\\(\\)` in `filter\\(\\)` is deprecated",
+  info = "filter() warns that across() is deprecated"
+)
+expect_equal(res, df[1:3, ], info = "filter() combines the columns of across() with &")
+expect_warning(
+  res <- filter(df, data.frame(a = v > 1, b = v < 4)),
+  "data frame results in `filter\\(\\)` are deprecated",
+  info = "filter() warns that data frame results are deprecated"
+)
+expect_equal(res, df[2:3, ], info = "filter() combines the columns of a data frame result with &")
+expect_equal(
+  suppressWarnings(filter(df, across(starts_with("z"), ~ .x > 1))),
+  df,
+  info = "filter() keeps every row for a data frame result without columns"
+)
+expect_equal(
+  filter(df, matrix(c(TRUE, FALSE, TRUE, FALSE), 4, 1)),
+  df[c(1, 3), ],
+  info = "filter() accepts a one column matrix"
+)
+expect_error(
+  filter(df, matrix(TRUE, 4, 2)),
+  "must be a logical vector, not a logical\\[,2\\]",
+  info = "filter() rejects a matrix with several columns"
+)
+gf <- group_by(df, g)
+warnings <- character()
+res <- withCallingHandlers(
+  filter(gf, across(v, ~ .x > 1)),
+  warning = function(w) {
+    warnings <<- c(warnings, conditionMessage(w))
+    invokeRestart("muffleWarning")
+  }
+)
+expect_equal(length(warnings), 1L, info = "grouped filter() warns once about data frame results")
+expect_equal(res$v, 2:4, info = "grouped filter() combines the columns of across() with &")
+rm(df, gf, res, warnings)
