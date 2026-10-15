@@ -43,6 +43,7 @@ The following fixes were implemented:
   * With several `values_from` columns, `names_prefix` is added after the value name, e.g. `value_prefix_name`.
   * `names_glue` now works with a single `names_from` column and can use `.value`.
   * Zero row data and tibbles are supported; the class and groups of the input are kept.
+* `pivot_wider()` gains the `tidyr` 1.1 arguments `names_sort`, `names_repair` and `values_fn`. The warning for values which are not uniquely identified now matches `tidyr` 1.1, `values_fill` can be `NA` and a `values_fill` which would lose precision is an error.
 
 # poorman 0.2.7
 
