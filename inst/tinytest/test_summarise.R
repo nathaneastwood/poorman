@@ -177,4 +177,21 @@ expect_equal(
   info = "summarise() drops the last group with one grouping variable: zero rows"
 )
 
+df <- data.frame(g = c("x", "y", "x"), v = 1:3, stringsAsFactors = FALSE)
+expect_equal(
+  summarise(group_by(df, g), a = NULL, s = sum(v)),
+  data.frame(g = c("x", "y"), s = c(4L, 2L), stringsAsFactors = FALSE),
+  info = "summarise() ignores NULL results: grouped"
+)
+expect_equal(
+  summarise(df, a = NULL, s = sum(v)),
+  data.frame(s = 6L),
+  info = "summarise() ignores NULL results: ungrouped"
+)
+expect_equal(
+  summarise(df, s = sum(v), a = if (FALSE) 1),
+  data.frame(s = 6L),
+  info = "summarise() ignores NULL results: last expression"
+)
+
 rm(df, gf, res)
