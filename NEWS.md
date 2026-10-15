@@ -1,8 +1,18 @@
 # poorman 0.2.8
 
+## Breaking changes
+
+* The arguments of `pivot_wider()` are now in the same order as in `tidyr` 1.1: `data`, `id_cols`, `names_from`, `names_prefix`, `names_sep`, `names_glue`, `names_sort`, `names_repair`, `values_from`, `values_fill`, `values_fn`. Code which passes `values_from` or `names_from` by position must now name them.
+
+## Improvements
+
 Grouped operations are now considerably faster. Groups are identified in a single pass over the data rather than by comparing every group against every row, so the cost of `group_by()` no longer grows with the number of groups. On 100,000 rows with 1,000 groups, `group_by()` and `arrange()` are over 100x faster, `filter()`, `mutate()` and `count()` 7-20x faster, `group_indices()` over 1,000x faster, and grouping by several high cardinality columns no longer exhausts memory.
 
-The following fixes were also implemented, bringing grouped operations in line with `dplyr`:
+`pivot_longer()` and `pivot_wider()` have been rewritten without `stats::reshape()` and are now considerably faster and use far less memory. On 100,000 rows by 10 columns, `pivot_longer()` is over 35x faster; on 1,000,000 rows, `pivot_wider()` is over 15x faster, and widening to 1,000 columns is over 150x faster and no longer allocates 3.5GB. Both functions now follow `tidyr` 1.1.
+
+## Bug fixes
+
+Grouped operations now match `dplyr`:
 
 * Groups whose values paste to the same string (e.g. `"a.b"` and `"c"` vs `"a"` and `"b.c"`) are no longer merged; the same applies to the keys of `semi_join()` and `anti_join()`.
 * Rows with missing values in grouping columns are no longer dropped by grouped verbs.
@@ -22,15 +32,7 @@ The following fixes were also implemented, bringing grouped operations in line w
 * `filter()` now accepts a logical column on its own, e.g. `filter(df, is_valid)`, and gives an error for results which are not logical rather than silently using them.
 * `summarise()` now drops the last group when there is only one grouping variable, so the result is ungrouped. Previously, empty summaries, list results, zero row data and `.drop = FALSE` groups kept the grouping.
 
-## Breaking changes
-
-* The arguments of `pivot_wider()` are now in the same order as in `tidyr` 1.1: `data`, `id_cols`, `names_from`, `names_prefix`, `names_sep`, `names_glue`, `names_sort`, `names_repair`, `values_from`, `values_fill`, `values_fn`. Code which passes `values_from` or `names_from` by position must now name them.
-
-## Improvements
-
-`pivot_longer()` and `pivot_wider()` have been rewritten without `stats::reshape()` and are now considerably faster and use far less memory. On 100,000 rows by 10 columns, `pivot_longer()` is over 35x faster; on 1,000,000 rows, `pivot_wider()` is over 15x faster, and widening to 1,000 columns is over 150x faster and no longer allocates 3.5GB. Both functions now follow `tidyr` 1.1.
-
-The following fixes were implemented:
+Selections and pivots now match `tidyr`:
 
 * Selections which evaluate to column names, such as `names(df)[-1]` or a function returning column names, now work in `pivot_longer()`, `pivot_wider()`, `rename_with()`, `relocate()` and `with_groups()`, and selections are evaluated in the caller's environment so local variables are found (#118).
 * `pivot_longer()` now matches `tidyr`:
