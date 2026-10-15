@@ -42,8 +42,8 @@ filter.data.frame <- function(.data, ..., .preserve = FALSE) {
   eval_env$env <- parent.frame()
   on.exit(rm(list = "env", envir = eval_env), add = TRUE)
   rows <- lapply(
-    conditions,
-    function(cond, frame) eval(cond, context$.data, frame),
+    seq_along(conditions),
+    function(i, frame) filter_rows(eval(conditions[[i]], context$.data, frame), conditions[[i]], i, nrow(.data)),
     frame = eval_env$env
   )
   rows <- Reduce("&", rows)
@@ -52,7 +52,15 @@ filter.data.frame <- function(.data, ..., .preserve = FALSE) {
 
 #' @export
 filter.grouped_df <- function(.data, ..., .preserve = FALSE) {
-  res <- apply_grouped_function(.data, function(df) filter(df, ...), .drop = TRUE, .reorder = TRUE)
+  # Only report a deprecated data frame result once rather than for every group
+  seen <- character()
+  res <- withCallingHandlers(
+    apply_grouped_function(.data, function(df) filter(df, ...), .drop = TRUE, .reorder = TRUE),
+    poorman_filter_df_warning = function(w) {
+      if (conditionMessage(w) %in% seen) invokeRestart("muffleWarning")
+      seen <<- c(seen, conditionMessage(w))
+    }
+  )
 
   groups <- group_vars(.data)
   pre_filtered_groups <- group_data(.data)
@@ -74,6 +82,34 @@ filter.grouped_df <- function(.data, ..., .preserve = FALSE) {
 }
 
 # -- Helpers -------------------------------------------------------------------
+
+# As in dplyr, the columns of a data frame result, e.g. from `across()`, are combined with `&`, and matrix results
+# must have a single column.
+filter_rows <- function(res, cond, i, n) {
+  if (is.data.frame(res)) {
+    msg <- if (is.call(cond) && identical(cond[[1L]], as.name("across"))) {
+      "Using `across()` in `filter()` is deprecated, use `if_any()` or `if_all()`."
+    } else {
+      "data frame results in `filter()` are deprecated, use `if_any()` or `if_all()`."
+    }
+    warning(structure(
+      class = c("poorman_filter_df_warning", "warning", "condition"),
+      list(message = msg, call = NULL)
+    ))
+    return(Reduce("&", res, rep(TRUE, n)))
+  }
+  if (is.matrix(res)) {
+    if (ncol(res) != 1L) {
+      stop(
+        sprintf("Problem while computing `..%s = %s`.\n", i, paste(deparse(cond), collapse = " ")),
+        sprintf("x Input `..%s` must be a logical vector, not a %s[,%s].", i, typeof(res), ncol(res)),
+        call. = FALSE
+      )
+    }
+    res <- res[, 1L]
+  }
+  res
+}
 
 check_filter <- function(conditions) {
   named <- have_name(conditions)
