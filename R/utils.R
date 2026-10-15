@@ -102,3 +102,119 @@ vec_group_id <- function(x, n = length(x[[1L]])) {
   }
   id
 }
+
+#' Repair column names
+#'
+#' Follows the `vctrs` name repair strategies used by `tidyr`.
+#'
+#' @param names `character()`. The names to repair.
+#' @param repair Either a `character(1)`, one of `"check_unique"`, `"unique"`, `"universal"` or `"minimal"`, or a
+#' function which is applied to `names`.
+#' @param error_msg `character(1)`. The error message to use when `repair = "check_unique"` and the names are not
+#' unique.
+#'
+#' @noRd
+repair_names <- function(names, repair = "check_unique", error_msg = NULL) {
+  names[is.na(names)] <- ""
+  if (is.function(repair) || is_formula(repair)) return(as_function(repair)(names))
+  repair <- match.arg(repair, c("check_unique", "unique", "universal", "minimal"))
+  switch(
+    repair,
+    minimal = names,
+    check_unique = {
+      bad <- unique(c(names[names == ""], names[duplicated(names)]))
+      if (length(bad) > 0L) {
+        if (is.null(error_msg)) {
+          error_msg <- paste0(
+            "Column names ", paste0("`", bad, "`", collapse = ", "), " must not be duplicated."
+          )
+        }
+        stop(error_msg, "\nUse `names_repair` to choose another strategy.", call. = FALSE)
+      }
+      names
+    },
+    unique = report_repair(names, unique_names(names)),
+    universal = report_repair(names, unique_names(names, syntactic = TRUE))
+  )
+}
+
+unique_names <- function(names, syntactic = FALSE) {
+  new <- sub("(\\.\\.\\.\\d*|^\\.\\.\\d+)$", "", names)
+  if (syntactic) new[new != ""] <- syntactic_names(new[new != ""])
+  dups <- new %in% new[duplicated(new)] & new != ""
+  new[dups] <- paste0(new[dups], "...", which(dups))
+  empty <- new == ""
+  new[empty] <- paste0("...", which(empty))
+  new
+}
+
+syntactic_names <- function(names) {
+  names[names == ""] <- "."
+  names[names == "..."] <- "...."
+  names <- sub("^_", "._", names)
+  new <- make.names(names)
+  x_prefix <- grepl("^X", new) & !grepl("^X", names)
+  new[x_prefix] <- sub("^X", "", new[x_prefix])
+  dot_suffix <- which(new == paste0(names, "."))
+  new[dot_suffix] <- sub("^(.*)[.]$", ".\\1", new[dot_suffix])
+  dots <- sub("^([.]{0,2}).*$", "\\1", new)
+  rest <- substr(new, nchar(dots) + 1L, nchar(new))
+  numbers <- sub("^([0-9]*).*$", "\\1", rest)
+  leftovers <- substr(rest, nchar(numbers) + 1L, nchar(rest))
+  needs_dots <- numbers != ""
+  dots[needs_dots] <- ifelse(leftovers[needs_dots] == "", "...", "..")
+  paste0(dots, numbers, leftovers)
+}
+
+report_repair <- function(old, new) {
+  changed <- old != new
+  if (any(changed)) {
+    message("New names:\n", paste0("* `", old[changed], "` -> `", new[changed], "`", collapse = "\n"))
+  }
+  new
+}
+
+#' Cast a vector to the type of a prototype
+#'
+#' A small subset of `vctrs::vec_cast()`: casts between logical, integer and double when no information is lost,
+#' between character and factor, and between objects of the same class. Other casts are an error.
+#'
+#' @param x The vector to cast.
+#' @param to The prototype, e.g. `integer()` or `factor(levels = c("a", "b"))`.
+#' @param x_arg `character(1)`. The name of `x`, used in error messages.
+#'
+#' @noRd
+cast_ptype <- function(x, to, x_arg = "x") {
+  type_name <- function(y) if (is.factor(y)) "factor" else if (is.object(y)) class(y)[1L] else typeof(y)
+  fail <- function(reason = "") {
+    stop("Can't convert `", x_arg, "` <", type_name(x), "> to <", type_name(to), ">", reason, ".", call. = FALSE)
+  }
+  is_plain <- function(y) is.atomic(y) && !is.object(y)
+  # Vectors which are entirely `NA` can be cast to any type
+  if (is.logical(x) && !is.object(x) && all(is.na(x))) return(vec_slice(to, rep(NA_integer_, length(x))))
+  if (is.factor(to)) {
+    if (!(is.factor(x) || (is_plain(x) && is.character(x)))) fail()
+    x_chr <- as.character(x)
+    lvls <- if (length(levels(to)) == 0L) unique(x_chr[!is.na(x_chr)]) else levels(to)
+    if (!all(is.na(x_chr) | x_chr %in% lvls)) fail(" due to loss of generality")
+    return(structure(match(x_chr, lvls), levels = lvls, class = class(to)))
+  }
+  if (is.object(to)) {
+    if (!identical(class(x), class(to))) fail()
+    return(x)
+  }
+  if (is.character(to)) {
+    if (is.factor(x)) return(as.character(x))
+    if (!(is_plain(x) && is.character(x))) fail()
+    return(as.vector(x))
+  }
+  if (is.list(to)) {
+    if (!is.list(x) || is.object(x)) fail()
+    return(x)
+  }
+  if (!(is_plain(x) && (is.logical(x) || is.numeric(x)))) fail()
+  res <- as.vector(x, mode = typeof(to))
+  lossy <- !is.na(x) & (is.na(res) | res != x)
+  if (any(lossy)) fail(" due to loss of precision")
+  res
+}

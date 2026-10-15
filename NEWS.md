@@ -34,6 +34,7 @@ The following fixes were implemented:
   * The pivoted columns are combined following the `tidyr` type rules, so dates and factors are kept and incompatible types are an error rather than being silently coerced.
   * Attributes of the id columns are kept.
   * Invalid combinations of `names_to`, `names_sep`, `names_pattern` and `values_to` are now errors.
+* `pivot_longer()` gains the `tidyr` 1.1 arguments `names_ptypes`, `names_transform`, `names_repair`, `values_ptypes` and `values_transform`, supports `names_to = character()` and keeps every value when the new columns do not uniquely identify each pivoted column, e.g. with duplicated column names or `NA` in `names_to`.
 * `pivot_wider()` now matches `tidyr`:
   * `id_cols` accepts any selection, columns which are not selected are dropped and the id columns are returned in the order selected.
   * Factor, date and other classed values keep their class and attributes.
