@@ -4,6 +4,10 @@
 
 * The arguments of `pivot_wider()` are now in the same order as in `tidyr` 1.1: `data`, `id_cols`, `names_from`, `names_prefix`, `names_sep`, `names_glue`, `names_sort`, `names_repair`, `values_from`, `values_fill`, `values_fn`. Code which passes `values_from` or `names_from` by position must now name them.
 
+## New features
+
+* `arrange()` now supports `across()` (#88).
+
 ## Improvements
 
 Grouped operations are now considerably faster. Groups are identified in a single pass over the data rather than by comparing every group against every row, so the cost of `group_by()` no longer grows with the number of groups. On 100,000 rows with 1,000 groups, `group_by()` and `arrange()` are over 100x faster, `filter()`, `mutate()` and `count()` 7-20x faster, `group_indices()` over 1,000x faster, and grouping by several high cardinality columns no longer exhausts memory.
@@ -52,6 +56,13 @@ Selections and pivots now match `tidyr`:
   * `names_glue` now works with a single `names_from` column and can use `.value`.
   * Zero row data and tibbles are supported; the class and groups of the input are kept.
 * `pivot_wider()` gains the `tidyr` 1.1 arguments `names_sort`, `names_repair` and `values_fn`. The warning for values which are not uniquely identified now matches `tidyr` 1.1, `values_fill` can be `NA` and a `values_fill` which would lose precision is an error.
+
+`arrange()` now matches `dplyr`:
+
+* `arrange()` now evaluates each expression as its own sort key. Previously, it matched expressions to the columns that they used by position, so `arrange(df, x + y, desc(a))` failed when `a` was a character column, and expressions without a column, such as `arrange(df, n():1)`, failed.
+* `arrange()` now only treats a top level `desc()` as a sort direction. Previously, it rewrote `desc()` as text, so `arrange(df, desc(x + y))` silently sorted by `-x + y`, and expressions such as `desc(x) + 0` and long expressions failed.
+* `arrange()` now finds variables in the calling environment, for example inside a function, and supports the `.data` pronoun there.
+* `arrange()` now supports `desc()` on `Date` and other classed columns which do not support unary minus.
 
 # poorman 0.2.7
 

@@ -9,7 +9,8 @@ arrange(.data, ...)
 \arguments{
 \item{.data}{A \code{data.frame}.}
 
-\item{...}{A comma separated vector of unquoted name(s) to order the data by.}
+\item{...}{A comma separated vector of unquoted name(s) or expressions to order the data by. Use \code{\link[=desc]{desc()}} to sort a
+variable in descending order. Use \code{\link[=across]{across()}} to sort by a selection of columns.}
 }
 \value{
 A \code{data.frame}.
@@ -21,5 +22,8 @@ Order rows of a \code{data.frame} by an expression involving its variables.
 arrange(mtcars, mpg)
 mtcars \%>\% arrange(mpg)
 mtcars \%>\% arrange(cyl, mpg)
+mtcars \%>\% arrange(desc(mpg))
+mtcars \%>\% arrange(across(starts_with("c")))
+mtcars \%>\% arrange(across(starts_with("c"), desc))
 
 }
