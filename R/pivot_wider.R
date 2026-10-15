@@ -119,13 +119,13 @@ pivot_wider <- function(
 
   # Output rows: the unique combinations of the id columns, in order of appearance
   n_data <- nrow(data)
-  row_id <- vec_group_id(as.list(data)[id_cols], n = n_data)
+  row_id <- group_ids(as.list(data)[id_cols], n = n_data)
   row_first <- first_positions(row_id)
   n_row <- length(row_first)
   if (length(id_cols) == 0L) n_row <- 1L
 
   # Output columns: the unique combinations of the `names_from` columns, in order of appearance
-  name_id <- vec_group_id(as.list(data)[names_from], n = n_data)
+  name_id <- group_ids(as.list(data)[names_from], n = n_data)
   name_first <- first_positions(name_id)
   n_name <- length(name_first)
   if (isTRUE(names_sort) && n_name > 1L) {

@@ -127,20 +127,19 @@ is_valid_groups <- function(.data, details, groups) {
 #' right.
 #'
 #' @param cols A `list` of equal length vectors.
+#' @param n `integer(1)`. The number of rows, used when `cols` is empty.
 #' @return An `integer` vector.
 #' @noRd
-group_ids <- function(cols) {
+group_ids <- function(cols, n = if (length(cols) == 0L) 0L else length(cols[[1L]])) {
+  if (length(cols) == 0L) return(rep(1L, n))
   ids <- NULL
   for (col in cols) {
-    if (is.factor(col)) {
-      col <- as.integer(col)
-    } else if (inherits(col, "POSIXlt")) {
-      col <- as.POSIXct(col)
-    }
-    key <- match(col, unique(col))
-    ids <- if (is.null(ids)) key else match((ids - 1) * max(key, 0L) + key, unique((ids - 1) * max(key, 0L) + key))
+    if (inherits(col, "POSIXlt")) col <- as.POSIXct(col)
+    if (is.factor(col) || inherits(col, c("Date", "POSIXct"))) col <- unclass(col)
+    key <- first_appearance_id(col)
+    ids <- if (is.null(ids)) key else first_appearance_id((ids - 1) * max(key, 0L) + key)
   }
-  if (is.null(ids)) integer() else ids
+  ids
 }
 
 #' Split row numbers by group id

@@ -78,33 +78,15 @@ vec_slice <- function(x, i) {
   res
 }
 
-#' Identify the unique rows of a set of columns
-#'
-#' @param x A `list` of equal length vectors.
-#' @param n `integer(1)`. The length of the vectors, used when `x` is empty.
-#'
-#' @return An `integer` vector giving, for each row, the position of that row's first appearance amongst the unique
-#' rows. Missing values are treated as equal to one another.
-#'
-#' @noRd
-vec_group_id <- function(x, n = length(x[[1L]])) {
-  if (length(x) == 0L) return(rep(1L, n))
-  id <- NULL
-  for (col in x) {
-    if (is.factor(col) || inherits(col, c("Date", "POSIXct"))) col <- unclass(col)
-    col_id <- first_appearance_id(col)
-    id <- if (is.null(id)) col_id else first_appearance_id((id - 1) * max(col_id, 0L) + col_id)
-  }
-  id
-}
-
 # The position of each value amongst the unique values in order of first appearance, i.e. `match(x, unique(x))`.
-# Whole numbers within a narrow range are indexed directly rather than hashed, which is several times faster.
+# Whole numbers within a narrow range are indexed directly rather than hashed, which is several times faster. Below
+# a few thousand values the hash table is small enough that match() is faster.
 first_appearance_id <- function(x) {
   n <- length(x)
   if (n > 0L && (is.integer(x) || is.logical(x) || is.double(x)) && is.null(dim(x)) && !anyNA(x)) {
     rng <- range(x)
-    if (rng[2L] - rng[1L] < 4 * n + 1024 && (!is.double(x) || all(x == trunc(x)))) {
+    span <- rng[2L] - rng[1L]
+    if (span >= 4096 && span < 4 * n + 1024 && (!is.double(x) || all(x == trunc(x)))) {
       off <- as.integer(x - rng[1L]) + 1L
       first <- integer(max(off))
       first[off[n:1]] <- n:1
@@ -117,7 +99,7 @@ first_appearance_id <- function(x) {
   match(x, unique(x))
 }
 
-# The position of the first appearance of each id, where `id` is as returned by `vec_group_id()`
+# The position of the first appearance of each id, where `id` is as returned by `group_ids()`
 first_positions <- function(id) {
   n <- length(id)
   first <- integer(max(id, 0L))
