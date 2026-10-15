@@ -76,11 +76,11 @@ is_desc_call <- function(expr) {
 }
 
 # Convert the result of an arrange() expression into a list of sort keys for order(). Data frames, such as the output
-# of across(), are split into one key per column.
+# of across(), and matrices are split into one key per column.
 arrange_keys <- function(x, descending, n, expr) {
-  if (is.data.frame(x)) {
-    if (ncol(x) == 0L) return(list())
-    return(unlist(lapply(unname(as.list(x)), arrange_keys, descending, n, expr), recursive = FALSE))
+  if (is.data.frame(x) || is.matrix(x)) {
+    cols <- if (is.data.frame(x)) unname(as.list(x)) else lapply(seq_len(ncol(x)), function(j) x[, j])
+    return(unlist(lapply(cols, arrange_keys, descending, n, expr), recursive = FALSE))
   }
   size <- NROW(x)
   if (size != n) {
@@ -89,7 +89,10 @@ arrange_keys <- function(x, descending, n, expr) {
     }
     x <- rep(x, length.out = n)
   }
-  if (is.character(x)) {
+  if (is.list(x) && !inherits(x, "POSIXlt")) {
+    # As in dplyr, list elements cannot be compared so they are sorted by their first appearance
+    x <- match(x, unique(x))
+  } else if (is.character(x)) {
     # Sorting strings in the current locale is slow, so only rank the unique values and sort by their integer rank.
     uniq <- unique(x)
     x <- rank(uniq, na.last = "keep", ties.method = "min")[match(x, uniq)]
