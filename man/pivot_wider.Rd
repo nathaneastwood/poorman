@@ -7,13 +7,13 @@
 pivot_wider(
   data,
   id_cols = NULL,
-  values_from = "Value",
   names_from = "Name",
-  names_sep = "_",
   names_prefix = "",
+  names_sep = "_",
   names_glue = NULL,
   names_sort = FALSE,
   names_repair = "check_unique",
+  values_from = "Value",
   values_fill = NULL,
   values_fn = NULL,
   ...
@@ -25,18 +25,14 @@ pivot_wider(
 \item{id_cols}{<\code{\link[=select_helpers]{poor-select}}>. The columns that uniquely identify each observation. Defaults to
 all columns in \code{data} except for the columns specified in \code{names_from} and \code{values_from}.}
 
-\item{values_from}{<\code{\link[=select_helpers]{poor-select}}>. The column(s) that contain the values to be used as future
-variable values. If the values are not uniquely identified by the \code{id_cols} and \code{names_from} columns, the output
-will contain list-columns and a warning is given.}
-
 \item{names_from}{<\code{\link[=select_helpers]{poor-select}}>. The column(s) that contain the levels to be used as future
 column names.}
 
-\item{names_sep}{\code{character(1)}. If \code{names_from} or \code{values_from} contains multiple variables, this will be used to
-join their values together into a single string to use as a column name.}
-
 \item{names_prefix}{\code{character(1)}. String added to the start of every variable name. This is particularly useful if
 \code{names_from} is a numeric vector and you want to create syntactic variable names.}
+
+\item{names_sep}{\code{character(1)}. If \code{names_from} or \code{values_from} contains multiple variables, this will be used to
+join their values together into a single string to use as a column name.}
 
 \item{names_glue}{\code{character(1)}. Instead of \code{names_sep} and \code{names_prefix}, you can supply a
 \href{https://glue.tidyverse.org/index.html}{glue specification} that uses the \code{names_from} columns to create custom
@@ -49,6 +45,10 @@ by first appearance. Factors are sorted by their levels and characters in the C 
 \code{"check_unique"}, is to error if the columns are duplicated. Use \code{"minimal"} to allow duplicates in the output,
 \code{"unique"} to de-duplicate by adding numeric suffixes or \code{"universal"} to also make the names syntactic. A function
 is applied to the names.}
+
+\item{values_from}{<\code{\link[=select_helpers]{poor-select}}>. The column(s) that contain the values to be used as future
+variable values. If the values are not uniquely identified by the \code{id_cols} and \code{names_from} columns, the output
+will contain list-columns and a warning is given.}
 
 \item{values_fill}{Optionally, a scalar value that will be used to fill in missing values, i.e. combinations of
 \code{id_cols} and \code{names_from} which are not present in \code{data}. Explicit \code{NA}s in \code{values_from} are not replaced. This
