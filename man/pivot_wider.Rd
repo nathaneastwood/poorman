@@ -19,14 +19,15 @@ pivot_wider(
 \arguments{
 \item{data}{\code{data.frame}. The data to pivot.}
 
-\item{id_cols}{\code{character(1)}. The name of the column that identifies the rows. If \code{NULL}, it will use all the unique
-rows.}
+\item{id_cols}{<\code{\link[=select_helpers]{poor-select}}>. The columns that uniquely identify each observation. Defaults to
+all columns in \code{data} except for the columns specified in \code{names_from} and \code{values_from}.}
 
-\item{values_from}{\code{character(n)}. The name of the column that contains the values to be used as future variable
-values.}
+\item{values_from}{<\code{\link[=select_helpers]{poor-select}}>. The column(s) that contain the values to be used as future
+variable values. If the values are not uniquely identified by the \code{id_cols} and \code{names_from} columns, the output
+will contain list-columns and a warning is given.}
 
-\item{names_from}{\code{character(n)}. The name of the column(s) that contains the levels to be used as future column
-names.}
+\item{names_from}{<\code{\link[=select_helpers]{poor-select}}>. The column(s) that contain the levels to be used as future
+column names.}
 
 \item{names_sep}{\code{character(1)}. If \code{names_from} or \code{values_from} contains multiple variables, this will be used to
 join their values together into a single string to use as a column name.}
@@ -38,8 +39,9 @@ join their values together into a single string to use as a column name.}
 \href{https://glue.tidyverse.org/index.html}{glue specification} that uses the \code{names_from} columns to create custom
 column names. Note that the only delimiters supported by \code{names_glue} are curly brackets, \verb{\{} and \verb{\}}.}
 
-\item{values_fill}{\code{numeric(n)}. Optionally, a (scalar) value that will be used to replace missing values in the new
-columns created.}
+\item{values_fill}{Optionally, a scalar value that will be used to fill in missing values, i.e. combinations of
+\code{id_cols} and \code{names_from} which are not present in \code{data}. Explicit \code{NA}s in \code{values_from} are not replaced. This
+can also be a named list, specifying a fill value for each of the \code{values_from} columns.}
 
 \item{...}{Not used for now.}
 }

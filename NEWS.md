@@ -34,6 +34,14 @@ The following fixes were implemented:
   * The pivoted columns are combined following the `tidyr` type rules, so dates and factors are kept and incompatible types are an error rather than being silently coerced.
   * Attributes of the id columns are kept.
   * Invalid combinations of `names_to`, `names_sep`, `names_pattern` and `values_to` are now errors.
+* `pivot_wider()` now matches `tidyr`:
+  * `id_cols` accepts any selection, columns which are not selected are dropped and the id columns are returned in the order selected.
+  * Factor, date and other classed values keep their class and attributes.
+  * `values_fill` only fills combinations which are missing from the data rather than all `NA`s, works with logical columns and with `names_prefix`, keeps integer columns as integer and can be a named list.
+  * Values which are not uniquely identified now produce list-columns and a warning rather than silently keeping the first value.
+  * With several `values_from` columns, `names_prefix` is added after the value name, e.g. `value_prefix_name`.
+  * `names_glue` now works with a single `names_from` column and can use `.value`.
+  * Zero row data and tibbles are supported; the class and groups of the input are kept.
 
 # poorman 0.2.7
 

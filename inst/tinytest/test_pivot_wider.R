@@ -135,3 +135,87 @@ expect_equal(
     class = "data.frame"
   )
 )
+
+# id_cols selects the id columns, dropping any others, in the order given
+df <- data.frame(id = c(1, 1, 2), g = c("x", "y", "z"), nm = c("a", "b", "a"), v = 1:3, stringsAsFactors = FALSE)
+res <- pivot_wider(df, id_cols = "id", names_from = "nm", values_from = "v")
+expect_equal(res, data.frame(id = c(1, 2), a = c(1L, 3L), b = c(2L, NA)), info = "Columns not in id_cols are dropped")
+res <- pivot_wider(df[c(1, 3), ], id_cols = c("g", "id"), names_from = "nm", values_from = "v")
+expect_equal(names(res), c("g", "id", "a"), info = "id_cols are returned in the order given")
+expect_equal(
+  pivot_wider(df, id_cols = id, names_from = nm, values_from = v),
+  pivot_wider(df, id_cols = "id", names_from = "nm", values_from = "v"),
+  info = "Bare column names can be used for id_cols"
+)
+
+# Character vectors held in variables can be used to select columns
+nf <- "nm"
+vf <- "v"
+expect_equal(
+  pivot_wider(df, id_cols = "id", names_from = nf, values_from = vf),
+  pivot_wider(df, id_cols = "id", names_from = "nm", values_from = "v"),
+  info = "Variables can be used for names_from and values_from"
+)
+
+# The class and attributes of the values are kept
+df <- data.frame(id = c(1, 1, 2), nm = c("a", "b", "a"), stringsAsFactors = FALSE)
+df$d <- as.Date(c("2020-01-01", "2020-01-02", "2020-01-03"))
+df$f <- factor(c("x", "y", "x"), levels = c("y", "x"))
+res <- pivot_wider(df, names_from = "nm", values_from = "d", id_cols = "id")
+expect_equal(res$a, as.Date(c("2020-01-01", "2020-01-03")), info = "Dates are kept")
+expect_equal(res$b, as.Date(c("2020-01-02", NA)), info = "Missing dates are NA")
+res <- pivot_wider(df, names_from = "nm", values_from = "f", id_cols = "id")
+expect_equal(res$a, factor(c("x", "x"), levels = c("y", "x")), info = "Factors and their levels are kept")
+
+# values_fill only fills missing combinations and keeps the type of the values
+df <- data.frame(id = c(1, 1, 2), nm = c("a", "b", "a"), v = c(NA, 2L, 3L), stringsAsFactors = FALSE)
+res <- pivot_wider(df, names_from = "nm", values_from = "v", values_fill = 0)
+expect_equal(res$a, c(NA, 3L), info = "Explicit missing values are not filled")
+expect_equal(res$b, c(2L, 0L), info = "Integer columns are filled and stay integer")
+res <- pivot_wider(df, names_from = "nm", values_from = "v", values_fill = list(v = 0L))
+expect_equal(res$b, c(2L, 0L), info = "values_fill can be a named list")
+res <- pivot_wider(df, names_from = "nm", values_from = "v", values_fill = 0, names_prefix = "p_")
+expect_equal(res$p_b, c(2L, 0L), info = "values_fill works with names_prefix")
+df$l <- c(TRUE, FALSE, TRUE)
+res <- pivot_wider(df, id_cols = "id", names_from = "nm", values_from = "l", values_fill = FALSE)
+expect_equal(res$b, c(FALSE, FALSE), info = "Logical columns are filled")
+res <- pivot_wider(df, id_cols = "id", names_from = "nm", values_from = "l", values_fill = 1)
+expect_equal(res$b, c(FALSE, TRUE), info = "0 and 1 can fill logical columns")
+expect_error(
+  pivot_wider(df, id_cols = "id", names_from = "nm", values_from = "l", values_fill = "a"),
+  pattern = "`values_fill` must be of type logical"
+)
+
+# Several values_from columns are named <value><sep><prefix><name>
+df <- data.frame(id = c(1, 1, 2), nm = c("a", "b", "a"), v = 1:3, w = 4:6, stringsAsFactors = FALSE)
+res <- pivot_wider(df, names_from = "nm", values_from = c("v", "w"), names_prefix = "P")
+expect_equal(names(res), c("id", "v_Pa", "v_Pb", "w_Pa", "w_Pb"), info = "names_prefix goes after the value name")
+
+# names_glue works with a single names_from column
+res <- pivot_wider(df, names_from = "nm", values_from = "v", id_cols = "id", names_glue = "x_{nm}")
+expect_equal(names(res), c("id", "x_a", "x_b"), info = "names_glue works with one names_from column")
+res <- pivot_wider(df, names_from = "nm", values_from = c("v", "w"), names_glue = "{nm}.{.value}")
+expect_equal(names(res), c("id", "a.v", "b.v", "a.w", "b.w"), info = "names_glue can use .value")
+
+# Values which are not uniquely identified create list-columns
+df <- data.frame(id = c(1, 1, 2), nm = c("a", "a", "a"), v = 1:3, stringsAsFactors = FALSE)
+expect_warning(
+  res <- pivot_wider(df, names_from = "nm", values_from = "v"),
+  pattern = "Values in `v` are not uniquely identified; output will contain list-cols"
+)
+expect_equal(res$a, list(1:2, 3L), info = "Duplicate values are kept in a list-column")
+
+# The class of the input is kept, e.g. for tibbles
+df <- data.frame(id = c(1, 1, 2), nm = c("a", "b", "a"), v = 1:3, stringsAsFactors = FALSE)
+tbl <- structure(df, class = c("tbl_df", "tbl", "data.frame"))
+res <- pivot_wider(tbl, names_from = "nm", values_from = "v")
+expect_equal(class(res), c("tbl_df", "tbl", "data.frame"), info = "The input class is kept")
+expect_equal(res$b, c(2L, NA), info = "Values of tibble-like input are correct")
+
+# Zero row data can be pivoted
+res <- pivot_wider(df[0, ], names_from = "nm", values_from = "v")
+expect_equal(res, data.frame(id = numeric()), info = "Zero row data returns a zero row data.frame")
+
+# Column order follows the order of appearance of the names, including for factors
+df <- data.frame(id = 1, nm = factor(c("b", "a"), levels = c("a", "b")), v = 1:2)
+expect_equal(names(pivot_wider(df, names_from = "nm", values_from = "v")), c("id", "b", "a"))
