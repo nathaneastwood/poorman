@@ -7,6 +7,7 @@
 ## New features
 
 * `arrange()` now supports `across()` (#88).
+* `arrange()` now supports list, data frame and matrix columns. Data frame and matrix columns are sorted by each of their columns in turn and list columns are sorted by the first appearance of each element, as in `dplyr` (#90).
 
 ## Improvements
 

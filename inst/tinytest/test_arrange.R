@@ -53,6 +53,74 @@ expect_equal(
 )
 removeClass("TestS4")
 
+df <- structure(list(x = 1:3, y = list(3, 2, 1)), row.names = c(NA, -3L), class = "data.frame")
+expect_equal(
+  arrange(df, y),
+  df,
+  info = "arrange handles list columns: 1"
+)
+df <- structure(list(x = 1:3, y = list(sum, mean, sd)), row.names = c(NA, -3L), class = "data.frame")
+expect_equal(
+  arrange(df, y),
+  df,
+  info = "arrange handles list columns: 2"
+)
+df <- structure(list(x = 1:4, y = list(3, 2, 3, 1)), row.names = c(NA, -4L), class = "data.frame")
+expect_equal(
+  arrange(df, y)$x,
+  c(1L, 3L, 2L, 4L),
+  info = "arrange() sorts list columns by first appearance"
+)
+expect_equal(
+  arrange(df, desc(y))$x,
+  c(4L, 2L, 1L, 3L),
+  info = "arrange() sorts list columns by first appearance: descending"
+)
+
+df <- data.frame(x = 1:3)
+df[, "y"] <- data.frame(z = 3:1)
+expect_equal(
+  arrange(df, y),
+  {
+    out <- data.frame(x = 3:1)
+    out[, "y"] <- data.frame(z = 1:3)
+    out
+  },
+  info = "arrange handles data.frame columns"
+)
+df <- data.frame(x = 1:4)
+df$y <- data.frame(a = c(2, 1, 2, 1), b = c(1, 1, 2, 2))
+expect_equal(
+  arrange(df, y)$x,
+  c(2L, 4L, 1L, 3L),
+  info = "arrange() sorts data.frame columns by each of their columns"
+)
+expect_equal(
+  arrange(df, desc(y))$x,
+  c(3L, 1L, 4L, 2L),
+  info = "arrange() sorts data.frame columns in descending order"
+)
+
+df <- data.frame(x = 1:3)
+df[, "y"] <- matrix(6:1, ncol = 2)
+expect_equal(
+  arrange(df, y),
+  structure(df[3:1, ], row.names = 1:3),
+  info = "arrange handles matrix columns"
+)
+df <- data.frame(x = 1:4)
+df[, "y"] <- matrix(c(1, 1, 2, 2, 4, 3, 2, 1), ncol = 2)
+expect_equal(
+  arrange(df, y)$x,
+  c(2L, 1L, 4L, 3L),
+  info = "arrange() sorts matrix columns by each of their columns"
+)
+expect_equal(
+  arrange(df, desc(y))$x,
+  c(3L, 4L, 1L, 2L),
+  info = "arrange() sorts matrix columns in descending order"
+)
+
 # -- data ----------------------------------------------------------------------
 
 df1 <- data.frame(x = 1:3, y = 3:1)
