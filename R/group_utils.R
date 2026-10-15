@@ -30,19 +30,20 @@ has_groups <- function(x) {
   if (length(groups) == 0L) FALSE else TRUE
 }
 
-#' All arguments other than `...` must be named. They come after `...` so that they are never partially matched by the
-#' names of the user's expressions, e.g. `mutate(x, f = 1)`.
-#' @param ... Arguments to be passed to `.fn`.
-#' @param .fn `character(1)`. The function to apply to each group.
+#' Apply a function to each group
+#'
+#' The function is given as a closure of one argument so that the names of the user's expressions, e.g.
+#' `mutate(x, .fn = 1)`, never meet the arguments of this function.
 #' @param .data A `data.frame`.
+#' @param .fn A function of one argument, a `data.frame`, applied to each group, e.g. `function(df) mutate(df, ...)`.
 #' @param .drop `logical(1)`. Should empty groups be skipped?
 #' @param .reorder `logical(1)`. Should the rows of the result be put back into the order they appear in `.data`? This
 #' relies on `.fn` returning rows with the row names of `.data`.
 #' @noRd
-apply_grouped_function <- function(..., .fn, .data, .drop = FALSE, .reorder = FALSE) {
+apply_grouped_function <- function(.data, .fn, .drop = FALSE, .reorder = FALSE) {
   groups <- group_vars(.data)
   grouped <- split_into_groups(.data, groups, .drop)
-  res <- bind_groups(lapply(grouped, .fn, ...))
+  res <- bind_groups(lapply(grouped, .fn))
   if (is.null(res)) return(res)
   attr(res, "group_id") <- NULL
   if (isTRUE(.reorder)) {

@@ -182,3 +182,17 @@ expect_error(
 )
 
 rm(df)
+
+# Grouped slice helpers pass on only the size argument which was supplied
+df <- data.frame(g = c(1, 1, 1, 2, 2), v = c(3, 1, 2, 5, 4))
+gf <- group_by(df, g)
+expect_equal(slice_head(gf, n = 1)$v, c(3, 5), info = "grouped slice_head() with n")
+expect_equal(slice_head(gf)$v, c(3, 5), info = "grouped slice_head() without n or prop")
+expect_equal(slice_head(gf, prop = 0.5)$v, c(3, 5), info = "grouped slice_head() with prop")
+expect_equal(slice_tail(gf, n = 2)$v, c(1, 2, 5, 4), info = "grouped slice_tail() with n")
+expect_equal(slice_min(gf, v, n = 1)$v, c(1, 4), info = "grouped slice_min() with n")
+expect_equal(slice_max(gf, v, prop = 0.5)$v, c(3, 5), info = "grouped slice_max() with prop")
+expect_equal(nrow(slice_sample(gf, n = 1)), 2L, info = "grouped slice_sample() with n")
+expect_error(slice_head(gf, n = 1, prop = 0.5), "exactly one of", info = "grouped slice_head() rejects n and prop")
+expect_error(slice_min(gf), "order_by", info = "grouped slice_min() requires order_by")
+rm(df, gf)

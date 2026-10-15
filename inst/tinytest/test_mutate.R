@@ -342,6 +342,11 @@ expect_equal(
   info = "transmute() keeps the group rows in step with the data"
 )
 expect_equal(mutate(gf, f = b * 2L)$f, c(2L, 4L, 6L), info = "mutate() on grouped data accepts a column called `f`")
+expect_equal(
+  as.data.frame(ungroup(mutate(gf, .fn = 1, .drop = 2, .reorder = 3))),
+  data.frame(a = c(2, 1, 2), b = 1:3, .fn = 1, .drop = 2, .reorder = 3),
+  info = "mutate() on grouped data accepts columns named like internal arguments"
+)
 
 df <- data.frame(g = c("a", NA, "a", NA), v = 1:4, stringsAsFactors = FALSE)
 expect_equal(

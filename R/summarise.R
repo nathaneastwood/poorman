@@ -111,7 +111,7 @@ summarise.grouped_df <- function(.data, ..., .groups = NULL) {
   }
 
   groups <- group_vars(.data)
-  res <- apply_grouped_function(.fn = "summarise", .data = .data, .drop = FALSE, ...)
+  res <- apply_grouped_function(.data, function(df) summarise(df, ...), .drop = FALSE)
 
   verbose <- summarise_verbose(.groups)
 
