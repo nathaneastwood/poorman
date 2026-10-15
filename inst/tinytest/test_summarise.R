@@ -74,8 +74,18 @@ expect_equal(
 
 expect_equal(
   summarise(mtcars),
-  data.frame(),
-  info = "empty summarise returns empty data.frame"
+  data.frame(row.names = 1L),
+  info = "empty summarise returns a data.frame with one row and no columns"
+)
+expect_equal(
+  dim(summarise(mtcars[0, ])),
+  c(1L, 0L),
+  info = "empty summarise of zero row data returns one row and no columns"
+)
+expect_equal(
+  dim(summarise(data.frame(v = 1:2), a = NULL)),
+  c(1L, 0L),
+  info = "summarise with only NULL results returns one row and no columns"
 )
 
 res <- mtcars %>% group_by(am) %>% summarise()

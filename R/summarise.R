@@ -76,7 +76,7 @@ summarise.data.frame <- function(.data, ..., .groups = NULL) {
     }
   }
   if (is_empty_list(fns)) {
-    if (groups_exist) return(group) else return(data.frame())
+    if (groups_exist) return(group) else return(empty_summary())
   }
   res <- vector(mode = "list", length = length(fns))
   eval_env <- c(as.list(context$.data), vector(mode = "list", length = length(fns)))
@@ -97,7 +97,7 @@ summarise.data.frame <- function(.data, ..., .groups = NULL) {
   values <- values[not_null]
   res <- res[not_null]
   if (length(values) == 0L) {
-    if (groups_exist) return(group) else return(data.frame())
+    if (groups_exist) return(group) else return(empty_summary())
   }
   if (all(vapply(values, is_simple_summary, NA))) {
     return(simple_summary(values, if (groups_exist) group))
@@ -178,6 +178,11 @@ simple_summary <- function(x, group = NULL) {
     x <- c(group, x)
   }
   structure(x, class = "data.frame", row.names = .set_row_names(n))
+}
+
+# As in dplyr, a summary with no columns has one row
+empty_summary <- function() {
+  structure(list(), names = character(0), row.names = .set_row_names(1L), class = "data.frame")
 }
 
 summarise_inform <- function(new_groups) {
