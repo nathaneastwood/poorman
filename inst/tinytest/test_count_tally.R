@@ -122,3 +122,22 @@ expect_message(
     res %>% add_tally(name = "freq")
   }
 )
+
+# Grouping of the results
+df <- data.frame(g = c(2, 1, 2, NA), h = c("x", "y", "x", "y"), v = 1:4, stringsAsFactors = FALSE)
+expect_silent(tally(group_by(df, h, g)), info = "tally() does not report the grouping of its summary")
+expect_equal(
+  group_vars(tally(group_by(df, h, g))),
+  "h",
+  info = "tally() drops the last grouping variable"
+)
+expect_silent(count(group_by(df, h), g), info = "count() does not report the grouping of its summary")
+expect_equal(
+  group_vars(count(group_by(df, h, g), v)),
+  c("h", "g"),
+  info = "count() keeps every grouping variable of its input"
+)
+expect_false(
+  group_by_drop_default(count(group_by(df, h, .drop = FALSE), g)),
+  info = "count() keeps the .drop setting of its input"
+)
