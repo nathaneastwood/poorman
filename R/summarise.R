@@ -124,6 +124,8 @@ summarise.grouped_df <- function(.data, ..., .groups = NULL) {
     if (n > 1) {
       if (verbose) summarise_inform(groups[-n])
       res <- groups_set(res, groups[-n], group_by_drop_default(.data))
+    } else {
+      res <- ungroup(res)
     }
   } else if (.groups == "keep") {
     if (verbose) summarise_inform(groups)
