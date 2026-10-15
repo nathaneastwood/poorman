@@ -11,8 +11,13 @@ pivot_longer(
   names_prefix = NULL,
   names_sep = NULL,
   names_pattern = NULL,
+  names_ptypes = list(),
+  names_transform = list(),
+  names_repair = "check_unique",
   values_to = "value",
   values_drop_na = FALSE,
+  values_ptypes = list(),
+  values_transform = list(),
   ...
 )
 }
@@ -33,6 +38,18 @@ name.}
 column name is broken up. \code{names_sep} is a fixed string on which to split the column names. \code{names_pattern} takes a
 regular expression containing matching groups (\verb{()}); with a single value of \code{names_to}, the first matching group
 is used.}
+
+\item{names_ptypes, values_ptypes}{\code{list()}. Optionally, a named list of column name-prototype pairs, e.g.
+\code{list(week = factor())}, used to cast the newly created columns. Casts that lose information are an error.}
+
+\item{names_transform, values_transform}{\code{list()}. Optionally, a named list of column name-function pairs, e.g.
+\code{list(week = as.integer)}, applied to the newly created columns. Functions may be given as formulas, e.g.
+\code{~ as.integer(.x)}.}
+
+\item{names_repair}{\code{character(1)} or \code{function}. What happens if the output has invalid column names. The default,
+\code{"check_unique"}, is to error if the columns are duplicated. Use \code{"minimal"} to allow duplicates in the output,
+\code{"unique"} to de-duplicate by adding numeric suffixes or \code{"universal"} to also make the names syntactic. A function
+is applied to the names.}
 
 \item{values_to}{\code{character(1)}. The name of the new column that will contain the values of the pivoted variables.
 The pivoted columns are combined following the \code{tidyr} rules: logical, integer and double columns are combined into

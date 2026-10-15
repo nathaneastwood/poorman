@@ -20,6 +20,15 @@
 #' the richest of those types, factors are combined into a factor with the union of their levels, factors and
 #' characters are combined into a character and columns of the same class keep that class. Other combinations are an
 #' error.
+#' @param names_ptypes,values_ptypes `list()`. Optionally, a named list of column name-prototype pairs, e.g.
+#' `list(week = factor())`, used to cast the newly created columns. Casts that lose information are an error.
+#' @param names_transform,values_transform `list()`. Optionally, a named list of column name-function pairs, e.g.
+#' `list(week = as.integer)`, applied to the newly created columns. Functions may be given as formulas, e.g.
+#' `~ as.integer(.x)`.
+#' @param names_repair `character(1)` or `function`. What happens if the output has invalid column names. The default,
+#' `"check_unique"`, is to error if the columns are duplicated. Use `"minimal"` to allow duplicates in the output,
+#' `"unique"` to de-duplicate by adding numeric suffixes or `"universal"` to also make the names syntactic. A function
+#' is applied to the names.
 #' @param values_drop_na `logical(1)`. If `TRUE`, will drop rows that contain only `NA` in the `values_to` column. This
 #' effectively converts explicit missing values to implicit missing values, and should generally be used only when
 #' missing values in data were created by its structure.
@@ -45,8 +54,13 @@ pivot_longer <- function(
   names_prefix = NULL,
   names_sep = NULL,
   names_pattern = NULL,
+  names_ptypes = list(),
+  names_transform = list(),
+  names_repair = "check_unique",
   values_to = "value",
   values_drop_na = FALSE,
+  values_ptypes = list(),
+  values_transform = list(),
   ...
 ) {
 
@@ -54,18 +68,22 @@ pivot_longer <- function(
     stop("`cols` must select at least one column.")
   }
 
-  cols <- names(eval_select_pos(data, substitute(cols)))
+  col_pos <- unname(eval_select_pos(data, substitute(cols)))
+  # Columns sharing a name are all pivoted
+  if (anyDuplicated(names(data))) col_pos <- which(names(data) %in% names(data)[col_pos])
 
-  if (length(cols) == 0L) {
+  if (length(col_pos) == 0L) {
     stop("No columns found for reshaping data.", call. = FALSE)
   }
-  if (!is.character(values_to) || length(values_to) != 1L) {
+  if (!(".value" %in% names_to) && (!is.character(values_to) || length(values_to) != 1L)) {
     stop("`values_to` must be a single string.", call. = FALSE)
   }
 
-  id_cols <- setdiff(names(data), cols)
+  cols <- names(data)[col_pos]
+  id_pos <- setdiff(seq_along(data), col_pos)
+  id_cols <- names(data)[id_pos]
 
-  if (any(names_to %in% id_cols)) {
+  if (identical(names_repair, "check_unique") && any(names_to %in% id_cols)) {
     stop(
       paste0(
         "Some values of the columns specified in 'names_to' are already present
@@ -76,44 +94,47 @@ pivot_longer <- function(
       call. = FALSE)
   }
 
-  spec <- build_longer_spec(cols, names_to, names_prefix, names_sep, names_pattern, values_to)
+  spec <- build_longer_spec(
+    cols, names_to, names_prefix, names_sep, names_pattern, values_to, names_ptypes, names_transform
+  )
   n_row <- nrow(data)
 
-  # Each unique combination of the `names_to` columns becomes one row of output per input row. Only `.value` combines
-  # several columns into one row.
+  # Each unique combination of the `names_to` columns becomes one row of output per input row. Columns which share
+  # their `.value` and `names_to` values are told apart by a sequence number, as in tidyr.
   key_names <- setdiff(names(spec), c(".name", ".value"))
-  key_id <- if (length(unique(spec$.value)) == 1L) {
-    seq_len(nrow(spec))
-  } else {
-    vec_group_id(spec[key_names], n = nrow(spec))
-  }
-  if (anyDuplicated(paste(spec$.value, key_id))) {
-    stop("The combination of `names_to` columns must uniquely identify each column of values.", call. = FALSE)
-  }
+  keys <- as.list(spec)[key_names]
+  dup_id <- vec_group_id(c(list(spec$.value), keys), n = nrow(spec))
+  if (anyDuplicated(dup_id)) keys$.seq <- seq_by_group(dup_id)
+  key_id <- vec_group_id(keys, n = nrow(spec))
   key_rows <- match(seq_len(max(key_id, 0L)), key_id)
   n_key <- length(key_rows)
 
   values <- unique(spec$.value)
   vals <- lapply(values, function(value) {
-    in_value <- spec$.value == value
+    in_value <- which(spec$.value == value)
     val_cols <- rep(list(rep(NA, n_row)), n_key)
-    names(val_cols) <- rep("", n_key)
-    val_cols[key_id[in_value]] <- lapply(spec$.name[in_value], function(col) data[[col]])
-    names(val_cols)[key_id[in_value]] <- spec$.name[in_value]
+    val_cols[key_id[in_value]] <- lapply(col_pos[in_value], function(i) data[[i]])
+    val_names <- rep("", n_key)
+    val_names[key_id[in_value]] <- spec$.name[in_value]
+    if (is.list(values_transform) && !is.null(values_transform[[value]])) {
+      val_cols <- lapply(val_cols, as_function(values_transform[[value]]))
+    }
+    if (!is.null(values_ptypes[[value]])) {
+      val_cols <- mapply(
+        cast_ptype, val_cols, list(values_ptypes[[value]]), val_names, SIMPLIFY = FALSE, USE.NAMES = FALSE
+      )
+    }
+    names(val_cols) <- val_names
     interleave(combine_columns(val_cols), n_row)
   })
   names(vals) <- values
 
   out <- c(
-    lapply(as.list(data)[id_cols], vec_slice, rep(seq_len(n_row), each = n_key)),
-    lapply(spec[key_rows, key_names, drop = FALSE], rep, times = n_row),
+    lapply(as.list(data)[id_pos], vec_slice, rep(seq_len(n_row), each = n_key)),
+    lapply(spec[key_rows, key_names, drop = FALSE], function(x) vec_slice(x, rep(seq_len(n_key), times = n_row))),
     vals
   )
-
-  if (anyDuplicated(names(out))) {
-    dups <- unique(names(out)[duplicated(names(out))])
-    stop("Column names ", paste0("`", dups, "`", collapse = ", "), " must not be duplicated.", call. = FALSE)
-  }
+  names(out) <- repair_names(names(out), names_repair)
 
   if (values_drop_na) {
     missing <- Reduce(`&`, lapply(vals, is.na))
@@ -124,9 +145,18 @@ pivot_longer <- function(
   reconstruct_attrs(out, data)
 }
 
+# The position of each element within its group, e.g. c(1, 1, 2, 1) gives c(1, 2, 1, 3)
+seq_by_group <- function(group) {
+  res <- integer(length(group))
+  res[order(group)] <- sequence(tabulate(group))
+  res
+}
+
 # Build a data.frame describing how each pivoted column maps to the output: its name (`.name`), the column of values it
 # belongs to (`.value`) and the values of the new `names_to` columns
-build_longer_spec <- function(cols, names_to, names_prefix, names_sep, names_pattern, values_to) {
+build_longer_spec <- function(
+  cols, names_to, names_prefix, names_sep, names_pattern, values_to, names_ptypes = list(), names_transform = list()
+) {
   names <- cols
   if (!is.null(names_prefix)) names <- sub(paste0("^", names_prefix), "", names)
 
@@ -142,6 +172,8 @@ build_longer_spec <- function(cols, names_to, names_prefix, names_sep, names_pat
     } else {
       extract_names(names, names_pattern, length(names_to))
     }
+  } else if (length(names_to) == 0L) {
+    pieces <- list()
   } else {
     if (!is.null(names_sep)) {
       stop("`names_sep` can not be used with length-1 `names_to`.", call. = FALSE)
@@ -150,6 +182,16 @@ build_longer_spec <- function(cols, names_to, names_prefix, names_sep, names_pat
   }
   names(pieces) <- names_to
   pieces <- pieces[!is.na(names_to)]
+  if (anyDuplicated(names(pieces))) {
+    dups <- unique(names(pieces)[duplicated(names(pieces))])
+    stop("Column name ", paste0("`", dups, "`", collapse = ", "), " must not be duplicated.", call. = FALSE)
+  }
+  for (piece in intersect(names(pieces), names(names_ptypes))) {
+    pieces[[piece]] <- cast_ptype(pieces[[piece]], names_ptypes[[piece]], piece)
+  }
+  for (piece in intersect(names(pieces), names(names_transform))) {
+    pieces[[piece]] <- as_function(names_transform[[piece]])(pieces[[piece]])
+  }
 
   spec <- structure(list(.name = cols), class = "data.frame", row.names = .set_row_names(length(cols)))
   if (".value" %in% names(pieces)) {

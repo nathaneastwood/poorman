@@ -185,3 +185,59 @@ expect_error(
   pivot_longer(data.frame(id = 1, a_x = 1), -id, names_to = c("p", "q"), names_pattern = "(.)_x"),
   pattern = "should define 2 groups; 1 found"
 )
+
+# names_to = character() creates no name column
+df <- data.frame(id = 1:2, x_1 = 1:2, x_2 = 3:4)
+res <- pivot_longer(df, -id, names_to = character())
+expect_equal(res, data.frame(id = c(1L, 1L, 2L, 2L), value = c(1L, 3L, 2L, 4L)), info = "No name column")
+
+# Outputs which are not unique are told apart rather than lost
+res <- pivot_longer(df, -id, names_to = c(".value", NA), names_sep = "_")
+expect_equal(res, data.frame(id = c(1L, 1L, 2L, 2L), x = c(1L, 3L, 2L, 4L)), info = ".value with NA keeps all values")
+res <- pivot_longer(df, -id, names_pattern = "(.)_.")
+expect_equal(res$name, c("x", "x", "x", "x"), info = "Non-unique names from names_pattern keep all values (1)")
+expect_equal(res$value, c(1L, 3L, 2L, 4L), info = "Non-unique names from names_pattern keep all values (2)")
+
+# Columns with duplicated names are all pivoted
+df <- structure(list(id = 1:2, a = 1:2, a = 3:4), names = c("id", "a", "a"), class = "data.frame", row.names = 1:2)
+res <- pivot_longer(df, -id)
+expect_equal(res$name, c("a", "a", "a", "a"), info = "Duplicated column names are kept")
+expect_equal(res$value, c(1L, 3L, 2L, 4L), info = "Values of duplicated columns are all kept")
+
+# names_ptypes and names_transform change the type of the name columns
+df <- data.frame(id = 1, wk1 = 1, wk2 = 2)
+res <- pivot_longer(df, -id, names_to = "week", names_pattern = "wk(.*)", names_transform = list(week = as.integer))
+expect_equal(res$week, 1:2, info = "names_transform accepts functions")
+res <- pivot_longer(df, -id, names_to = "week", names_prefix = "wk", names_transform = list(week = ~ as.integer(.x)))
+expect_equal(res$week, 1:2, info = "names_transform accepts formulas")
+res <- pivot_longer(df, -id, names_to = "week", names_prefix = "wk", names_ptypes = list(week = factor()))
+expect_equal(res$week, factor(c("1", "2")), info = "names_ptypes casts the names")
+expect_error(
+  pivot_longer(df, -id, names_to = "week", names_prefix = "wk", names_ptypes = list(week = integer())),
+  pattern = "Can't convert `week` <character> to <integer>"
+)
+
+# values_ptypes and values_transform change the type of the values
+df <- data.frame(id = 1:2, a = c(1, 2), b = c(3, 4))
+res <- pivot_longer(df, a:b, values_ptypes = list(value = integer()))
+expect_equal(res$value, c(1L, 3L, 2L, 4L), info = "values_ptypes casts the values")
+df$b <- c(3.5, 4)
+expect_error(
+  pivot_longer(df, a:b, values_ptypes = list(value = integer())),
+  pattern = "Can't convert `b` <double> to <integer> due to loss of precision"
+)
+df <- data.frame(id = 1:2, a = 1:2, b = c("x", "y"), stringsAsFactors = FALSE)
+res <- pivot_longer(df, a:b, values_transform = list(value = as.character))
+expect_equal(res$value, c("1", "x", "2", "y"), info = "values_transform makes incompatible columns compatible")
+
+# names_repair controls clashing names
+df <- data.frame(id = 1:2, a = 1:2, b = 3:4)
+expect_error(pivot_longer(df, a:b, values_to = "id"), pattern = "Use `names_repair`")
+res <- suppressMessages(pivot_longer(df, a:b, values_to = "id", names_repair = "unique"))
+expect_equal(names(res), c("id...1", "name", "id...3"), info = "unique repair renames clashing columns")
+res <- pivot_longer(df, a:b, values_to = "id", names_repair = "minimal")
+expect_equal(names(res), c("id", "name", "id"), info = "minimal repair allows duplicated names")
+
+# names_to must not contain duplicates
+df <- data.frame(id = 1, a_x = 1, b_y = 2)
+expect_error(pivot_longer(df, -id, names_to = c("g", "g"), names_sep = "_"), pattern = "must not be duplicated")
