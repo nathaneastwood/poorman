@@ -103,9 +103,9 @@ pivot_longer <- function(
   # their `.value` and `names_to` values are told apart by a sequence number, as in tidyr.
   key_names <- setdiff(names(spec), c(".name", ".value"))
   keys <- as.list(spec)[key_names]
-  dup_id <- vec_group_id(c(list(spec$.value), keys), n = nrow(spec))
+  dup_id <- group_ids(c(list(spec$.value), keys), n = nrow(spec))
   if (anyDuplicated(dup_id)) keys$.seq <- seq_by_group(dup_id)
-  key_id <- vec_group_id(keys, n = nrow(spec))
+  key_id <- group_ids(keys, n = nrow(spec))
   key_rows <- first_positions(key_id)
   n_key <- length(key_rows)
 
