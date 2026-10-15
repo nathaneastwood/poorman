@@ -43,6 +43,15 @@ out the {poorman} series of blog posts
 (<a href="#readme-top">back to top</a>)
 </p>
 
+## Compatibility
+
+{poorman} replicates the behaviour of {dplyr} 1.0.x and {tidyr} 1.1.x.
+Features added in later versions are not implemented.
+
+<p align="right">
+(<a href="#readme-top">back to top</a>)
+</p>
+
 ## Installation
 
 You can install:
