@@ -82,7 +82,7 @@ summarise.data.frame <- function(.data, ..., .groups = NULL) {
   eval_env <- c(as.list(context$.data), vector(mode = "list", length = length(fns)))
   new_pos <- seq(length(context$.data) + 1L, length(eval_env), 1L)
   for (i in seq_along(fns)) {
-    eval_env[[new_pos[i]]] <- do.call(with, list(eval_env, fns[[i]]))
+    eval_env[new_pos[i]] <- list(do.call(with, list(eval_env, fns[[i]])))
     nms <- if (!is_named(eval_env[[new_pos[i]]])) {
       if (!is.null(names(fns)[[i]])) names(fns)[[i]] else deparse(fns[[i]])
     } else {
@@ -92,6 +92,13 @@ summarise.data.frame <- function(.data, ..., .groups = NULL) {
     res[i] <- list(nms)
   }
   values <- eval_env[new_pos]
+  # As in dplyr, NULL results are ignored
+  not_null <- !vapply(values, is.null, NA)
+  values <- values[not_null]
+  res <- res[not_null]
+  if (length(values) == 0L) {
+    if (groups_exist) return(group) else return(data.frame())
+  }
   if (all(vapply(values, is_simple_summary, NA))) {
     return(simple_summary(values, if (groups_exist) group))
   }
