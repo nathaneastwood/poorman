@@ -23,20 +23,6 @@ collapse_to_sentence <- function(x) {
   }
 }
 
-#' Build a `data.frame` from a variety of inputs including atomic vectors, lists and other `data.frame`s
-#' @noRd
-build_data_frame <- function(x, nms = NULL) {
-  res <- if (is.atomic(x)) {
-    data.frame(x)
-  } else if (is.list(x) && !is.data.frame(x)) {
-    structure(list(x = x), class = "data.frame", row.names = c(NA, -1L))
-  } else if (is.data.frame(x)) {
-    x
-  }
-  if (!is.null(nms)) colnames(res) <- nms
-  res
-}
-
 #' Check whether any elements of a list are nested
 #' @param lst A `list()`
 #' @examples
