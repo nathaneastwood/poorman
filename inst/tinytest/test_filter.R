@@ -174,3 +174,12 @@ res <- withCallingHandlers(
 expect_equal(length(warnings), 1L, info = "grouped filter() warns once about data frame results")
 expect_equal(res$v, 2:4, info = "grouped filter() combines the columns of across() with &")
 rm(df, gf, res, warnings)
+
+# Condition types
+df <- data.frame(v = 1:3, ok = c(TRUE, FALSE, NA), d = c(0.5, 1, 2))
+expect_equal(filter(df, ok), df[1, ], info = "filter() accepts a logical column")
+expect_equal(filter(group_by(df, v), ok)$v, 1L, info = "grouped filter() accepts a logical column")
+expect_error(filter(df, d), "Input `..1` must be a logical vector, not a double", info = "filter() rejects a numeric column")
+expect_error(filter(df, v + 1), "Input `..1` must be a logical vector, not a double", info = "filter() rejects numeric results")
+expect_error(filter(df, 1), "Input `..1` must be a logical vector, not a double", info = "filter() rejects numeric constants")
+rm(df)

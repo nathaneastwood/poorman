@@ -34,9 +34,6 @@ filter.data.frame <- function(.data, ..., .preserve = FALSE) {
   conditions <- dotdotdot(...)
   if (length(conditions) == 0L) return(.data)
   check_filter(conditions)
-  cond_class <- vapply(conditions, typeof, NA_character_)
-  cond_class <- cond_class[!cond_class %in% c("language", "logical")]
-  if (length(cond_class) > 0L) stop("Conditions must be logical vectors")
   context$setup(.data)
   on.exit(context$clean(), add = TRUE)
   eval_env$env <- parent.frame()
@@ -107,6 +104,13 @@ filter_rows <- function(res, cond, i, n) {
       )
     }
     res <- res[, 1L]
+  }
+  if (!is.logical(res)) {
+    stop(
+      sprintf("Problem while computing `..%s = %s`.\n", i, paste(deparse(cond), collapse = " ")),
+      sprintf("x Input `..%s` must be a logical vector, not a %s.", i, if (is.object(res)) class(res)[1L] else typeof(res)),
+      call. = FALSE
+    )
   }
   res
 }
