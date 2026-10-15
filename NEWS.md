@@ -12,7 +12,7 @@ The following fixes were also implemented, bringing grouped operations in line w
 * `group_indices()` and `cur_group_id()` now count empty groups.
 * `group_data()` is now correct after a grouped `mutate()`, `transmute()` or `fill()`.
 * `filter()`, `arrange()` and `summarise()` now respect zero-length groups, and `summarise(.groups = "drop")` returns an ungrouped `data.frame`.
-* Grouped verbs now accept new columns named `f`.
+* Grouped verbs now accept new columns named `f`, `.fn`, `.drop` or `.reorder`.
 * Grouped verbs now work with zero-row data, and `filter()` now works with single column data.
 * `cur_group_id()` now returns `1` for ungrouped data.
 

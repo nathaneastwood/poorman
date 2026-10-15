@@ -11,5 +11,5 @@ transmute.data.frame <- function(.data, ...) {
 
 #' @export
 transmute.grouped_df <- function(.data, ...) {
-  apply_grouped_function(.fn = "transmute", .data = .data, .drop = TRUE, ..., .reorder = TRUE)
+  apply_grouped_function(.data, function(df) transmute(df, ...), .drop = TRUE, .reorder = TRUE)
 }

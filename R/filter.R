@@ -52,7 +52,7 @@ filter.data.frame <- function(.data, ..., .preserve = FALSE) {
 
 #' @export
 filter.grouped_df <- function(.data, ..., .preserve = FALSE) {
-  res <- apply_grouped_function(.fn = "filter", .data = .data, .drop = TRUE, ..., .reorder = TRUE)
+  res <- apply_grouped_function(.data, function(df) filter(df, ...), .drop = TRUE, .reorder = TRUE)
 
   groups <- group_vars(.data)
   pre_filtered_groups <- group_data(.data)

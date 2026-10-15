@@ -122,7 +122,7 @@ mutate.data.frame <- function(
 mutate.grouped_df <- function(.data, ...) {
   context$group_env <- parent.frame(n = 1)
   on.exit(rm(list = c("group_env"), envir = context), add = TRUE)
-  apply_grouped_function(.fn = "mutate", .data = .data, .drop = TRUE, ..., .reorder = TRUE)
+  apply_grouped_function(.data, function(df) mutate(df, ...), .drop = TRUE, .reorder = TRUE)
 }
 
 ## -- Helpers ----------------------------------------------------------------------------------------------------------

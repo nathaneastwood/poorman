@@ -61,7 +61,7 @@ slice.data.frame <- function(.data, ...) {
 
 #' @export
 slice.grouped_df <- function(.data, ...) {
-  apply_grouped_function(.fn = "slice", .data = .data, .drop = TRUE, ...)
+  apply_grouped_function(.data, function(df) slice(df, ...), .drop = TRUE)
 }
 
 
@@ -84,7 +84,8 @@ slice_head.data.frame <- function(.data, ..., n, prop) {
 
 #' @export
 slice_head.grouped_df <- function(.data, ..., n, prop) {
-  apply_grouped_function(.fn = "slice_head", .data = .data, .drop = TRUE, n = n, prop = prop, ...)
+  fn <- slice_size_fn(check_slice_size(n, prop), function(df, ...) slice_head(df, ...))
+  apply_grouped_function(.data, fn, .drop = TRUE)
 }
 
 #' @rdname slice
@@ -106,7 +107,8 @@ slice_tail.data.frame <- function(.data, ..., n, prop) {
 
 #' @export
 slice_tail.grouped_df <- function(.data, ..., n, prop) {
-  apply_grouped_function(.fn = "slice_tail", .data = .data, .drop = TRUE, n = n, prop = prop, ...)
+  fn <- slice_size_fn(check_slice_size(n, prop), function(df, ...) slice_tail(df, ...))
+  apply_grouped_function(.data, fn, .drop = TRUE)
 }
 
 #' @param order_by The variable to order by.
@@ -143,12 +145,14 @@ slice_min.data.frame <- function(.data, order_by, ..., n, prop, with_ties = TRUE
 
 #' @export
 slice_min.grouped_df <- function(.data, order_by, ..., n, prop, with_ties = TRUE) {
+  if (missing(order_by)) stop("argument `order_by` is missing, with no default.")
   eval_env$env <- environment()
   on.exit(rm(list = "env", envir = eval_env), add = TRUE)
-  apply_grouped_function(
-    .fn = "slice_min", .data = .data, .drop = TRUE,
-    order_by = order_by, n = n, prop = prop, with_ties = with_ties, ...
+  fn <- slice_size_fn(
+    check_slice_size(n, prop),
+    function(df, ...) slice_min(df, order_by = order_by, ..., with_ties = with_ties)
   )
+  apply_grouped_function(.data, fn, .drop = TRUE)
 }
 
 #' @rdname slice
@@ -181,12 +185,14 @@ slice_max.data.frame <- function(.data, order_by, ..., n, prop, with_ties = TRUE
 
 #' @export
 slice_max.grouped_df <- function(.data, order_by, ..., n, prop, with_ties = TRUE) {
+  if (missing(order_by)) stop("argument `order_by` is missing, with no default.")
   eval_env$env <- environment()
   on.exit(rm(list = "env", envir = eval_env), add = TRUE)
-  apply_grouped_function(
-    .fn = "slice_max", .data = .data, .drop = TRUE,
-    order_by = order_by, n = n, prop = prop, with_ties = with_ties, ...
+  fn <- slice_size_fn(
+    check_slice_size(n, prop),
+    function(df, ...) slice_max(df, order_by = order_by, ..., with_ties = with_ties)
   )
+  apply_grouped_function(.data, fn, .drop = TRUE)
 }
 
 #' @param replace `logical(1)`. Should sampling be performed with (`TRUE`) or without (`FALSE`, the default)
@@ -217,10 +223,11 @@ slice_sample.data.frame <- function(.data, ..., n, prop, weight_by = NULL, repla
 slice_sample.grouped_df <- function(.data, ..., n, prop, weight_by = NULL, replace = FALSE) {
   eval_env$env <- environment()
   on.exit(rm(list = "env", envir = eval_env), add = TRUE)
-  apply_grouped_function(
-    .fn = "slice_sample", .data = .data, .drop = TRUE,
-    n = n, prop = prop, weight_by = weight_by, replace = replace, ...
+  fn <- slice_size_fn(
+    check_slice_size(n, prop),
+    function(df, ...) slice_sample(df, ..., weight_by = weight_by, replace = replace)
   )
+  apply_grouped_function(.data, fn, .drop = TRUE)
 }
 
 # helpers ----------------------------------------------------------------------
@@ -257,6 +264,12 @@ slice_positions <- function(.data, ...) {
     stop("`slice()` expressions should return either all positive or all negative.")
   }
   rows
+}
+
+# Build the function applied to each group, passing on only the one of `n` and `prop` which applies. A closure cannot
+# pass on a missing argument, so `fn(df, n = n, prop = prop)` would make both appear to be supplied.
+slice_size_fn <- function(size, fn) {
+  if (size$type == "n") function(df) fn(df, n = size$n) else function(df) fn(df, prop = size$prop)
 }
 
 check_slice_size <- function(n, prop) {
