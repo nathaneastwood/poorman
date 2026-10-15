@@ -120,13 +120,13 @@ pivot_wider <- function(
   # Output rows: the unique combinations of the id columns, in order of appearance
   n_data <- nrow(data)
   row_id <- vec_group_id(as.list(data)[id_cols], n = n_data)
-  row_first <- match(seq_len(max(row_id, 0L)), row_id)
+  row_first <- first_positions(row_id)
   n_row <- length(row_first)
   if (length(id_cols) == 0L) n_row <- 1L
 
   # Output columns: the unique combinations of the `names_from` columns, in order of appearance
   name_id <- vec_group_id(as.list(data)[names_from], n = n_data)
-  name_first <- match(seq_len(max(name_id, 0L)), name_id)
+  name_first <- first_positions(name_id)
   n_name <- length(name_first)
   if (isTRUE(names_sort) && n_name > 1L) {
     sort_keys <- lapply(as.list(data)[names_from], function(x) {
@@ -168,7 +168,12 @@ pivot_wider <- function(
 
   # Position of each input row within the output, cell by cell, column by column
   cell <- (name_id - 1) * n_row + row_id
-  duplicates <- anyDuplicated(cell) > 0L
+  n_cell <- n_row * n_name
+  duplicates <- if (n_cell < .Machine$integer.max) {
+    any(tabulate(as.integer(cell), n_cell) > 1L)
+  } else {
+    anyDuplicated(cell) > 0L
+  }
 
   value_out <- lapply(values_from, function(value) {
     val <- data[[value]]
