@@ -12,7 +12,10 @@ pivot_wider(
   names_sep = "_",
   names_prefix = "",
   names_glue = NULL,
+  names_sort = FALSE,
+  names_repair = "check_unique",
   values_fill = NULL,
+  values_fn = NULL,
   ...
 )
 }
@@ -39,9 +42,22 @@ join their values together into a single string to use as a column name.}
 \href{https://glue.tidyverse.org/index.html}{glue specification} that uses the \code{names_from} columns to create custom
 column names. Note that the only delimiters supported by \code{names_glue} are curly brackets, \verb{\{} and \verb{\}}.}
 
+\item{names_sort}{\code{logical(1)}. Should the column names be sorted? If \code{FALSE}, the default, column names are ordered
+by first appearance. Factors are sorted by their levels and characters in the C locale, with \code{NA} last.}
+
+\item{names_repair}{\code{character(1)} or \code{function}. What happens if the output has invalid column names. The default,
+\code{"check_unique"}, is to error if the columns are duplicated. Use \code{"minimal"} to allow duplicates in the output,
+\code{"unique"} to de-duplicate by adding numeric suffixes or \code{"universal"} to also make the names syntactic. A function
+is applied to the names.}
+
 \item{values_fill}{Optionally, a scalar value that will be used to fill in missing values, i.e. combinations of
 \code{id_cols} and \code{names_from} which are not present in \code{data}. Explicit \code{NA}s in \code{values_from} are not replaced. This
 can also be a named list, specifying a fill value for each of the \code{values_from} columns.}
+
+\item{values_fn}{\code{function} or named \code{list()}. Optionally, a function applied to the value in each cell in the
+output, typically to summarise values which are not uniquely identified, e.g. \code{values_fn = mean}. A named list
+gives a function for each \code{values_from} column, where functions may also be given as formulas, e.g.
+\code{list(value = ~ max(.x))}. Use \code{values_fn = list} to create list-columns without a warning.}
 
 \item{...}{Not used for now.}
 }

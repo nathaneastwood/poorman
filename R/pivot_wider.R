@@ -18,6 +18,16 @@
 #' @param values_from <[`poor-select`][select_helpers]>. The column(s) that contain the values to be used as future
 #' variable values. If the values are not uniquely identified by the `id_cols` and `names_from` columns, the output
 #' will contain list-columns and a warning is given.
+#' @param names_sort `logical(1)`. Should the column names be sorted? If `FALSE`, the default, column names are ordered
+#' by first appearance. Factors are sorted by their levels and characters in the C locale, with `NA` last.
+#' @param names_repair `character(1)` or `function`. What happens if the output has invalid column names. The default,
+#' `"check_unique"`, is to error if the columns are duplicated. Use `"minimal"` to allow duplicates in the output,
+#' `"unique"` to de-duplicate by adding numeric suffixes or `"universal"` to also make the names syntactic. A function
+#' is applied to the names.
+#' @param values_fn `function` or named `list()`. Optionally, a function applied to the value in each cell in the
+#' output, typically to summarise values which are not uniquely identified, e.g. `values_fn = mean`. A named list
+#' gives a function for each `values_from` column, where functions may also be given as formulas, e.g.
+#' `list(value = ~ max(.x))`. Use `values_fn = list` to create list-columns without a warning.
 #' @param values_fill Optionally, a scalar value that will be used to fill in missing values, i.e. combinations of
 #' `id_cols` and `names_from` which are not present in `data`. Explicit `NA`s in `values_from` are not replaced. This
 #' can also be a named list, specifying a fill value for each of the `values_from` columns.
@@ -83,7 +93,10 @@ pivot_wider <- function(
   names_sep = "_",
   names_prefix = "",
   names_glue = NULL,
+  names_sort = FALSE,
+  names_repair = "check_unique",
   values_fill = NULL,
+  values_fn = NULL,
   ...
 ) {
 
@@ -94,9 +107,13 @@ pivot_wider <- function(
   id_cols <- if (is.null(id_cols)) names(data) else names(eval_select_pos(data, id_cols))
   id_cols <- setdiff(id_cols, spec_cols)
 
+  if (is.function(values_fn)) values_fn <- structure(rep(list(values_fn), length(values_from)), names = values_from)
+  if (!is.null(values_fn) && !is.list(values_fn)) {
+    stop("`values_fn` must be a NULL, a function, or a named list", call. = FALSE)
+  }
   if (!is.null(values_fill)) {
-    if (!is.list(values_fill)) values_fill <- rep(list(values_fill), length(values_from))
-    if (is.null(names(values_fill))) names(values_fill) <- values_from
+    is_scalar <- if (is.list(values_fill)) length(values_fill) == 1L && is.null(names(values_fill)) else TRUE
+    if (is_scalar) values_fill <- structure(rep(list(values_fill), length(values_from)), names = values_from)
     if (any(lengths(values_fill) != 1L)) stop("`values_fill` must be of length 1.", call. = FALSE)
   }
 
@@ -111,6 +128,15 @@ pivot_wider <- function(
   name_id <- vec_group_id(as.list(data)[names_from], n = n_data)
   name_first <- match(seq_len(max(name_id, 0L)), name_id)
   n_name <- length(name_first)
+  if (isTRUE(names_sort) && n_name > 1L) {
+    sort_keys <- lapply(as.list(data)[names_from], function(x) {
+      x <- vec_slice(x, name_first)
+      if (is.factor(x)) as.integer(x) else unclass(x)
+    })
+    name_order <- do.call(order, c(unname(sort_keys), method = "radix"))
+    name_first <- name_first[name_order]
+    name_id <- match(name_id, name_order)
+  }
   name_keys <- lapply(as.list(data)[names_from], function(x) {
     x <- vec_slice(x, name_first)
     if (is.factor(x)) as.character(x) else x
@@ -118,7 +144,7 @@ pivot_wider <- function(
 
   new_names <- unlist(lapply(values_from, function(value) {
     if (!is.null(names_glue)) {
-      gluestick(names_glue, src = c(name_keys, list(.value = rep(value, n_name))))
+      rep_len(gluestick(names_glue, src = c(name_keys, list(.value = rep(value, n_name)))), n_name)
     } else if (length(values_from) == 1L) {
       paste0(names_prefix, do.call(paste, c(unname(name_keys), sep = names_sep)))
     } else {
@@ -127,18 +153,18 @@ pivot_wider <- function(
   }), use.names = FALSE)
   if (n_name == 0L) new_names <- character(0)
 
-  # stop if some column names would be duplicated (follow tidyr workflow)
+  # stop if some column names would be duplicated (follow tidyr workflow); the new names must always be unique
   clashes <- c(intersect(new_names, id_cols), new_names[duplicated(new_names)])
-  if (length(clashes) > 0L) {
-    stop(
-      paste0(
-        "Some values of the columns specified in 'names_from' are already present
+  if (anyDuplicated(new_names)) names_repair <- "check_unique"
+  out_names <- repair_names(
+    c(id_cols, new_names),
+    names_repair,
+    error_msg = paste0(
+      "Some values of the columns specified in 'names_from' are already present
         as column names. Either use `name_prefix` or rename the following columns: ",
-        paste(unique(clashes), collapse = ", ")
-      ),
-      call. = FALSE
+      paste(unique(clashes), collapse = ", ")
     )
-  }
+  )
 
   # Position of each input row within the output, cell by cell, column by column
   cell <- (name_id - 1) * n_row + row_id
@@ -146,26 +172,37 @@ pivot_wider <- function(
 
   value_out <- lapply(values_from, function(value) {
     val <- data[[value]]
-    if (duplicates) {
-      warning(
-        "Values in `", value, "` are not uniquely identified; output will contain list-cols.",
-        call. = FALSE
-      )
+    fn <- values_fn[[value]]
+    val_cell <- cell
+    if (duplicates || !is.null(fn)) {
+      if (is.null(fn)) {
+        warning(
+          "Values are not uniquely identified; output will contain list-cols.\n",
+          "* Use `values_fn = list` to suppress this warning.\n",
+          "* Use `values_fn = length` to identify where the duplicates arise\n",
+          "* Use `values_fn = {summary_fun}` to summarise duplicates",
+          call. = FALSE
+        )
+      }
       cells <- split(seq_len(n_data), cell)
-      out <- vector("list", n_row * n_name)
-      out[as.numeric(names(cells))] <- lapply(cells, function(i) vec_slice(val, i))
-      return(lapply(seq_len(n_name), function(j) out[(j - 1) * n_row + seq_len(n_row)]))
+      val_cell <- as.numeric(names(cells))
+      val <- lapply(cells, function(i) vec_slice(val, i))
+      if (!is.null(fn) && !identical(fn, list)) {
+        fn <- as_function(fn)
+        val <- lapply(val, fn)
+        if (any(lengths(val) != 1L)) stop("`values_fn` must summarise each value to a single value.", call. = FALSE)
+        val <- combine_columns(val)
+      } else {
+        names(val) <- NULL
+      }
     }
     pos <- rep(NA_integer_, n_row * n_name)
-    pos[cell] <- seq_len(n_data)
+    pos[val_cell] <- seq_along(val_cell)
     fill <- if (is.null(values_fill)) NULL else cast_fill(values_fill[[value]], val)
     lapply(seq_len(n_name), function(j) {
       idx <- pos[(j - 1) * n_row + seq_len(n_row)]
       col <- vec_slice(val, idx)
-      if (!is.null(fill)) {
-        if (is.integer(col) && is.double(fill)) col <- as.double(col)
-        col[is.na(idx)] <- fill
-      }
+      if (!is.null(fill)) col[is.na(idx)] <- fill
       col
     })
   })
@@ -174,7 +211,7 @@ pivot_wider <- function(
     lapply(as.list(data)[id_cols], vec_slice, row_first),
     unlist(value_out, recursive = FALSE)
   )
-  names(out) <- c(id_cols, new_names)
+  names(out) <- out_names
   out <- structure(out, class = "data.frame", row.names = .set_row_names(n_row))
   reconstruct_attrs(out, data)
 }
@@ -182,6 +219,7 @@ pivot_wider <- function(
 # Check that `values_fill` is compatible with the column of values it fills
 cast_fill <- function(fill, val) {
   if (is.null(fill)) return(NULL)
+  if (is.logical(fill) && !is.object(fill) && is.na(fill)) return(vec_slice(val, NA_integer_))
   if (is.factor(val)) {
     if (!(is.factor(fill) || is.character(fill)) || !(as.character(fill) %in% levels(val))) {
       stop("`values_fill` must be of type factor.", call. = FALSE)
@@ -194,7 +232,12 @@ cast_fill <- function(fill, val) {
   }
   if (is.numeric(val)) {
     if (!is.numeric(fill) || is.object(fill)) stop("`values_fill` must be of type numeric.", call. = FALSE)
-    if (is.integer(val) && !is.na(fill) && fill == as.integer(fill)) fill <- as.integer(fill)
+    if (is.integer(val) && is.double(fill)) {
+      if (!is.na(fill) && fill != round(fill)) {
+        stop("Can't convert `values_fill` <double> to <integer> due to loss of precision.", call. = FALSE)
+      }
+      fill <- as.integer(fill)
+    }
     return(fill)
   }
   if (is.character(val) && !is.character(fill)) stop("`values_fill` must be of type character.", call. = FALSE)

@@ -201,7 +201,7 @@ expect_equal(names(res), c("id", "a.v", "b.v", "a.w", "b.w"), info = "names_glue
 df <- data.frame(id = c(1, 1, 2), nm = c("a", "a", "a"), v = 1:3, stringsAsFactors = FALSE)
 expect_warning(
   res <- pivot_wider(df, names_from = "nm", values_from = "v"),
-  pattern = "Values in `v` are not uniquely identified; output will contain list-cols"
+  pattern = "Values are not uniquely identified; output will contain list-cols"
 )
 expect_equal(res$a, list(1:2, 3L), info = "Duplicate values are kept in a list-column")
 
@@ -219,3 +219,72 @@ expect_equal(res, data.frame(id = numeric()), info = "Zero row data returns a ze
 # Column order follows the order of appearance of the names, including for factors
 df <- data.frame(id = 1, nm = factor(c("b", "a"), levels = c("a", "b")), v = 1:2)
 expect_equal(names(pivot_wider(df, names_from = "nm", values_from = "v")), c("id", "b", "a"))
+
+# names_sort sorts the new columns: factors by level, characters in C locale order with NA last
+df <- data.frame(id = 1, nm = c("b", "B", NA, "a"), v = 1:4, stringsAsFactors = FALSE)
+expect_equal(
+  names(pivot_wider(df, names_from = "nm", values_from = "v", names_sort = TRUE)),
+  c("id", "B", "a", "b", "NA"),
+  info = "names_sort sorts character names"
+)
+res <- pivot_wider(df, names_from = "nm", values_from = "v", names_sort = TRUE)
+expect_equal(unname(unlist(res[-1])), c(2L, 4L, 1L, 3L), info = "Values follow their sorted columns")
+df <- data.frame(id = 1, nm = factor(c("b", "a"), levels = c("b", "a")), v = 1:2)
+expect_equal(
+  names(pivot_wider(df, names_from = "nm", values_from = "v", names_sort = TRUE)), c("id", "b", "a"),
+  info = "names_sort sorts factors by their levels"
+)
+
+# values_fn summarises the values of each cell
+df <- data.frame(id = c(1, 1, 2), nm = c("a", "a", "a"), v = 1:3, w = 4:6, stringsAsFactors = FALSE)
+res <- pivot_wider(df, names_from = "nm", values_from = "v", values_fn = sum, id_cols = "id")
+expect_equal(res$a, c(3L, 3L), info = "values_fn can be a function")
+expect_warning(
+  res <- pivot_wider(df, names_from = "nm", values_from = c("v", "w"), values_fn = list(v = length)),
+  pattern = "not uniquely identified"
+)
+expect_equal(res$v_a, c(2L, 1L), info = "values_fn can be a named list")
+expect_equal(res$w_a, list(4:5, 6L), info = "Values without a values_fn give list-columns")
+res <- pivot_wider(df, names_from = "nm", values_from = "v", values_fn = list(v = ~ max(.x)), id_cols = "id")
+expect_equal(res$a, c(2L, 3L), info = "values_fn can use formulas in a named list")
+res <- pivot_wider(df, names_from = "nm", values_from = "v", values_fn = list, id_cols = "id")
+expect_equal(res$a, list(1:2, 3L), info = "values_fn = list gives a list-column without a warning")
+df <- data.frame(id = c(1, 2), nm = c("a", "b"), v = 1:2, stringsAsFactors = FALSE)
+res <- pivot_wider(df, names_from = "nm", values_from = "v", values_fn = function(x) x * 10)
+expect_equal(res$a, c(10, NA), info = "values_fn is applied when values are unique")
+res <- pivot_wider(df, names_from = "nm", values_from = "v", values_fn = length, values_fill = 0)
+expect_equal(res$b, c(0L, 1L), info = "values_fill is cast to the type of the summarised values")
+expect_error(
+  pivot_wider(df, names_from = "nm", values_from = "v", values_fn = ~ sum(.x)),
+  pattern = "`values_fn` must be a NULL, a function, or a named list"
+)
+
+# names_repair controls clashing and non-syntactic names
+df <- data.frame(id = c(1, 2), nm = c("id", "1"), v = 1:2, stringsAsFactors = FALSE)
+expect_error(pivot_wider(df, names_from = "nm", values_from = "v"), pattern = "Use `names_repair`")
+expect_message(
+  res <- pivot_wider(df, names_from = "nm", values_from = "v", names_repair = "unique"),
+  pattern = "New names"
+)
+expect_equal(names(res), c("id...1", "id...2", "1"), info = "unique repair renames all duplicates")
+res <- suppressMessages(pivot_wider(df, names_from = "nm", values_from = "v", names_repair = "universal"))
+expect_equal(names(res), c("id...1", "id...2", "...1"), info = "universal repair makes syntactic names")
+res <- pivot_wider(df, names_from = "nm", values_from = "v", names_repair = "minimal")
+expect_equal(names(res), c("id", "id", "1"), info = "minimal repair keeps the names")
+res <- pivot_wider(df, names_from = "nm", values_from = "v", names_repair = toupper)
+expect_equal(names(res), c("ID", "ID", "1"), info = "names_repair can be a function")
+
+# The new column names must be unique whatever the names_repair strategy
+df <- data.frame(id = 1, nm = c("a", "b"), v = 1:2, stringsAsFactors = FALSE)
+expect_error(
+  pivot_wider(df, names_from = "nm", values_from = "v", names_glue = "same", names_repair = "unique"),
+  pattern = "already present"
+)
+
+# values_fill must not lose precision and can be NA
+df <- data.frame(id = c(1, 1, 2), nm = c("a", "b", "a"), v = c(1L, 2L, 3L), stringsAsFactors = FALSE)
+expect_error(
+  pivot_wider(df, names_from = "nm", values_from = "v", values_fill = 0.5),
+  pattern = "due to loss of precision"
+)
+expect_equal(pivot_wider(df, names_from = "nm", values_from = "v", values_fill = NA)$b, c(2L, NA))
