@@ -4,10 +4,10 @@
 #' transformation is [pivot_longer()].
 #'
 #' @param data `data.frame`. The data to pivot.
-#' @param id_cols `character(1)`. The name of the column that identifies the rows. If `NULL`, it will use all the unique
-#' rows.
-#' @param names_from `character(n)`. The name of the column(s) that contains the levels to be used as future column
-#' names.
+#' @param id_cols <[`poor-select`][select_helpers]>. The columns that uniquely identify each observation. Defaults to
+#' all columns in `data` except for the columns specified in `names_from` and `values_from`.
+#' @param names_from <[`poor-select`][select_helpers]>. The column(s) that contain the levels to be used as future
+#' column names.
 #' @param names_prefix `character(1)`. String added to the start of every variable name. This is particularly useful if
 #' `names_from` is a numeric vector and you want to create syntactic variable names.
 #' @param names_sep `character(1)`. If `names_from` or `values_from` contains multiple variables, this will be used to
@@ -15,10 +15,12 @@
 #' @param names_glue `character(1)`. Instead of `names_sep` and `names_prefix`, you can supply a
 #' [glue specification](https://glue.tidyverse.org/index.html) that uses the `names_from` columns to create custom
 #' column names. Note that the only delimiters supported by `names_glue` are curly brackets, `{` and `}`.
-#' @param values_from `character(n)`. The name of the column that contains the values to be used as future variable
-#' values.
-#' @param values_fill `numeric(n)`. Optionally, a (scalar) value that will be used to replace missing values in the new
-#' columns created.
+#' @param values_from <[`poor-select`][select_helpers]>. The column(s) that contain the values to be used as future
+#' variable values. If the values are not uniquely identified by the `id_cols` and `names_from` columns, the output
+#' will contain list-columns and a warning is given.
+#' @param values_fill Optionally, a scalar value that will be used to fill in missing values, i.e. combinations of
+#' `id_cols` and `names_from` which are not present in `data`. Explicit `NA`s in `values_from` are not replaced. This
+#' can also be a named list, specifying a fill value for each of the `values_from` columns.
 #' @param ... Not used for now.
 #'
 #' @return If a tibble was provided as input, `pivot_wider()` also returns a
@@ -85,135 +87,120 @@ pivot_wider <- function(
   ...
 ) {
 
-  old_names <- names(data)
-
   names_from <- names(eval_select_pos(data, substitute(names_from)))
   values_from <- names(eval_select_pos(data, substitute(values_from)))
+  spec_cols <- c(names_from, values_from)
+  id_cols <- substitute(id_cols)
+  id_cols <- if (is.null(id_cols)) names(data) else names(eval_select_pos(data, id_cols))
+  id_cols <- setdiff(id_cols, spec_cols)
 
-  # Preserve attributes
-  variable_attr <- lapply(data, attributes)
-
-  # Create an id for stats::reshape
-  if (is.null(id_cols)) {
-    row_index <- do.call(
-      paste, 
-      c(data[, !names(data) %in% c(values_from, names_from), drop = FALSE], sep = "_")
-    )
-    if (length(row_index) == 0) row_index <- rep("", nrow(data))
-    data[["_Rows"]] <- row_index
-    id_cols <- "_Rows"
+  if (!is.null(values_fill)) {
+    if (!is.list(values_fill)) values_fill <- rep(list(values_fill), length(values_from))
+    if (is.null(names(values_fill))) names(values_fill) <- values_from
+    if (any(lengths(values_fill) != 1L)) stop("`values_fill` must be of length 1.", call. = FALSE)
   }
 
-  # create pattern of column names - stats::reshape renames columns that concatenates "v.names" + values - we only want
-  # values
-  current_colnames <- colnames(data)
-  current_colnames <- current_colnames[current_colnames != "_Rows"]
-  if (is.null(names_glue)) {
-    future_colnames <- unique(do.call(paste, c(data[, names_from, drop = FALSE], sep = names_sep)))
-  } else {
-    vars <- regmatches(names_glue, gregexpr("\\{\\K[^{}]+(?=\\})", names_glue, perl = TRUE))[[1]]
-    tmp_data <- unique(data[, vars])
-    future_colnames <- unique(apply(tmp_data, 1, function(x) {
-      tmp_vars <- list()
-      for (i in seq_along(vars)) {
-        tmp_vars[[i]] <- x[vars[i]]
-      }
+  # Output rows: the unique combinations of the id columns, in order of appearance
+  n_data <- nrow(data)
+  row_id <- vec_group_id(as.list(data)[id_cols], n = n_data)
+  row_first <- match(seq_len(max(row_id, 0L)), row_id)
+  n_row <- length(row_first)
+  if (length(id_cols) == 0L) n_row <- 1L
 
-      tmp_colname <- gsub("\\{\\K[^{}]+(?=\\})", "", names_glue, perl = TRUE)
-      tmp_colname <- gsub("\\{\\}", "%s", tmp_colname)
-      do.call(sprintf, c(fmt = tmp_colname, tmp_vars))
-    }))
-  }
+  # Output columns: the unique combinations of the `names_from` columns, in order of appearance
+  name_id <- vec_group_id(as.list(data)[names_from], n = n_data)
+  name_first <- match(seq_len(max(name_id, 0L)), name_id)
+  n_name <- length(name_first)
+  name_keys <- lapply(as.list(data)[names_from], function(x) {
+    x <- vec_slice(x, name_first)
+    if (is.factor(x)) as.character(x) else x
+  })
+
+  new_names <- unlist(lapply(values_from, function(value) {
+    if (!is.null(names_glue)) {
+      gluestick(names_glue, src = c(name_keys, list(.value = rep(value, n_name))))
+    } else if (length(values_from) == 1L) {
+      paste0(names_prefix, do.call(paste, c(unname(name_keys), sep = names_sep)))
+    } else {
+      paste0(value, names_sep, names_prefix, do.call(paste, c(unname(name_keys), sep = names_sep)))
+    }
+  }), use.names = FALSE)
+  if (n_name == 0L) new_names <- character(0)
 
   # stop if some column names would be duplicated (follow tidyr workflow)
-  if (any(future_colnames %in% current_colnames)) {
+  clashes <- c(intersect(new_names, id_cols), new_names[duplicated(new_names)])
+  if (length(clashes) > 0L) {
     stop(
       paste0(
         "Some values of the columns specified in 'names_from' are already present
         as column names. Either use `name_prefix` or rename the following columns: ",
-        paste(current_colnames[which(current_colnames %in% future_colnames)], sep = ", ")
+        paste(unique(clashes), collapse = ", ")
       ),
       call. = FALSE
     )
   }
 
-  # stats::reshape works strangely when several variables are in idvar/timevar so we unite all ids in a single temporary
-  # column that will be used by stats::reshape
-  data$new_time <- do.call(paste, c(data[, names_from, drop = FALSE], sep = "_"))
-  data[, names_from] <- NULL
+  # Position of each input row within the output, cell by cell, column by column
+  cell <- (name_id - 1) * n_row + row_id
+  duplicates <- anyDuplicated(cell) > 0L
 
-  wide <- stats::reshape(
-    data,
-    v.names = values_from,
-    idvar = id_cols,
-    timevar = "new_time",
-    sep = names_sep,
-    direction = "wide"
-  )
-
-  # Clean
-  if ("_Rows" %in% names(wide)) wide[["_Rows"]] <- NULL
-  rownames(wide) <- NULL
-
-  if (length(values_from) == 1) {
-    to_rename <- which(startsWith(names(wide), paste0(values_from, names_sep)))
-    names(wide)[to_rename] <- future_colnames
-  }
-
-  # Order columns as in tidyr
-  if (length(values_from) > 1) {
-    for (i in values_from) {
-      tmp1 <- wide[, which(!startsWith(names(wide), i))]
-      tmp2 <- wide[, which(startsWith(names(wide), i))]
-      wide <- cbind(tmp1, tmp2)
-      # TODO: Fix relocate() when using numeric values for .before and .after
-      # wide <- relocate(wide, starts_with(i), .after = -1)
+  value_out <- lapply(values_from, function(value) {
+    val <- data[[value]]
+    if (duplicates) {
+      warning(
+        "Values in `", value, "` are not uniquely identified; output will contain list-cols.",
+        call. = FALSE
+      )
+      cells <- split(seq_len(n_data), cell)
+      out <- vector("list", n_row * n_name)
+      out[as.numeric(names(cells))] <- lapply(cells, function(i) vec_slice(val, i))
+      return(lapply(seq_len(n_name), function(j) out[(j - 1) * n_row + seq_len(n_row)]))
     }
-  }
-
-  new_cols <- setdiff(names(wide), old_names)
-  names(wide)[which(names(wide) %in% new_cols)] <- paste0(names_prefix, new_cols)
-
-  # Fill missing values
-  if (!is.null(values_fill)) {
-    if (length(values_fill) == 1) {
-      if (is.numeric(wide[[new_cols[1]]])) {
-        if (!is.numeric(values_fill)) {
-          stop(paste0("`values_fill` must be of type numeric."), call. = FALSE)
-        } else {
-          for (i in new_cols) {
-            wide[[i]] <- replace_na(wide[[i]], replace = values_fill)
-          }
-        }
-      } else if (is.character(wide[[new_cols[1]]])) {
-        if (!is.character(values_fill)) {
-          stop(paste0("`values_fill` must be of type character."), call. = FALSE)
-        } else {
-          for (i in new_cols) {
-            wide[[i]] <- replace_na(wide[[i]], replace = values_fill)
-          }
-        }
-      } else if (is.factor(wide[[new_cols[1]]])) {
-        if (!is.factor(values_fill)) {
-          stop(paste0("`values_fill` must be of type factor."), call. = FALSE)
-        } else {
-          for (i in new_cols) {
-            wide[[i]] <- replace_na(wide[[i]], replace = values_fill)
-          }
-        }
+    pos <- rep(NA_integer_, n_row * n_name)
+    pos[cell] <- seq_len(n_data)
+    fill <- if (is.null(values_fill)) NULL else cast_fill(values_fill[[value]], val)
+    lapply(seq_len(n_name), function(j) {
+      idx <- pos[(j - 1) * n_row + seq_len(n_row)]
+      col <- vec_slice(val, idx)
+      if (!is.null(fill)) {
+        if (is.integer(col) && is.double(fill)) col <- as.double(col)
+        col[is.na(idx)] <- fill
       }
-    } else {
-      stop("`values_fill` must be of length 1.", call. = FALSE)
+      col
+    })
+  })
+
+  out <- c(
+    lapply(as.list(data)[id_cols], vec_slice, row_first),
+    unlist(value_out, recursive = FALSE)
+  )
+  names(out) <- c(id_cols, new_names)
+  out <- structure(out, class = "data.frame", row.names = .set_row_names(n_row))
+  reconstruct_attrs(out, data)
+}
+
+# Check that `values_fill` is compatible with the column of values it fills
+cast_fill <- function(fill, val) {
+  if (is.null(fill)) return(NULL)
+  if (is.factor(val)) {
+    if (!(is.factor(fill) || is.character(fill)) || !(as.character(fill) %in% levels(val))) {
+      stop("`values_fill` must be of type factor.", call. = FALSE)
     }
+    return(as.character(fill))
   }
-
-  # Remove reshape attributes
-  attributes(wide)$reshapeWide <- NULL
-
-  # add back attributes where possible
-  for (i in colnames(wide)) {
-    attributes(wide[[i]]) <- variable_attr[[i]]
+  if (is.object(val)) {
+    if (!inherits(fill, class(val)[1L])) stop("`values_fill` must be of class ", class(val)[1L], ".", call. = FALSE)
+    return(fill)
   }
-
-  wide
+  if (is.numeric(val)) {
+    if (!is.numeric(fill) || is.object(fill)) stop("`values_fill` must be of type numeric.", call. = FALSE)
+    if (is.integer(val) && !is.na(fill) && fill == as.integer(fill)) fill <- as.integer(fill)
+    return(fill)
+  }
+  if (is.character(val) && !is.character(fill)) stop("`values_fill` must be of type character.", call. = FALSE)
+  if (is.logical(val)) {
+    if (is.numeric(fill) && !is.object(fill) && fill %in% c(0, 1, NA)) fill <- as.logical(fill)
+    if (!is.logical(fill)) stop("`values_fill` must be of type logical.", call. = FALSE)
+  }
+  fill
 }
