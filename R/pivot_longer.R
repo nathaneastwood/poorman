@@ -106,7 +106,7 @@ pivot_longer <- function(
   dup_id <- vec_group_id(c(list(spec$.value), keys), n = nrow(spec))
   if (anyDuplicated(dup_id)) keys$.seq <- seq_by_group(dup_id)
   key_id <- vec_group_id(keys, n = nrow(spec))
-  key_rows <- match(seq_len(max(key_id, 0L)), key_id)
+  key_rows <- first_positions(key_id)
   n_key <- length(key_rows)
 
   values <- unique(spec$.value)
@@ -130,8 +130,12 @@ pivot_longer <- function(
   names(vals) <- values
 
   out <- c(
-    lapply(as.list(data)[id_pos], vec_slice, rep(seq_len(n_row), each = n_key)),
-    lapply(spec[key_rows, key_names, drop = FALSE], function(x) vec_slice(x, rep(seq_len(n_key), times = n_row))),
+    lapply(as.list(data)[id_pos], function(x) {
+      if (is.null(attributes(x))) rep(x, each = n_key) else vec_slice(x, rep(seq_len(n_row), each = n_key))
+    }),
+    lapply(spec[key_rows, key_names, drop = FALSE], function(x) {
+      if (is.null(attributes(x))) rep(x, times = n_row) else vec_slice(x, rep(seq_len(n_key), times = n_row))
+    }),
     vals
   )
   names(out) <- repair_names(names(out), names_repair)
