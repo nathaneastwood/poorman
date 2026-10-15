@@ -72,3 +72,116 @@ expect_equal(
   poorman::pivot_longer(df, poorman::starts_with("Y")), expected,
   info = "Namespaced selection helpers work"
 )
+
+# Data with non-numeric row names can be pivoted
+res <- pivot_longer(mtcars[1:2, c("mpg", "cyl")], c(mpg, cyl))
+expect_equal(
+  res,
+  data.frame(name = rep(c("mpg", "cyl"), 2), value = c(21, 6, 21, 6), stringsAsFactors = FALSE),
+  info = "Character row names do not affect pivot_longer()"
+)
+
+# Rows are returned in the order of the input rather than by row name
+df <- data.frame(id = 1:4, a = 1:4, b = 5:8)
+res <- pivot_longer(df[c(4, 2, 3, 1), ], c(a, b))
+expect_equal(res$id, rep(c(4L, 2L, 3L, 1L), each = 2), info = "Input row order is kept")
+expect_equal(res$value, c(4L, 8L, 2L, 6L, 3L, 7L, 1L, 5L), info = "Values follow the input row order")
+expect_equal(attr(res, "row.names"), 1:8, info = "Row names are reset")
+
+# Zero row data can be pivoted
+res <- pivot_longer(df[0, ], c(a, b))
+expect_equal(
+  res,
+  data.frame(id = integer(), name = character(), value = integer(), stringsAsFactors = FALSE),
+  info = "Zero row data returns a zero row data.frame"
+)
+
+# The class of the input is kept, e.g. for tibbles
+tbl <- structure(df, class = c("tbl_df", "tbl", "data.frame"))
+res <- pivot_longer(tbl, c(a, b))
+expect_equal(class(res), c("tbl_df", "tbl", "data.frame"), info = "The input class is kept")
+expect_equal(res$value, c(1L, 5L, 2L, 6L, 3L, 7L, 4L, 8L), info = "Values of tibble-like input are correct")
+
+# Grouped data stays grouped
+res <- df %>% group_by(id) %>% pivot_longer(c(a, b))
+expect_equal(group_vars(res), "id", info = "Grouping variables are kept")
+expect_equal(nrow(group_data(res)), 4L, info = "Groups are recomputed")
+
+# A single names_to column is extracted using the names_pattern group
+df <- data.frame(id = 1, wk1 = 1, wk2 = 2)
+res <- pivot_longer(df, -id, names_to = "week", names_pattern = "wk(.*)")
+expect_equal(res$week, c("1", "2"), info = "names_pattern extracts a single group")
+
+# names_prefix works with several names_to columns
+df <- data.frame(id = 1, x_a_1 = 1, x_b_2 = 2)
+res <- pivot_longer(df, -id, names_to = c("letter", "number"), names_prefix = "x_", names_sep = "_")
+expect_equal(res$letter, c("a", "b"), info = "names_prefix is removed before splitting (1)")
+expect_equal(res$number, c("1", "2"), info = "names_prefix is removed before splitting (2)")
+
+# NA in names_to discards that piece
+df <- data.frame(id = 1, a_x = 1, a_y = 2, b_x = 3)
+res <- pivot_longer(df, -id, names_to = c("g", NA), names_sep = "_")
+expect_equal(names(res), c("id", "g", "value"), info = "NA names_to pieces are dropped")
+expect_equal(res$g, c("a", "a", "b"), info = "Columns with the same remaining name are not merged")
+expect_equal(res$value, c(1, 2, 3), info = "No values are lost when dropping pieces")
+
+# Missing pieces are filled with NA and warn
+df <- data.frame(id = 1, a_x = 1, b = 2)
+expect_warning(
+  res <- pivot_longer(df, -id, names_to = c("p", "q"), names_sep = "_"),
+  pattern = "Expected 2 pieces. Missing pieces filled with `NA` in 1 rows \\[2\\]"
+)
+expect_equal(res$q, c("x", NA), info = "Missing pieces are NA")
+
+# names_to can contain ".value" to create several value columns
+df <- data.frame(id = 1:2, x_1 = 1:2, y_2 = 3:4, y_1 = 5:6)
+res <- pivot_longer(df, -id, names_to = c(".value", "n"), names_sep = "_")
+expect_equal(
+  res,
+  data.frame(id = c(1L, 1L, 2L, 2L), n = c("1", "2", "1", "2"), x = c(1L, NA, 2L, NA), y = c(5L, 3L, 6L, 4L),
+             stringsAsFactors = FALSE),
+  info = ".value creates a column per value"
+)
+df <- data.frame(id = 1:2, x_1 = c(1, NA), x_2 = c(NA, NA), y_1 = c(NA, NA), y_2 = 3:4)
+res <- pivot_longer(df, -id, names_to = c(".value", "n"), names_sep = "_", values_drop_na = TRUE)
+expect_equal(res$n, c("1", "2", "2"), info = "values_drop_na drops rows where all values are missing")
+
+# Values are combined following the tidyr type rules
+df <- data.frame(a = 1:2, b = c(0.5, 1))
+expect_equal(pivot_longer(df, a:b)$value, c(1, 0.5, 2, 1), info = "integer and double combine to double")
+df <- data.frame(a = factor(c("x", "y")), b = c("z", "x"), stringsAsFactors = FALSE)
+expect_equal(pivot_longer(df, a:b)$value, c("x", "z", "y", "x"), info = "factor and character combine to character")
+df <- data.frame(a = factor(c("x", "y")), b = factor(c("z", "x")))
+expect_equal(
+  pivot_longer(df, a:b)$value, factor(c("x", "z", "y", "x"), levels = c("x", "y", "z")),
+  info = "factors combine to a factor with the union of the levels"
+)
+df <- data.frame(a = c(NA, NA), b = c("z", "x"), stringsAsFactors = FALSE)
+expect_equal(pivot_longer(df, a:b)$value, c(NA, "z", NA, "x"), info = "Missing columns combine with any type")
+df <- data.frame(a = as.Date(c("2020-01-01", "2020-01-02")), b = as.Date(c("2021-01-01", "2021-01-02")))
+expect_equal(
+  pivot_longer(df, a:b)$value, as.Date(c("2020-01-01", "2021-01-01", "2020-01-02", "2021-01-02")),
+  info = "Dates are kept"
+)
+df <- data.frame(a = 1:2, b = c("z", "x"), stringsAsFactors = FALSE)
+expect_error(pivot_longer(df, a:b), pattern = "Can't combine `a` <integer> and `b` <character>")
+df <- data.frame(a = as.Date("2020-01-01"), b = 1)
+expect_error(pivot_longer(df, a:b), pattern = "Can't combine `a` <Date> and `b` <double>")
+
+# Attributes of id columns are kept
+df <- data.frame(id = 1:2, a = 1:2, b = 3:4)
+attr(df$id, "label") <- "Identifier"
+res <- pivot_longer(df, a:b)
+expect_equal(attr(res$id, "label"), "Identifier", info = "Attributes of id columns are kept")
+
+# Invalid inputs are caught
+df <- data.frame(id = 1:2, a = 1:2, b = 3:4)
+expect_error(pivot_longer(df, a:b, values_to = "id"), pattern = "must not be duplicated")
+expect_error(pivot_longer(df, a:b, names_to = "x", values_to = "x"), pattern = "must not be duplicated")
+expect_error(pivot_longer(df, a:b, names_to = c("x", "y")), pattern = "you must also supply one of")
+expect_error(pivot_longer(df, a:b, names_sep = "_"), pattern = "can not be used with length-1 `names_to`")
+expect_error(pivot_longer(df, a:b, values_to = c("x", "y")), pattern = "`values_to` must be a single string")
+expect_error(
+  pivot_longer(data.frame(id = 1, a_x = 1), -id, names_to = c("p", "q"), names_pattern = "(.)_x"),
+  pattern = "should define 2 groups; 1 found"
+)
