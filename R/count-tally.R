@@ -42,10 +42,12 @@
 #' @export
 count <- function(x, ..., wt = NULL, sort = FALSE, name = NULL) {
   groups <- group_vars(x)
+  drop <- group_by_drop_default(x)
   if (!missing(...)) x <- group_by(x, ..., .add = TRUE)
   wt <- deparse_var(wt)
   res <- do.call(tally, list(x, wt, sort, name))
-  if (length(groups) > 0L) res <- do.call(group_by, list(res, as.name(groups)))
+  res <- ungroup(res)
+  if (length(groups) > 0L) res <- do.call(group_by, c(list(res), lapply(groups, as.name), list(.drop = drop)))
   res
 }
 
@@ -54,8 +56,9 @@ count <- function(x, ..., wt = NULL, sort = FALSE, name = NULL) {
 tally <- function(x, wt = NULL, sort = FALSE, name = NULL) {
   name <- check_name(x, name)
   wt <- deparse_var(wt)
+  old <- options(poorman.summarise.inform = FALSE)
+  on.exit(options(old), add = TRUE)
   res <- do.call(summarise, setNames(list(x, tally_n(x, wt)), c(".data", name)))
-  res <- ungroup(res)
   if (isTRUE(sort)) res <- do.call(arrange, list(res, call("desc", as.name(name))))
   rownames(res) <- NULL
   res
