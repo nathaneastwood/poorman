@@ -100,7 +100,13 @@ cur_data_all <- function() {
 cur_group <- function() {
   check_context("`cur_group()`", context$.data)
   data <- context$get_data()
-  res <- data[1L, group_vars(data), drop = FALSE]
+  id <- attr(data, "group_id", exact = TRUE)
+  # An empty group has no rows to take the keys from
+  res <- if (!is.null(id) && !is.na(id)) {
+    get_group_details(data)[id, group_vars(data), drop = FALSE]
+  } else {
+    data[1L, group_vars(data), drop = FALSE]
+  }
   rownames(res) <- NULL
   res
 }

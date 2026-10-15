@@ -15,6 +15,8 @@ Grouped operations are now considerably faster. Groups are identified in a singl
 
 `pivot_longer()` and `pivot_wider()` have been rewritten without `stats::reshape()` and are now considerably faster and use far less memory. On 100,000 rows by 10 columns, `pivot_longer()` is over 35x faster; on 1,000,000 rows, `pivot_wider()` is over 15x faster, and widening to 1,000 columns is over 150x faster and no longer allocates 3.5GB. Both functions now follow `tidyr` 1.1.
 
+`summarise()` is now considerably faster on grouped data. Each column is split by group once and the summaries are combined column by column, rather than building and binding a `data.frame` for each group. On 100,000 rows, `summarise()` is over 4x faster with 1,000 groups and 5x faster with 10,000 groups, and `count()` with 26,000 groups is over 7x faster.
+
 ## Bug fixes
 
 Grouped operations now match `dplyr`:
@@ -36,6 +38,18 @@ Grouped operations now match `dplyr`:
 * `filter()` now combines the columns of a data frame result, e.g. from `across()`, with `&` and warns that this is deprecated, as in `dplyr` 1.0.8. Previously, it used the data frame as a matrix index and returned rows of `NA`. Matrix results must have one column.
 * `filter()` now accepts a logical column on its own, e.g. `filter(df, is_valid)`, and gives an error for results which are not logical rather than silently using them.
 * `summarise()` now drops the last group when there is only one grouping variable, so the result is ungrouped. Previously, empty summaries, list results, zero row data and `.drop = FALSE` groups kept the grouping.
+
+`summarise()` now matches `dplyr`:
+
+* `summarise()` now evaluates expressions in the calling environment, so local variables are found, for example inside a function. Previously, variables such as `i`, `fns` or `group` were silently taken from `summarise()` itself and poorman's internal objects could mask the user's. As in `dplyr` and `mutate()`, `n()` and the other context functions must now be visible from the calling environment.
+* A result which overwrites a column, e.g. `summarise(df, x = mean(x), y = x + 1)`, is now used by later expressions, and the columns of an unnamed data frame result are now available to later expressions.
+* Named vector results, e.g. `q = quantile(x, 0.5)`, are now named `q` rather than `x`. Unnamed expressions among named ones are now named after the expression rather than `""`, long expressions are named as `rlang::as_label()` does, e.g. `mean(...)`, and unnamed list results are named after the expression.
+* Duplicated names now keep the last result rather than giving duplicated columns, and a result named as a grouping column now replaces it.
+* Groups with zero length results now give no rows rather than an error, and length one results are recycled to the size of the group. Results of incompatible sizes and `NULL` results in only some groups now give an informative error.
+* Named data frame results, including named `across()` results, are now kept as data frame columns and matrix results as matrix columns, rather than being spread over several columns.
+* `summarise()` can now be used inside another `summarise()`, e.g. on `cur_data()`.
+* `summarise()` on grouped data with no groups now drops the last grouping variable, as every group has one row.
+* `cur_group()` now gives the keys of empty groups rather than `NA`.
 
 Selections and pivots now match `tidyr`:
 

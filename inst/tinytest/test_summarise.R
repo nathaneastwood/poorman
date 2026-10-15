@@ -204,4 +204,196 @@ expect_equal(
   info = "summarise() ignores NULL results: last expression"
 )
 
+
+# Evaluation environment ------------------------------------------------------
+
+f <- function() {
+  k <- 10
+  list(
+    ungrouped = summarise(mtcars, a = mean(mpg) * k),
+    grouped = summarise(group_by(mtcars, am), a = mean(mpg) * k)
+  )
+}
+res <- f()
+expect_equal(
+  res$ungrouped,
+  data.frame(a = mean(mtcars$mpg) * 10),
+  info = "summarise() finds local variables: ungrouped"
+)
+expect_equal(
+  res$grouped,
+  data.frame(am = c(0, 1), a = unname(tapply(mtcars$mpg, mtcars$am, mean)) * 10),
+  info = "summarise() finds local variables: grouped"
+)
+
+f <- function() {
+  i <- 100
+  fns <- 7
+  group <- 3
+  context <- 5
+  summarise(group_by(mtcars, am), i = i, fns = fns, group = group, context = context)
+}
+expect_equal(
+  f(),
+  data.frame(am = c(0, 1), i = 100, fns = 7, group = 3, context = 5),
+  info = "summarise() variables are not masked by poorman's own variables"
+)
+
+expect_equal(
+  summarise(group_by(mtcars[, c("am", "mpg")], am), a = mean(.data$mpg), .groups = "drop"),
+  data.frame(am = c(0, 1), a = unname(tapply(mtcars$mpg, mtcars$am, mean))),
+  info = "summarise() supports the .data pronoun in each group"
+)
+
+expect_equal(
+  summarise(
+    group_by(mtcars, am),
+    a = nrow(summarise(cur_data(), m = mean(mpg))),
+    b = n()
+  ),
+  data.frame(am = c(0, 1), a = 1L, b = c(19L, 13L)),
+  info = "summarise() can be used inside summarise()"
+)
+
+# Names -----------------------------------------------------------------------
+
+expect_equal(
+  names(summarise(mtcars, a = mean(mpg), sum(disp))),
+  c("a", "sum(disp)"),
+  info = "summarise() names unnamed expressions among named ones"
+)
+expect_equal(
+  names(summarise(mtcars, mean(mpg + disp + hp + drat + wt + qsec + vs + am + gear + carb + mpg + disp + hp))),
+  "mean(...)",
+  info = "summarise() abbreviates the names of long expressions, as rlang::as_label()"
+)
+expect_equal(
+  names(summarise(mtcars, .data$mpg[1L])),
+  ".data$mpg[1L]",
+  info = "summarise() names expressions which use the .data pronoun"
+)
+expect_equal(
+  summarise(mtcars, q = quantile(mpg, c(0.25, 0.75)))$q,
+  quantile(mtcars$mpg, c(0.25, 0.75)),
+  info = "summarise() keeps the name of named vector results: ungrouped"
+)
+expect_equal(
+  summarise(group_by(mtcars, am), q = quantile(mpg, 0.5)),
+  data.frame(am = c(0, 1), q = unname(tapply(mtcars$mpg, mtcars$am, median))),
+  info = "summarise() keeps the name of named vector results: grouped"
+)
+expect_equal(
+  summarise(data.frame(x = 1), a = 1, a = 2),
+  data.frame(a = 2),
+  info = "summarise() keeps the last of duplicated names"
+)
+expect_equal(
+  summarise(data.frame(x = 1), a = 1, b = 2, a = NULL),
+  data.frame(a = 1, b = 2),
+  info = "summarise() ignores a NULL result with the name of an earlier result"
+)
+expect_equal(
+  summarise(mtcars, list(a = 1, b = 2))[["list(a = 1, b = 2)"]],
+  list(a = 1, b = 2),
+  info = "summarise() names unnamed list results after the expression"
+)
+
+# Earlier results -------------------------------------------------------------
+
+expect_equal(
+  summarise(data.frame(x = 1:4), x = mean(x), y = x + 1),
+  data.frame(x = 2.5, y = 3.5),
+  info = "summarise() uses an overwritten column in later expressions: ungrouped"
+)
+expect_equal(
+  summarise(group_by(data.frame(g = c(1, 1, 2), x = 1:3), g), x = sum(x), y = x * 10),
+  data.frame(g = c(1, 2), x = 3L, y = 30),
+  info = "summarise() uses an overwritten column in later expressions: grouped"
+)
+expect_equal(
+  summarise(group_by(mtcars, am), data.frame(a = mean(mpg)), b = a * 2),
+  data.frame(
+    am = c(0, 1),
+    a = unname(tapply(mtcars$mpg, mtcars$am, mean)),
+    b = unname(tapply(mtcars$mpg, mtcars$am, mean)) * 2
+  ),
+  info = "summarise() makes the columns of unnamed data frame results available to later expressions"
+)
+
+# Result sizes ----------------------------------------------------------------
+
+df <- data.frame(g = c(1, 1, 2), x = c(1, 2, 10))
+expect_equal(
+  summarise(group_by(df, g), y = x[x > 5], .groups = "drop"),
+  data.frame(g = 2, y = 10),
+  info = "summarise() returns no rows for groups with zero length results"
+)
+expect_equal(
+  summarise(group_by(df, g), y = x[x > 50], .groups = "drop"),
+  data.frame(g = numeric(0), y = numeric(0)),
+  info = "summarise() returns no rows when every group has a zero length result"
+)
+res <- summarise(group_by(df, g), y = x[x > 5])
+expect_equal(group_vars(res), "g", info = "summarise() keeps the groups when a group has a zero length result")
+expect_equal(
+  summarise(group_by(df, g), y = x[x > 5], n = n(), .groups = "drop"),
+  data.frame(g = 2, y = 10, n = 1L),
+  info = "summarise() recycles length one results to zero length"
+)
+expect_error(
+  summarise(mtcars, a = 1:2, b = 1:3),
+  "`b` must be size 2 or 1, not 3",
+  info = "summarise() gives an error for results of incompatible sizes: ungrouped"
+)
+expect_error(
+  summarise(group_by(mtcars, cyl), a = 1:2, b = 1:3),
+  "`b` must be size 2 or 1, not 3",
+  info = "summarise() gives an error for results of incompatible sizes: grouped"
+)
+expect_error(
+  summarise(group_by(mtcars, cyl), a = if (cyl[1L] == 4) NULL else 1),
+  "can't combine NULL and non NULL results",
+  info = "summarise() gives an error for NULL results in only some groups"
+)
+
+res <- summarise(group_by(mtcars[0, ], cyl, am), n = n())
+expect_equal(
+  group_vars(res),
+  "cyl",
+  info = "summarise() drops the last group of zero row data, as every group has one row"
+)
+
+# Result types ----------------------------------------------------------------
+
+res <- summarise(group_by(mtcars, am), d = data.frame(a = mean(mpg), b = 1), .groups = "drop")
+expect_equal(names(res), c("am", "d"), info = "summarise() keeps named data frame results as data frame columns #1")
+expect_equal(
+  res$d,
+  data.frame(a = unname(tapply(mtcars$mpg, mtcars$am, mean)), b = 1),
+  info = "summarise() keeps named data frame results as data frame columns #2"
+)
+res <- summarise(group_by(mtcars, am), a = across(c(mpg, disp), mean), .groups = "drop")
+expect_equal(names(res), c("am", "a"), info = "summarise() keeps named across() results as data frame columns")
+res <- summarise(group_by(mtcars, am), m = matrix(1:2, 1L), .groups = "drop")
+expect_equal(names(res), c("am", "m"), info = "summarise() keeps matrix results as matrix columns #1")
+expect_equal(res$m, matrix(c(1L, 1L, 2L, 2L), 2L), info = "summarise() keeps matrix results as matrix columns #2")
+res <- summarise(group_by(mtcars, am), d = as.Date("2020-01-01") + n(), f = factor(am[1L]), .groups = "drop")
+expect_equal(res$d, as.Date("2020-01-01") + c(19, 13), info = "summarise() combines Date results")
+expect_equal(res$f, factor(c(0, 1)), info = "summarise() combines factor results")
+
+res <- summarise(group_by(mtcars, cyl), cyl = cyl + 1)
+expect_equal(names(res), "cyl", info = "summarise() replaces a grouping column with a result of the same name #1")
+expect_equal(
+  res$cyl,
+  sort(mtcars$cyl) + 1,
+  info = "summarise() replaces a grouping column with a result of the same name #2"
+)
+
+gf <- group_by(data.frame(f = factor("a", levels = c("a", "b")), x = 1L), f, .drop = FALSE)
+expect_equal(
+  summarise(gf, k = cur_group()$f)$k,
+  factor(c("a", "b")),
+  info = "cur_group() gives the keys of empty groups"
+)
+
 rm(df, gf, res)
