@@ -16,6 +16,8 @@
 #'
 #' @inheritParams select
 #' @param group_pos `logical(1)`. Should grouping variable positions be returned (default: `FALSE`)?
+#' @param .env `environment`. The environment in which non-column symbols and calls are evaluated, i.e. the
+#' environment of the user calling the verb.
 #'
 #' @return
 #' A vector of named positive `integer`s.
@@ -28,11 +30,11 @@
 #' select_positions(mtcars, mpg:drat)
 #'
 #' @noRd
-select_positions <- function(.data, ..., .group_pos = FALSE) {
+select_positions <- function(.data, ..., .group_pos = FALSE, .env = parent.frame(2L)) {
   cols <- dotdotdot(...)
   cols <- cols[!vapply(cols, is.null, FALSE)]
   if (length(cols) == 0L) return(integer(0))
-  select_env$setup(.data = .data, calling_frame = parent.frame(2L))
+  select_env$setup(.data = .data, calling_frame = .env)
   on.exit(select_env$clean(), add = TRUE)
   data_names <- select_env$get_colnames()
   pos <- unlist(lapply(cols, eval_expr))
@@ -181,7 +183,8 @@ select_bracket <- function(expr) {
 }
 
 select_context <- function(expr) {
-  eval(expr, envir = select_env$.data)
+  res <- eval(expr, envir = select_env$.data, enclos = select_env$helper_frame())
+  if (is.character(res)) select_char(res) else res
 }
 
 # -- Environment ---------------------------------------------------------------
@@ -194,6 +197,18 @@ select_env$setup <- function(.data, calling_frame) {
 select_env$clean <- function() {
   rm(list = c(".data", "calling_frame"), envir = select_env)
 }
+# Calls are evaluated in the user's environment with the selection helpers masked in on top so that they are found
+# even when poorman is not attached
+select_env$helpers <- c(
+  "starts_with", "ends_with", "contains", "matches", "num_range", "all_of", "any_of", "everything", "last_col",
+  "where", "group_cols"
+)
+select_env$helper_frame <- function() {
+  ns <- environment(select_env$setup)
+  env <- new.env(parent = select_env$calling_frame)
+  for (helper in select_env$helpers) assign(helper, get(helper, envir = ns), envir = env)
+  env
+}
 select_env$get_colnames <- function() colnames(select_env$.data)
 select_env$get_nrow <- function() nrow(select_env$.data)
 select_env$get_ncol <- function() ncol(select_env$.data)
@@ -202,6 +217,6 @@ select_env$get_ncol <- function() ncol(select_env$.data)
 
 #' A cleaner interface to evaluating select_positions when column names are not passed via ...
 #' @noRd
-eval_select_pos <- function(.data, .cols, .group_pos = FALSE) {
-  do.call(select_positions, list(.data = .data, .cols, .group_pos = .group_pos))
+eval_select_pos <- function(.data, .cols, .group_pos = FALSE, .env = parent.frame(2L)) {
+  do.call(select_positions, list(.data = .data, .cols, .group_pos = .group_pos, .env = .env))
 }

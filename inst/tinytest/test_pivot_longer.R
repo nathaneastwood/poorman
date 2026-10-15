@@ -54,3 +54,21 @@ expect_error(
   pivot_longer(df, y, names_to = "x"),
   pattern = "Some values of the columns specified in 'names_to' are already present"
 )
+
+# Expressions which evaluate to column names can be used to select columns (#118)
+df <- data.frame(X = 1:2, Y1 = c(0.1, 0.2), Y2 = c(0.3, 0.4))
+expected <- pivot_longer(df, c("Y1", "Y2"))
+expect_equal(pivot_longer(df, names(df)[-1]), expected, info = "Expressions returning column names work")
+get_y <- function() c("Y1", "Y2")
+expect_equal(pivot_longer(df, get_y()), expected, info = "Function calls returning column names work")
+local_pivot <- function(data) {
+  nd <- names(data)[-1]
+  pivot_longer(data, nd)
+}
+expect_equal(local_pivot(df), expected, info = "Variables local to the calling function can be used")
+local_pivot_all_of <- function(data, cols) pivot_longer(data, all_of(cols))
+expect_equal(local_pivot_all_of(df, c("Y1", "Y2")), expected, info = "all_of() finds local variables")
+expect_equal(
+  poorman::pivot_longer(df, poorman::starts_with("Y")), expected,
+  info = "Namespaced selection helpers work"
+)

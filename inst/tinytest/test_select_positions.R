@@ -208,3 +208,21 @@ expect_error(
   poorman:::select_positions(mtcars, TRUE),
   info = "Logical selections do not work"
 )
+
+# Expressions evaluating to column names are matched by name and are evaluated in the caller's environment (#118)
+df <- data.frame(X = 1:5, Y1 = 1:5, Y2 = 1:5)
+expect_equal(
+  rename_with(df, toupper, names(df)[-1]),
+  data.frame(X = 1:5, Y1 = 1:5, Y2 = 1:5) %>% rename(Y1 = Y1),
+  info = "rename_with() accepts an expression returning column names"
+)
+expect_equal(
+  colnames(rename_with(df, tolower, names(df)[-1])),
+  c("X", "y1", "y2"),
+  info = "rename_with() renames the columns returned by an expression"
+)
+expect_equal(
+  lapply(c("X", "Y1"), function(x) colnames(select(df, all_of(x)))),
+  list("X", "Y1"),
+  info = "select() finds variables local to an anonymous function"
+)

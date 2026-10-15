@@ -22,6 +22,10 @@ The following fixes were also implemented, bringing grouped operations in line w
 * `filter()` now accepts a logical column on its own, e.g. `filter(df, is_valid)`, and gives an error for results which are not logical rather than silently using them.
 * `summarise()` now drops the last group when there is only one grouping variable, so the result is ungrouped. Previously, empty summaries, list results, zero row data and `.drop = FALSE` groups kept the grouping.
 
+The following fixes were implemented:
+
+* Selections which evaluate to column names, such as `names(df)[-1]` or a function returning column names, now work in `pivot_longer()`, `pivot_wider()`, `rename_with()`, `relocate()` and `with_groups()`, and selections are evaluated in the caller's environment so local variables are found (#118).
+
 # poorman 0.2.7
 
 Eleventh CRAN release. This release:
