@@ -15,7 +15,7 @@ Grouped operations are now considerably faster. Groups are identified in a singl
 
 `pivot_longer()` and `pivot_wider()` have been rewritten without `stats::reshape()` and are now considerably faster and use far less memory. On 100,000 rows by 10 columns, `pivot_longer()` is over 35x faster; on 1,000,000 rows, `pivot_wider()` is over 15x faster, and widening to 1,000 columns is over 150x faster and no longer allocates 3.5GB. Both functions now follow `tidyr` 1.1.
 
-`summarise()` is now considerably faster on grouped data. Each column is split by group once and the summaries are combined column by column, rather than building and binding a `data.frame` for each group. On 100,000 rows, `summarise()` is over 4x faster with 1,000 groups and 5x faster with 10,000 groups, and `count()` with 26,000 groups is over 7x faster.
+`summarise()` is now considerably faster on grouped data. Each column is split by group once and the summaries are combined column by column, rather than building and binding a `data.frame` for each group. On 100,000 rows, `summarise()` is over 4x faster with 1,000 groups and 5x faster with 10,000 groups, and `count()` with 26,000 groups is over 7x faster. `across()` builds its result faster, which also speeds up `mutate()`.
 
 ## Bug fixes
 

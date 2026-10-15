@@ -110,7 +110,7 @@ across <- function(.cols = everything(), .fns = NULL, ..., .names = NULL) {
     }
   }
   if (is.null(names(res))) names(res) <- names
-  as.data.frame(res)
+  across_data_frame(res)
 }
 
 #' @rdname across
@@ -143,6 +143,19 @@ check_if_types <- function(df) {
 }
 
 # -- helpers -----------------------------------------------------------------------------------------------------------
+
+# A faster equivalent of `as.data.frame(x)` for the common case where each result is a plain vector of the same
+# length, with names which `as.data.frame()` would leave unchanged. Anything else falls back to `as.data.frame()`.
+across_data_frame <- function(x) {
+  n <- unique(lengths(x))
+  nms <- names(x)
+  plain <- length(n) == 1L && !is.null(nms) &&
+    all(vapply(x, function(col) is.atomic(col) && is.null(attributes(col)), NA))
+  if (!plain || !identical(make.names(nms, unique = TRUE), nms)) return(as.data.frame(x))
+  attr(x, "row.names") <- .set_row_names(n)
+  class(x) <- "data.frame"
+  x
+}
 
 setup_across <- function(.cols, .fns, .names) {
   cols <- eval_select_pos(.data = context$.data, .cols, .group_pos = FALSE)
