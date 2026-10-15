@@ -58,3 +58,47 @@ flatten <- function(lst) {
   res <- c(lst[!nested], unlist(lst[nested], recursive = FALSE))
   if (sum(nested)) Recall(res) else return(res)
 }
+
+#' Subset a vector, keeping its attributes
+#'
+#' Unlike `[`, this keeps all of the attributes of `x` (e.g. custom classes and attributes), except names.
+#'
+#' @param x A vector, `matrix` or `data.frame`.
+#' @param i `integer()`. The positions to keep. `NA` positions return missing values.
+#'
+#' @noRd
+vec_slice <- function(x, i) {
+  if (!is.null(dim(x))) return(x[i, , drop = FALSE])
+  res <- x[i]
+  attrs <- attributes(x)
+  if (!is.null(attrs) && is.atomic(x)) {
+    attrs$names <- NULL
+    attributes(res) <- attrs
+  }
+  res
+}
+
+#' Identify the unique rows of a set of columns
+#'
+#' @param x A `list` of equal length vectors.
+#' @param n `integer(1)`. The length of the vectors, used when `x` is empty.
+#'
+#' @return An `integer` vector giving, for each row, the position of that row's first appearance amongst the unique
+#' rows. Missing values are treated as equal to one another.
+#'
+#' @noRd
+vec_group_id <- function(x, n = length(x[[1L]])) {
+  if (length(x) == 0L) return(rep(1L, n))
+  id <- NULL
+  for (col in x) {
+    if (is.factor(col) || inherits(col, c("Date", "POSIXct"))) col <- unclass(col)
+    col_id <- match(col, unique(col))
+    if (is.null(id)) {
+      id <- col_id
+    } else {
+      id <- (id - 1) * max(col_id, 0L) + col_id
+      id <- match(id, unique(id))
+    }
+  }
+  id
+}

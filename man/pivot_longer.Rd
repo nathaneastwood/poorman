@@ -21,15 +21,24 @@ pivot_longer(
 
 \item{cols}{<\code{\link[=select_helpers]{poor-select}}>. Columns to pivot into longer format.}
 
-\item{names_to}{\code{character(n)}. The name of the new column(s) that will contain the column names.}
+\item{names_to}{\code{character(n)}. The name of the new column(s) that will contain the column names. If of length > 1,
+one of \code{names_sep} or \code{names_pattern} must be supplied. Two values have special meaning: \code{NA} discards the
+corresponding piece of the column name and \code{".value"} indicates that the corresponding piece of the column name
+defines the name of the output column containing the values, overriding \code{values_to}.}
 
 \item{names_prefix}{\code{character(1)}. A regular expression used to remove matching text from the start of each variable
 name.}
 
 \item{names_sep, names_pattern}{\code{character(1)}. If \code{names_to} contains multiple values, this argument controls how the
-column name is broken up. \code{names_pattern} takes a regular expression containing matching groups (\verb{()}).}
+column name is broken up. \code{names_sep} is a fixed string on which to split the column names. \code{names_pattern} takes a
+regular expression containing matching groups (\verb{()}); with a single value of \code{names_to}, the first matching group
+is used.}
 
-\item{values_to}{\code{character(n)}. The name of the new column(s) that will contain the values of the pivoted variables.}
+\item{values_to}{\code{character(1)}. The name of the new column that will contain the values of the pivoted variables.
+The pivoted columns are combined following the \code{tidyr} rules: logical, integer and double columns are combined into
+the richest of those types, factors are combined into a factor with the union of their levels, factors and
+characters are combined into a character and columns of the same class keep that class. Other combinations are an
+error.}
 
 \item{values_drop_na}{\code{logical(1)}. If \code{TRUE}, will drop rows that contain only \code{NA} in the \code{values_to} column. This
 effectively converts explicit missing values to implicit missing values, and should generally be used only when
