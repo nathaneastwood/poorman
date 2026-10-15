@@ -15,6 +15,7 @@ The following fixes were also implemented, bringing grouped operations in line w
 * Grouped verbs now accept new columns named `f`, `.fn`, `.drop` or `.reorder`.
 * Grouped verbs now work with zero-row data, and `filter()` now works with single column data.
 * `cur_group_id()` now returns `1` for ungrouped data.
+* `summarise()` now drops the last group when there is only one grouping variable, so the result is ungrouped. Previously, empty summaries, list results, zero row data and `.drop = FALSE` groups kept the grouping.
 
 # poorman 0.2.7
 

@@ -81,7 +81,7 @@ expect_equal(
 res <- mtcars %>% group_by(am) %>% summarise()
 expect_equal(
   class(res),
-  c("grouped_df", "data.frame"),
+  "data.frame",
   info = "empty grouped summarise() returns groups #1"
 )
 expect_equal(
@@ -156,6 +156,25 @@ expect_equal(
   nrow(summarise(group_by(df, a, b, c), n = n())),
   300L,
   info = "summarise() chooses .groups without tabulating every combination of the groups"
+)
+
+gf <- data.frame(g = c("x", "y", "x"), v = 1:3, stringsAsFactors = FALSE) %>% group_by(g)
+expect_equal(
+  class(summarise(gf, k = list(cur_group()))),
+  "data.frame",
+  info = "summarise() drops the last group with one grouping variable: list results"
+)
+gf <- data.frame(f = factor(c("a", "b", "a"), levels = c("a", "b", "c")), v = 1:3) %>% group_by(f, .drop = FALSE)
+expect_equal(
+  class(summarise(gf, n = n())),
+  "data.frame",
+  info = "summarise() drops the last group with one grouping variable: .drop = FALSE"
+)
+gf <- data.frame(g = character(0), v = integer(0), stringsAsFactors = FALSE) %>% group_by(g)
+expect_equal(
+  class(summarise(gf, n = n())),
+  "data.frame",
+  info = "summarise() drops the last group with one grouping variable: zero rows"
 )
 
 rm(df, gf, res)
