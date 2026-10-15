@@ -288,3 +288,17 @@ expect_error(
   pattern = "due to loss of precision"
 )
 expect_equal(pivot_wider(df, names_from = "nm", values_from = "v", values_fill = NA)$b, c(2L, NA))
+
+# The arguments are in the same order as in tidyr 1.1
+expect_equal(
+  names(formals(pivot_wider)),
+  c("data", "id_cols", "names_from", "names_prefix", "names_sep", "names_glue", "names_sort", "names_repair",
+    "values_from", "values_fill", "values_fn", "..."),
+  info = "pivot_wider() arguments follow tidyr"
+)
+df <- data.frame(id = c(1, 1, 2), nm = c("a", "b", "a"), v = 1:3, stringsAsFactors = FALSE)
+expect_equal(
+  pivot_wider(df, "id", "nm", "p_", values_from = "v"),
+  pivot_wider(df, id_cols = "id", names_from = "nm", names_prefix = "p_", values_from = "v"),
+  info = "Positional arguments follow tidyr"
+)

@@ -88,13 +88,13 @@
 pivot_wider <- function(
   data,
   id_cols = NULL,
-  values_from = "Value",
   names_from = "Name",
-  names_sep = "_",
   names_prefix = "",
+  names_sep = "_",
   names_glue = NULL,
   names_sort = FALSE,
   names_repair = "check_unique",
+  values_from = "Value",
   values_fill = NULL,
   values_fn = NULL,
   ...
