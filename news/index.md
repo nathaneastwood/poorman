@@ -48,6 +48,16 @@ faster; on 1,000,000 rows,
 widening to 1,000 columns is over 150x faster and no longer allocates
 3.5GB. Both functions now follow `tidyr` 1.1.
 
+[`summarise()`](../reference/summarise.md) is now considerably faster on
+grouped data. Each column is split by group once and the summaries are
+combined column by column, rather than building and binding a
+`data.frame` for each group. On 100,000 rows,
+[`summarise()`](../reference/summarise.md) is over 4x faster with 1,000
+groups and 5x faster with 10,000 groups, and
+[`count()`](../reference/count.md) with 26,000 groups is over 7x faster.
+[`across()`](../reference/across.md) builds its result faster, which
+also speeds up [`mutate()`](../reference/mutate.md).
+
 ### Bug fixes
 
 Grouped operations now match `dplyr`:
@@ -104,6 +114,46 @@ Grouped operations now match `dplyr`:
   when there is only one grouping variable, so the result is ungrouped.
   Previously, empty summaries, list results, zero row data and
   `.drop = FALSE` groups kept the grouping.
+
+[`summarise()`](../reference/summarise.md) now matches `dplyr`:
+
+- [`summarise()`](../reference/summarise.md) now evaluates expressions
+  in the calling environment, so local variables are found, for example
+  inside a function. Previously, variables such as `i`, `fns` or `group`
+  were silently taken from [`summarise()`](../reference/summarise.md)
+  itself and poorman’s internal objects could mask the user’s. As in
+  `dplyr` and [`mutate()`](../reference/mutate.md),
+  [`n()`](../reference/context.md) and the other context functions must
+  now be visible from the calling environment.
+- A result which overwrites a column,
+  e.g. `summarise(df, x = mean(x), y = x + 1)`, is now used by later
+  expressions, and the columns of an unnamed data frame result are now
+  available to later expressions.
+- Named vector results, e.g. `q = quantile(x, 0.5)`, are now named `q`
+  rather than `x`. Unnamed expressions among named ones are now named
+  after the expression rather than `""`, long expressions are named as
+  [`rlang::as_label()`](https://rlang.r-lib.org/reference/as_label.html)
+  does, e.g. `mean(...)`, and unnamed list results are named after the
+  expression.
+- Duplicated names now keep the last result rather than giving
+  duplicated columns, and a result named as a grouping column now
+  replaces it.
+- Groups with zero length results now give no rows rather than an error,
+  and length one results are recycled to the size of the group. Results
+  of incompatible sizes and `NULL` results in only some groups now give
+  an informative error.
+- Named data frame results, including named
+  [`across()`](../reference/across.md) results, are now kept as data
+  frame columns and matrix results as matrix columns, rather than being
+  spread over several columns.
+- [`summarise()`](../reference/summarise.md) can now be used inside
+  another [`summarise()`](../reference/summarise.md), e.g. on
+  [`cur_data()`](../reference/context.md).
+- [`summarise()`](../reference/summarise.md) on grouped data with no
+  groups now drops the last grouping variable, as every group has one
+  row.
+- [`cur_group()`](../reference/context.md) now gives the keys of empty
+  groups rather than `NA`.
 
 Selections and pivots now match `tidyr`:
 

@@ -79,7 +79,7 @@ mtcars %>%
    group_by(cyl) %>%
    summarise(qs = quantile(disp, c(0.25, 0.75)), prob = c(0.25, 0.75))
 #> `summarise()` has grouped output by 'cyl'. You can override using the `.groups` argument.
-#>   cyl      x prob
+#>   cyl     qs prob
 #> 1   4  78.85 0.25
 #> 2   4 120.65 0.75
 #> 3   6 160.00 0.25
@@ -95,7 +95,14 @@ my_quantile <- function(x, probs) {
 mtcars %>%
   group_by(cyl) %>%
   summarise(my_quantile(disp, c(0.25, 0.75)))
-#> Error in my_quantile(disp, c(0.25, 0.75)): could not find function "my_quantile"
+#> `summarise()` has grouped output by 'cyl'. You can override using the `.groups` argument.
+#>   cyl      x probs
+#> 1   4  78.85  0.25
+#> 2   4 120.65  0.75
+#> 3   6 160.00  0.25
+#> 4   6 196.30  0.75
+#> 5   8 301.75  0.25
+#> 6   8 390.00  0.75
 
 # Each summary call removes one grouping level (since that group
 # is now just a single row)
