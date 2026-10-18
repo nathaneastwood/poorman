@@ -39,6 +39,13 @@
 <ul><li>The arguments of <code><a href="../reference/pivot_wider.html">pivot_wider()</a></code> are now in the same order as in <code>tidyr</code> 1.1: <code>data</code>, <code>id_cols</code>, <code>names_from</code>, <code>names_prefix</code>, <code>names_sep</code>, <code>names_glue</code>, <code>names_sort</code>, <code>names_repair</code>, <code>values_from</code>, <code>values_fill</code>, <code>values_fn</code>. Code which passes <code>values_from</code> or <code>names_from</code> by position must now name them.</li>
 </ul></div>
 <div class="section level3">
+<h3 id="new-features-0-2-8">New features<a class="anchor" aria-label="anchor" href="#new-features-0-2-8"></a></h3>
+<ul><li>
+<code><a href="../reference/arrange.html">arrange()</a></code> now supports <code><a href="../reference/across.html">across()</a></code> (<a href="https://github.com/nathaneastwood/poorman/issues/88" class="external-link">#88</a>).</li>
+<li>
+<code><a href="../reference/arrange.html">arrange()</a></code> now supports list, data frame and matrix columns. Data frame and matrix columns are sorted by each of their columns in turn and list columns are sorted by the first appearance of each element, as in <code>dplyr</code> (<a href="https://github.com/nathaneastwood/poorman/issues/90" class="external-link">#90</a>).</li>
+</ul></div>
+<div class="section level3">
 <h3 id="improvements-0-2-8">Improvements<a class="anchor" aria-label="anchor" href="#improvements-0-2-8"></a></h3>
 <p>Grouped operations are now considerably faster. Groups are identified in a single pass over the data rather than by comparing every group against every row, so the cost of <code><a href="../reference/group_by.html">group_by()</a></code> no longer grows with the number of groups. On 100,000 rows with 1,000 groups, <code><a href="../reference/group_by.html">group_by()</a></code> and <code><a href="../reference/arrange.html">arrange()</a></code> are over 100x faster, <code><a href="../reference/filter.html">filter()</a></code>, <code><a href="../reference/mutate.html">mutate()</a></code> and <code><a href="../reference/count.html">count()</a></code> 7-20x faster, <code><a href="../reference/group_metadata.html">group_indices()</a></code> over 1,000x faster, and grouping by several high cardinality columns no longer exhausts memory.</p>
 <p><code><a href="../reference/pivot_longer.html">pivot_longer()</a></code> and <code><a href="../reference/pivot_wider.html">pivot_wider()</a></code> have been rewritten without <code><a href="https://rdrr.io/r/stats/reshape.html" class="external-link">stats::reshape()</a></code> and are now considerably faster and use far less memory. On 100,000 rows by 10 columns, <code><a href="../reference/pivot_longer.html">pivot_longer()</a></code> is over 35x faster; on 1,000,000 rows, <code><a href="../reference/pivot_wider.html">pivot_wider()</a></code> is over 15x faster, and widening to 1,000 columns is over 150x faster and no longer allocates 3.5GB. Both functions now follow <code>tidyr</code> 1.1.</p>
@@ -104,6 +111,15 @@
 </ul></li>
 <li>
 <code><a href="../reference/pivot_wider.html">pivot_wider()</a></code> gains the <code>tidyr</code> 1.1 arguments <code>names_sort</code>, <code>names_repair</code> and <code>values_fn</code>. The warning for values which are not uniquely identified now matches <code>tidyr</code> 1.1, <code>values_fill</code> can be <code>NA</code> and a <code>values_fill</code> which would lose precision is an error.</li>
+</ul><p><code><a href="../reference/arrange.html">arrange()</a></code> now matches <code>dplyr</code>:</p>
+<ul><li>
+<code><a href="../reference/arrange.html">arrange()</a></code> now evaluates each expression as its own sort key. Previously, it matched expressions to the columns that they used by position, so <code>arrange(df, x + y, desc(a))</code> failed when <code>a</code> was a character column, and expressions without a column, such as <code>arrange(df, n():1)</code>, failed.</li>
+<li>
+<code><a href="../reference/arrange.html">arrange()</a></code> now only treats a top level <code><a href="../reference/desc.html">desc()</a></code> as a sort direction. Previously, it rewrote <code><a href="../reference/desc.html">desc()</a></code> as text, so <code>arrange(df, desc(x + y))</code> silently sorted by <code>-x + y</code>, and expressions such as <code>desc(x) + 0</code> and long expressions failed.</li>
+<li>
+<code><a href="../reference/arrange.html">arrange()</a></code> now finds variables in the calling environment, for example inside a function, and supports the <code>.data</code> pronoun there.</li>
+<li>
+<code><a href="../reference/arrange.html">arrange()</a></code> now supports <code><a href="../reference/desc.html">desc()</a></code> on <code>Date</code> and other classed columns which do not support unary minus.</li>
 </ul></div>
 </div>
     <div class="section level2">

@@ -12,6 +12,17 @@ CRAN release: 2026-07-30
   `names_repair`, `values_from`, `values_fill`, `values_fn`. Code which
   passes `values_from` or `names_from` by position must now name them.
 
+### New features
+
+- [`arrange()`](../reference/arrange.md) now supports
+  [`across()`](../reference/across.md)
+  ([\#88](https://github.com/nathaneastwood/poorman/issues/88)).
+- [`arrange()`](../reference/arrange.md) now supports list, data frame
+  and matrix columns. Data frame and matrix columns are sorted by each
+  of their columns in turn and list columns are sorted by the first
+  appearance of each element, as in `dplyr`
+  ([\#90](https://github.com/nathaneastwood/poorman/issues/90)).
+
 ### Improvements
 
 Grouped operations are now considerably faster. Groups are identified in
@@ -147,6 +158,25 @@ Selections and pivots now match `tidyr`:
   for values which are not uniquely identified now matches `tidyr` 1.1,
   `values_fill` can be `NA` and a `values_fill` which would lose
   precision is an error.
+
+[`arrange()`](../reference/arrange.md) now matches `dplyr`:
+
+- [`arrange()`](../reference/arrange.md) now evaluates each expression
+  as its own sort key. Previously, it matched expressions to the columns
+  that they used by position, so `arrange(df, x + y, desc(a))` failed
+  when `a` was a character column, and expressions without a column,
+  such as `arrange(df, n():1)`, failed.
+- [`arrange()`](../reference/arrange.md) now only treats a top level
+  [`desc()`](../reference/desc.md) as a sort direction. Previously, it
+  rewrote [`desc()`](../reference/desc.md) as text, so
+  `arrange(df, desc(x + y))` silently sorted by `-x + y`, and
+  expressions such as `desc(x) + 0` and long expressions failed.
+- [`arrange()`](../reference/arrange.md) now finds variables in the
+  calling environment, for example inside a function, and supports the
+  `.data` pronoun there.
+- [`arrange()`](../reference/arrange.md) now supports
+  [`desc()`](../reference/desc.md) on `Date` and other classed columns
+  which do not support unary minus.
 
 ## poorman 0.2.7
 
