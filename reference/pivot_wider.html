@@ -45,12 +45,15 @@ transformation is <code><a href="pivot_longer.html">pivot_longer()</a></code>.</
     <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">pivot_wider</span><span class="op">(</span></span>
 <span>  <span class="va">data</span>,</span>
 <span>  id_cols <span class="op">=</span> <span class="cn">NULL</span>,</span>
-<span>  values_from <span class="op">=</span> <span class="st">"Value"</span>,</span>
 <span>  names_from <span class="op">=</span> <span class="st">"Name"</span>,</span>
-<span>  names_sep <span class="op">=</span> <span class="st">"_"</span>,</span>
 <span>  names_prefix <span class="op">=</span> <span class="st">""</span>,</span>
+<span>  names_sep <span class="op">=</span> <span class="st">"_"</span>,</span>
 <span>  names_glue <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  names_sort <span class="op">=</span> <span class="cn">FALSE</span>,</span>
+<span>  names_repair <span class="op">=</span> <span class="st">"check_unique"</span>,</span>
+<span>  values_from <span class="op">=</span> <span class="st">"Value"</span>,</span>
 <span>  values_fill <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  values_fn <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  <span class="va">...</span></span>
 <span><span class="op">)</span></span></code></pre></div>
     </div>
@@ -64,28 +67,23 @@ transformation is <code><a href="pivot_longer.html">pivot_longer()</a></code>.</
 
 
 <dt id="arg-id-cols">id_cols<a class="anchor" aria-label="anchor" href="#arg-id-cols"></a></dt>
-<dd><p><code>character(1)</code>. The name of the column that identifies the rows. If <code>NULL</code>, it will use all the unique
-rows.</p></dd>
-
-
-<dt id="arg-values-from">values_from<a class="anchor" aria-label="anchor" href="#arg-values-from"></a></dt>
-<dd><p><code>character(n)</code>. The name of the column that contains the values to be used as future variable
-values.</p></dd>
+<dd><p>&lt;<code><a href="select_helpers.html">poor-select</a></code>&gt;. The columns that uniquely identify each observation. Defaults to
+all columns in <code>data</code> except for the columns specified in <code>names_from</code> and <code>values_from</code>.</p></dd>
 
 
 <dt id="arg-names-from">names_from<a class="anchor" aria-label="anchor" href="#arg-names-from"></a></dt>
-<dd><p><code>character(n)</code>. The name of the column(s) that contains the levels to be used as future column
-names.</p></dd>
-
-
-<dt id="arg-names-sep">names_sep<a class="anchor" aria-label="anchor" href="#arg-names-sep"></a></dt>
-<dd><p><code>character(1)</code>. If <code>names_from</code> or <code>values_from</code> contains multiple variables, this will be used to
-join their values together into a single string to use as a column name.</p></dd>
+<dd><p>&lt;<code><a href="select_helpers.html">poor-select</a></code>&gt;. The column(s) that contain the levels to be used as future
+column names.</p></dd>
 
 
 <dt id="arg-names-prefix">names_prefix<a class="anchor" aria-label="anchor" href="#arg-names-prefix"></a></dt>
 <dd><p><code>character(1)</code>. String added to the start of every variable name. This is particularly useful if
 <code>names_from</code> is a numeric vector and you want to create syntactic variable names.</p></dd>
+
+
+<dt id="arg-names-sep">names_sep<a class="anchor" aria-label="anchor" href="#arg-names-sep"></a></dt>
+<dd><p><code>character(1)</code>. If <code>names_from</code> or <code>values_from</code> contains multiple variables, this will be used to
+join their values together into a single string to use as a column name.</p></dd>
 
 
 <dt id="arg-names-glue">names_glue<a class="anchor" aria-label="anchor" href="#arg-names-glue"></a></dt>
@@ -94,9 +92,35 @@ join their values together into a single string to use as a column name.</p></dd
 column names. Note that the only delimiters supported by <code>names_glue</code> are curly brackets, <code>{</code> and <code>}</code>.</p></dd>
 
 
+<dt id="arg-names-sort">names_sort<a class="anchor" aria-label="anchor" href="#arg-names-sort"></a></dt>
+<dd><p><code>logical(1)</code>. Should the column names be sorted? If <code>FALSE</code>, the default, column names are ordered
+by first appearance. Factors are sorted by their levels and characters in the C locale, with <code>NA</code> last.</p></dd>
+
+
+<dt id="arg-names-repair">names_repair<a class="anchor" aria-label="anchor" href="#arg-names-repair"></a></dt>
+<dd><p><code>character(1)</code> or <code>function</code>. What happens if the output has invalid column names. The default,
+<code>"check_unique"</code>, is to error if the columns are duplicated. Use <code>"minimal"</code> to allow duplicates in the output,
+<code>"unique"</code> to de-duplicate by adding numeric suffixes or <code>"universal"</code> to also make the names syntactic. A function
+is applied to the names.</p></dd>
+
+
+<dt id="arg-values-from">values_from<a class="anchor" aria-label="anchor" href="#arg-values-from"></a></dt>
+<dd><p>&lt;<code><a href="select_helpers.html">poor-select</a></code>&gt;. The column(s) that contain the values to be used as future
+variable values. If the values are not uniquely identified by the <code>id_cols</code> and <code>names_from</code> columns, the output
+will contain list-columns and a warning is given.</p></dd>
+
+
 <dt id="arg-values-fill">values_fill<a class="anchor" aria-label="anchor" href="#arg-values-fill"></a></dt>
-<dd><p><code>numeric(n)</code>. Optionally, a (scalar) value that will be used to replace missing values in the new
-columns created.</p></dd>
+<dd><p>Optionally, a scalar value that will be used to fill in missing values, i.e. combinations of
+<code>id_cols</code> and <code>names_from</code> which are not present in <code>data</code>. Explicit <code>NA</code>s in <code>values_from</code> are not replaced. This
+can also be a named list, specifying a fill value for each of the <code>values_from</code> columns.</p></dd>
+
+
+<dt id="arg-values-fn">values_fn<a class="anchor" aria-label="anchor" href="#arg-values-fn"></a></dt>
+<dd><p><code>function</code> or named <code><a href="https://rdrr.io/r/base/list.html" class="external-link">list()</a></code>. Optionally, a function applied to the value in each cell in the
+output, typically to summarise values which are not uniquely identified, e.g. <code>values_fn = mean</code>. A named list
+gives a function for each <code>values_from</code> column, where functions may also be given as formulas, e.g.
+<code>list(value = ~ max(.x))</code>. Use <code>values_fn = list</code> to create list-columns without a warning.</p></dd>
 
 
 <dt id="arg--">...<a class="anchor" aria-label="anchor" href="#arg--"></a></dt>
@@ -133,11 +157,11 @@ tibble. Otherwise, it returns a data frame.</p>
 <span class="r-in"><span>  names_from <span class="op">=</span> <span class="st">"condition"</span>,</span></span>
 <span class="r-in"><span>  values_from <span class="op">=</span> <span class="st">"measurement"</span></span></span>
 <span class="r-in"><span><span class="op">)</span></span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   subject sex control cond1 cond2</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 1       1   M     7.9  12.3  10.7</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 2       2   F     6.3  10.6  11.1</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 3       3   F     9.5  13.1  13.8</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 4       4   M    11.5  13.4  12.9</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   subject control cond1 cond2</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 1       1     7.9  12.3  10.7</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 2       2     6.3  10.6  11.1</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 3       3     9.5  13.1  13.8</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 4       4    11.5  13.4  12.9</span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="fu">pivot_wider</span><span class="op">(</span></span></span>
 <span class="r-in"><span>  <span class="va">data_long</span>,</span></span>
@@ -147,11 +171,11 @@ tibble. Otherwise, it returns a data frame.</p>
 <span class="r-in"><span>  names_prefix <span class="op">=</span> <span class="st">"Var."</span>,</span></span>
 <span class="r-in"><span>  names_sep <span class="op">=</span> <span class="st">"."</span></span></span>
 <span class="r-in"><span><span class="op">)</span></span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   subject sex Var.control Var.cond1 Var.cond2</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 1       1   M         7.9      12.3      10.7</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 2       2   F         6.3      10.6      11.1</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 3       3   F         9.5      13.1      13.8</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 4       4   M        11.5      13.4      12.9</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   subject Var.control Var.cond1 Var.cond2</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 1       1         7.9      12.3      10.7</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 2       2         6.3      10.6      11.1</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 3       3         9.5      13.1      13.8</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 4       4        11.5      13.4      12.9</span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="va">production</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/expand.grid.html" class="external-link">expand.grid</a></span><span class="op">(</span></span></span>
 <span class="r-in"><span>  product <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"A"</span>, <span class="st">"B"</span><span class="op">)</span>,</span></span>

@@ -4,6 +4,16 @@
 
 CRAN release: 2026-07-30
 
+### Breaking changes
+
+- The arguments of [`pivot_wider()`](../reference/pivot_wider.md) are
+  now in the same order as in `tidyr` 1.1: `data`, `id_cols`,
+  `names_from`, `names_prefix`, `names_sep`, `names_glue`, `names_sort`,
+  `names_repair`, `values_from`, `values_fill`, `values_fn`. Code which
+  passes `values_from` or `names_from` by position must now name them.
+
+### Improvements
+
 Grouped operations are now considerably faster. Groups are identified in
 a single pass over the data rather than by comparing every group against
 every row, so the cost of [`group_by()`](../reference/group_by.md) no
@@ -17,8 +27,19 @@ groups, [`group_by()`](../reference/group_by.md) and
 and grouping by several high cardinality columns no longer exhausts
 memory.
 
-The following fixes were also implemented, bringing grouped operations
-in line with `dplyr`:
+[`pivot_longer()`](../reference/pivot_longer.md) and
+[`pivot_wider()`](../reference/pivot_wider.md) have been rewritten
+without [`stats::reshape()`](https://rdrr.io/r/stats/reshape.html) and
+are now considerably faster and use far less memory. On 100,000 rows by
+10 columns, [`pivot_longer()`](../reference/pivot_longer.md) is over 35x
+faster; on 1,000,000 rows,
+[`pivot_wider()`](../reference/pivot_wider.md) is over 15x faster, and
+widening to 1,000 columns is over 150x faster and no longer allocates
+3.5GB. Both functions now follow `tidyr` 1.1.
+
+### Bug fixes
+
+Grouped operations now match `dplyr`:
 
 - Groups whose values paste to the same string (e.g. `"a.b"` and `"c"`
   vs `"a"` and `"b.c"`) are no longer merged; the same applies to the
@@ -72,6 +93,60 @@ in line with `dplyr`:
   when there is only one grouping variable, so the result is ungrouped.
   Previously, empty summaries, list results, zero row data and
   `.drop = FALSE` groups kept the grouping.
+
+Selections and pivots now match `tidyr`:
+
+- Selections which evaluate to column names, such as `names(df)[-1]` or
+  a function returning column names, now work in
+  [`pivot_longer()`](../reference/pivot_longer.md),
+  [`pivot_wider()`](../reference/pivot_wider.md),
+  [`rename_with()`](../reference/rename.md),
+  [`relocate()`](../reference/relocate.md) and
+  [`with_groups()`](../reference/with_groups.md), and selections are
+  evaluated in the caller’s environment so local variables are found
+  ([\#118](https://github.com/nathaneastwood/poorman/issues/118)).
+- [`pivot_longer()`](../reference/pivot_longer.md) now matches `tidyr`:
+  - Data with character row names, e.g. `mtcars`, can be pivoted and
+    rows are kept in their input order.
+  - Zero row data, tibbles and grouped data are supported; the class and
+    groups of the input are kept.
+  - `names_to` supports `".value"` and `NA`, `names_prefix` works with
+    several `names_to` and a single `names_to` uses the matching group
+    of `names_pattern`.
+  - The pivoted columns are combined following the `tidyr` type rules,
+    so dates and factors are kept and incompatible types are an error
+    rather than being silently coerced.
+  - Attributes of the id columns are kept.
+  - Invalid combinations of `names_to`, `names_sep`, `names_pattern` and
+    `values_to` are now errors.
+- [`pivot_longer()`](../reference/pivot_longer.md) gains the `tidyr` 1.1
+  arguments `names_ptypes`, `names_transform`, `names_repair`,
+  `values_ptypes` and `values_transform`, supports
+  `names_to = character()` and keeps every value when the new columns do
+  not uniquely identify each pivoted column, e.g. with duplicated column
+  names or `NA` in `names_to`.
+- [`pivot_wider()`](../reference/pivot_wider.md) now matches `tidyr`:
+  - `id_cols` accepts any selection, columns which are not selected are
+    dropped and the id columns are returned in the order selected.
+  - Factor, date and other classed values keep their class and
+    attributes.
+  - `values_fill` only fills combinations which are missing from the
+    data rather than all `NA`s, works with logical columns and with
+    `names_prefix`, keeps integer columns as integer and can be a named
+    list.
+  - Values which are not uniquely identified now produce list-columns
+    and a warning rather than silently keeping the first value.
+  - With several `values_from` columns, `names_prefix` is added after
+    the value name, e.g. `value_prefix_name`.
+  - `names_glue` now works with a single `names_from` column and can use
+    `.value`.
+  - Zero row data and tibbles are supported; the class and groups of the
+    input are kept.
+- [`pivot_wider()`](../reference/pivot_wider.md) gains the `tidyr` 1.1
+  arguments `names_sort`, `names_repair` and `values_fn`. The warning
+  for values which are not uniquely identified now matches `tidyr` 1.1,
+  `values_fill` can be `NA` and a `values_fill` which would lose
+  precision is an error.
 
 ## poorman 0.2.7
 

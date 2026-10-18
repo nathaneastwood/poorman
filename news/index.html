@@ -34,8 +34,18 @@
 
     <div class="section level2">
 <h2 class="pkg-version" data-toc-text="0.2.8" id="poorman-028">poorman 0.2.8<a class="anchor" aria-label="anchor" href="#poorman-028"></a></h2><p class="text-muted">CRAN release: 2026-07-30</p>
+<div class="section level3">
+<h3 id="breaking-changes-0-2-8">Breaking changes<a class="anchor" aria-label="anchor" href="#breaking-changes-0-2-8"></a></h3>
+<ul><li>The arguments of <code><a href="../reference/pivot_wider.html">pivot_wider()</a></code> are now in the same order as in <code>tidyr</code> 1.1: <code>data</code>, <code>id_cols</code>, <code>names_from</code>, <code>names_prefix</code>, <code>names_sep</code>, <code>names_glue</code>, <code>names_sort</code>, <code>names_repair</code>, <code>values_from</code>, <code>values_fill</code>, <code>values_fn</code>. Code which passes <code>values_from</code> or <code>names_from</code> by position must now name them.</li>
+</ul></div>
+<div class="section level3">
+<h3 id="improvements-0-2-8">Improvements<a class="anchor" aria-label="anchor" href="#improvements-0-2-8"></a></h3>
 <p>Grouped operations are now considerably faster. Groups are identified in a single pass over the data rather than by comparing every group against every row, so the cost of <code><a href="../reference/group_by.html">group_by()</a></code> no longer grows with the number of groups. On 100,000 rows with 1,000 groups, <code><a href="../reference/group_by.html">group_by()</a></code> and <code><a href="../reference/arrange.html">arrange()</a></code> are over 100x faster, <code><a href="../reference/filter.html">filter()</a></code>, <code><a href="../reference/mutate.html">mutate()</a></code> and <code><a href="../reference/count.html">count()</a></code> 7-20x faster, <code><a href="../reference/group_metadata.html">group_indices()</a></code> over 1,000x faster, and grouping by several high cardinality columns no longer exhausts memory.</p>
-<p>The following fixes were also implemented, bringing grouped operations in line with <code>dplyr</code>:</p>
+<p><code><a href="../reference/pivot_longer.html">pivot_longer()</a></code> and <code><a href="../reference/pivot_wider.html">pivot_wider()</a></code> have been rewritten without <code><a href="https://rdrr.io/r/stats/reshape.html" class="external-link">stats::reshape()</a></code> and are now considerably faster and use far less memory. On 100,000 rows by 10 columns, <code><a href="../reference/pivot_longer.html">pivot_longer()</a></code> is over 35x faster; on 1,000,000 rows, <code><a href="../reference/pivot_wider.html">pivot_wider()</a></code> is over 15x faster, and widening to 1,000 columns is over 150x faster and no longer allocates 3.5GB. Both functions now follow <code>tidyr</code> 1.1.</p>
+</div>
+<div class="section level3">
+<h3 id="bug-fixes-0-2-8">Bug fixes<a class="anchor" aria-label="anchor" href="#bug-fixes-0-2-8"></a></h3>
+<p>Grouped operations now match <code>dplyr</code>:</p>
 <ul><li>Groups whose values paste to the same string (e.g. <code>"a.b"</code> and <code>"c"</code> vs <code>"a"</code> and <code>"b.c"</code>) are no longer merged; the same applies to the keys of <code><a href="../reference/filter_joins.html">semi_join()</a></code> and <code><a href="../reference/filter_joins.html">anti_join()</a></code>.</li>
 <li>Rows with missing values in grouping columns are no longer dropped by grouped verbs.</li>
 <li>Numeric grouping values are compared exactly.</li>
@@ -65,7 +75,37 @@
 <code><a href="../reference/filter.html">filter()</a></code> now accepts a logical column on its own, e.g. <code>filter(df, is_valid)</code>, and gives an error for results which are not logical rather than silently using them.</li>
 <li>
 <code><a href="../reference/summarise.html">summarise()</a></code> now drops the last group when there is only one grouping variable, so the result is ungrouped. Previously, empty summaries, list results, zero row data and <code>.drop = FALSE</code> groups kept the grouping.</li>
+</ul><p>Selections and pivots now match <code>tidyr</code>:</p>
+<ul><li>Selections which evaluate to column names, such as <code>names(df)[-1]</code> or a function returning column names, now work in <code><a href="../reference/pivot_longer.html">pivot_longer()</a></code>, <code><a href="../reference/pivot_wider.html">pivot_wider()</a></code>, <code><a href="../reference/rename.html">rename_with()</a></code>, <code><a href="../reference/relocate.html">relocate()</a></code> and <code><a href="../reference/with_groups.html">with_groups()</a></code>, and selections are evaluated in the caller’s environment so local variables are found (<a href="https://github.com/nathaneastwood/poorman/issues/118" class="external-link">#118</a>).</li>
+<li>
+<code><a href="../reference/pivot_longer.html">pivot_longer()</a></code> now matches <code>tidyr</code>:
+<ul><li>Data with character row names, e.g. <code>mtcars</code>, can be pivoted and rows are kept in their input order.</li>
+<li>Zero row data, tibbles and grouped data are supported; the class and groups of the input are kept.</li>
+<li>
+<code>names_to</code> supports <code>".value"</code> and <code>NA</code>, <code>names_prefix</code> works with several <code>names_to</code> and a single <code>names_to</code> uses the matching group of <code>names_pattern</code>.</li>
+<li>The pivoted columns are combined following the <code>tidyr</code> type rules, so dates and factors are kept and incompatible types are an error rather than being silently coerced.</li>
+<li>Attributes of the id columns are kept.</li>
+<li>Invalid combinations of <code>names_to</code>, <code>names_sep</code>, <code>names_pattern</code> and <code>values_to</code> are now errors.</li>
+</ul></li>
+<li>
+<code><a href="../reference/pivot_longer.html">pivot_longer()</a></code> gains the <code>tidyr</code> 1.1 arguments <code>names_ptypes</code>, <code>names_transform</code>, <code>names_repair</code>, <code>values_ptypes</code> and <code>values_transform</code>, supports <code>names_to = character()</code> and keeps every value when the new columns do not uniquely identify each pivoted column, e.g. with duplicated column names or <code>NA</code> in <code>names_to</code>.</li>
+<li>
+<code><a href="../reference/pivot_wider.html">pivot_wider()</a></code> now matches <code>tidyr</code>:
+<ul><li>
+<code>id_cols</code> accepts any selection, columns which are not selected are dropped and the id columns are returned in the order selected.</li>
+<li>Factor, date and other classed values keep their class and attributes.</li>
+<li>
+<code>values_fill</code> only fills combinations which are missing from the data rather than all <code>NA</code>s, works with logical columns and with <code>names_prefix</code>, keeps integer columns as integer and can be a named list.</li>
+<li>Values which are not uniquely identified now produce list-columns and a warning rather than silently keeping the first value.</li>
+<li>With several <code>values_from</code> columns, <code>names_prefix</code> is added after the value name, e.g. <code>value_prefix_name</code>.</li>
+<li>
+<code>names_glue</code> now works with a single <code>names_from</code> column and can use <code>.value</code>.</li>
+<li>Zero row data and tibbles are supported; the class and groups of the input are kept.</li>
+</ul></li>
+<li>
+<code><a href="../reference/pivot_wider.html">pivot_wider()</a></code> gains the <code>tidyr</code> 1.1 arguments <code>names_sort</code>, <code>names_repair</code> and <code>values_fn</code>. The warning for values which are not uniquely identified now matches <code>tidyr</code> 1.1, <code>values_fill</code> can be <code>NA</code> and a <code>values_fill</code> which would lose precision is an error.</li>
 </ul></div>
+</div>
     <div class="section level2">
 <h2 class="pkg-version" data-toc-text="0.2.7" id="poorman-027">poorman 0.2.7<a class="anchor" aria-label="anchor" href="#poorman-027"></a></h2><p class="text-muted">CRAN release: 2023-10-30</p>
 <p>Eleventh CRAN release. This release:</p>

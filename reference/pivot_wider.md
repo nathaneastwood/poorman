@@ -10,12 +10,15 @@ decreasing the number of rows. The inverse transformation is
 pivot_wider(
   data,
   id_cols = NULL,
-  values_from = "Value",
   names_from = "Name",
-  names_sep = "_",
   names_prefix = "",
+  names_sep = "_",
   names_glue = NULL,
+  names_sort = FALSE,
+  names_repair = "check_unique",
+  values_from = "Value",
   values_fill = NULL,
+  values_fn = NULL,
   ...
 )
 ```
@@ -28,30 +31,26 @@ pivot_wider(
 
 - id_cols:
 
-  `character(1)`. The name of the column that identifies the rows. If
-  `NULL`, it will use all the unique rows.
-
-- values_from:
-
-  `character(n)`. The name of the column that contains the values to be
-  used as future variable values.
+  \<[`poor-select`](select_helpers.md)\>. The columns that uniquely
+  identify each observation. Defaults to all columns in `data` except
+  for the columns specified in `names_from` and `values_from`.
 
 - names_from:
 
-  `character(n)`. The name of the column(s) that contains the levels to
-  be used as future column names.
-
-- names_sep:
-
-  `character(1)`. If `names_from` or `values_from` contains multiple
-  variables, this will be used to join their values together into a
-  single string to use as a column name.
+  \<[`poor-select`](select_helpers.md)\>. The column(s) that contain the
+  levels to be used as future column names.
 
 - names_prefix:
 
   `character(1)`. String added to the start of every variable name. This
   is particularly useful if `names_from` is a numeric vector and you
   want to create syntactic variable names.
+
+- names_sep:
+
+  `character(1)`. If `names_from` or `values_from` contains multiple
+  variables, this will be used to join their values together into a
+  single string to use as a column name.
 
 - names_glue:
 
@@ -61,10 +60,45 @@ pivot_wider(
   that the only delimiters supported by `names_glue` are curly brackets,
   `{` and `}`.
 
+- names_sort:
+
+  `logical(1)`. Should the column names be sorted? If `FALSE`, the
+  default, column names are ordered by first appearance. Factors are
+  sorted by their levels and characters in the C locale, with `NA` last.
+
+- names_repair:
+
+  `character(1)` or `function`. What happens if the output has invalid
+  column names. The default, `"check_unique"`, is to error if the
+  columns are duplicated. Use `"minimal"` to allow duplicates in the
+  output, `"unique"` to de-duplicate by adding numeric suffixes or
+  `"universal"` to also make the names syntactic. A function is applied
+  to the names.
+
+- values_from:
+
+  \<[`poor-select`](select_helpers.md)\>. The column(s) that contain the
+  values to be used as future variable values. If the values are not
+  uniquely identified by the `id_cols` and `names_from` columns, the
+  output will contain list-columns and a warning is given.
+
 - values_fill:
 
-  `numeric(n)`. Optionally, a (scalar) value that will be used to
-  replace missing values in the new columns created.
+  Optionally, a scalar value that will be used to fill in missing
+  values, i.e. combinations of `id_cols` and `names_from` which are not
+  present in `data`. Explicit `NA`s in `values_from` are not replaced.
+  This can also be a named list, specifying a fill value for each of the
+  `values_from` columns.
+
+- values_fn:
+
+  `function` or named [`list()`](https://rdrr.io/r/base/list.html).
+  Optionally, a function applied to the value in each cell in the
+  output, typically to summarise values which are not uniquely
+  identified, e.g. `values_fn = mean`. A named list gives a function for
+  each `values_from` column, where functions may also be given as
+  formulas, e.g. `list(value = ~ max(.x))`. Use `values_fn = list` to
+  create list-columns without a warning.
 
 - ...:
 
@@ -100,11 +134,11 @@ pivot_wider(
   names_from = "condition",
   values_from = "measurement"
 )
-#>   subject sex control cond1 cond2
-#> 1       1   M     7.9  12.3  10.7
-#> 2       2   F     6.3  10.6  11.1
-#> 3       3   F     9.5  13.1  13.8
-#> 4       4   M    11.5  13.4  12.9
+#>   subject control cond1 cond2
+#> 1       1     7.9  12.3  10.7
+#> 2       2     6.3  10.6  11.1
+#> 3       3     9.5  13.1  13.8
+#> 4       4    11.5  13.4  12.9
 
 pivot_wider(
   data_long,
@@ -114,11 +148,11 @@ pivot_wider(
   names_prefix = "Var.",
   names_sep = "."
 )
-#>   subject sex Var.control Var.cond1 Var.cond2
-#> 1       1   M         7.9      12.3      10.7
-#> 2       2   F         6.3      10.6      11.1
-#> 3       3   F         9.5      13.1      13.8
-#> 4       4   M        11.5      13.4      12.9
+#>   subject Var.control Var.cond1 Var.cond2
+#> 1       1         7.9      12.3      10.7
+#> 2       2         6.3      10.6      11.1
+#> 3       3         9.5      13.1      13.8
+#> 4       4        11.5      13.4      12.9
 
 production <- expand.grid(
   product = c("A", "B"),

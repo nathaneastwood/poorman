@@ -49,8 +49,13 @@ transformation is <code><a href="pivot_wider.html">pivot_wider()</a></code>.</p>
 <span>  names_prefix <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  names_sep <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  names_pattern <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  names_ptypes <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span><span class="op">)</span>,</span>
+<span>  names_transform <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span><span class="op">)</span>,</span>
+<span>  names_repair <span class="op">=</span> <span class="st">"check_unique"</span>,</span>
 <span>  values_to <span class="op">=</span> <span class="st">"value"</span>,</span>
 <span>  values_drop_na <span class="op">=</span> <span class="cn">FALSE</span>,</span>
+<span>  values_ptypes <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span><span class="op">)</span>,</span>
+<span>  values_transform <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span><span class="op">)</span>,</span>
 <span>  <span class="va">...</span></span>
 <span><span class="op">)</span></span></code></pre></div>
     </div>
@@ -68,7 +73,10 @@ transformation is <code><a href="pivot_wider.html">pivot_wider()</a></code>.</p>
 
 
 <dt id="arg-names-to">names_to<a class="anchor" aria-label="anchor" href="#arg-names-to"></a></dt>
-<dd><p><code>character(n)</code>. The name of the new column(s) that will contain the column names.</p></dd>
+<dd><p><code>character(n)</code>. The name of the new column(s) that will contain the column names. If of length &gt; 1,
+one of <code>names_sep</code> or <code>names_pattern</code> must be supplied. Two values have special meaning: <code>NA</code> discards the
+corresponding piece of the column name and <code>".value"</code> indicates that the corresponding piece of the column name
+defines the name of the output column containing the values, overriding <code>values_to</code>.</p></dd>
 
 
 <dt id="arg-names-prefix">names_prefix<a class="anchor" aria-label="anchor" href="#arg-names-prefix"></a></dt>
@@ -78,11 +86,35 @@ name.</p></dd>
 
 <dt id="arg-names-sep-names-pattern">names_sep, names_pattern<a class="anchor" aria-label="anchor" href="#arg-names-sep-names-pattern"></a></dt>
 <dd><p><code>character(1)</code>. If <code>names_to</code> contains multiple values, this argument controls how the
-column name is broken up. <code>names_pattern</code> takes a regular expression containing matching groups (<code>()</code>).</p></dd>
+column name is broken up. <code>names_sep</code> is a fixed string on which to split the column names. <code>names_pattern</code> takes a
+regular expression containing matching groups (<code>()</code>); with a single value of <code>names_to</code>, the first matching group
+is used.</p></dd>
+
+
+<dt id="arg-names-ptypes-values-ptypes">names_ptypes, values_ptypes<a class="anchor" aria-label="anchor" href="#arg-names-ptypes-values-ptypes"></a></dt>
+<dd><p><code><a href="https://rdrr.io/r/base/list.html" class="external-link">list()</a></code>. Optionally, a named list of column name-prototype pairs, e.g.
+<code>list(week = factor())</code>, used to cast the newly created columns. Casts that lose information are an error.</p></dd>
+
+
+<dt id="arg-names-transform-values-transform">names_transform, values_transform<a class="anchor" aria-label="anchor" href="#arg-names-transform-values-transform"></a></dt>
+<dd><p><code><a href="https://rdrr.io/r/base/list.html" class="external-link">list()</a></code>. Optionally, a named list of column name-function pairs, e.g.
+<code>list(week = as.integer)</code>, applied to the newly created columns. Functions may be given as formulas, e.g.
+<code>~ as.integer(.x)</code>.</p></dd>
+
+
+<dt id="arg-names-repair">names_repair<a class="anchor" aria-label="anchor" href="#arg-names-repair"></a></dt>
+<dd><p><code>character(1)</code> or <code>function</code>. What happens if the output has invalid column names. The default,
+<code>"check_unique"</code>, is to error if the columns are duplicated. Use <code>"minimal"</code> to allow duplicates in the output,
+<code>"unique"</code> to de-duplicate by adding numeric suffixes or <code>"universal"</code> to also make the names syntactic. A function
+is applied to the names.</p></dd>
 
 
 <dt id="arg-values-to">values_to<a class="anchor" aria-label="anchor" href="#arg-values-to"></a></dt>
-<dd><p><code>character(n)</code>. The name of the new column(s) that will contain the values of the pivoted variables.</p></dd>
+<dd><p><code>character(1)</code>. The name of the new column that will contain the values of the pivoted variables.
+The pivoted columns are combined following the <code>tidyr</code> rules: logical, integer and double columns are combined into
+the richest of those types, factors are combined into a factor with the union of their levels, factors and
+characters are combined into a character and columns of the same class keep that class. Other combinations are an
+error.</p></dd>
 
 
 <dt id="arg-values-drop-na">values_drop_na<a class="anchor" aria-label="anchor" href="#arg-values-drop-na"></a></dt>

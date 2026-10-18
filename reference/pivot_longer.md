@@ -14,8 +14,13 @@ pivot_longer(
   names_prefix = NULL,
   names_sep = NULL,
   names_pattern = NULL,
+  names_ptypes = list(),
+  names_transform = list(),
+  names_repair = "check_unique",
   values_to = "value",
   values_drop_na = FALSE,
+  values_ptypes = list(),
+  values_transform = list(),
   ...
 )
 ```
@@ -34,7 +39,11 @@ pivot_longer(
 - names_to:
 
   `character(n)`. The name of the new column(s) that will contain the
-  column names.
+  column names. If of length \> 1, one of `names_sep` or `names_pattern`
+  must be supplied. Two values have special meaning: `NA` discards the
+  corresponding piece of the column name and `".value"` indicates that
+  the corresponding piece of the column name defines the name of the
+  output column containing the values, overriding `values_to`.
 
 - names_prefix:
 
@@ -44,13 +53,43 @@ pivot_longer(
 - names_sep, names_pattern:
 
   `character(1)`. If `names_to` contains multiple values, this argument
-  controls how the column name is broken up. `names_pattern` takes a
-  regular expression containing matching groups (`()`).
+  controls how the column name is broken up. `names_sep` is a fixed
+  string on which to split the column names. `names_pattern` takes a
+  regular expression containing matching groups (`()`); with a single
+  value of `names_to`, the first matching group is used.
+
+- names_ptypes, values_ptypes:
+
+  [`list()`](https://rdrr.io/r/base/list.html). Optionally, a named list
+  of column name-prototype pairs, e.g. `list(week = factor())`, used to
+  cast the newly created columns. Casts that lose information are an
+  error.
+
+- names_transform, values_transform:
+
+  [`list()`](https://rdrr.io/r/base/list.html). Optionally, a named list
+  of column name-function pairs, e.g. `list(week = as.integer)`, applied
+  to the newly created columns. Functions may be given as formulas, e.g.
+  `~ as.integer(.x)`.
+
+- names_repair:
+
+  `character(1)` or `function`. What happens if the output has invalid
+  column names. The default, `"check_unique"`, is to error if the
+  columns are duplicated. Use `"minimal"` to allow duplicates in the
+  output, `"unique"` to de-duplicate by adding numeric suffixes or
+  `"universal"` to also make the names syntactic. A function is applied
+  to the names.
 
 - values_to:
 
-  `character(n)`. The name of the new column(s) that will contain the
-  values of the pivoted variables.
+  `character(1)`. The name of the new column that will contain the
+  values of the pivoted variables. The pivoted columns are combined
+  following the `tidyr` rules: logical, integer and double columns are
+  combined into the richest of those types, factors are combined into a
+  factor with the union of their levels, factors and characters are
+  combined into a character and columns of the same class keep that
+  class. Other combinations are an error.
 
 - values_drop_na:
 
