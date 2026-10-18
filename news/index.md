@@ -1,8 +1,6 @@
 # Changelog
 
-## poorman 0.2.8
-
-CRAN release: 2026-07-30
+## poorman 0.2.9
 
 ### Breaking changes
 
@@ -227,6 +225,18 @@ Selections and pivots now match `tidyr`:
 - [`arrange()`](../reference/arrange.md) now supports
   [`desc()`](../reference/desc.md) on `Date` and other classed columns
   which do not support unary minus.
+
+## poorman 0.2.8
+
+CRAN release: 2026-07-30
+
+Twelfth CRAN release. This release:
+
+- Fixes [`group_split()`](../reference/group_split.md) and
+  [`nest_by()`](../reference/nest_by.md) for data with a single column
+  ([\#124](https://github.com/nathaneastwood/poorman/issues/124)).
+- Uses `names` rather than the deprecated `.Names` in
+  [`structure()`](https://rdrr.io/r/base/structure.html).
 
 ## poorman 0.2.7
 

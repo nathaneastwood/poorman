@@ -7,7 +7,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">poorman</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.2.8</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.2.9</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -33,26 +33,26 @@
     </div>
 
     <div class="section level2">
-<h2 class="pkg-version" data-toc-text="0.2.8" id="poorman-028">poorman 0.2.8<a class="anchor" aria-label="anchor" href="#poorman-028"></a></h2><p class="text-muted">CRAN release: 2026-07-30</p>
+<h2 class="pkg-version" data-toc-text="0.2.9" id="poorman-029">poorman 0.2.9<a class="anchor" aria-label="anchor" href="#poorman-029"></a></h2>
 <div class="section level3">
-<h3 id="breaking-changes-0-2-8">Breaking changes<a class="anchor" aria-label="anchor" href="#breaking-changes-0-2-8"></a></h3>
+<h3 id="breaking-changes-0-2-9">Breaking changes<a class="anchor" aria-label="anchor" href="#breaking-changes-0-2-9"></a></h3>
 <ul><li>The arguments of <code><a href="../reference/pivot_wider.html">pivot_wider()</a></code> are now in the same order as in <code>tidyr</code> 1.1: <code>data</code>, <code>id_cols</code>, <code>names_from</code>, <code>names_prefix</code>, <code>names_sep</code>, <code>names_glue</code>, <code>names_sort</code>, <code>names_repair</code>, <code>values_from</code>, <code>values_fill</code>, <code>values_fn</code>. Code which passes <code>values_from</code> or <code>names_from</code> by position must now name them.</li>
 </ul></div>
 <div class="section level3">
-<h3 id="new-features-0-2-8">New features<a class="anchor" aria-label="anchor" href="#new-features-0-2-8"></a></h3>
+<h3 id="new-features-0-2-9">New features<a class="anchor" aria-label="anchor" href="#new-features-0-2-9"></a></h3>
 <ul><li>
 <code><a href="../reference/arrange.html">arrange()</a></code> now supports <code><a href="../reference/across.html">across()</a></code> (<a href="https://github.com/nathaneastwood/poorman/issues/88" class="external-link">#88</a>).</li>
 <li>
 <code><a href="../reference/arrange.html">arrange()</a></code> now supports list, data frame and matrix columns. Data frame and matrix columns are sorted by each of their columns in turn and list columns are sorted by the first appearance of each element, as in <code>dplyr</code> (<a href="https://github.com/nathaneastwood/poorman/issues/90" class="external-link">#90</a>).</li>
 </ul></div>
 <div class="section level3">
-<h3 id="improvements-0-2-8">Improvements<a class="anchor" aria-label="anchor" href="#improvements-0-2-8"></a></h3>
+<h3 id="improvements-0-2-9">Improvements<a class="anchor" aria-label="anchor" href="#improvements-0-2-9"></a></h3>
 <p>Grouped operations are now considerably faster. Groups are identified in a single pass over the data rather than by comparing every group against every row, so the cost of <code><a href="../reference/group_by.html">group_by()</a></code> no longer grows with the number of groups. On 100,000 rows with 1,000 groups, <code><a href="../reference/group_by.html">group_by()</a></code> and <code><a href="../reference/arrange.html">arrange()</a></code> are over 100x faster, <code><a href="../reference/filter.html">filter()</a></code>, <code><a href="../reference/mutate.html">mutate()</a></code> and <code><a href="../reference/count.html">count()</a></code> 7-20x faster, <code><a href="../reference/group_metadata.html">group_indices()</a></code> over 1,000x faster, and grouping by several high cardinality columns no longer exhausts memory.</p>
 <p><code><a href="../reference/pivot_longer.html">pivot_longer()</a></code> and <code><a href="../reference/pivot_wider.html">pivot_wider()</a></code> have been rewritten without <code><a href="https://rdrr.io/r/stats/reshape.html" class="external-link">stats::reshape()</a></code> and are now considerably faster and use far less memory. On 100,000 rows by 10 columns, <code><a href="../reference/pivot_longer.html">pivot_longer()</a></code> is over 35x faster; on 1,000,000 rows, <code><a href="../reference/pivot_wider.html">pivot_wider()</a></code> is over 15x faster, and widening to 1,000 columns is over 150x faster and no longer allocates 3.5GB. Both functions now follow <code>tidyr</code> 1.1.</p>
 <p><code><a href="../reference/summarise.html">summarise()</a></code> is now considerably faster on grouped data. Each column is split by group once and the summaries are combined column by column, rather than building and binding a <code>data.frame</code> for each group. On 100,000 rows, <code><a href="../reference/summarise.html">summarise()</a></code> is over 4x faster with 1,000 groups and 5x faster with 10,000 groups, and <code><a href="../reference/count.html">count()</a></code> with 26,000 groups is over 7x faster. <code><a href="../reference/across.html">across()</a></code> builds its result faster, which also speeds up <code><a href="../reference/mutate.html">mutate()</a></code>.</p>
 </div>
 <div class="section level3">
-<h3 id="bug-fixes-0-2-8">Bug fixes<a class="anchor" aria-label="anchor" href="#bug-fixes-0-2-8"></a></h3>
+<h3 id="bug-fixes-0-2-9">Bug fixes<a class="anchor" aria-label="anchor" href="#bug-fixes-0-2-9"></a></h3>
 <p>Grouped operations now match <code>dplyr</code>:</p>
 <ul><li>Groups whose values paste to the same string (e.g. <code>"a.b"</code> and <code>"c"</code> vs <code>"a"</code> and <code>"b.c"</code>) are no longer merged; the same applies to the keys of <code><a href="../reference/filter_joins.html">semi_join()</a></code> and <code><a href="../reference/filter_joins.html">anti_join()</a></code>.</li>
 <li>Rows with missing values in grouping columns are no longer dropped by grouped verbs.</li>
@@ -137,6 +137,12 @@
 <code><a href="../reference/arrange.html">arrange()</a></code> now supports <code><a href="../reference/desc.html">desc()</a></code> on <code>Date</code> and other classed columns which do not support unary minus.</li>
 </ul></div>
 </div>
+    <div class="section level2">
+<h2 class="pkg-version" data-toc-text="0.2.8" id="poorman-028">poorman 0.2.8<a class="anchor" aria-label="anchor" href="#poorman-028"></a></h2><p class="text-muted">CRAN release: 2026-07-30</p>
+<p>Twelfth CRAN release. This release:</p>
+<ul><li>Fixes <code><a href="../reference/group_split.html">group_split()</a></code> and <code><a href="../reference/nest_by.html">nest_by()</a></code> for data with a single column (<a href="https://github.com/nathaneastwood/poorman/issues/124" class="external-link">#124</a>).</li>
+<li>Uses <code>names</code> rather than the deprecated <code>.Names</code> in <code><a href="https://rdrr.io/r/base/structure.html" class="external-link">structure()</a></code>.</li>
+</ul></div>
     <div class="section level2">
 <h2 class="pkg-version" data-toc-text="0.2.7" id="poorman-027">poorman 0.2.7<a class="anchor" aria-label="anchor" href="#poorman-027"></a></h2><p class="text-muted">CRAN release: 2023-10-30</p>
 <p>Eleventh CRAN release. This release:</p>
