@@ -72,7 +72,6 @@ mtcars %>% count(cyl, sort = TRUE)
 #> 2   4 11
 #> 3   6  7
 mtcars %>% count(cyl, am, sort = TRUE)
-#> `summarise()` has grouped output by 'cyl'. You can override using the `.groups` argument.
 #>   cyl am  n
 #> 1   8  0 12
 #> 2   4  1  8
@@ -83,7 +82,6 @@ mtcars %>% count(cyl, am, sort = TRUE)
 # Note that if the data are already grouped, count() adds an additional grouping variable
 # which is removed afterwards
 mtcars %>% group_by(gear) %>% count(cyl)
-#> `summarise()` has grouped output by 'gear'. You can override using the `.groups` argument.
 #>   gear cyl  n
 #> 1    3   4  1
 #> 2    3   6  2

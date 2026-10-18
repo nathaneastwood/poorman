@@ -7,7 +7,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">poorman</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.2.7</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.2.8</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -32,6 +32,40 @@
       <small>Source: <a href="https://github.com/nathaneastwood/poorman/blob/master/NEWS.md" class="external-link"><code>NEWS.md</code></a></small>
     </div>
 
+    <div class="section level2">
+<h2 class="pkg-version" data-toc-text="0.2.8" id="poorman-028">poorman 0.2.8<a class="anchor" aria-label="anchor" href="#poorman-028"></a></h2><p class="text-muted">CRAN release: 2026-07-30</p>
+<p>Grouped operations are now considerably faster. Groups are identified in a single pass over the data rather than by comparing every group against every row, so the cost of <code><a href="../reference/group_by.html">group_by()</a></code> no longer grows with the number of groups. On 100,000 rows with 1,000 groups, <code><a href="../reference/group_by.html">group_by()</a></code> and <code><a href="../reference/arrange.html">arrange()</a></code> are over 100x faster, <code><a href="../reference/filter.html">filter()</a></code>, <code><a href="../reference/mutate.html">mutate()</a></code> and <code><a href="../reference/count.html">count()</a></code> 7-20x faster, <code><a href="../reference/group_metadata.html">group_indices()</a></code> over 1,000x faster, and grouping by several high cardinality columns no longer exhausts memory.</p>
+<p>The following fixes were also implemented, bringing grouped operations in line with <code>dplyr</code>:</p>
+<ul><li>Groups whose values paste to the same string (e.g. <code>"a.b"</code> and <code>"c"</code> vs <code>"a"</code> and <code>"b.c"</code>) are no longer merged; the same applies to the keys of <code><a href="../reference/filter_joins.html">semi_join()</a></code> and <code><a href="../reference/filter_joins.html">anti_join()</a></code>.</li>
+<li>Rows with missing values in grouping columns are no longer dropped by grouped verbs.</li>
+<li>Numeric grouping values are compared exactly.</li>
+<li>
+<code>group_by(.drop = FALSE)</code> now includes every combination of factor levels and preserves ordered factors.</li>
+<li>
+<code><a href="../reference/group_split.html">group_split()</a></code> now returns groups in the same order as <code><a href="../reference/group_split.html">group_keys()</a></code>, and both include empty groups.</li>
+<li>
+<code><a href="../reference/group_metadata.html">group_indices()</a></code> and <code><a href="../reference/context.html">cur_group_id()</a></code> now count empty groups.</li>
+<li>
+<code><a href="../reference/group_metadata.html">group_data()</a></code> is now correct after a grouped <code><a href="../reference/mutate.html">mutate()</a></code>, <code><a href="../reference/mutate.html">transmute()</a></code> or <code><a href="../reference/fill.html">fill()</a></code>.</li>
+<li>
+<code><a href="../reference/filter.html">filter()</a></code>, <code><a href="../reference/arrange.html">arrange()</a></code> and <code><a href="../reference/summarise.html">summarise()</a></code> now respect zero-length groups, and <code>summarise(.groups = "drop")</code> returns an ungrouped <code>data.frame</code>.</li>
+<li>Grouped verbs now accept new columns named <code>f</code>, <code>.fn</code>, <code>.drop</code> or <code>.reorder</code>.</li>
+<li>Grouped verbs now work with zero-row data, and <code><a href="../reference/filter.html">filter()</a></code> now works with single column data.</li>
+<li>
+<code><a href="../reference/context.html">cur_group_id()</a></code> now returns <code>1</code> for ungrouped data.</li>
+<li>
+<code><a href="../reference/summarise.html">summarise()</a></code> now ignores <code>NULL</code> results, as in <code>dplyr</code> 1.0.4, rather than failing.</li>
+<li>
+<code><a href="../reference/summarise.html">summarise()</a></code> without any columns on ungrouped data now returns one row, as in <code>dplyr</code>.</li>
+<li>
+<code><a href="../reference/count.html">tally()</a></code> and <code><a href="../reference/count.html">count()</a></code> no longer report the grouping of their summary. <code><a href="../reference/count.html">tally()</a></code> now drops only the last grouping variable, and <code><a href="../reference/count.html">count()</a></code> now keeps every grouping variable of its input and its <code>.drop</code> setting rather than only the first grouping variable.</li>
+<li>
+<code><a href="../reference/filter.html">filter()</a></code> now combines the columns of a data frame result, e.g. from <code><a href="../reference/across.html">across()</a></code>, with <code>&amp;</code> and warns that this is deprecated, as in <code>dplyr</code> 1.0.8. Previously, it used the data frame as a matrix index and returned rows of <code>NA</code>. Matrix results must have one column.</li>
+<li>
+<code><a href="../reference/filter.html">filter()</a></code> now accepts a logical column on its own, e.g. <code>filter(df, is_valid)</code>, and gives an error for results which are not logical rather than silently using them.</li>
+<li>
+<code><a href="../reference/summarise.html">summarise()</a></code> now drops the last group when there is only one grouping variable, so the result is ungrouped. Previously, empty summaries, list results, zero row data and <code>.drop = FALSE</code> groups kept the grouping.</li>
+</ul></div>
     <div class="section level2">
 <h2 class="pkg-version" data-toc-text="0.2.7" id="poorman-027">poorman 0.2.7<a class="anchor" aria-label="anchor" href="#poorman-027"></a></h2><p class="text-muted">CRAN release: 2023-10-30</p>
 <p>Eleventh CRAN release. This release:</p>

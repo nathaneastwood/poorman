@@ -1,5 +1,78 @@
 # Changelog
 
+## poorman 0.2.8
+
+CRAN release: 2026-07-30
+
+Grouped operations are now considerably faster. Groups are identified in
+a single pass over the data rather than by comparing every group against
+every row, so the cost of [`group_by()`](../reference/group_by.md) no
+longer grows with the number of groups. On 100,000 rows with 1,000
+groups, [`group_by()`](../reference/group_by.md) and
+[`arrange()`](../reference/arrange.md) are over 100x faster,
+[`filter()`](../reference/filter.md),
+[`mutate()`](../reference/mutate.md) and
+[`count()`](../reference/count.md) 7-20x faster,
+[`group_indices()`](../reference/group_metadata.md) over 1,000x faster,
+and grouping by several high cardinality columns no longer exhausts
+memory.
+
+The following fixes were also implemented, bringing grouped operations
+in line with `dplyr`:
+
+- Groups whose values paste to the same string (e.g. `"a.b"` and `"c"`
+  vs `"a"` and `"b.c"`) are no longer merged; the same applies to the
+  keys of [`semi_join()`](../reference/filter_joins.md) and
+  [`anti_join()`](../reference/filter_joins.md).
+- Rows with missing values in grouping columns are no longer dropped by
+  grouped verbs.
+- Numeric grouping values are compared exactly.
+- `group_by(.drop = FALSE)` now includes every combination of factor
+  levels and preserves ordered factors.
+- [`group_split()`](../reference/group_split.md) now returns groups in
+  the same order as [`group_keys()`](../reference/group_split.md), and
+  both include empty groups.
+- [`group_indices()`](../reference/group_metadata.md) and
+  [`cur_group_id()`](../reference/context.md) now count empty groups.
+- [`group_data()`](../reference/group_metadata.md) is now correct after
+  a grouped [`mutate()`](../reference/mutate.md),
+  [`transmute()`](../reference/mutate.md) or
+  [`fill()`](../reference/fill.md).
+- [`filter()`](../reference/filter.md),
+  [`arrange()`](../reference/arrange.md) and
+  [`summarise()`](../reference/summarise.md) now respect zero-length
+  groups, and `summarise(.groups = "drop")` returns an ungrouped
+  `data.frame`.
+- Grouped verbs now accept new columns named `f`, `.fn`, `.drop` or
+  `.reorder`.
+- Grouped verbs now work with zero-row data, and
+  [`filter()`](../reference/filter.md) now works with single column
+  data.
+- [`cur_group_id()`](../reference/context.md) now returns `1` for
+  ungrouped data.
+- [`summarise()`](../reference/summarise.md) now ignores `NULL` results,
+  as in `dplyr` 1.0.4, rather than failing.
+- [`summarise()`](../reference/summarise.md) without any columns on
+  ungrouped data now returns one row, as in `dplyr`.
+- [`tally()`](../reference/count.md) and
+  [`count()`](../reference/count.md) no longer report the grouping of
+  their summary. [`tally()`](../reference/count.md) now drops only the
+  last grouping variable, and [`count()`](../reference/count.md) now
+  keeps every grouping variable of its input and its `.drop` setting
+  rather than only the first grouping variable.
+- [`filter()`](../reference/filter.md) now combines the columns of a
+  data frame result, e.g. from [`across()`](../reference/across.md),
+  with `&` and warns that this is deprecated, as in `dplyr` 1.0.8.
+  Previously, it used the data frame as a matrix index and returned rows
+  of `NA`. Matrix results must have one column.
+- [`filter()`](../reference/filter.md) now accepts a logical column on
+  its own, e.g. `filter(df, is_valid)`, and gives an error for results
+  which are not logical rather than silently using them.
+- [`summarise()`](../reference/summarise.md) now drops the last group
+  when there is only one grouping variable, so the result is ungrouped.
+  Previously, empty summaries, list results, zero row data and
+  `.drop = FALSE` groups kept the grouping.
+
 ## poorman 0.2.7
 
 CRAN release: 2023-10-30

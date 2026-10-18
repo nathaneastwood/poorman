@@ -37,6 +37,13 @@ out the {poorman} series of blog posts
 
 ([back to top](#readme-top))
 
+## Compatibility
+
+{poorman} replicates the behaviour of {dplyr} 1.0.x and {tidyr} 1.1.x.
+Features added in later versions are not implemented.
+
+([back to top](#readme-top))
+
 ## Installation
 
 You can install:
