@@ -1,4 +1,4 @@
-# poorman 0.2.8
+# poorman 0.2.9
 
 ## Breaking changes
 
@@ -78,6 +78,13 @@ Selections and pivots now match `tidyr`:
 * `arrange()` now only treats a top level `desc()` as a sort direction. Previously, it rewrote `desc()` as text, so `arrange(df, desc(x + y))` silently sorted by `-x + y`, and expressions such as `desc(x) + 0` and long expressions failed.
 * `arrange()` now finds variables in the calling environment, for example inside a function, and supports the `.data` pronoun there.
 * `arrange()` now supports `desc()` on `Date` and other classed columns which do not support unary minus.
+
+# poorman 0.2.8
+
+Twelfth CRAN release. This release:
+
+* Fixes `group_split()` and `nest_by()` for data with a single column (#124).
+* Uses `names` rather than the deprecated `.Names` in `structure()`.
 
 # poorman 0.2.7
 
