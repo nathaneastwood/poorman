@@ -83,6 +83,8 @@
 <code><a href="../reference/filter.html">filter()</a></code> now accepts a logical column on its own, e.g. <code>filter(df, is_valid)</code>, and gives an error for results which are not logical rather than silently using them.</li>
 <li>
 <code><a href="../reference/summarise.html">summarise()</a></code> now drops the last group when there is only one grouping variable, so the result is ungrouped. Previously, empty summaries, list results, zero row data and <code>.drop = FALSE</code> groups kept the grouping.</li>
+<li>
+<code><a href="../reference/bind.html">bind_rows()</a></code> now regroups its result by the groups and <code>.drop</code> setting of the first input. Previously, the result kept the groups of the first input, so the rows of the other inputs belonged to no group (<a href="https://github.com/nathaneastwood/poorman/issues/82" class="external-link">#82</a>).</li>
 </ul><p><code><a href="../reference/summarise.html">summarise()</a></code> now matches <code>dplyr</code>:</p>
 <ul><li>
 <code><a href="../reference/summarise.html">summarise()</a></code> now evaluates expressions in the calling environment, so local variables are found, for example inside a function. Previously, variables such as <code>i</code>, <code>fns</code> or <code>group</code> were silently taken from <code><a href="../reference/summarise.html">summarise()</a></code> itself and poorman’s internal objects could mask the user’s. As in <code>dplyr</code> and <code><a href="../reference/mutate.html">mutate()</a></code>, <code><a href="../reference/context.html">n()</a></code> and the other context functions must now be visible from the calling environment.</li>

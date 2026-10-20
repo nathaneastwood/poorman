@@ -112,6 +112,11 @@ Grouped operations now match `dplyr`:
   when there is only one grouping variable, so the result is ungrouped.
   Previously, empty summaries, list results, zero row data and
   `.drop = FALSE` groups kept the grouping.
+- [`bind_rows()`](../reference/bind.md) now regroups its result by the
+  groups and `.drop` setting of the first input. Previously, the result
+  kept the groups of the first input, so the rows of the other inputs
+  belonged to no group
+  ([\#82](https://github.com/nathaneastwood/poorman/issues/82)).
 
 [`summarise()`](../reference/summarise.md) now matches `dplyr`:
 
