@@ -23,6 +23,7 @@
 #' lst(a, b)
 
 lst <- function(...) {
+  env <- parent.frame()
   fn_call <- match.call()
   list_to_eval <- as.list(fn_call)[-1]
 
@@ -35,15 +36,13 @@ lst <- function(...) {
       # need to update the environment in which the values are obtained
       # ex: lst(a = 1, a = a + 1, b = a), 'b' needs the updated value of 'a',
       # not its initial value.
+      # restrict the environment to the previous elements of the list (and
+      # to the last value for each name if there are duplicated names). Other
+      # variables are looked up in the caller's environment, not in lst() itself.
       value <- eval(
         value,
-        envir = if (length(out) == 0) {
-          list_to_eval
-        } else {
-          # restrict the environment to the previous elements of the list (and
-          # to the last value for each name if there are duplicated names)
-          drop_dup_list(out[1:(element - 1)])
-        }
+        envir = drop_dup_list(out[seq_len(element - 1L)]),
+        enclos = env
       )
     }
     if (is.null(value)) {
