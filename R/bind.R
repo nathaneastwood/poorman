@@ -82,6 +82,7 @@ bind_rows <- function(..., .id = NULL) {
   lsts <- Filter(Negate(is.null), lsts)
   lapply(lsts, function(x) is_df_or_vector(x))
   lapply(lsts, function(x) if (is.atomic(x) && !is_named(x)) stop("Vectors must be named."))
+  first <- if (length(lsts) > 0L) lsts[[1L]]
 
   if (!missing(.id)) {
     lsts <- lapply(seq_along(lsts), function(i) {
@@ -102,5 +103,7 @@ bind_rows <- function(..., .id = NULL) {
     }
   )
   names(lsts) <- NULL
-  do.call(rbind, lsts)
+  out <- do.call(rbind, lsts)
+  if (inherits(first, "grouped_df")) out <- reconstruct_attrs(out, first)
+  out
 }

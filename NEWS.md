@@ -38,6 +38,7 @@ Grouped operations now match `dplyr`:
 * `filter()` now combines the columns of a data frame result, e.g. from `across()`, with `&` and warns that this is deprecated, as in `dplyr` 1.0.8. Previously, it used the data frame as a matrix index and returned rows of `NA`. Matrix results must have one column.
 * `filter()` now accepts a logical column on its own, e.g. `filter(df, is_valid)`, and gives an error for results which are not logical rather than silently using them.
 * `summarise()` now drops the last group when there is only one grouping variable, so the result is ungrouped. Previously, empty summaries, list results, zero row data and `.drop = FALSE` groups kept the grouping.
+* `bind_rows()` now regroups its result by the groups and `.drop` setting of the first input. Previously, the result kept the groups of the first input, so the rows of the other inputs belonged to no group (#82).
 
 `summarise()` now matches `dplyr`:
 

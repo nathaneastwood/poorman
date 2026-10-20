@@ -151,3 +151,24 @@ expect_error(
 )
 
 rm(one, two)
+
+gdf <- group_by(mtcars, cyl)
+expect_equal(
+  group_size(bind_rows(gdf, mtcars[1:2, ])),
+  c(11L, 9L, 14L),
+  info = "bind_rows() regroups the result by the groups of the first data.frame"
+)
+expect_equal(
+  group_size(bind_rows(gdf, gdf, .id = "id")),
+  c(22L, 14L, 28L),
+  info = "bind_rows() regroups the result when .id is supplied"
+)
+expect_equal(
+  group_vars(bind_rows(group_by(mtcars, am), gdf)),
+  "am",
+  info = "bind_rows() uses the groups of the first data.frame only"
+)
+expect_false(
+  inherits(bind_rows(mtcars, gdf), "grouped_df"),
+  info = "bind_rows() is ungrouped when the first data.frame is ungrouped"
+)
