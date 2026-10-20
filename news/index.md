@@ -117,6 +117,12 @@ Grouped operations now match `dplyr`:
   kept the groups of the first input, so the rows of the other inputs
   belonged to no group
   ([\#82](https://github.com/nathaneastwood/poorman/issues/82)).
+- [`lst()`](../reference/lst.md) now evaluates its elements in the
+  calling environment, so local variables are found, for example inside
+  a function or in the pkgdown examples. The first element can now also
+  refer to a variable of the same name, e.g. `lst(x = x + 1)`, rather
+  than seeing `NULL`
+  ([\#120](https://github.com/nathaneastwood/poorman/issues/120)).
 
 [`summarise()`](../reference/summarise.md) now matches `dplyr`:
 

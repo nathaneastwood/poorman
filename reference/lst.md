@@ -50,5 +50,10 @@ lst(1:3, z = letters[4:6], runif(3))
 a <- 1:3
 b <- letters[4:6]
 lst(a, b)
-#> Error in eval(value, envir = if (length(out) == 0) {    list_to_eval} else {    drop_dup_list(out[1:(element - 1)])}): object 'a' not found
+#> $a
+#> [1] 1 2 3
+#> 
+#> $b
+#> [1] "d" "e" "f"
+#> 
 ```
