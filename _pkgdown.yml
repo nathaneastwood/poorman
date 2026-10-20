@@ -42,6 +42,7 @@ reference:
   - bind
   - filter_joins
   - mutate_joins
+  - nest_join
   - union_all
 
 - title: Pivoting
