@@ -29,34 +29,27 @@ expect_equal(nrow(summarise(df, z = n())), 3L, info = "summarise returns a row f
 expect_equal(group_size(arrange(df)), c(2, 2, 0), info = "arrange keeps zero length groups")
 expect_equal(group_size(arrange(df, x)), c(2, 2, 0), info = "arrange keeps zero length groups")
 
-# gg <- bind_rows(df, df)
-# expect_equal(group_size(gg), c(4L, 4L, 0L), info = "bind_rows respect the drop attribute of grouped df")
+gg <- bind_rows(df, df)
+expect_equal(group_size(gg), c(4L, 4L, 0L), info = "bind_rows respect the drop attribute of grouped df")
+expect_false(group_by_drop_default(gg), info = "bind_rows keeps .drop = FALSE")
 
-# test_that("joins respect zero length groups", {
-#   df1 <- data.frame(f = factor( c(1,1,2,2), levels = 1:3), x = c(1,2,1,4)) %>%
-#     group_by(f)
+df1 <- data.frame(f = factor(c(1, 1, 2, 2), levels = 1:3), x = c(1, 2, 1, 4)) %>% group_by(f)
+df2 <- data.frame(f = factor(c(2, 2, 3, 3), levels = 1:3), y = c(1, 2, 3, 4)) %>% group_by(f)
 
-#   df2 <- data.frame(f = factor( c(2,2,3,3), levels = 1:3), y = c(1,2,3,4)) %>%
-#     group_by(f)
+expect_equal(group_size(left_join(df1, df2, by = "f")), c(2L, 4L), info = "left_join drops empty groups")
+expect_equal(group_size(right_join(df1, df2, by = "f")), c(4L, 2L), info = "right_join drops empty groups")
+expect_equal(group_size(full_join(df1, df2, by = "f")), c(2L, 4L, 2L), info = "full_join drops empty groups")
+expect_equal(group_size(anti_join(df1, df2, by = "f")), 2L, info = "anti_join drops empty groups")
+expect_equal(group_size(inner_join(df1, df2, by = "f")), 4L, info = "inner_join drops empty groups")
 
-#   expect_equal(group_size(left_join( df1, df2, by = "f")),  c(2,4))
-#   expect_equal(group_size(right_join( df1, df2, by = "f")),  c(4,2))
-#   expect_equal(group_size(full_join( df1, df2, by = "f")),  c(2,4,2))
-#   expect_equal(group_size(anti_join( df1, df2, by = "f")),  c(2))
-#   expect_equal(group_size(inner_join( df1, df2, by = "f")),  c(4))
+df1 <- group_by(df1, f, .drop = FALSE)
+df2 <- group_by(df2, f, .drop = FALSE)
 
-
-#   df1 <- data.frame(f = factor( c(1,1,2,2), levels = 1:3), x = c(1,2,1,4)) %>%
-#     group_by(f, .drop = FALSE)
-#   df2 <- data.frame(f = factor( c(2,2,3,3), levels = 1:3), y = c(1,2,3,4)) %>%
-#     group_by(f, .drop = FALSE)
-
-#   expect_equal(group_size(left_join( df1, df2, by = "f")),  c(2,4,0))
-#   expect_equal(group_size(right_join( df1, df2, by = "f")),  c(0,4,2))
-#   expect_equal(group_size(full_join( df1, df2, by = "f")),  c(2,4,2))
-#   expect_equal(group_size(anti_join( df1, df2, by = "f")),  c(2,0,0))
-#   expect_equal(group_size(inner_join( df1, df2, by = "f")),  c(0,4,0))
-# })
+expect_equal(group_size(left_join(df1, df2, by = "f")), c(2L, 4L, 0L), info = "left_join keeps zero length groups")
+expect_equal(group_size(right_join(df1, df2, by = "f")), c(0L, 4L, 2L), info = "right_join keeps zero length groups")
+expect_equal(group_size(full_join(df1, df2, by = "f")), c(2L, 4L, 2L), info = "full_join keeps zero length groups")
+expect_equal(group_size(anti_join(df1, df2, by = "f")), c(2L, 0L, 0L), info = "anti_join keeps zero length groups")
+expect_equal(group_size(inner_join(df1, df2, by = "f")), c(0L, 4L, 0L), info = "inner_join keeps zero length groups")
 
 df <- data.frame(x = factor(1:3, levels = 1:4)) %>% group_by(x, .drop = FALSE)
 expect_equal(n_groups(df), 4, info = "n_groups respects zero-length groups")
