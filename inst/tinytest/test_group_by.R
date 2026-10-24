@@ -258,3 +258,51 @@ ge_fn <- function(data) {
   group_by(data, h = x %/% k)
 }
 expect_equal(ge_fn(ge_df)$h, c(0L, 1L, 1L, 2L), info = "group_by() finds variables in the calling environment")
+
+fe_df <- data.frame(g = c(1, 1, 2), x = 1:3)
+fe_k <- 100L
+fe_inner <- function(data) {
+  off <- 10L
+  mutate(data, y = x + off)$y[1L]
+}
+expect_equal(
+  group_by(fe_df, n = fe_inner(fe_df))$n,
+  rep(11L, 3L),
+  info = "a mutate() called inside group_by() finds variables in its own calling environment"
+)
+fe_fn <- function(data) {
+  fe_k <- 2L
+  nm <- "new"
+  list(
+    group_by(data, h = x %% fe_k)$h,
+    names(group_by(data, "{nm}" := x)) # nolint: object_name_linter.
+  )
+}
+expect_equal(
+  fe_fn(fe_df),
+  list(c(1L, 0L, 1L), c("g", "x", "new")),
+  info = "group_by() uses a local variable over a global one, also in a := template"
+)
+
+# A verb which groups its own `...` calls the `group_by()` generic, so that a method for another class is used
+gd_calls <- 0L
+registerS3method("group_by", "gd_class", function(.data, ...) {
+  gd_calls <<- gd_calls + 1L
+  NextMethod()
+}, envir = asNamespace("poorman"))
+gd_df <- structure(data.frame(g = c(1, 1, 2), x = 1:3), class = c("gd_class", "data.frame"))
+gd_res <- vapply(
+  list(
+    function() count(gd_df, g),
+    function() add_count(gd_df, g),
+    function() group_split(gd_df, g),
+    function() nest_by(gd_df, g)
+  ),
+  function(f) {
+    gd_calls <<- 0L
+    f()
+    gd_calls > 0L
+  },
+  NA
+)
+expect_true(all(gd_res), info = "count(), add_count(), group_split() and nest_by() call group_by() methods")

@@ -157,3 +157,35 @@ expect_equal(
   data.frame(h = 0:2, n = c(1L, 2L, 1L)),
   info = "count() finds variables in the calling environment"
 )
+
+fe_df <- data.frame(g = c(1, 1, 2), x = 1:3)
+fe_k <- 100L
+fe_inner <- function(data) {
+  off <- 10L
+  mutate(data, y = x + off)$y[1L]
+}
+expect_equal(
+  count(fe_df, m = fe_inner(fe_df)),
+  data.frame(m = 11L, n = 3L),
+  info = "a mutate() called inside count() finds variables in its own calling environment"
+)
+fe_fn <- function(data) {
+  fe_k <- 2L
+  nm <- "new"
+  list(
+    count(data, h = x %% fe_k),
+    ungroup(add_count(data, h = x %% fe_k)),
+    names(count(data, "{nm}" := x)), # nolint: object_name_linter.
+    names(add_count(data, "{nm}" := x)) # nolint: object_name_linter.
+  )
+}
+expect_equal(
+  fe_fn(fe_df),
+  list(
+    data.frame(h = 0:1, n = 1:2),
+    data.frame(g = c(1, 1, 2), x = 1:3, h = c(1L, 0L, 1L), n = c(2L, 1L, 2L)),
+    c("new", "n"),
+    c("g", "x", "new", "n")
+  ),
+  info = "count() and add_count() use a local variable over a global one, also in a := template"
+)

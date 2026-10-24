@@ -101,18 +101,39 @@ mutate.data.frame <- function(
   .after = NULL
 ) {
   keep <- match.arg(arg = .keep, choices = c("all", "used", "unused", "none"), several.ok = FALSE)
+  env <- parent.frame()
+  mutate_cols(
+    .data = .data,
+    dots = dotdotdot(..., .env = env),
+    env = env,
+    keep = keep,
+    before = substitute(.before),
+    after = substitute(.after)
+  )
+}
 
-  # `group_by()` and `transmute()` compute their columns with `mutate()` and pass on the frame of the user
-  env <- if (!is.null(context$group_env)) context$group_env else parent.frame()
-  res <- mutate_df(.data = .data, dots = dotdotdot(..., .env = env), env = env)
+## -- Helpers ----------------------------------------------------------------------------------------------------------
+
+#' Add new columns and keep the requested columns
+#'
+#' The body of `mutate()`, which takes its expressions and environment explicitly so that verbs built on it, e.g.
+#' `transmute()`, can evaluate in the frame of their own caller.
+#'
+#' @param .data A `data.frame`.
+#' @param dots A `list` of unevaluated expressions, as returned by `dotdotdot()`.
+#' @param env An `environment` in which to look up variables that are not columns.
+#' @param keep `character(1)`. One of `"all"`, `"used"`, `"unused"` or `"none"`, as `mutate(.keep)`.
+#' @param before,after Unevaluated `.before` and `.after` arguments of `mutate()`.
+#' @return A `data.frame`.
+#' @noRd
+mutate_cols <- function(.data, dots, env, keep = "all", before = NULL, after = NULL) {
+  res <- mutate_df(.data = .data, dots = dots, env = env)
   data <- res$data
   new_cols <- res$new_cols
 
-  .before <- substitute(.before)
-  .after <- substitute(.after)
-  if (!is.null(.before) || !is.null(.after)) {
+  if (!is.null(before) || !is.null(after)) {
     new <- setdiff(new_cols, names(.data))
-    data <- do.call(relocate, c(list(.data = data), new, .before = .before, .after = .after))
+    data <- do.call(relocate, c(list(.data = data), new, .before = before, .after = after))
   }
 
   if (keep == "all") {
@@ -129,8 +150,6 @@ mutate.data.frame <- function(
     select(.data = data, keep)
   }
 }
-
-## -- Helpers ----------------------------------------------------------------------------------------------------------
 
 #' Compute new columns
 #'

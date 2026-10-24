@@ -48,7 +48,7 @@ group_split <- function(.data, ..., .keep = TRUE) {
     warning("... is ignored in group_split(<grouped_df>), please use group_by(..., .add = TRUE) %>% group_split()")
   }
   if (!has_groups(.data) && isTRUE(dots_len)) {
-    .data <- group_by(.data, ...)
+    .data <- group_by_caller(.data, ...)
   }
   if (!has_groups(.data) && !isTRUE(dots_len)) {
     return(list(.data))

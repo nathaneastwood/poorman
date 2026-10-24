@@ -91,3 +91,19 @@ invisible(group_keys(gf))
 expect_error(n(), info = "group_keys() does not leave its data in the context")
 
 rm(df, gf, res)
+
+fe_df <- data.frame(g = c(1, 1, 2), x = 1:3)
+fe_k <- 100L
+fe_fn <- function(data) {
+  fe_k <- 2L
+  nm <- "new"
+  list(
+    lapply(group_split(data, h = x %% fe_k), `[[`, "x"),
+    names(group_split(data, "{nm}" := x)[[1L]]) # nolint: object_name_linter.
+  )
+}
+expect_equal(
+  fe_fn(fe_df),
+  list(list(2L, c(1L, 3L)), c("g", "x", "new")),
+  info = "group_split() uses a local variable over a global one, also in a := template"
+)

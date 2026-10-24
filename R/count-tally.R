@@ -41,14 +41,9 @@
 #'
 #' @export
 count <- function(x, ..., wt = NULL, sort = FALSE, name = NULL) {
-  # Pass on the frame of the user to `group_by()`, which would otherwise evaluate the groups in this function
-  if (is.null(context$group_env)) {
-    context$group_env <- parent.frame()
-    on.exit(context$group_env <- NULL, add = TRUE)
-  }
   groups <- group_vars(x)
   drop <- group_by_drop_default(x)
-  if (!missing(...)) x <- group_by(x, ..., .add = TRUE)
+  if (!missing(...)) x <- group_by_caller(x, ..., .add = TRUE)
   wt <- deparse_var(wt)
   res <- do.call(tally, list(x, wt, sort, name))
   res <- ungroup(res)
@@ -75,7 +70,7 @@ add_count <- function(x, ..., wt = NULL, sort = FALSE, name = NULL) {
   name <- check_name(x, name)
   row_names <- rownames(x)
   wt <- deparse_var(wt)
-  if (!missing(...)) x <- group_by(x, ..., .add = TRUE)
+  if (!missing(...)) x <- group_by_caller(x, ..., .add = TRUE)
   res <- do.call(add_tally, list(x, wt, sort, name))
   res[row_names, ]
 }
