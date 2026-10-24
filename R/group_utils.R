@@ -225,11 +225,11 @@ subset_rows <- function(x, i) {
   if (!all(vapply(x, function(col) is.null(dim(col)), NA))) return(x[i, , drop = FALSE])
   attrs <- attributes(x)
   res <- lapply(x, `[`, i)
-  attrs[["row.names"]] <- .row_names_info(x, type = 0L)
-  attrs[["row.names"]] <- if (is.integer(attrs[["row.names"]]) && .row_names_info(x) < 0L) {
+  # The stored row names can be the compact form c(NA, n), so the expanded ones from `attr()` are indexed
+  attrs[["row.names"]] <- if (is.integer(.row_names_info(x, type = 0L)) && .row_names_info(x) < 0L) {
     as.integer(i)
   } else {
-    attrs[["row.names"]][i]
+    attr(x, "row.names")[i]
   }
   attributes(res) <- attrs
   res

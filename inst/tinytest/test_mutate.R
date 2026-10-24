@@ -442,3 +442,12 @@ expect_equal(
   c("y", "-.data[[\"y\"]]"),
   info = "transmute() names .data[[var]] after the value of var"
 )
+
+ch_df <- data.frame(g = c("b", "a", "b", "c", "a"), x = 1:5)
+ch_res <- ch_df %>% group_by(g) %>% mutate(k = 1) %>% mutate(z = n())
+expect_equal(
+  ungroup(ch_res),
+  data.frame(g = c("b", "a", "b", "c", "a"), x = 1:5, k = 1, z = c(2L, 2L, 2L, 1L, 2L)),
+  info = "The result of a grouped mutate() can be passed to another grouped verb"
+)
+expect_equal(group_rows(ch_res), list(c(2L, 5L), c(1L, 3L), 4L), info = "Chained grouped mutate() keeps the groups")
