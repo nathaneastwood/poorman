@@ -208,3 +208,15 @@ cast_ptype <- function(x, to, x_arg = "x") {
   if (any(lossy)) fail(" due to loss of precision")
   res
 }
+
+#' Is a vector unspecified?
+#'
+#' Following `vctrs`, a logical vector of missing values has no type of its own and can be combined with a vector of
+#' any type, taking that type. An empty, classed or matrix logical vector is not unspecified.
+#'
+#' @param x A vector.
+#' @return `logical(1)`.
+#' @noRd
+is_unspecified <- function(x) {
+  is.logical(x) && !is.object(x) && is.null(dim(x)) && length(x) > 0L && all(is.na(x))
+}

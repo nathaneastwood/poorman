@@ -74,3 +74,41 @@ expect_equal(
   info = "anti_join() does not match keys whose pasted values are the same"
 )
 rm(df1, df2)
+
+x <- data.frame(k = 1:3, v = c("a", "b", "c"), stringsAsFactors = FALSE)
+y <- data.frame(m = 2:4)
+expect_equal(
+  semi_join(x, y, by = c(k = "m")),
+  data.frame(k = 2:3, v = c("b", "c"), stringsAsFactors = FALSE),
+  info = "semi_join() joins different columns with a named `by`"
+)
+expect_equal(
+  anti_join(x, y, by = c(k = "m")),
+  data.frame(k = 1L, v = "a", stringsAsFactors = FALSE),
+  info = "anti_join() joins different columns with a named `by`"
+)
+expect_identical(
+  semi_join(x, data.frame(k = c(2, 3)), by = "k")$k, 2:3, info = "Filtering joins keep the key type of x"
+)
+expect_identical(
+  semi_join(data.frame(k = factor(c("p", "q"))), data.frame(k = "q", stringsAsFactors = FALSE), by = "k")$k,
+  factor("q", levels = c("p", "q")),
+  info = "Filtering joins keep factor keys of x"
+)
+expect_error(
+  semi_join(x, data.frame(k = c("1", "2")), by = "k"),
+  "Can't combine `k` <integer> and `k` <character>.",
+  fixed = TRUE,
+  info = "Filtering joins error on keys of incompatible types"
+)
+expect_error(
+  anti_join(x, y, by = "nope"),
+  "Join columns must be present in data",
+  info = "Filtering joins error on missing join columns"
+)
+expect_error(
+  semi_join(x, data.frame(q = 1)),
+  "`by` must be supplied when `x` and `y` have no common variables",
+  info = "Natural filtering joins error when there are no common columns"
+)
+rm(x, y)

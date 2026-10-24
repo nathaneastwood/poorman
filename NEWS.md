@@ -3,6 +3,7 @@
 ## Breaking changes
 
 * The arguments of `pivot_wider()` are now in the same order as in `tidyr` 1.1: `data`, `id_cols`, `names_from`, `names_prefix`, `names_sep`, `names_glue`, `names_sort`, `names_repair`, `values_from`, `values_fill`, `values_fn`. Code which passes `values_from` or `names_from` by position must now name them.
+* Joins now give an error when the join keys of `x` and `y` have incompatible types, such as integer and character, as in `dplyr`. Previously, the keys were silently converted. A natural join of tables with no common columns is now also an error; previously, the mutating joins returned a cross join and the filtering joins returned or dropped every row. Use `by = character()` for a cross join.
 
 ## New features
 
@@ -19,6 +20,10 @@ Grouped operations are now considerably faster. Groups are identified in a singl
 `summarise()` is now considerably faster on grouped data. Each column is split by group once and the summaries are combined column by column, rather than building and binding a `data.frame` for each group. On 100,000 rows, `summarise()` is over 4x faster with 1,000 groups and 5x faster with 10,000 groups, and `count()` with 26,000 groups is over 7x faster. `across()` builds its result faster, which also speeds up `mutate()`.
 
 ## Bug fixes
+
+* The join keys of `inner_join()`, `left_join()`, `right_join()` and `full_join()` are now cast to their common type, as in `dplyr`. For example, joining an integer key to a double key gives a double key, a factor key joined to a character key gives a character key, and factor keys keep the levels of both tables. Previously, the type of the result depended on the join.
+* `semi_join()` and `anti_join()` now support a named `by`, e.g. `by = c("a" = "b")`. Previously, they looked for the names of `y` in `x` and returned the wrong rows.
+* Joins on missing columns now give the `dplyr` error, which names the missing columns.
 
 Grouped operations now match `dplyr`:
 

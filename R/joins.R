@@ -96,27 +96,53 @@ full_join <- function(x, y, by = NULL, suffix = c(".x", ".y"), ..., keep = FALSE
 join_worker <- function(x, y, by = NULL, suffix = c(".x", ".y"), keep = FALSE, na_matches = c("na", "never"), ...) {
   na_matches <- match.arg(arg = na_matches, choices = c("na", "never"), several.ok = FALSE)
   incomparables <- if (na_matches == "never") NA else NULL
-  x[, ".join_id"] <- seq_len(nrow(x))
-  merged <- if (is.null(by)) {
-    by <- intersect(names(x), names(y))
-    join_message(by)
-    merge(
-      x = x, y = y, by = by, suffixes = suffix, incomparables = incomparables, ...
-    )[, union(names(x), names(y)), drop = FALSE]
-  } else if (is.null(names(by))) {
-    merge(x = x, y = y, by = by, suffixes = suffix, incomparables = incomparables, ...)
-  } else {
-    merge(x = x, y = y, by.x = names(by), by.y = by, suffixes = suffix, incomparables = incomparables, ...)
+  natural <- is.null(by)
+  by <- standardise_join_by(by, names(x), names(y))
+  # merge() does not cast the keys to a common type, so the key of an inner or left join would keep the type of `x`
+  for (i in seq_along(by$x)) {
+    cast <- join_key_cast(.subset2(x, by$x[i]), .subset2(y, by$y[i]), by$x[i], mutating = TRUE)
+    x[[by$x[i]]] <- cast$x
+    y[[by$y[i]]] <- cast$y
   }
+  x[, ".join_id"] <- seq_len(nrow(x))
+  merged <- merge(x = x, y = y, by.x = by$x, by.y = by$y, suffixes = suffix, incomparables = incomparables, ...)
+  if (natural) merged <- merged[, union(names(x), names(y)), drop = FALSE]
   merged <- merged[order(merged[, ".join_id"]), colnames(merged) != ".join_id", drop = FALSE]
   if (isTRUE(keep)) {
-    keep_pos <- match(by, names(merged))
-    x_by <- paste0(by, suffix[1L])
+    keep_pos <- match(by$y, names(merged))
+    x_by <- paste0(by$y, suffix[1L])
     colnames(merged)[keep_pos] <- x_by
-    merged[, paste0(by, suffix[2L])] <- merged[, x_by]
+    merged[, paste0(by$y, suffix[2L])] <- merged[, x_by]
   }
   rownames(merged) <- NULL
   reconstruct_attrs(merged, x)
+}
+
+#' Find the key columns of a join
+#'
+#' @param by The `by` argument of a join: `NULL` for a natural join, otherwise a character vector whose names, where
+#' given, are the keys in `x`.
+#' @param x_names,y_names `character(n)`. The column names of `x` and `y`.
+#' @return A `list` with `x` and `y`, the names of the key columns in `x` and `y`.
+#' @noRd
+standardise_join_by <- function(by, x_names, y_names) {
+  if (is.null(by)) {
+    by <- intersect(x_names, y_names)
+    if (length(by) == 0L) {
+      stop(
+        "`by` must be supplied when `x` and `y` have no common variables.\n",
+        "i use `by = character()` to perform a cross-join."
+      )
+    }
+    join_message(by)
+  }
+  by_x <- names(by)
+  if (is.null(by_x)) by_x <- by
+  by_x[by_x == ""] <- by[by_x == ""]
+  by_y <- unname(by)
+  check_join_vars(by_x, x_names)
+  check_join_vars(by_y, y_names)
+  list(x = unname(by_x), y = by_y)
 }
 
 join_message <- function(by) {
@@ -125,4 +151,106 @@ join_message <- function(by) {
   } else {
     message("Joining, by = \"", by, "\"\n", sep = "")
   }
+}
+
+check_join_vars <- function(vars, names) {
+  missing <- setdiff(vars, names)
+  if (length(missing) > 0L) {
+    stop("Join columns must be present in data.\nx Problem with ", paste0("`", missing, "`", collapse = ", "), ".")
+  }
+}
+
+#' Cast a pair of join keys to their common type
+#'
+#' Follows `vctrs::vec_ptype2()`, as `dplyr` does: factors with different levels combine to a factor of all levels, a
+#' factor and a character vector combine to a character vector, numbers combine to the widest numeric type and a
+#' `Date` combines with a `POSIXct` to a `POSIXct`. Any other combination of types is an error.
+#'
+#' @param x_col,y_col The key columns of `x` and `y`.
+#' @param name `character(1)`. The name of the key in `x`, used in errors.
+#' @param mutating `logical(1)`. Is the key for a mutating join? These report incompatible types differently.
+#' @return A `list` with `x` and `y`, `x_col` and `y_col` cast to the common type, and `key`, the values of `x_col` and
+#' then `y_col` in a form that `group_ids()` can compare.
+#' @noRd
+join_key_cast <- function(x_col, y_col, name, mutating = FALSE) {
+  # An all `NA` logical vector has no type of its own and takes the type of the other key
+  if (is_unspecified(x_col) && !is_unspecified(y_col)) x_col <- y_col[rep(NA_integer_, length(x_col))]
+  if (is_unspecified(y_col)) y_col <- x_col[rep(NA_integer_, length(y_col))]
+
+  x_kind <- join_key_kind(x_col)
+  y_kind <- join_key_kind(y_col)
+  if (x_kind != y_kind) {
+    x_type <- join_key_type(x_col)
+    y_type <- join_key_type(y_col)
+    if (mutating) {
+      stop(
+        "Can't join on `x$", name, "` x `y$", name, "` because of incompatible types.\n",
+        "i `x$", name, "` is of type <", x_type, ">.\n",
+        "i `y$", name, "` is of type <", y_type, ">."
+      )
+    }
+    stop("Can't combine `", name, "` <", x_type, "> and `", name, "` <", y_type, ">.")
+  }
+  switch(
+    x_kind,
+    character = join_key_cast_character(x_col, y_col),
+    numeric = {
+      type <- typeof(c(x_col[0L], y_col[0L]))
+      if (typeof(x_col) != type) storage.mode(x_col) <- type
+      if (typeof(y_col) != type) storage.mode(y_col) <- type
+      list(x = x_col, y = y_col, key = c(unclass(x_col), unclass(y_col)))
+    },
+    datetime = join_key_cast_datetime(x_col, y_col),
+    list(x = x_col, y = y_col, key = c(x_col, y_col))
+  )
+}
+
+join_key_cast_character <- function(x_col, y_col) {
+  if (is.factor(x_col) && is.factor(y_col)) {
+    lvls <- union(levels(x_col), levels(y_col))
+    if (!identical(lvls, levels(x_col))) {
+      x_col <- factor(as.character(x_col), levels = lvls, ordered = is.ordered(x_col))
+    }
+    if (!identical(lvls, levels(y_col))) {
+      y_col <- factor(as.character(y_col), levels = lvls, ordered = is.ordered(y_col))
+    }
+  } else {
+    x_col <- as.character(x_col)
+    y_col <- as.character(y_col)
+  }
+  list(x = x_col, y = y_col, key = c(as.character(x_col), as.character(y_col)))
+}
+
+join_key_cast_datetime <- function(x_col, y_col) {
+  if (inherits(x_col, "POSIXlt")) x_col <- as.POSIXct(x_col)
+  if (inherits(y_col, "POSIXlt")) y_col <- as.POSIXct(y_col)
+  # A Date is cast to a POSIXct at midnight in the time zone of the other key, as in `vctrs::vec_cast()`
+  if (inherits(x_col, "Date") && inherits(y_col, "POSIXct")) {
+    x_col <- as.POSIXct(as.character(x_col), tz = join_key_tz(y_col))
+  } else if (inherits(x_col, "POSIXct") && inherits(y_col, "Date")) {
+    y_col <- as.POSIXct(as.character(y_col), tz = join_key_tz(x_col))
+  }
+  # Dates are days and date-times are seconds, so only compare the underlying numbers once both have the same class
+  list(x = x_col, y = y_col, key = c(unclass(x_col), unclass(y_col)))
+}
+
+join_key_tz <- function(x) {
+  tz <- attr(x, "tzone", exact = TRUE)
+  if (is.null(tz)) "" else tz[1L]
+}
+
+join_key_kind <- function(x) {
+  if (is.character(x) || is.factor(x)) return("character")
+  if (inherits(x, c("Date", "POSIXct", "POSIXlt"))) return("datetime")
+  if (is.null(attr(x, "class")) && typeof(x) %in% c("logical", "integer", "double")) return("numeric")
+  paste(class(x), collapse = "/")
+}
+
+join_key_type <- function(x) {
+  if (is.ordered(x)) return("ordered")
+  if (is.factor(x)) return("factor")
+  if (inherits(x, "Date")) return("date")
+  if (inherits(x, c("POSIXct", "POSIXlt"))) return("datetime")
+  if (is.null(attr(x, "class"))) return(typeof(x))
+  class(x)[1L]
 }

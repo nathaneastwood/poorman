@@ -66,37 +66,22 @@ nest_join <- function(x, y, by = NULL, copy = FALSE, keep = FALSE, name = NULL, 
 #' @export
 nest_join.data.frame <- function(x, y, by = NULL, copy = FALSE, keep = FALSE, name = NULL, ...) {
   nest_col <- if (is.null(name)) expr_label(substitute(y)) else name
-  if (is.null(by)) {
-    by <- intersect(names(x), names(y))
-    if (length(by) == 0L) {
-      stop(
-        "`by` must be supplied when `x` and `y` have no common variables.\n",
-        "i use `by = character()` to perform a cross-join."
-      )
-    }
-    join_message(by)
-  }
-  by_x <- names(by)
-  if (is.null(by_x)) by_x <- by
-  by_x[by_x == ""] <- by[by_x == ""]
-  by_y <- unname(by)
-  check_join_vars(by_x, names(x))
-  check_join_vars(by_y, names(y))
+  by <- standardise_join_by(by, names(x), names(y))
 
   n_x <- nrow(x)
   n_y <- nrow(y)
   out <- as.list(.subset(x))
-  keys <- vector("list", length(by_x))
-  for (i in seq_along(by_x)) {
-    cast <- join_key_cast(.subset2(x, by_x[i]), .subset2(y, by_y[i]), by_x[i])
-    out[[by_x[i]]] <- cast$x
+  keys <- vector("list", length(by$x))
+  for (i in seq_along(by$x)) {
+    cast <- join_key_cast(.subset2(x, by$x[i]), .subset2(y, by$y[i]), by$x[i])
+    out[[by$x[i]]] <- cast$x
     keys[[i]] <- cast$key
   }
   ids <- group_ids(keys, n = n_x + n_y)
   x_ids <- ids[seq_len(n_x)]
   y_rows <- split_rows(ids[n_x + seq_len(n_y)], max(ids, 0L))
 
-  y_cols <- if (isTRUE(keep)) names(y) else setdiff(names(y), by_y)
+  y_cols <- if (isTRUE(keep)) names(y) else setdiff(names(y), by$y)
   y_data <- structure(as.list(.subset(y, y_cols)), class = "data.frame", row.names = .set_row_names(n_y))
   # Slice `y` once per matched key rather than once per row of `x`; keys missing from `y` give a 0-row data.frame
   used <- unique(x_ids)
@@ -110,95 +95,4 @@ nest_join.data.frame <- function(x, y, by = NULL, copy = FALSE, keep = FALSE, na
 
   out <- structure(out, class = "data.frame", row.names = .set_row_names(n_x))
   reconstruct_attrs(out, x)
-}
-
-check_join_vars <- function(vars, names) {
-  missing <- setdiff(vars, names)
-  if (length(missing) > 0L) {
-    stop("Join columns must be present in data.\nx Problem with ", paste0("`", missing, "`", collapse = ", "), ".")
-  }
-}
-
-#' Cast a pair of join keys to their common type
-#'
-#' Follows `vctrs::vec_ptype2()`, as `dplyr` does: factors with different levels combine to a factor of all levels, a
-#' factor and a character vector combine to a character vector, numbers combine to the widest numeric type and a
-#' `Date` combines with a `POSIXct` to a `POSIXct`. Any other combination of types is an error.
-#'
-#' @param x_col,y_col The key columns of `x` and `y`.
-#' @param name `character(1)`. The name of the key in `x`, used in errors.
-#' @return A `list` with `x`, `x_col` cast to the common type, and `key`, the values of `x_col` and then `y_col` in a
-#' form that `group_ids()` can compare.
-#' @noRd
-join_key_cast <- function(x_col, y_col, name) {
-  # An all `NA` logical vector has no type of its own and takes the type of the other key
-  if (is_unspecified(x_col) && !is_unspecified(y_col)) x_col <- y_col[rep(NA_integer_, length(x_col))]
-  if (is_unspecified(y_col)) y_col <- x_col[rep(NA_integer_, length(y_col))]
-
-  x_kind <- join_key_kind(x_col)
-  y_kind <- join_key_kind(y_col)
-  if (x_kind != y_kind) {
-    stop("Can't combine `", name, "` <", join_key_type(x_col), "> and `", name, "` <", join_key_type(y_col), ">.")
-  }
-  switch(
-    x_kind,
-    character = join_key_cast_character(x_col, y_col),
-    numeric = {
-      type <- typeof(c(x_col[0L], y_col[0L]))
-      if (typeof(x_col) != type) storage.mode(x_col) <- type
-      list(x = x_col, key = c(unclass(x_col), unclass(y_col)))
-    },
-    datetime = join_key_cast_datetime(x_col, y_col),
-    list(x = x_col, key = c(x_col, y_col))
-  )
-}
-
-join_key_cast_character <- function(x_col, y_col) {
-  if (is.factor(x_col) && is.factor(y_col)) {
-    lvls <- union(levels(x_col), levels(y_col))
-    if (!identical(lvls, levels(x_col))) {
-      x_col <- factor(as.character(x_col), levels = lvls, ordered = is.ordered(x_col))
-    }
-  } else {
-    x_col <- as.character(x_col)
-  }
-  list(x = x_col, key = c(as.character(x_col), as.character(y_col)))
-}
-
-join_key_cast_datetime <- function(x_col, y_col) {
-  if (inherits(x_col, "POSIXlt")) x_col <- as.POSIXct(x_col)
-  if (inherits(y_col, "POSIXlt")) y_col <- as.POSIXct(y_col)
-  # A Date is cast to a POSIXct at midnight in the time zone of the other key, as in `vctrs::vec_cast()`
-  if (inherits(x_col, "Date") && inherits(y_col, "POSIXct")) {
-    x_col <- as.POSIXct(as.character(x_col), tz = join_key_tz(y_col))
-  } else if (inherits(x_col, "POSIXct") && inherits(y_col, "Date")) {
-    y_col <- as.POSIXct(as.character(y_col), tz = join_key_tz(x_col))
-  }
-  # Dates are days and date-times are seconds, so only compare the underlying numbers once both have the same class
-  list(x = x_col, key = c(unclass(x_col), unclass(y_col)))
-}
-
-join_key_tz <- function(x) {
-  tz <- attr(x, "tzone", exact = TRUE)
-  if (is.null(tz)) "" else tz[1L]
-}
-
-is_unspecified <- function(x) {
-  is.logical(x) && length(x) > 0L && is.null(attributes(x)) && all(is.na(x))
-}
-
-join_key_kind <- function(x) {
-  if (is.character(x) || is.factor(x)) return("character")
-  if (inherits(x, c("Date", "POSIXct", "POSIXlt"))) return("datetime")
-  if (is.null(attr(x, "class")) && (is.logical(x) || is.integer(x) || is.double(x))) return("numeric")
-  paste(class(x), collapse = "/")
-}
-
-join_key_type <- function(x) {
-  if (is.ordered(x)) return("ordered")
-  if (is.factor(x)) return("factor")
-  if (inherits(x, "Date")) return("date")
-  if (inherits(x, c("POSIXct", "POSIXlt"))) return("datetime")
-  if (is.null(attr(x, "class"))) return(typeof(x))
-  class(x)[1L]
 }
