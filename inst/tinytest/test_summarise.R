@@ -407,3 +407,31 @@ expect_equal(
 )
 
 rm(df, gf, res)
+
+ce_df <- data.frame(x = 1:3, y = c(2, 4, 6))
+ce_nm <- "tot"
+expect_equal(
+  summarise(ce_df, z := mean(y), "{ce_nm}_sum" := sum(y), "{toupper(ce_nm)}" := z * 2), # nolint: object_name_linter.
+  data.frame(z = 4, tot_sum = 12, TOT = 8),
+  info = "summarise() names := arguments after a symbol or a gluestick template"
+)
+expect_equal(
+  names(summarise(ce_df, `{ce_nm}` := mean(y))), # nolint: object_name_linter.
+  "{ce_nm}",
+  info = "A symbol on the left of := is not interpolated"
+)
+ce_fn <- function(data) {
+  local_nm <- "inner"
+  summarise(data, "{local_nm}" := mean(y)) # nolint: object_name_linter.
+}
+expect_equal(names(ce_fn(ce_df)), "inner", info = "Gluestick templates are filled in from the calling environment")
+expect_error(
+  summarise(ce_df, z = w := y),
+  "Can't supply both `=` and `:=`",
+  info = "An argument can't be named with both = and :="
+)
+expect_error(
+  summarise(ce_df, f(z) := y),
+  "The LHS of `:=` must be a string or a symbol.",
+  info = "The left of := must be a string or a symbol"
+)

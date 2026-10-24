@@ -23,6 +23,10 @@
 #' new column and the value will be its corresponding value. Use a `NULL` value in `mutate` to drop a variable. New
 #' variables overwrite existing variables of the same name.
 #'
+#' A name can also be given with `:=`, e.g. `total := sum(x)`. A string on the left of `:=` is a `gluestick` template
+#' which is filled in from the calling environment, so that a name can be built from a variable, e.g.
+#' `"{var}_mean" := mean(x)`.
+#'
 #' @examples
 #' mutate(mtcars, mpg2 = mpg * 2)
 #' mtcars %>% mutate(mpg2 = mpg * 2)
@@ -128,8 +132,9 @@ mutate.grouped_df <- function(.data, ...) {
 ## -- Helpers ----------------------------------------------------------------------------------------------------------
 
 mutate_df <- function(.data, ...) {
-  conditions <- dotdotdot(..., .impute_names = TRUE)
-  cond_nms <- names(dotdotdot(..., .impute_names = FALSE))
+  env <- if (!is.null(context$group_env)) context$group_env else parent.frame(n = 2)
+  conditions <- dotdotdot(..., .impute_names = TRUE, .env = env)
+  cond_nms <- names(dotdotdot(..., .impute_names = FALSE, .env = env))
   if (length(conditions) == 0L) {
     return(list(
       data = .data,
@@ -148,7 +153,7 @@ mutate_df <- function(.data, ...) {
     res <- eval(
       conditions[[i]],
       envir = mask,
-      enclos = if (!is.null(context$group_env)) context$group_env else parent.frame(n = 2)
+      enclos = env
     )
     res_nms <- names(res)
     if (is.atomic(res) && length(res) == 1L && nrow(context$.data) == 0L) res <- res[0L]

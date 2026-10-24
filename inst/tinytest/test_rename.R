@@ -28,3 +28,10 @@ expect_equal(
   },
   info = "Test renaming multiple columns"
 )
+
+ce_nm <- "tot"
+expect_equal(
+  names(rename(data.frame(x = 1, y = 2), z := x, "{ce_nm}" := y)), # nolint: object_name_linter.
+  c("z", "tot"),
+  info = "rename() supports :="
+)

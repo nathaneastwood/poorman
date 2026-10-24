@@ -12,6 +12,7 @@
 * `arrange()` now supports `across()` (#88).
 * `arrange()` now supports list, data frame and matrix columns. Data frame and matrix columns are sorted by each of their columns in turn and list columns are sorted by the first appearance of each element, as in `dplyr` (#90).
 * New `nest_join()` returns all rows and columns of `x` with a list column of the matching rows of `y`, as `data.frame`s. Rows of `x` with no match get a 0-row `data.frame` (#78).
+* Arguments can now be named with `:=`, as in `dplyr`, e.g. `summarise(df, total := sum(x))`. A string on the left is a `gluestick` template, which is filled in from the calling environment, e.g. `mutate(df, "{var}_mean" := mean(x))`. This works in every verb whose arguments take names, such as `summarise()`, `mutate()`, `transmute()`, `rename()`, `select()` and `distinct()`. Unlike `dplyr`, `!!` and `{{` are not supported on the left of `:=`.
 * `semi_join()` and `anti_join()` gain the `copy`, `...` and `na_matches` arguments of `dplyr`. `copy` and `...` are ignored. Use `na_matches = "never"` to stop keys with `NA` or `NaN` values from matching.
 
 ## Improvements

@@ -141,3 +141,10 @@ expect_message(
   info = "The message only names the grouping variables which are added back"
 )
 expect_equal(colnames(res), c("w", "id"), info = "Selected grouping variables are not added twice")
+
+ce_nm <- "tot"
+expect_equal(
+  names(select(data.frame(x = 1, y = 2), "{ce_nm}" := y)), # nolint: object_name_linter.
+  "tot",
+  info = "select() renames with :="
+)

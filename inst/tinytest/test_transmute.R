@@ -48,3 +48,10 @@ expect_equal(
   data.frame(g = c("a", "a", "b"), z = 11:13),
   info = "transmute() finds variables in the calling environment on grouped data"
 )
+
+ce_nm <- "tot"
+expect_equal(
+  transmute(data.frame(y = c(2, 4)), "{ce_nm}" := y * 2), # nolint: object_name_linter.
+  data.frame(tot = c(4, 8)),
+  info = "transmute() names := arguments"
+)

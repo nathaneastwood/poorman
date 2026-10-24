@@ -132,3 +132,9 @@ expect_equal(
 )
 
 rm(df, gf)
+
+expect_equal(
+  distinct(data.frame(g = c("a", "a", "b")), z := g),
+  data.frame(z = c("a", "b")),
+  info = "distinct() supports :="
+)

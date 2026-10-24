@@ -31,7 +31,7 @@
 #'
 #' @noRd
 select_positions <- function(.data, ..., .group_pos = FALSE, .env = parent.frame(2L)) {
-  cols <- dotdotdot(...)
+  cols <- dotdotdot(..., .env = .env)
   cols <- cols[!vapply(cols, is.null, FALSE)]
   if (length(cols) == 0L) return(integer(0))
   select_env$setup(.data = .data, calling_frame = .env)

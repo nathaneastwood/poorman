@@ -23,7 +23,11 @@ transmute(.data, ...)
 
 \item{...}{Name-value pairs of expressions, each with length \code{1L}. The name of each argument will be the name of a
 new column and the value will be its corresponding value. Use a \code{NULL} value in \code{mutate} to drop a variable. New
-variables overwrite existing variables of the same name.}
+variables overwrite existing variables of the same name.
+
+A name can also be given with \verb{:=}, e.g. \code{total := sum(x)}. A string on the left of \verb{:=} is a \code{gluestick} template
+which is filled in from the calling environment, so that a name can be built from a variable, e.g.
+\code{"{var}_mean" := mean(x)}.}
 
 \item{.keep}{This argument allows you to control which columns from \code{.data} are retained in the output:
 \itemize{

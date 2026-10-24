@@ -12,7 +12,11 @@ summarize(.data, ..., .groups = NULL)
 \arguments{
 \item{.data}{A \code{data.frame}.}
 
-\item{...}{Name-value pairs of summary functions. The name will be the name of the variable in the result.}
+\item{...}{Name-value pairs of summary functions. The name will be the name of the variable in the result.
+
+A name can also be given with \verb{:=}, e.g. \code{total := sum(x)}. A string on the left of \verb{:=} is a \code{gluestick} template
+which is filled in from the calling environment, so that a name can be built from a variable, e.g.
+\code{"{var}_mean" := mean(x)}.}
 
 \item{.groups}{\code{character(1)}. Grouping structure of the result.
 \itemize{

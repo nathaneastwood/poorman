@@ -7,6 +7,10 @@
 #'
 #' @param .data A `data.frame`.
 #' @param ... Name-value pairs of summary functions. The name will be the name of the variable in the result.
+#'
+#' A name can also be given with `:=`, e.g. `total := sum(x)`. A string on the left of `:=` is a `gluestick` template
+#' which is filled in from the calling environment, so that a name can be built from a variable, e.g.
+#' `"{var}_mean" := mean(x)`.
 #' @param .groups `character(1)`. Grouping structure of the result.
 #'
 #' * `"drop_last"`: drops the last level of grouping.

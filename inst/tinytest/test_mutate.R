@@ -412,3 +412,20 @@ expect_equal(
   "... + x",
   info = "transmute() abbreviates long automatic names"
 )
+
+ce_df <- data.frame(x = 1:3, y = c(2, 4, 6))
+ce_nm <- "tot"
+expect_equal(
+  mutate(ce_df, z := y * 2, "{ce_nm}" := z + x), # nolint: object_name_linter.
+  data.frame(x = 1:3, y = c(2, 4, 6), z = c(4, 8, 12), tot = c(5, 10, 15)),
+  info = "mutate() names := arguments after a symbol or a gluestick template"
+)
+ce_fn <- function(data) {
+  local_nm <- "inner"
+  mutate(group_by(data, x), "{local_nm}" := y * 2) # nolint: object_name_linter.
+}
+expect_equal(
+  names(ce_fn(ce_df)),
+  c("x", "y", "inner"),
+  info = "Gluestick templates are filled in from the calling environment on grouped data"
+)
