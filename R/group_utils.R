@@ -121,6 +121,158 @@ is_valid_groups <- function(.data, details, groups) {
   TRUE
 }
 
+#' Evaluate expressions for each group
+#'
+#' This is the engine of the grouped verbs. Each column of `.data` is split by group once, rather than splitting
+#' `.data` into a `data.frame` per group. Each group gets its own data mask, an environment holding the columns of the
+#' group whose parent is `env`, the caller's environment, so that local variables are found and the variables of this
+#' function never are. As in dplyr, each expression is evaluated for every group before the next expression, and each
+#' result is available to the expressions that follow it, both as a variable and through `.data`, `across()` and the
+#' other context functions. Data with no groups is evaluated once, on the empty data, so that the type of each result
+#' is known.
+#'
+#' @param .data A `data.frame`.
+#' @param dots A `list` of unevaluated expressions, as returned by `dotdotdot()`.
+#' @param env An `environment` in which to look up variables that are not columns.
+#' @return A `list` with:
+#' * `rows`, the rows of each group that was evaluated;
+#' * `details`, the grouping structure of `.data` (`NULL` if it is not grouped) and `groups`, the grouping columns;
+#' * `empty`, whether `.data` has no groups and was evaluated once on its empty data;
+#' * `labels`, the name of each expression, and `unnamed`, whether the name was made automatically;
+#' * `values`, a `list` with an element for each expression, itself a `list` with the result for each group (`NULL`
+#'   results are kept as `NULL`);
+#' * `sizes`, the size of the results of each group: the size of its results which are not of size one, or one.
+#' @noRd
+eval_groups <- function(.data, dots, env) {
+  groups <- group_vars(.data)
+  grouped <- length(groups) > 0L
+  details <- if (grouped) get_groups(.data, groups)
+  rows <- if (grouped) details[[".rows"]] else list(seq_len(.row_names_info(.data, 2L)))
+  empty <- length(rows) == 0L
+  if (empty) rows <- list(integer())
+  n_groups <- length(rows)
+
+  dot_names <- names(dots)
+  if (is.null(dot_names)) dot_names <- character(length(dots))
+  unnamed <- !nzchar(dot_names)
+  labels <- dot_names
+  labels[unnamed] <- vapply(dots[unnamed], auto_label, NA_character_, env = env)
+
+  chunks <- if (grouped) split_columns(.data, rows) else lapply(.data, list)
+  # The columns of `.data`, in order, followed by the results of the expressions
+  col_names <- names(.data)
+  # Other than its names, the attributes of the data each group sees as `.data` and through the context functions
+  slice_attrs <- if (grouped) {
+    auto_row_names <- .row_names_info(.data) < 0L
+    function(g) {
+      list(
+        class = "data.frame",
+        row.names = if (auto_row_names) as.integer(rows[[g]]) else attr(.data, "row.names")[rows[[g]]],
+        groups = details,
+        group_id = if (empty) NA_integer_ else g
+      )
+    }
+  } else {
+    attrs <- attributes(.data)
+    attrs[["names"]] <- NULL
+    function(g) attrs
+  }
+  # Most expressions never look at `.data`, so it is an active binding which builds it from the mask when it is used
+  masks <- lapply(seq_len(n_groups), function(g) {
+    mask <- list2env(lapply(chunks, .subset2, g), envir = new.env(hash = FALSE, parent = env))
+    makeActiveBinding(".data", function() {
+      res <- mget(col_names, envir = mask, inherits = FALSE, ifnotfound = list(NULL))
+      res <- res[!vapply(res, is.null, NA)]
+      attributes(res) <- c(list(names = names(res)), slice_attrs(g))
+      res
+    }, mask)
+    mask
+  })
+
+  # Restore any outer context so that a verb inside another verb does not break it
+  outer <- get0(".data", envir = context, inherits = FALSE)
+  on.exit(add = TRUE, {
+    if (!is.null(outer)) {
+      context$.data <- outer
+    } else if (exists(".data", envir = context, inherits = FALSE)) {
+      context$clean()
+    }
+  })
+
+  values <- vector(mode = "list", length = length(dots))
+  sizes <- rep(1L, n_groups)
+  size_from <- character(n_groups)
+  for (i in seq_along(dots)) {
+    vals <- vector(mode = "list", length = n_groups)
+    for (g in seq_len(n_groups)) {
+      mask <- masks[[g]]
+      delayedAssign(".data", .data, eval.env = mask, assign.env = context)
+      value <- eval(dots[[i]], mask)
+      if (is.null(value)) next
+      vals[g] <- list(value)
+      if (unnamed[[i]] && is.data.frame(value)) {
+        list2env(value, envir = mask)
+        col_names <- union(col_names, names(value))
+      } else {
+        assign(labels[[i]], value, envir = mask)
+      }
+    }
+    if (!unnamed[[i]] || !all(vapply(vals, is.data.frame, NA))) col_names <- union(col_names, labels[[i]])
+    vals_size <- vapply(vals, NROW, 1L)
+    resized <- !vapply(vals, is.null, NA) & vals_size != 1L & vals_size != sizes
+    wrong <- which(resized & sizes != 1L)
+    if (length(wrong) > 0L) {
+      g <- wrong[[1L]]
+      stop(
+        sprintf("`%s` must be size %d or 1, not %d.", labels[[i]], sizes[[g]], vals_size[[g]]),
+        if (nzchar(size_from[[g]])) sprintf(" An earlier column, `%s`, had size %d.", size_from[[g]], sizes[[g]]),
+        if (grouped && !empty) sprintf(" The error occurred in group %d.", g),
+        call. = FALSE
+      )
+    }
+    sizes[resized] <- vals_size[resized]
+    size_from[resized] <- labels[[i]]
+    values[[i]] <- vals
+  }
+
+  list(
+    rows = rows, details = details, groups = groups, empty = empty, labels = labels, unnamed = unnamed,
+    values = values, sizes = sizes
+  )
+}
+
+# Split each column of `.data` by the row numbers in `rows`. The result is a list with an element for each column,
+# itself a list with an element for each group. With few groups, indexing each group is fastest; with many, the
+# per-call overhead of indexing dominates and `split()` is faster.
+split_columns <- function(.data, rows) {
+  f <- NULL
+  idx <- NULL
+  if (length(rows) * 32L > .row_names_info(.data, 2L)) {
+    idx <- unlist(rows, use.names = FALSE)
+    f <- structure(rep.int(seq_along(rows), lengths(rows)), levels = as.character(seq_along(rows)), class = "factor")
+  }
+  lapply(.data, split_column, rows = rows, idx = idx, f = f)
+}
+
+split_column <- function(col, rows, idx, f) {
+  if (!is.null(dim(col))) return(lapply(rows, function(i) vec_slice(col, i)))
+  cls <- oldClass(col)
+  if (is.null(f)) {
+    return(if (is.null(cls)) lapply(rows, function(i) .subset(col, i)) else lapply(rows, function(i) col[i]))
+  }
+  if (is.null(cls)) return(unname(split.default(col[idx], f)))
+  attrs <- attributes(col)
+  # For these classes `[` only subsets the data, so the attributes can be put back on each group
+  if (inherits(col, c("factor", "Date", "POSIXct", "difftime")) &&
+      all(names(attrs) %in% c("class", "levels", "tzone", "units"))) {
+    return(lapply(unname(split.default(unclass(col)[idx], f)), function(x) {
+      attributes(x) <- attrs
+      x
+    }))
+  }
+  lapply(rows, function(i) col[i])
+}
+
 #' Identify the group that each row belongs to
 #'
 #' Groups are numbered in the order in which they first appear. Missing values are treated as a value in their own

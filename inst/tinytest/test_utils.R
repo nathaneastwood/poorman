@@ -32,3 +32,14 @@ expect_false(poorman:::is_all_na_logical(matrix(NA)), info = "is_all_na_logical(
 expect_false(
   poorman:::is_all_na_logical(structure(NA, class = "foo")), info = "is_all_na_logical() is FALSE for a classed vector"
 )
+
+eg_gd <- group_by(data.frame(g = c("b", "a", "b"), x = c(1, 2, 5)), g)
+eg_res <- poorman:::eval_groups(eg_gd, list(m = quote(mean(x)), quote(m * 2), y = quote(x)), environment())
+expect_equal(eg_res$rows, list(2L, c(1L, 3L)), info = "eval_groups() returns the rows of each group")
+expect_equal(eg_res$labels, c("m", "m * 2", "y"), info = "eval_groups() names unnamed expressions automatically")
+expect_equal(
+  eg_res$values,
+  list(list(2, 3), list(4, 6), list(2, c(1, 5))),
+  info = "eval_groups() returns the result of each expression for each group, seeing earlier results"
+)
+expect_equal(eg_res$sizes, c(1L, 2L), info = "eval_groups() returns the size of the results of each group")

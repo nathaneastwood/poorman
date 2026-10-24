@@ -451,3 +451,32 @@ expect_equal(
   ds_fn(ds_df), c("x", "max(.data[[\"x\"]])"),
   info = "The subscript of .data[[var]] is found in the calling environment"
 )
+
+se_gd <- group_by(data.frame(g = c("a", "a", "b"), x = c(1, 2, 3)), g)
+expect_equal(
+  summarise(se_gd, m = mean(x), across(m, ~ .x * 10, .names = "m10")),
+  data.frame(g = c("a", "b"), m = c(1.5, 3), m10 = c(15, 30)),
+  info = "across() in summarise() sees the summaries made by earlier expressions"
+)
+expect_equal(
+  summarise(se_gd, m = mean(x), k = .data$m * 2),
+  data.frame(g = c("a", "b"), m = c(1.5, 3), k = c(3, 6)),
+  info = "The .data pronoun in summarise() sees the summaries made by earlier expressions"
+)
+se_order <- character()
+invisible(summarise(
+  se_gd,
+  a = {
+    se_order <<- c(se_order, paste0("a", cur_group_id()))
+    1
+  },
+  b = {
+    se_order <<- c(se_order, paste0("b", cur_group_id()))
+    1
+  }
+))
+expect_equal(
+  se_order,
+  c("a1", "a2", "b1", "b2"),
+  info = "summarise() evaluates each expression for every group before the next expression"
+)
