@@ -52,6 +52,7 @@ Grouped operations are now considerably faster. Groups are identified in a singl
 * `filter()` now supports the `.data` pronoun, e.g. `filter(df, .data[[var]] > 2)`. Previously, grouped `filter()` returned rows of `NA` and ungrouped `filter()` gave the error "object '.data' not found".
 * Grouped `filter()` now finds variables in the calling environment, e.g. inside a function. Previously, it gave an "object not found" error.
 * Grouped `filter()` now evaluates its conditions for empty groups, and evaluates every condition for a group before the next group, as in `dplyr`. It now gives the deprecation warning for data frame results once for each condition which returns one, as in `dplyr`. Previously, conditions with the same warning shared a single warning.
+* `if_any()` and `if_all()` now return `TRUE` when no columns are selected, as in `dplyr`, so `filter()` keeps every row. Previously, they returned `FALSE`, so `filter()` dropped every row.
 
 Grouped operations now match `dplyr`:
 
