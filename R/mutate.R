@@ -143,9 +143,11 @@ mutate_df <- function(.data, ...) {
   on.exit(context$clean(), add = TRUE)
   for (i in seq_along(conditions)) {
     not_named <- (is.null(cond_nms) || cond_nms[i] == "")
+    # `.data` is the data as it stands, so it sees the columns made by earlier expressions
+    mask <- c(as.list(context$as_env()), list(.data = context$.data))
     res <- eval(
       conditions[[i]],
-      envir = context$as_env(),
+      envir = mask,
       enclos = if (!is.null(context$group_env)) context$group_env else parent.frame(n = 2)
     )
     res_nms <- names(res)

@@ -32,3 +32,19 @@ expect_equal(
   c("am", "sumMpg"),
   info = "transmute() keeps groups"
 )
+
+tm_df <- data.frame(x = 1:3, g = c("a", "a", "b"))
+tm_fn <- function(data) {
+  k <- 10L
+  transmute(data, z = x + k)
+}
+expect_equal(
+  tm_fn(tm_df),
+  data.frame(z = 11:13),
+  info = "transmute() finds variables in the calling environment"
+)
+expect_equal(
+  ungroup(tm_fn(group_by(tm_df, g))),
+  data.frame(g = c("a", "a", "b"), z = 11:13),
+  info = "transmute() finds variables in the calling environment on grouped data"
+)

@@ -361,3 +361,30 @@ expect_equal(nrow(res), 0L, info = "mutate() on empty grouped data returns an em
 expect_equal(colnames(res), c("g1", "g2", "v", "m", "id"), info = "mutate() on empty grouped data returns an empty data.frame #2")
 
 rm(df, gf, res)
+
+pron <- data.frame(x = 1:4, y = c(2, 4, 6, 8), g = c("a", "a", "b", "b"))
+col <- "y"
+
+expect_equal(
+  mutate(pron, z = .data$y * 2, w = .data[[col]] + x),
+  data.frame(pron, z = c(4, 8, 12, 16), w = c(3, 6, 9, 12)),
+  info = "mutate() supports the .data pronoun"
+)
+
+expect_equal(
+  mutate(pron, x = .data$x * 10L, z = .data$x, w = .data$z + 1L),
+  data.frame(x = c(10L, 20L, 30L, 40L), y = pron$y, g = pron$g, z = c(10L, 20L, 30L, 40L), w = c(11L, 21L, 31L, 41L)),
+  info = "The .data pronoun sees the columns made by earlier expressions in mutate()"
+)
+
+expect_equal(
+  mutate(group_by(pron, g), s = sum(.data[[col]]))$s,
+  c(6, 6, 14, 14),
+  info = "The .data pronoun holds the rows of the current group in mutate()"
+)
+
+expect_equal(
+  transmute(pron, z = .data[[col]] + x),
+  data.frame(z = c(3, 6, 9, 12)),
+  info = "transmute() supports the .data pronoun"
+)

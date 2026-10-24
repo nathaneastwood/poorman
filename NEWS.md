@@ -34,6 +34,8 @@ Grouped operations are now considerably faster. Groups are identified in a singl
 * Joins on missing columns now give the `dplyr` error, which names the missing columns.
 * `select()` now supports negative selections on grouped data, e.g. `select(group_by(df, id), -g)`. Previously, it failed with "only 0's may be mixed with negative subscripts". A deselected grouping variable is added back in front, with a message, as in `dplyr`.
 * `rename_with()` no longer renames grouping variables which were not selected. Previously, it added them to the selection with an "Adding missing grouping variables" message.
+* `mutate()` and `transmute()` now support the `.data` pronoun, e.g. `mutate(df, z = .data[[var]] * 2)`. As in `dplyr`, `.data` sees the columns made by earlier expressions and, on grouped data, holds the rows of the current group. Previously, `.data` gave the error "object '.data' not found".
+* `transmute()` now finds variables in the calling environment, e.g. inside a function. Previously, it gave an "object not found" error, or found a function of the same name.
 
 Grouped operations now match `dplyr`:
 
