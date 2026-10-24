@@ -123,11 +123,8 @@ summarize.grouped_df <- summarise.grouped_df
 
 #' Evaluate summary expressions for each group
 #'
-#' Each column of `.data` is split by group once, rather than splitting `.data` into a `data.frame` per group. The
-#' expressions are evaluated for each group in a data mask whose parent is `env`, the caller's environment, so that
-#' local variables are found and the variables of this function never are. As in dplyr, each result is available to
-#' the expressions that follow it, results of size one are recycled to the size of the group and the results of a
-#' column are combined across the groups at the end.
+#' The expressions are evaluated by `eval_groups()`. As in dplyr, results of size one are recycled to the size of the
+#' group and the results of a column are combined across the groups.
 #'
 #' @param .data A `data.frame`.
 #' @param dots A `list` of unevaluated expressions, as returned by `dotdotdot()`.
@@ -136,100 +133,25 @@ summarize.grouped_df <- summarise.grouped_df
 #' `all_one`, whether every group gave exactly one row.
 #' @noRd
 summarise_groups <- function(.data, dots, env) {
-  groups <- group_vars(.data)
-  grouped <- length(groups) > 0L
-  n_rows <- .row_names_info(.data, 2L)
-  details <- if (grouped) get_groups(.data, groups)
-  rows <- if (grouped) details[[".rows"]] else list(seq_len(n_rows))
-  n_groups <- length(rows)
-
-  if (length(dots) == 0L) {
-    return(summarise_result(if (grouped) as.list(details)[groups], list(), rep(1L, n_groups), grouped))
-  }
-
-  # With no groups, the expressions are evaluated once on the empty data to find the type of each result
-  no_groups <- n_groups == 0L
-  if (no_groups) rows <- list(integer())
-
-  chunks <- if (grouped) split_columns(.data, rows) else lapply(.data, list)
-  col_names <- names(.data)
-  row_names <- .row_names_info(.data, 0L)
-  auto_row_names <- .row_names_info(.data) < 0L
-
-  dot_names <- names(dots)
-  if (is.null(dot_names)) dot_names <- character(length(dots))
-  unnamed <- !nzchar(dot_names)
-  labels <- dot_names
-  labels[unnamed] <- vapply(dots[unnamed], auto_label, NA_character_, env = env)
-
-  # Restore any outer context so that a summarise() inside another verb does not break it
-  outer <- get0(".data", envir = context, inherits = FALSE)
-  on.exit(if (is.null(outer)) context$clean() else context$.data <- outer, add = TRUE)
-
-  values <- vector(mode = "list", length = length(rows))
-  sizes <- integer(length(rows))
-  for (g in seq_along(rows)) {
-    cols <- lapply(chunks, .subset2, g)
-    slice <- .data
-    if (grouped) {
-      slice <- cols
-      attributes(slice) <- list(
-        names = col_names,
-        class = "data.frame",
-        row.names = if (auto_row_names) as.integer(rows[[g]]) else row_names[rows[[g]]],
-        groups = details,
-        group_id = if (no_groups) NA_integer_ else g
-      )
-    }
-    context$.data <- slice
-
-    mask <- new.env(parent = env)
-    mask$.data <- slice
-    list2env(cols, envir = mask)
-
-    res <- vector(mode = "list", length = length(dots))
-    size <- 1L
-    size_from <- NULL
-    for (i in seq_along(dots)) {
-      value <- eval(dots[[i]], mask)
-      # As in dplyr, NULL results are ignored
-      if (is.null(value)) next
-      res[i] <- list(value)
-      if (unnamed[[i]] && is.data.frame(value)) {
-        list2env(value, envir = mask)
-      } else {
-        assign(labels[[i]], value, envir = mask)
-      }
-      value_size <- NROW(value)
-      if (value_size != 1L && value_size != size) {
-        if (size != 1L) {
-          stop(
-            sprintf("`%s` must be size %d or 1, not %d.", labels[[i]], size, value_size),
-            if (!is.null(size_from)) sprintf(" An earlier column, `%s`, had size %d.", size_from, size),
-            if (grouped && !no_groups) sprintf(" The error occurred in group %d.", g),
-            call. = FALSE
-          )
-        }
-        size <- value_size
-        size_from <- labels[[i]]
-      }
-    }
-    values[[g]] <- res
-    sizes[[g]] <- size
-  }
+  res <- eval_groups(.data, dots, env)
+  grouped <- length(res$groups) > 0L
+  keys <- if (grouped) as.list(res$details)[res$groups]
+  sizes <- res$sizes
   # As in dplyr, data with no groups counts as every group giving one row
-  all_one <- no_groups || all(sizes == 1L)
-  if (no_groups) sizes <- 0L
+  all_one <- res$empty || all(sizes == 1L)
+  if (res$empty) sizes <- 0L
 
   out <- list()
   for (i in seq_along(dots)) {
+    label <- res$labels[[i]]
+    vals <- res$values[[i]]
     if (grouped) {
-      vals <- lapply(values, .subset2, i)
       is_null <- vapply(vals, is.null, NA)
+      # As in dplyr, NULL results are ignored
       if (all(is_null)) next
       if (any(is_null)) {
         stop(
-          sprintf("`%s` must return compatible vectors across groups: ", labels[[i]]),
+          sprintf("`%s` must return compatible vectors across groups: ", label),
           "it can't combine NULL and non NULL results.",
           call. = FALSE
         )
@@ -238,19 +160,19 @@ summarise_groups <- function(.data, dots, env) {
       vals[recycle] <- lapply(recycle, function(g) vec_slice(vals[[g]], rep(1L, sizes[[g]])))
       col <- combine_summaries(vals)
     } else {
-      col <- values[[1L]][[i]]
+      col <- vals[[1L]]
       if (is.null(col)) next
       if (NROW(col) != sizes) col <- vec_slice(col, rep(1L, sizes))
     }
     if (is.data.frame(col)) attr(col, "row.names") <- .set_row_names(nrow(col))
-    if (unnamed[[i]] && is.data.frame(col)) {
+    if (res$unnamed[[i]] && is.data.frame(col)) {
       for (j in names(col)) out[[j]] <- .subset2(col, j)
     } else {
-      out[[labels[[i]]]] <- col
+      out[[label]] <- col
     }
   }
 
-  res <- summarise_result(if (grouped) as.list(details)[groups], out, sizes, grouped)
+  res <- summarise_result(keys, out, sizes, grouped)
   res$all_one <- all_one
   res
 }
@@ -269,38 +191,6 @@ summarise_result <- function(keys, cols, sizes, grouped) {
   n <- if (grouped) sum(sizes) else sizes[[1L]]
   attributes(keys) <- list(names = as.character(names(keys)), class = "data.frame", row.names = .set_row_names(n))
   list(data = keys, all_one = all_one)
-}
-
-# Split each column of `.data` by the row numbers in `rows`. The result is a list with an element for each column,
-# itself a list with an element for each group. With few groups, indexing each group is fastest; with many, the
-# per-call overhead of indexing dominates and `split()` is faster.
-split_columns <- function(.data, rows) {
-  f <- NULL
-  idx <- NULL
-  if (length(rows) * 32L > .row_names_info(.data, 2L)) {
-    idx <- unlist(rows, use.names = FALSE)
-    f <- structure(rep.int(seq_along(rows), lengths(rows)), levels = as.character(seq_along(rows)), class = "factor")
-  }
-  lapply(.data, split_column, rows = rows, idx = idx, f = f)
-}
-
-split_column <- function(col, rows, idx, f) {
-  if (!is.null(dim(col))) return(lapply(rows, function(i) vec_slice(col, i)))
-  cls <- oldClass(col)
-  if (is.null(f)) {
-    return(if (is.null(cls)) lapply(rows, function(i) .subset(col, i)) else lapply(rows, function(i) col[i]))
-  }
-  if (is.null(cls)) return(unname(split.default(col[idx], f)))
-  attrs <- attributes(col)
-  # For these classes `[` only subsets the data, so the attributes can be put back on each group
-  if (inherits(col, c("factor", "Date", "POSIXct", "difftime")) &&
-      all(names(attrs) %in% c("class", "levels", "tzone", "units"))) {
-    return(lapply(unname(split.default(unclass(col)[idx], f)), function(x) {
-      attributes(x) <- attrs
-      x
-    }))
-  }
-  lapply(rows, function(i) col[i])
 }
 
 # Combine the results of a summary across the groups. Results without attributes are combined directly; other common
