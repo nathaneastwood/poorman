@@ -70,7 +70,7 @@ deparse_dots <- function(...) {
 #' @param frame An `environment` in which `var` should be evaluated.
 #'
 #' @noRd
-deparse_var <- function(var, frame = if (is.null(eval_env$env)) parent.frame() else eval_env$env) {
+deparse_var <- function(var, frame = parent.frame()) {
   sub_var <- eval(substitute(substitute(var)), frame)
   if (is.symbol(sub_var)) var <- as.character(sub_var)
   var

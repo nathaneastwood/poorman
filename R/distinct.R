@@ -52,39 +52,28 @@ distinct <- function(.data, ..., .keep_all = FALSE) {
 #' @export
 distinct.data.frame <- function(.data, ..., .keep_all = FALSE) {
   if (ncol(.data) == 0L) return(.data[1, ])
-  cols <- dotdotdot(...)
-  col_names <- names(cols)
-  col_len <- length(cols)
-  if (is.null(col_names) && col_len > 0L) names(cols) <- cols
-  if (col_len == 0L) {
-    res <- .data
-  } else {
-    mut <- mutate_df(.data, dotdotdot(..., .env = parent.frame()), parent.frame())
-    res <- mut$data
-    col_names <- names(cols)
-    res <- if (!is.null(col_names)) {
-      zero_names <- nchar(col_names) == 0L
-      if (any(zero_names)) {
-        names(cols)[zero_names] <- cols[zero_names]
-        col_names <- names(cols)
-      }
-      suppressMessages(select(res, col_names))
-    } else {
-      suppressMessages(select(res, cols))
-    }
-  }
-  res <- unique(res)
-  if (isTRUE(.keep_all)) {
-    res <- cbind(res, .data[rownames(res), setdiff(colnames(.data), colnames(res)), drop = FALSE])
-  }
-  common_cols <- c(intersect(colnames(.data), colnames(res)), setdiff(col_names, colnames(.data)))
-  if (is.numeric(attr(res, "row.names"))) {
-    row.names(res) <- seq_len(nrow(res))
-  }
-  if (length(common_cols) > 0L) res[, common_cols, drop = FALSE] else res
+  dots <- dotdotdot(..., .env = parent.frame())
+  mut <- mutate_df(.data, dots, parent.frame())
+  data <- mut$data
+  # As in dplyr, the grouping columns are always used; the columns are kept in the order of the data
+  cols <- if (length(dots) == 0L) names(data) else intersect(names(data), c(group_vars(.data), mut$new_cols))
+  keep <- which(!distinct_duplicated(.subset(data, cols), nrow(data)))
+  if (!isTRUE(.keep_all)) data <- data[, cols, drop = FALSE]
+  res <- subset_rows(data, keep)
+  if (is.numeric(attr(.data, "row.names"))) attr(res, "row.names") <- .set_row_names(length(keep))
+  if (has_groups(.data)) res <- groups_set(res, group_vars(.data), group_by_drop_default(.data))
+  res
 }
 
-#' @export
-distinct.grouped_df <- function(.data, ..., .keep_all = FALSE) {
-  apply_grouped_function(.data, function(df) distinct(df, ..., .keep_all = .keep_all), .drop = TRUE)
+#' Find the rows which repeat an earlier row
+#'
+#' @param cols A `list` of the columns which decide whether rows are distinct.
+#' @param n `integer(1)`. The number of rows.
+#' @return `logical(n)`. `TRUE` for each row whose values in `cols` are those of an earlier row.
+#' @noRd
+distinct_duplicated <- function(cols, n) {
+  # `group_ids()` is faster but only handles vectors whose values it can compare
+  simple <- vapply(cols, function(col) is.atomic(col) && is.null(dim(col)), NA)
+  if (all(simple)) return(duplicated(group_ids(cols, n)))
+  duplicated(structure(cols, row.names = .set_row_names(n), class = "data.frame"))
 }

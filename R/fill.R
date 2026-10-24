@@ -74,15 +74,10 @@ fill <- function(data, ..., .direction = c("down", "up", "downup", "updown")) {
 
 #' @export
 fill.data.frame <- function(data, ..., .direction = c("down", "up", "downup", "updown")) {
-
-  col_pos <- select_positions(data, ..., .group_pos = TRUE)
-  if (length(col_pos) == 0) return(data)
+  col_pos <- select_positions(data, ...)
+  if (length(col_pos) == 0L) return(data)
   .direction <- match.arg(.direction)
-
-  # If "updown", then we apply direction = "up" for all non-NA, and then
-  # we apply direction = "down" for all non-NA (and similarly for "downup").
-  # So it's not the same as apply "up" and "down" consecutively for each non-NA
-
+  # "downup" fills down and then fills what is left up, rather than filling each missing value from its nearest value
   steps <- switch(
     .direction,
     "up" = "up",
@@ -90,35 +85,46 @@ fill.data.frame <- function(data, ..., .direction = c("down", "up", "downup", "u
     "updown" = c("up", "down"),
     "downup" = c("down", "up")
   )
-
-  names(col_pos) <- NULL
-
-  for (i in col_pos) {
-
-    for (k in steps) {
-
-      # code adapted from https://stackoverflow.com/a/13810615/11598948
-
-      if (all(is.na(data[[i]]))) next
-
-      if (k == "up") data[[i]] <- rev(data[[i]])
-      ind <- which(!is.na(data[[i]]))
-
-      if (is.na(data[[i]][1])) {
-        ind <- c(1, ind)
-      }
-      rep_times <- diff(c(ind, length(data[[i]]) + 1))
-      data[[i]] <- rep(data[[i]][ind], times = rep_times)
-      if (k == "up") data[[i]] <- rev(data[[i]])
-    }
+  # Each group is filled on its own, so the rows are put into group order and filled in one pass
+  rows <- if (has_groups(data)) get_groups(data)[[".rows"]] else list(seq_len(.row_names_info(data, 2L)))
+  idx <- unlist(rows, use.names = FALSE)
+  first <- logical(length(idx))
+  first[cumsum(c(1L, lengths(rows)[-length(rows)]))[lengths(rows) > 0L]] <- TRUE
+  for (i in unname(col_pos)) {
+    x <- .subset2(data, i)[idx]
+    for (step in steps) x <- fill_values(x, first, up = step == "up")
+    data[[i]][idx] <- x
   }
-
-  return(data)
+  data
 }
 
-#' @export
-fill.grouped_df <- function(data, ...) {
-  context$group_env <- parent.frame(n = 1)
-  on.exit(rm(list = c("group_env"), envir = context), add = TRUE)
-  apply_grouped_function(data, function(df) fill(df, ...), .drop = TRUE, .reorder = TRUE)
+#' Fill the missing values of a vector with the previous value in its group
+#'
+#' @param x A vector, in group order. Missing values are `NA` in atomic vectors and `NULL` in lists.
+#' @param first `logical(n)`. Whether each element of `x` is the first of its group.
+#' @param up `logical(1)`. Fill with the next value instead?
+#' @return `x`, with each missing value replaced by the nearest earlier (or later) value in its group, if there is one.
+#' @noRd
+fill_values <- function(x, first, up) {
+  missing <- if (is.list(x)) vapply(x, is.null, NA) else is.na(x)
+  if (!any(missing)) return(x)
+  n <- length(x)
+  if (up) {
+    # The first element of a group in reverse order is the last element of the group
+    rev_idx <- rev(seq_len(n))
+    from <- rev_idx[fill_from(missing[rev_idx], c(first[-1L], TRUE)[rev_idx])]
+    return(x[from[rev_idx]])
+  }
+  x[fill_from(missing, first)]
+}
+
+#' Find the position of the value each element is filled from
+#'
+#' @param missing `logical(n)`. Whether each element is missing.
+#' @param first `logical(n)`. Whether each element is the first of its group.
+#' @return `integer(n)`. The position of the last element up to each element, within its group, which is not missing,
+#' or of the first element of the group if there is none.
+#' @noRd
+fill_from <- function(missing, first) {
+  cummax(seq_along(missing) * (!missing | first))
 }

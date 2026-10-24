@@ -196,3 +196,76 @@ expect_equal(nrow(slice_sample(gf, n = 1)), 2L, info = "grouped slice_sample() w
 expect_error(slice_head(gf, n = 1, prop = 0.5), "exactly one of", info = "grouped slice_head() rejects n and prop")
 expect_error(slice_min(gf), "order_by", info = "grouped slice_min() requires order_by")
 rm(df, gf)
+
+# Grouped slice() evaluates its indices for each group through the shared engine
+df <- data.frame(g = c(2, 1, 2, 1, 2), v = c(5, 3, 1, 4, 2), w = c(1, 1, 1, 1, 10))
+rownames(df) <- c("a", "b", "c", "d", "e")
+gf <- group_by(df, g)
+res <- slice(gf, 1)
+expect_equal(res$v, c(3, 5), info = "grouped slice() returns the rows in group order")
+expect_equal(rownames(res), c("b", "a"), info = "grouped slice() keeps the row names of the input")
+expect_equal(group_data(res)$.rows, list(1L, 2L), info = "grouped slice() recalculates the group rows")
+expect_identical(slice(gf), gf, info = "grouped slice() without indices returns the input in its order")
+expect_equal(slice(gf, -1)$v, c(4, 1, 2), info = "grouped slice() drops rows with negative indices")
+expect_equal(slice(gf, n())$v, c(4, 2), info = "grouped slice() can use n()")
+expect_equal(
+  slice(gf, if (cur_group_id() == 1L) 1L else 2:3)$v, c(3, 1, 2),
+  info = "grouped slice() can use cur_group_id()"
+)
+res <- slice(gf, 3)
+expect_equal(res$v, 2, info = "grouped slice() ignores indices beyond the size of the group")
+expect_equal(group_data(res)$g, 2, info = "grouped slice() drops groups left empty")
+res <- slice(gf, c(1, 1))
+expect_equal(res$v, c(3, 3, 5, 5), info = "grouped slice() can repeat a row")
+expect_equal(rownames(res), c("b", "b.1", "a", "a.1"), info = "grouped slice() makes repeated row names unique")
+expect_equal(group_data(res)$.rows, list(1:2, 3:4), info = "grouped slice() with repeated rows has the right groups")
+f <- function() {
+  k <- 2
+  slice(gf, k)
+}
+expect_equal(f()$v, c(4, 1), info = "grouped slice() finds local variables of the caller")
+fd <- group_by(data.frame(g = factor(c("x", "x"), levels = c("x", "y")), v = 1:2), g, .drop = FALSE)
+res <- slice(fd, 1)
+expect_equal(res$v, 1L, info = "grouped slice() with .drop = FALSE")
+expect_equal(group_data(res)$.rows, list(1L, integer()), info = "grouped slice() keeps empty groups with .drop = FALSE")
+expect_equal(nrow(slice(group_by(df[0, ], g), 1)), 0L, info = "grouped slice() of zero rows")
+expect_error(slice(gf, c(-1, 1)), "all positive or all negative", info = "grouped slice() rejects mixed indices")
+
+# slice_min(), slice_max() and slice_sample() evaluate their order and weights as expressions
+expect_equal(slice_min(gf, v * w)$v, c(3, 1), info = "grouped slice_min() orders by an expression")
+expect_equal(slice_max(gf, v * w, n = 2)$v, c(4, 3, 2, 5), info = "grouped slice_max() orders by an expression")
+expect_equal(slice_min(df, v * w)$v, 1, info = "slice_min() orders by an expression")
+expect_equal(slice_max(df, v * w)$v, 2, info = "slice_max() orders by an expression")
+f <- function() {
+  m <- -1
+  slice_min(gf, v * m)
+}
+expect_equal(f()$v, c(4, 5), info = "grouped slice_min() finds local variables of the caller")
+f <- function() {
+  z <- c(5, 4, 3, 2, 1)
+  slice_min(df, z)
+}
+expect_equal(f()$v, 2, info = "slice_min() can order by a local vector of the size of the data")
+expect_error(
+  slice_min(gf, c(5, 4, 3, 2, 1)), "`order_by` must have size 2, not size 5.",
+  info = "grouped slice_min() checks the size of order_by"
+)
+expect_equal(
+  slice_max(fd, v)$v, 2L,
+  info = "grouped slice_max() with an empty group"
+)
+f <- function() {
+  ww <- c(0, 0, 0, 0, 1)
+  slice_sample(df, n = 1, weight_by = ww)
+}
+expect_equal(f()$v, 2, info = "slice_sample() finds a local weight vector")
+expect_equal(slice_sample(df, n = 1, weight_by = w == 10)$v, 2, info = "slice_sample() weights by an expression")
+expect_equal(
+  slice_sample(gf, n = 1, weight_by = v == max(v))$v, c(4, 5),
+  info = "grouped slice_sample() evaluates the weights for each group"
+)
+expect_error(
+  slice_sample(gf, n = 1, weight_by = c(0, 1, 0, 1, 0)), "`weight_by` must have size 2, not size 5.",
+  info = "grouped slice_sample() checks the size of weight_by"
+)
+rm(df, gf, fd, f, res)

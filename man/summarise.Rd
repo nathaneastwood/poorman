@@ -63,6 +63,14 @@ abbreviated sooner.
 }
 }
 
+\section{Variables made inside expressions}{
+
+A variable assigned inside an expression, e.g. \code{{ tmp <- x * 2; tmp + 1 }}, can be used by the later expressions of
+the same call. On grouped data, each group has its own variables, so a variable assigned while evaluating one group
+is never seen by the next group. This differs from \code{dplyr} 1.0.10, where such a variable can leak into the groups
+evaluated after it.
+}
+
 \examples{
 # A summary applied to ungrouped tbl returns a single row
 mtcars \%>\%
