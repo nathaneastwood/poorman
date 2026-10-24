@@ -451,3 +451,85 @@ expect_equal(
   info = "The result of a grouped mutate() can be passed to another grouped verb"
 )
 expect_equal(group_rows(ch_res), list(c(2L, 5L), c(1L, 3L), 4L), info = "Chained grouped mutate() keeps the groups")
+
+eg_df <- data.frame(g = factor(c("a", "a"), levels = c("a", "b")), x = 1:2)
+eg_seen <- character()
+eg_res <- mutate(group_by(eg_df, g, .drop = FALSE), k = {
+  eg_seen <<- c(eg_seen, paste0(cur_group_id(), ":", n()))
+  1
+})
+expect_equal(eg_seen, c("1:2", "2:0"), info = "Grouped mutate() evaluates its expressions for empty groups too")
+expect_equal(ungroup(eg_res), data.frame(eg_df, k = 1), info = "Results for empty groups add no rows to mutate()")
+
+se_df <- data.frame(g1 = c("a", "a", "b", "b", "b"), g2 = c(1, 1, 2, 2, 2), x = 1:5)
+expect_error(
+  mutate(group_by(se_df, g1, g2), k = 1:2),
+  paste0(
+    "Problem while computing `k = 1:2`.\nx `k` must be size 3 or 1, not 2.\n",
+    "i The error occurred in group 2: g1 = \"b\", g2 = 2."
+  ),
+  fixed = TRUE,
+  info = "Grouped mutate() gives an error naming the group when a result has the wrong size"
+)
+expect_error(
+  mutate(group_by(se_df, g1), 1:2),
+  paste0(
+    "Problem while computing `..1 = 1:2`.\nx `..1` must be size 3 or 1, not 2.\n",
+    "i The error occurred in group 2: g1 = \"b\"."
+  ),
+  fixed = TRUE,
+  info = "The size error of mutate() calls an unnamed expression by its position"
+)
+expect_error(
+  mutate(se_df, k = 1:2),
+  "Problem while computing `k = 1:2`.\nx `k` must be size 5 or 1, not 2.",
+  fixed = TRUE,
+  info = "Ungrouped mutate() gives an error when a result has the wrong size"
+)
+
+nv_df <- data.frame(g = c("b", "a", "b", "c", "a"), x = 1:5)
+expect_equal(
+  ungroup(mutate(group_by(nv_df, g), k = nrow(filter(nv_df, x > 2)) + n())),
+  data.frame(nv_df, k = c(5L, 5L, 5L, 4L, 5L)),
+  info = "A verb can be used inside an expression of a grouped mutate()"
+)
+nv_fn <- function(data) {
+  order <- 10
+  vals <- 100
+  mask <- 1000
+  mutate(group_by(data, g), y = x + order + vals + mask)
+}
+expect_equal(
+  nv_fn(nv_df)$y,
+  1:5 + 1110,
+  info = "Grouped mutate() finds local variables, even with the names of its own variables"
+)
+nv_rn <- data.frame(g = c("b", "a", "b"), x = c(1, 2, 3), row.names = c("r1", "r2", "r3"))
+expect_equal(
+  ungroup(mutate(group_by(nv_rn, g), m = mean(x))),
+  data.frame(g = c("b", "a", "b"), x = c(1, 2, 3), m = c(2, 2, 2), row.names = c("r1", "r2", "r3")),
+  info = "Grouped mutate() keeps the order and the names of the rows"
+)
+
+# A package can build on poorman with methods for its own class which call NextMethod()
+mutate.poorman_ext <- function(.data, ...) { # nolint: object_name_linter.
+  res <- NextMethod()
+  attr(res, "ext") <- "kept"
+  res
+}
+registerS3method("mutate", "poorman_ext", mutate.poorman_ext, envir = asNamespace("poorman"))
+ext_df <- group_by(data.frame(g = c("b", "a", "b"), x = 1:3), g)
+class(ext_df) <- c("poorman_ext", class(ext_df))
+ext_fn <- function(data) {
+  k <- 100
+  mutate(data, y = x + k, n = n())
+}
+ext_res <- ext_fn(ext_df)
+expect_equal(
+  class(ext_res),
+  c("poorman_ext", "grouped_df", "data.frame"),
+  info = "Grouped mutate() keeps the class of an extension"
+)
+expect_equal(attr(ext_res, "ext"), "kept", info = "The method of an extension class is used by mutate()")
+expect_equal(ext_res$y, c(101, 102, 103), info = "mutate() called through NextMethod() finds local variables")
+expect_equal(ext_res$n, c(2L, 1L, 2L), info = "mutate() called through NextMethod() respects the groups")
