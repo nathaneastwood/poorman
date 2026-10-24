@@ -35,18 +35,14 @@ group_by <- function(.data, ..., .add = FALSE, .drop = group_by_drop_default(.da
 
 #' @export
 group_by.data.frame <- function(.data, ..., .add = FALSE, .drop = group_by_drop_default(.data)) {
-  # The group columns are computed by `mutate()`, so pass on the frame of the user unless an outer verb has already
-  if (is.null(context$group_env)) {
-    context$group_env <- parent.frame()
-    on.exit(context$group_env <- NULL, add = TRUE)
-  }
-  vars <- dotdotdot(..., .impute_names = TRUE, .env = context$group_env)
+  env <- parent.frame()
+  vars <- dotdotdot(..., .impute_names = TRUE, .env = env)
   if (all(vapply(vars, is.null, FALSE))) {
     res <- groups_set(.data, NULL)
     class(res) <- class(res)[!(class(res) %in% "grouped_df")]
     return(res)
   }
-  new_cols <- add_group_columns(.data, vars)
+  new_cols <- add_group_columns(.data, vars, env)
   res <- new_cols$data
   groups <- new_cols$groups
   if (isTRUE(.add)) groups <- union(group_vars(.data), groups)
@@ -100,17 +96,33 @@ group_by_drop_default.grouped_df <- function(.tbl) {
 #' Compute the columns to group by
 #'
 #' A group given as a bare column under its own name, e.g. `g`, is used as it is. Any other group, e.g. `h = x %/% 2`,
-#' `tot = g` or `5`, is computed by `mutate()` on the ungrouped data.
+#' `tot = g` or `5`, is computed as by `mutate()` on the ungrouped data.
 #'
 #' @param .data A `data.frame`.
 #' @param vars A named `list` of unevaluated expressions, as returned by `dotdotdot(.impute_names = TRUE)`.
+#' @param env An `environment` in which to look up variables that are not columns.
 #' @return A `list` with `data`, `.data` with the computed columns, and `groups`, the names of the group columns.
 #' @noRd
-add_group_columns <- function(.data, vars) {
+add_group_columns <- function(.data, vars, env) {
   vars <- vars[!vapply(vars, is.null, FALSE)]
   is_column <- vapply(seq_along(vars), function(i) identical(vars[[i]], as.name(names(vars)[i])), NA)
   if (!all(is_column)) {
-    .data <- do.call(mutate, c(list(.data = ungroup(.data)), vars[!is_column]))
+    .data <- mutate_df(ungroup(.data), vars[!is_column], env)$data
   }
   list(data = .data, groups = names(vars))
+}
+
+#' Group by expressions given to another verb
+#'
+#' `group_by()` looks up variables in the frame which calls it. A verb which groups its own `...`, e.g. `count()`,
+#' calls this rather than `group_by()`, so that the variables are looked up in the frame of the user, which calls the
+#' verb. `group_by()` is still called through its generic, so that a method for another class is used.
+#'
+#' @param .data A `data.frame`.
+#' @param ... The `...` of the verb.
+#' @param .add As `group_by()`.
+#' @return The result of `group_by()`.
+#' @noRd
+group_by_caller <- function(.data, ..., .add = FALSE) {
+  do.call(group_by, c(list(.data), eval(substitute(alist(...))), .add = .add), envir = parent.frame(2L))
 }

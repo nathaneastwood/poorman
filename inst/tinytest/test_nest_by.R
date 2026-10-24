@@ -52,3 +52,21 @@ expect_error(
   mtcars %>% group_by(am) %>% nest_by(cyl),
   info = "Can't re-group while nesting. Either `ungroup()` first or don't supply arguments to `nest_by()`"
 )
+
+fe_df <- data.frame(g = c(1, 1, 2), x = 1:3)
+fe_k <- 100L
+fe_fn <- function(data) {
+  fe_k <- 2L
+  nm <- "new"
+  res <- nest_by(data, h = x %% fe_k)
+  list(
+    res$h,
+    lapply(res$data, `[[`, "x"),
+    names(nest_by(data, "{nm}" := x)) # nolint: object_name_linter.
+  )
+}
+expect_equal(
+  fe_fn(fe_df),
+  list(0:1, list(2L, c(1L, 3L)), c("new", "data")),
+  info = "nest_by() uses a local variable over a global one, also in a := template"
+)

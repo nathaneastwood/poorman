@@ -24,7 +24,6 @@ context$as_env <- function() {
     context$.data
   }
 }
-context$group_env <- NULL
 context$clean <- function() {
   outer <- context$outer
   context$outer <- outer$outer
