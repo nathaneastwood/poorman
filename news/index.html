@@ -67,6 +67,10 @@
 <li>
 <code><a href="../reference/filter_joins.html">semi_join()</a></code> and <code><a href="../reference/filter_joins.html">anti_join()</a></code> now support a named <code>by</code>, e.g. <code>by = c("a" = "b")</code>. Previously, they looked for the names of <code>y</code> in <code>x</code> and returned the wrong rows.</li>
 <li>Joins on missing columns now give the <code>dplyr</code> error, which names the missing columns.</li>
+<li>
+<code><a href="../reference/select.html">select()</a></code> now supports negative selections on grouped data, e.g. <code>select(group_by(df, id), -g)</code>. Previously, it failed with “only 0’s may be mixed with negative subscripts”. A deselected grouping variable is added back in front, with a message, as in <code>dplyr</code>.</li>
+<li>
+<code><a href="../reference/rename.html">rename_with()</a></code> no longer renames grouping variables which were not selected. Previously, it added them to the selection with an “Adding missing grouping variables” message.</li>
 </ul><p>Grouped operations now match <code>dplyr</code>:</p>
 <ul><li>Groups whose values paste to the same string (e.g. <code>"a.b"</code> and <code>"c"</code> vs <code>"a"</code> and <code>"b.c"</code>) are no longer merged; the same applies to the keys of <code><a href="../reference/filter_joins.html">semi_join()</a></code> and <code><a href="../reference/filter_joins.html">anti_join()</a></code>.</li>
 <li>Rows with missing values in grouping columns are no longer dropped by grouped verbs.</li>

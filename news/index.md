@@ -115,6 +115,14 @@ also speeds up [`mutate()`](../reference/mutate.md).
   of `y` in `x` and returned the wrong rows.
 - Joins on missing columns now give the `dplyr` error, which names the
   missing columns.
+- [`select()`](../reference/select.md) now supports negative selections
+  on grouped data, e.g. `select(group_by(df, id), -g)`. Previously, it
+  failed with “only 0’s may be mixed with negative subscripts”. A
+  deselected grouping variable is added back in front, with a message,
+  as in `dplyr`.
+- [`rename_with()`](../reference/rename.md) no longer renames grouping
+  variables which were not selected. Previously, it added them to the
+  selection with an “Adding missing grouping variables” message.
 
 Grouped operations now match `dplyr`:
 
