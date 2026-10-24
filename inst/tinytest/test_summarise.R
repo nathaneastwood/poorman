@@ -297,6 +297,16 @@ expect_equal(
   list(a = 1, b = 2),
   info = "summarise() names unnamed list results after the expression"
 )
+expect_identical(
+  names(summarise(mtcars, mean(.data$mpg), sum(wt))),
+  c("mean(.data$mpg)", "sum(wt)"),
+  info = "summarise() names unnamed expressions which use the .data pronoun"
+)
+expect_identical(
+  names(summarise(mtcars, min(mpg) + max(mpg) + sum(mpg) + mean(disp) + median(hp) + sd(drat) + var(qsec))),
+  "... + var(qsec)",
+  info = "summarise() abbreviates the names of long operator calls, keeping the operator"
+)
 
 # Earlier results -------------------------------------------------------------
 

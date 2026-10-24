@@ -23,7 +23,7 @@ source.}
 \item{keep}{\code{logical(1)}. Should the key columns of \code{y} also appear in the nested \code{data.frame}s?}
 
 \item{name}{\code{character(1)}. The name of the new list column. With \code{NULL}, the default, the column is named after
-the expression passed as \code{y}.}
+the expression passed as \code{y}, abbreviated as the automatic names of \code{\link[=summarise]{summarise()}}.}
 
 \item{...}{Ignored. Included for compatibility with \code{dplyr}.}
 }

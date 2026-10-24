@@ -43,6 +43,22 @@ result in one row in the output for each group.
 \details{
 \code{summarise()} and \code{summarize()} are synonyms.
 }
+\section{Automatic names}{
+
+An unnamed expression is named after its code, e.g. \code{mean(disp)}, and \code{.data$disp} is named \code{disp}. When the code
+is too long to read as a name, it is abbreviated with \code{...}. A call keeps its function, e.g. \code{mean(...)}, and an
+operator keeps as many of its two sides as fit in 60 characters, e.g. \code{... \%>\% select(a, b)}.
+
+The names are those of \code{dplyr}, with these differences:
+\itemize{
+\item The limit of 60 characters is fixed. \code{dplyr} keeps some names of up to 63 characters whose right side is a call,
+such as a long name followed by \code{+ g()}.
+\item Characters are counted rather than bytes, so names with accented or other multibyte characters are not
+abbreviated sooner.
+\item \verb{?} and \verb{:=} are treated as calls rather than operators, e.g. \code{`?`(...)}, as R prints them.
+}
+}
+
 \examples{
 # A summary applied to ungrouped tbl returns a single row
 mtcars \%>\%

@@ -21,7 +21,7 @@
 #' source.
 #' @param keep `logical(1)`. Should the key columns of `y` also appear in the nested `data.frame`s?
 #' @param name `character(1)`. The name of the new list column. With `NULL`, the default, the column is named after
-#' the expression passed as `y`.
+#' the expression passed as `y`, abbreviated as the automatic names of [summarise()].
 #' @param ... Ignored. Included for compatibility with `dplyr`.
 #'
 #' @return
@@ -65,7 +65,7 @@ nest_join <- function(x, y, by = NULL, copy = FALSE, keep = FALSE, name = NULL, 
 
 #' @export
 nest_join.data.frame <- function(x, y, by = NULL, copy = FALSE, keep = FALSE, name = NULL, ...) {
-  nest_col <- if (is.null(name)) expr_label(substitute(y)) else name
+  nest_col <- if (is.null(name)) auto_label(substitute(y)) else name
   by <- join_key_names(by, names(x), names(y))
 
   n_x <- nrow(x)
