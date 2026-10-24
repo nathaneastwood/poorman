@@ -141,3 +141,19 @@ expect_false(
   group_by_drop_default(count(group_by(df, h, .drop = FALSE), g)),
   info = "count() keeps the .drop setting of its input"
 )
+
+ge_df <- data.frame(x = 1:4, g = c("a", "a", "b", "b"))
+expect_equal(
+  count(ge_df, tot = g),
+  data.frame(tot = c("a", "b"), n = c(2L, 2L)),
+  info = "count() counts a renamed column"
+)
+ge_fn <- function(data) {
+  k <- 2L
+  count(data, h = x %/% k)
+}
+expect_equal(
+  ge_fn(ge_df),
+  data.frame(h = 0:2, n = c(1L, 2L, 1L)),
+  info = "count() finds variables in the calling environment"
+)

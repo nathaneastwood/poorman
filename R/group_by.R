@@ -35,7 +35,12 @@ group_by <- function(.data, ..., .add = FALSE, .drop = group_by_drop_default(.da
 
 #' @export
 group_by.data.frame <- function(.data, ..., .add = FALSE, .drop = group_by_drop_default(.data)) {
-  vars <- dotdotdot(..., .impute_names = TRUE)
+  # The group columns are computed by `mutate()`, so pass on the frame of the user unless an outer verb has already
+  if (is.null(context$group_env)) {
+    context$group_env <- parent.frame()
+    on.exit(context$group_env <- NULL, add = TRUE)
+  }
+  vars <- dotdotdot(..., .impute_names = TRUE, .env = context$group_env)
   if (all(vapply(vars, is.null, FALSE))) {
     res <- groups_set(.data, NULL)
     class(res) <- class(res)[!(class(res) %in% "grouped_df")]
@@ -92,13 +97,20 @@ group_by_drop_default.grouped_df <- function(.tbl) {
 
 # -- Helpers -------------------------------------------------------------------
 
+#' Compute the columns to group by
+#'
+#' A group given as a bare column under its own name, e.g. `g`, is used as it is. Any other group, e.g. `h = x %/% 2`,
+#' `tot = g` or `5`, is computed by `mutate()` on the ungrouped data.
+#'
+#' @param .data A `data.frame`.
+#' @param vars A named `list` of unevaluated expressions, as returned by `dotdotdot(.impute_names = TRUE)`.
+#' @return A `list` with `data`, `.data` with the computed columns, and `groups`, the names of the group columns.
+#' @noRd
 add_group_columns <- function(.data, vars) {
   vars <- vars[!vapply(vars, is.null, FALSE)]
-  types <- do.call(c, lapply(vars, typeof))
-  test <- any(types == "language")
-  needs_mutate <- if (test) unname(which(types == "language")) else NULL
-  if (!is.null(needs_mutate)) {
-    .data <- do.call(mutate, c(list(.data = ungroup(.data)), vars[needs_mutate]))
+  is_column <- vapply(seq_along(vars), function(i) identical(vars[[i]], as.name(names(vars)[i])), NA)
+  if (!all(is_column)) {
+    .data <- do.call(mutate, c(list(.data = ungroup(.data)), vars[!is_column]))
   }
   list(data = .data, groups = names(vars))
 }

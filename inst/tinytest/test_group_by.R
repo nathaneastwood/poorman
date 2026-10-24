@@ -226,3 +226,35 @@ expect_equal(
   list(c("x", "y", "... + x"), "... + x"),
   info = "group_by() abbreviates long automatic names"
 )
+
+ge_df <- data.frame(x = 1:4, g = c("a", "a", "b", "b"))
+ge_nm <- "tot"
+res <- group_by(ge_df, tot = g)
+expect_equal(
+  list(res$tot, group_vars(res)),
+  list(c("a", "a", "b", "b"), "tot"),
+  info = "group_by() groups by a renamed column"
+)
+expect_equal(
+  group_vars(group_by(ge_df, z := g, "{ge_nm}" := x)), # nolint: object_name_linter.
+  c("z", "tot"),
+  info = "group_by() supports :="
+)
+res <- group_by(ge_df, 5, "lit")
+expect_equal(
+  list(res[["5"]], res[["\"lit\""]], group_vars(res)),
+  list(rep(5, 4L), rep("lit", 4L), c("5", "\"lit\"")),
+  info = "group_by() groups by a literal, named after its code"
+)
+expect_equal(
+  group_by(ge_df, .data$g),
+  group_by(ge_df, g),
+  info = "group_by() groups by .data$g as the column g"
+)
+res <- group_by(group_by(ge_df, g), h = x, .add = TRUE)
+expect_equal(list(res$h, group_vars(res)), list(1:4, c("g", "h")), info = "group_by(.add = TRUE) adds a renamed column")
+ge_fn <- function(data) {
+  k <- 2L
+  group_by(data, h = x %/% k)
+}
+expect_equal(ge_fn(ge_df)$h, c(0L, 1L, 1L, 2L), info = "group_by() finds variables in the calling environment")

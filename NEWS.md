@@ -39,6 +39,7 @@ Grouped operations are now considerably faster. Groups are identified in a singl
 * `transmute()` now finds variables in the calling environment, e.g. inside a function. Previously, it gave an "object not found" error, or found a function of the same name.
 * `mutate()`, `transmute()` and `group_by()` now give unnamed expressions the same automatic names as `summarise()`. Long expressions are abbreviated, e.g. `... + x`, and `.data$x` is named `x`. Previously, an expression which R deparses over several lines gave a broken name such as `c("{", "    x + 1", "}")`.
 * Automatic names now show the value of the subscript of `.data[[...]]`, as in `dplyr`. With `var <- "y"`, `summarise(df, .data[[var]])` is named `y` and `summarise(df, mean(.data[[var]]))` is named `mean(.data[["y"]])`. Previously, they were named `.data[[var]]` and `mean(.data[[var]])`.
+* `group_by()` and `count()` now group by renamed columns and literals, e.g. `group_by(df, total = g)` or `count(df, 5)`, and add columns with `.add = TRUE`, e.g. `group_by(df, h = x, .add = TRUE)`. Previously, these gave an "Invalid groups" error. They also now find variables in the calling environment, e.g. inside a function.
 
 Grouped operations now match `dplyr`:
 
