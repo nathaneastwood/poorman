@@ -1,7 +1,16 @@
 context <- new.env()
 
 # Data
-context$setup <- function(.data) context$.data <- .data
+# A verb sets the data of the context with `setup()` and removes it with `clean()` when it exits. The data and column of
+# any outer verb are kept and restored by `clean()`, so that a verb can be used inside the expressions of another.
+context$setup <- function(.data) {
+  context$outer <- list(
+    data = get0(".data", envir = context, inherits = FALSE),
+    cur_column = context$cur_column,
+    outer = context$outer
+  )
+  context$.data <- .data
+}
 context$get_data <- function() context$.data
 context$get_columns <- function(cols) context$.data[, cols, drop = FALSE]
 context$cur_column <- NULL
@@ -17,8 +26,10 @@ context$as_env <- function() {
 }
 context$group_env <- NULL
 context$clean <- function() {
-  rm(list = c(".data"), envir = context)
-  if (!is.null(context$cur_column)) rm(list = c("cur_column"), envir = context)
+  outer <- context$outer
+  context$outer <- outer$outer
+  if (is.null(outer$data)) rm(list = ".data", envir = context) else context$.data <- outer$data
+  context$cur_column <- outer$cur_column
 }
 
 #' Context dependent expressions

@@ -96,7 +96,9 @@ mutate.data.frame <- function(
 ) {
   keep <- match.arg(arg = .keep, choices = c("all", "used", "unused", "none"), several.ok = FALSE)
 
-  res <- mutate_df(.data = .data, ...)
+  # `group_by()` and `transmute()` compute their columns with `mutate()` and pass on the frame of the user
+  env <- if (!is.null(context$group_env)) context$group_env else parent.frame()
+  res <- mutate_df(.data = .data, dots = dotdotdot(..., .env = env), env = env)
   data <- res$data
   new_cols <- res$new_cols
 
@@ -122,59 +124,40 @@ mutate.data.frame <- function(
   }
 }
 
-#' @export
-mutate.grouped_df <- function(.data, ...) {
-  context$group_env <- parent.frame(n = 1)
-  on.exit(rm(list = c("group_env"), envir = context), add = TRUE)
-  apply_grouped_function(.data, function(df) mutate(df, ...), .drop = TRUE, .reorder = TRUE)
-}
-
 ## -- Helpers ----------------------------------------------------------------------------------------------------------
 
-mutate_df <- function(.data, ...) {
-  env <- if (!is.null(context$group_env)) context$group_env else parent.frame(n = 2)
-  conditions <- dotdotdot(..., .impute_names = TRUE, .env = env)
-  cond_nms <- names(dotdotdot(..., .impute_names = FALSE, .env = env))
-  if (length(conditions) == 0L) {
-    return(list(
-      data = .data,
-      used_cols = NULL,
-      new_cols = NULL
-    ))
-  }
-  used <- unname(do.call(c, lapply(conditions, find_used)))
+#' Compute new columns
+#'
+#' The expressions are evaluated for each group by `eval_groups()`. The results of each are combined across the groups
+#' by `combine_groups()` and put back into the order of the rows.
+#'
+#' @param .data A `data.frame`.
+#' @param dots A `list` of unevaluated expressions, as returned by `dotdotdot()`.
+#' @param env An `environment` in which to look up variables that are not columns.
+#' @return A `list` with `data`, `.data` with the new columns, `used_cols`, the columns of `.data` used by the
+#' expressions, and `new_cols`, the names of the new columns.
+#' @noRd
+mutate_df <- function(.data, dots, env) {
+  if (length(dots) == 0L) return(list(data = .data, used_cols = NULL, new_cols = NULL))
+  used <- unname(do.call(c, lapply(dots, find_used)))
   used <- used[used %in% colnames(.data)]
-  context$setup(.data)
-  on.exit(context$clean(), add = TRUE)
-  for (i in seq_along(conditions)) {
-    not_named <- (is.null(cond_nms) || cond_nms[i] == "")
-    # `.data` is the data as it stands, so it sees the columns made by earlier expressions
-    mask <- c(as.list(context$as_env()), list(.data = context$.data))
-    res <- eval(
-      conditions[[i]],
-      envir = mask,
-      enclos = env
-    )
-    res_nms <- names(res)
-    if (is.atomic(res) && length(res) == 1L && nrow(context$.data) == 0L) res <- res[0L]
-    if (is.data.frame(res)) {
-      if (not_named) {
-        context$.data[, res_nms] <- res
-      } else {
-        context$.data[[cond_nms[i]]] <- res
-      }
-    } else if (is.atomic(res)) {
-      cond_nms[i] <- names(conditions)[[i]]
-      context$.data[[cond_nms[i]]] <- res
+  res <- eval_groups(.data, dots, env, group_size = TRUE, drop_null = TRUE)
+  order <- ungroup_order(res$rows, .row_names_info(.data, 2L))
+  new_cols <- character()
+  for (i in seq_along(dots)) {
+    col <- combine_groups(res$values[[i]], res$sizes, res$labels[[i]])
+    if (!is.null(order)) col <- vec_slice(col, order)
+    if (res$unnamed[[i]] && is.data.frame(col)) {
+      for (j in names(col)) .data[[j]] <- .subset2(col, j)
+      new_cols <- c(new_cols, names(col))
     } else {
-      context$.data[[names(conditions)[[i]]]] <- res
+      .data[[res$labels[[i]]]] <- col
+      new_cols <- c(new_cols, res$labels[[i]])
     }
   }
-  list(
-    data = context$.data,
-    used_cols = used,
-    new_cols = cond_nms
-  )
+  groups <- group_vars(.data)
+  if (any(groups %in% new_cols)) .data <- groups_set(.data, groups)
+  list(data = .data, used_cols = used, new_cols = new_cols)
 }
 
 #' Recursively find used variables in an expression

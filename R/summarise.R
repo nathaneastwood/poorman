@@ -123,8 +123,8 @@ summarize.grouped_df <- summarise.grouped_df
 
 #' Evaluate summary expressions for each group
 #'
-#' The expressions are evaluated by `eval_groups()`. As in dplyr, results of size one are recycled to the size of the
-#' group and the results of a column are combined across the groups.
+#' The expressions are evaluated by `eval_groups()` and the results of each are combined across the groups by
+#' `combine_groups()`.
 #'
 #' @param .data A `data.frame`.
 #' @param dots A `list` of unevaluated expressions, as returned by `dotdotdot()`.
@@ -143,32 +143,13 @@ summarise_groups <- function(.data, dots, env) {
 
   out <- list()
   for (i in seq_along(dots)) {
-    label <- res$labels[[i]]
-    vals <- res$values[[i]]
-    if (grouped) {
-      is_null <- vapply(vals, is.null, NA)
-      # As in dplyr, NULL results are ignored
-      if (all(is_null)) next
-      if (any(is_null)) {
-        stop(
-          sprintf("`%s` must return compatible vectors across groups: ", label),
-          "it can't combine NULL and non NULL results.",
-          call. = FALSE
-        )
-      }
-      recycle <- which(vapply(vals, NROW, 1L) != sizes)
-      vals[recycle] <- lapply(recycle, function(g) vec_slice(vals[[g]], rep(1L, sizes[[g]])))
-      col <- combine_summaries(vals)
-    } else {
-      col <- vals[[1L]]
-      if (is.null(col)) next
-      if (NROW(col) != sizes) col <- vec_slice(col, rep(1L, sizes))
-    }
+    col <- combine_groups(res$values[[i]], sizes, res$labels[[i]])
+    if (is.null(col)) next
     if (is.data.frame(col)) attr(col, "row.names") <- .set_row_names(nrow(col))
     if (res$unnamed[[i]] && is.data.frame(col)) {
       for (j in names(col)) out[[j]] <- .subset2(col, j)
     } else {
-      out[[label]] <- col
+      out[[res$labels[[i]]]] <- col
     }
   }
 

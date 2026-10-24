@@ -25,6 +25,8 @@ Grouped operations are now considerably faster. Groups are identified in a singl
 
 `summarise()` is now considerably faster on grouped data. Each column is split by group once and the summaries are combined column by column, rather than building and binding a `data.frame` for each group. On 100,000 rows, `summarise()` is over 4x faster with 1,000 groups and 5x faster with 10,000 groups, and `count()` with 26,000 groups is over 7x faster. `across()` builds its result faster, which also speeds up `mutate()`.
 
+`mutate()` and `transmute()` are now considerably faster on grouped data. As in `summarise()`, each column is split by group once and the expressions are evaluated for each group in a data mask, rather than building and binding a `data.frame` for each group. On 100,000 rows, grouped `mutate()` is 17x faster with 10 groups, 10x faster with 1,000 groups and 6x faster with 10,000 groups, and allocates 3x less memory; `transmute()` is 10-20x faster.
+
 ## Bug fixes
 
 * `keep = TRUE` now works as in `dplyr`. The keys of `x` and `y` are both kept, each with `NA` where a row has no match in its table; previously, the key of `y` repeated the key of `x`, and `keep = TRUE` with a named `by` failed. `inner_join()` now supports `keep` too.
@@ -37,6 +39,9 @@ Grouped operations are now considerably faster. Groups are identified in a singl
 * `rename_with()` no longer renames grouping variables which were not selected. Previously, it added them to the selection with an "Adding missing grouping variables" message.
 * `mutate()` and `transmute()` now support the `.data` pronoun, e.g. `mutate(df, z = .data[[var]] * 2)`. As in `dplyr`, `.data` sees the columns made by earlier expressions and, on grouped data, holds the rows of the current group. Previously, `.data` gave the error "object '.data' not found".
 * `across()` and the `.data` pronoun in `summarise()` now see the summaries made by earlier expressions, e.g. `summarise(df, m = mean(x), across(m, ~ .x * 10))`, as in `dplyr`. Previously, `across()` gave the error "Column m does not exist" and `.data$m` gave a result with no rows. As in `dplyr`, each expression is now evaluated for every group before the next expression.
+* Grouped `mutate()` and `transmute()` now evaluate their expressions for empty groups, such as the unused levels of a factor grouped with `.drop = FALSE`, as in `dplyr`. As in `dplyr`, each expression is now evaluated for every group before the next expression.
+* `mutate()` and `transmute()` now give the `dplyr` error when a result has the wrong size, e.g. "x `k` must be size 3 or 1, not 2", naming the group on grouped data. Previously, they gave the error of `[[<-.data.frame`, "replacement has 2 rows, data has 3".
+* A verb can now be used inside the expressions of another, e.g. `mutate(group_by(df, g), k = nrow(filter(df, x > 2)) + n())`. Previously, the inner verb removed the data of the outer one, so `n()` and the other context functions failed after it.
 * `transmute()` now finds variables in the calling environment, e.g. inside a function. Previously, it gave an "object not found" error, or found a function of the same name.
 * `mutate()`, `transmute()` and `group_by()` now give unnamed expressions the same automatic names as `summarise()`. Long expressions are abbreviated, e.g. `... + x`, and `.data$x` is named `x`. Previously, an expression which R deparses over several lines gave a broken name such as `c("{", "    x + 1", "}")`.
 * Automatic names now show the value of the subscript of `.data[[...]]`, as in `dplyr`. With `var <- "y"`, `summarise(df, .data[[var]])` is named `y` and `summarise(df, mean(.data[[var]]))` is named `mean(.data[["y"]])`. Previously, they were named `.data[[var]]` and `mean(.data[[var]])`.

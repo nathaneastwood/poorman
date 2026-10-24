@@ -59,7 +59,7 @@ distinct.data.frame <- function(.data, ..., .keep_all = FALSE) {
   if (col_len == 0L) {
     res <- .data
   } else {
-    mut <- mutate_df(.data, ...)
+    mut <- mutate_df(.data, dotdotdot(..., .env = parent.frame()), parent.frame())
     res <- mut$data
     col_names <- names(cols)
     res <- if (!is.null(col_names)) {

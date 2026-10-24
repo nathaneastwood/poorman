@@ -107,6 +107,14 @@ get_groups <- function(.data, groups = group_vars(.data)) {
   if (is_valid_groups(.data, details, groups)) details else calculate_groups(.data, groups)
 }
 
+#' Check that a grouping structure still describes the data
+#'
+#' @param .data A `data.frame`.
+#' @param details A `data.frame` of the groups, as returned by `calculate_groups()`, or `NULL`.
+#' @param groups `character(n)`. The names of the grouping columns.
+#' @return `logical(1)`. `TRUE` if `details` has the grouping columns `groups`, each row of `.data` is in exactly one
+#' group and the key columns of `.data`, read through `.rows`, match the keys of `details`.
+#' @noRd
 is_valid_groups <- function(.data, details, groups) {
   if (!is.data.frame(details) || !identical(setdiff(names(details), ".rows"), groups)) return(FALSE)
   rows <- details[[".rows"]]
@@ -128,12 +136,16 @@ is_valid_groups <- function(.data, details, groups) {
 #' group whose parent is `env`, the caller's environment, so that local variables are found and the variables of this
 #' function never are. As in dplyr, each expression is evaluated for every group before the next expression, and each
 #' result is available to the expressions that follow it, both as a variable and through `.data`, `across()` and the
-#' other context functions. Data with no groups is evaluated once, on the empty data, so that the type of each result
-#' is known.
+#' other context functions. Empty groups are evaluated too, and data with no groups is evaluated once, on the empty
+#' data, so that the type of each result is known.
 #'
 #' @param .data A `data.frame`.
 #' @param dots A `list` of unevaluated expressions, as returned by `dotdotdot()`.
 #' @param env An `environment` in which to look up variables that are not columns.
+#' @param group_size `logical(1)`. Must each result have the size of its group or size one, as in `mutate()`? If not,
+#' the results of a group which are not of size one must have the same size, as in `summarise()`.
+#' @param drop_null `logical(1)`. Does a `NULL` result remove the variable of that name, as in `mutate()`? If not, it is
+#' ignored, as in `summarise()`.
 #' @return A `list` with:
 #' * `rows`, the rows of each group that was evaluated;
 #' * `details`, the grouping structure of `.data` (`NULL` if it is not grouped) and `groups`, the grouping columns;
@@ -143,7 +155,7 @@ is_valid_groups <- function(.data, details, groups) {
 #'   results are kept as `NULL`);
 #' * `sizes`, the size of the results of each group: the size of its results which are not of size one, or one.
 #' @noRd
-eval_groups <- function(.data, dots, env) {
+eval_groups <- function(.data, dots, env, group_size = FALSE, drop_null = FALSE) {
   groups <- group_vars(.data)
   grouped <- length(groups) > 0L
   details <- if (grouped) get_groups(.data, groups)
@@ -178,8 +190,15 @@ eval_groups <- function(.data, dots, env) {
     function(g) attrs
   }
   # Most expressions never look at `.data`, so it is an active binding which builds it from the mask when it is used
+  # As poorman has no `rowwise()`, a list column holding a single data.frame, such as the nested data of a group made by
+  # `nest_by()`, is seen as that data.frame
+  list_cols <- which(vapply(.data, function(col) is.list(col) && !is.data.frame(col), NA))
   masks <- lapply(seq_len(n_groups), function(g) {
-    mask <- list2env(lapply(chunks, .subset2, g), envir = new.env(hash = FALSE, parent = env))
+    cols <- lapply(chunks, .subset2, g)
+    for (j in list_cols) {
+      if (length(cols[[j]]) == 1L && is.data.frame(cols[[j]][[1L]])) cols[[j]] <- cols[[j]][[1L]]
+    }
+    mask <- list2env(cols, envir = new.env(hash = FALSE, parent = env))
     makeActiveBinding(".data", function() {
       res <- mget(col_names, envir = mask, inherits = FALSE, ifnotfound = list(NULL))
       res <- res[!vapply(res, is.null, NA)]
@@ -189,18 +208,11 @@ eval_groups <- function(.data, dots, env) {
     mask
   })
 
-  # Restore any outer context so that a verb inside another verb does not break it
-  outer <- get0(".data", envir = context, inherits = FALSE)
-  on.exit(add = TRUE, {
-    if (!is.null(outer)) {
-      context$.data <- outer
-    } else if (exists(".data", envir = context, inherits = FALSE)) {
-      context$clean()
-    }
-  })
+  context$setup(.data)
+  on.exit(context$clean(), add = TRUE)
 
   values <- vector(mode = "list", length = length(dots))
-  sizes <- rep(1L, n_groups)
+  sizes <- if (group_size) lengths(rows) else rep(1L, n_groups)
   size_from <- character(n_groups)
   for (i in seq_along(dots)) {
     vals <- vector(mode = "list", length = n_groups)
@@ -208,7 +220,10 @@ eval_groups <- function(.data, dots, env) {
       mask <- masks[[g]]
       delayedAssign(".data", .data, eval.env = mask, assign.env = context)
       value <- eval(dots[[i]], mask)
-      if (is.null(value)) next
+      if (is.null(value)) {
+        if (drop_null && exists(labels[[i]], envir = mask, inherits = FALSE)) rm(list = labels[[i]], envir = mask)
+        next
+      }
       vals[g] <- list(value)
       if (unnamed[[i]] && is.data.frame(value)) {
         list2env(value, envir = mask)
@@ -217,21 +232,28 @@ eval_groups <- function(.data, dots, env) {
         assign(labels[[i]], value, envir = mask)
       }
     }
-    if (!unnamed[[i]] || !all(vapply(vals, is.data.frame, NA))) col_names <- union(col_names, labels[[i]])
+    is_null <- vapply(vals, is.null, NA)
+    if (drop_null && all(is_null)) {
+      col_names <- setdiff(col_names, labels[[i]])
+    } else if (!unnamed[[i]] || !all(vapply(vals, is.data.frame, NA))) {
+      col_names <- union(col_names, labels[[i]])
+    }
     vals_size <- vapply(vals, NROW, 1L)
-    resized <- !vapply(vals, is.null, NA) & vals_size != 1L & vals_size != sizes
-    wrong <- which(resized & sizes != 1L)
+    resized <- !is_null & vals_size != 1L & vals_size != sizes
+    wrong <- which(if (group_size) resized else resized & sizes != 1L)
     if (length(wrong) > 0L) {
       g <- wrong[[1L]]
-      stop(
-        sprintf("`%s` must be size %d or 1, not %d.", labels[[i]], sizes[[g]], vals_size[[g]]),
-        if (nzchar(size_from[[g]])) sprintf(" An earlier column, `%s`, had size %d.", size_from[[g]], sizes[[g]]),
-        if (grouped && !empty) sprintf(" The error occurred in group %d.", g),
-        call. = FALSE
+      # As in dplyr, the error of `mutate()` calls an unnamed expression by its position
+      name <- if (group_size && unnamed[[i]]) paste0("..", i) else labels[[i]]
+      stop_wrong_size(
+        dots[[i]], name, sizes[[g]], vals_size[[g]], size_from[[g]],
+        group = if (grouped && !empty) g, details = details, group_size = group_size
       )
     }
-    sizes[resized] <- vals_size[resized]
-    size_from[resized] <- labels[[i]]
+    if (!group_size) {
+      sizes[resized] <- vals_size[resized]
+      size_from[resized] <- labels[[i]]
+    }
     values[[i]] <- vals
   }
 
@@ -241,9 +263,106 @@ eval_groups <- function(.data, dots, env) {
   )
 }
 
-# Split each column of `.data` by the row numbers in `rows`. The result is a list with an element for each column,
-# itself a list with an element for each group. With few groups, indexing each group is fastest; with many, the
-# per-call overhead of indexing dominates and `split()` is faster.
+#' Give the error for a result of the wrong size
+#'
+#' @param expr The unevaluated expression which gave the result.
+#' @param name `character(1)`. The name of the expression.
+#' @param size `integer(1)`. The size the result should have.
+#' @param value_size `integer(1)`. The size of the result.
+#' @param size_from `character(1)`. The name of the earlier expression which set `size`, or `""` if none did.
+#' @param group `integer(1)`. The group of the result, or `NULL` if the data is not grouped.
+#' @param details A `data.frame` of the groups, as returned by `get_groups()`.
+#' @param group_size `logical(1)`. Give the error of `mutate()`, whose results must have the size of their group or
+#' size one, rather than that of `summarise()`?
+#' @return Does not return; gives an error.
+#' @noRd
+stop_wrong_size <- function(expr, name, size, value_size, size_from, group, details, group_size) {
+  if (group_size) {
+    stop(
+      sprintf("Problem while computing `%s = %s`.\n", name, paste(deparse(expr), collapse = " ")),
+      sprintf("x `%s` must be size %d or 1, not %d.", name, size, value_size),
+      if (!is.null(group)) sprintf("\ni The error occurred in group %d: %s.", group, describe_group(details, group)),
+      call. = FALSE
+    )
+  }
+  stop(
+    sprintf("`%s` must be size %d or 1, not %d.", name, size, value_size),
+    if (nzchar(size_from)) sprintf(" An earlier column, `%s`, had size %d.", size_from, size),
+    if (!is.null(group)) sprintf(" The error occurred in group %d.", group),
+    call. = FALSE
+  )
+}
+
+#' Describe a group by its keys
+#'
+#' As in the error messages of dplyr, each key is given as `name = value`, with character values in quotes, e.g.
+#' `g = "a", h = 1`.
+#'
+#' @param details A `data.frame` of the groups, as returned by `get_groups()`.
+#' @param g `integer(1)`. The position of the group in `details`.
+#' @return `character(1)`.
+#' @noRd
+describe_group <- function(details, g) {
+  keys <- setdiff(names(details), ".rows")
+  values <- vapply(keys, function(key) {
+    value <- .subset2(details, key)[g]
+    if (is.character(value)) encodeString(value, quote = "\"") else as.character(value)
+  }, NA_character_)
+  paste0(keys, " = ", values, collapse = ", ")
+}
+
+#' Combine the results of an expression across the groups
+#'
+#' Results of size one are recycled to the size of their group. As in dplyr, `NULL` results are ignored, but `NULL`
+#' results cannot be combined with other results.
+#'
+#' @param vals A `list` with the result of the expression for each group, as returned by `eval_groups()`.
+#' @param sizes `integer(n)`. The size of each group's results, as returned by `eval_groups()`.
+#' @param label `character(1)`. The name of the expression, for error messages.
+#' @return The combined results, in group order, or `NULL` if every result was `NULL`.
+#' @noRd
+combine_groups <- function(vals, sizes, label) {
+  is_null <- vapply(vals, is.null, NA)
+  if (all(is_null)) return(NULL)
+  if (any(is_null)) {
+    stop(
+      sprintf("`%s` must return compatible vectors across groups: ", label),
+      "it can't combine NULL and non NULL results.",
+      call. = FALSE
+    )
+  }
+  recycle <- which(vapply(vals, NROW, 1L) != sizes)
+  vals[recycle] <- lapply(recycle, function(g) vec_slice(vals[[g]], rep(1L, sizes[[g]])))
+  if (length(vals) == 1L) vals[[1L]] else combine_summaries(vals)
+}
+
+#' Find the order that puts results in group order back into the order of the rows
+#'
+#' @param rows A `list` of the rows of each group.
+#' @param n `integer(1)`. The number of rows.
+#' @return `NULL` if the groups are already in the order of the rows, otherwise the position of each row in
+#' `unlist(rows)`.
+#' @noRd
+ungroup_order <- function(rows, n) {
+  # The rows of a single group are all the rows, in order
+  if (length(rows) <= 1L) return(NULL)
+  idx <- unlist(rows, use.names = FALSE)
+  if (identical(idx, seq_len(n))) return(NULL)
+  res <- integer(n)
+  res[idx] <- seq_len(n)
+  res
+}
+
+#' Split each column of a `data.frame` by group
+#'
+#' With few groups, indexing each group is fastest; with many, the per-call overhead of indexing dominates and
+#' `split()` is faster, so `split()` is used when there are fewer than 32 rows per group on average.
+#'
+#' @param .data A `data.frame`.
+#' @param rows A `list` of the rows of each group.
+#' @return A `list` with an element for each column of `.data`, itself a `list` with the rows of that column for each
+#' group.
+#' @noRd
 split_columns <- function(.data, rows) {
   f <- NULL
   idx <- NULL
@@ -254,6 +373,14 @@ split_columns <- function(.data, rows) {
   lapply(.data, split_column, rows = rows, idx = idx, f = f)
 }
 
+#' Split a column by group
+#'
+#' @param col A vector, `matrix` or `data.frame` column.
+#' @param rows A `list` of the rows of each group.
+#' @param idx `integer(n)`. The rows in group order, `unlist(rows)`, or `NULL` to index each group instead.
+#' @param f A `factor` of the group of each element of `idx`, or `NULL` to index each group instead.
+#' @return A `list` with the rows of `col` for each group.
+#' @noRd
 split_column <- function(col, rows, idx, f) {
   if (!is.null(dim(col))) return(lapply(rows, function(i) vec_slice(col, i)))
   cls <- oldClass(col)
@@ -338,6 +465,12 @@ expand_empty_groups <- function(keys) {
   empty
 }
 
+#' Make a factor from its codes
+#'
+#' @param codes `integer(n)`. The codes, i.e. positions in the levels of `template`.
+#' @param template A `factor` whose levels and class are used.
+#' @return A `factor` with the levels and class of `template`.
+#' @noRd
 with_factor_codes <- function(codes, template) {
   structure(as.integer(codes), levels = levels(template), class = class(template))
 }
@@ -411,6 +544,12 @@ bind_groups <- function(x) {
   cols
 }
 
+#' Check whether a column can be combined by `combine_columns()`
+#'
+#' @param col A column of a `data.frame`.
+#' @return `logical(1)`. `TRUE` for a factor, a plain `Date`, or an atomic vector or unclassed list with no attributes
+#' other than names.
+#' @noRd
 is_simple_column <- function(col) {
   if (is.factor(col)) return(TRUE)
   attrs <- names(attributes(col))
@@ -418,6 +557,15 @@ is_simple_column <- function(col) {
     inherits(col, "Date") && all(attrs %in% "class") && identical(class(col), "Date")
 }
 
+#' Combine columns
+#'
+#' A faster equivalent of `c()` for the columns accepted by `is_simple_column()`. Factors are combined with the union of
+#' their levels, and `Date`s keep their class.
+#'
+#' @param cols A `list` of columns.
+#' @return The combined column, or `NULL` if the columns cannot be combined this way, e.g. a factor with a character
+#' vector.
+#' @noRd
 combine_columns <- function(cols) {
   is_fct <- vapply(cols, is.factor, NA)
   if (all(is_fct)) {
@@ -438,7 +586,13 @@ combine_columns <- function(cols) {
   unlist(cols, recursive = FALSE, use.names = FALSE)
 }
 
-# Follows the row name rules of `rbind.data.frame()`.
+#' Find the row names of `data.frame`s bound by row
+#'
+#' Follows the row name rules of `rbind.data.frame()`.
+#'
+#' @param x A `list` of `data.frame`s.
+#' @return The row names of the bound `data.frame`, as for the `"row.names"` attribute.
+#' @noRd
 bind_row_names <- function(x) {
   auto <- TRUE
   n <- 0L
@@ -460,6 +614,11 @@ bind_row_names <- function(x) {
   labels
 }
 
+#' Check whether an object is a grouped `data.frame`
+#'
+#' @param x An R object.
+#' @return `logical(1)`.
+#' @noRd
 is.grouped_df <- function(x) {
   inherits(x, "grouped_df")
 }
