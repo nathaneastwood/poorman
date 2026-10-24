@@ -27,6 +27,8 @@ Grouped operations are now considerably faster. Groups are identified in a singl
 
 `mutate()` and `transmute()` are now considerably faster on grouped data. As in `summarise()`, each column is split by group once and the expressions are evaluated for each group in a data mask, rather than building and binding a `data.frame` for each group. On 100,000 rows, grouped `mutate()` is 17x faster with 10 groups, 10x faster with 1,000 groups and 6x faster with 10,000 groups, and allocates 3x less memory; `transmute()` is 10-20x faster.
 
+`filter()` is now considerably faster. As in `mutate()`, the conditions are evaluated for each group in a data mask and the rows are subset once, rather than building and binding a `data.frame` for each group. On 100,000 rows, grouped `filter()` is 7-10x faster with 10 groups, 5x faster with 1,000 groups and 3-3.6x faster with 10,000 groups, and allocates about half the memory; on 1,000,000 rows with 10,000 groups, it is 5-6x faster. Ungrouped `filter()` is 2-3x faster.
+
 ## Bug fixes
 
 * `keep = TRUE` now works as in `dplyr`. The keys of `x` and `y` are both kept, each with `NA` where a row has no match in its table; previously, the key of `y` repeated the key of `x`, and `keep = TRUE` with a named `by` failed. `inner_join()` now supports `keep` too.
@@ -46,6 +48,10 @@ Grouped operations are now considerably faster. Groups are identified in a singl
 * `mutate()`, `transmute()` and `group_by()` now give unnamed expressions the same automatic names as `summarise()`. Long expressions are abbreviated, e.g. `... + x`, and `.data$x` is named `x`. Previously, an expression which R deparses over several lines gave a broken name such as `c("{", "    x + 1", "}")`.
 * Automatic names now show the value of the subscript of `.data[[...]]`, as in `dplyr`. With `var <- "y"`, `summarise(df, .data[[var]])` is named `y` and `summarise(df, mean(.data[[var]]))` is named `mean(.data[["y"]])`. Previously, they were named `.data[[var]]` and `mean(.data[[var]])`.
 * `group_by()` and `count()` now group by renamed columns and literals, e.g. `group_by(df, total = g)` or `count(df, 5)`, and add columns with `.add = TRUE`, e.g. `group_by(df, h = x, .add = TRUE)`. Previously, these gave an "Invalid groups" error. They also now find variables in the calling environment, e.g. inside a function.
+* `filter()` now checks the size of each condition and gives the `dplyr` error, e.g. "x Input `..1` must be of size 3 or 1, not size 2", naming the group on grouped data. Previously, a condition of the wrong size was recycled, and a condition of size one on data without rows returned a row of `NA`. The error for a condition which is not logical now names the group too, and a data frame result is checked column by column, e.g. "x Input `..1$a` must be a logical vector, not a integer".
+* `filter()` now supports the `.data` pronoun, e.g. `filter(df, .data[[var]] > 2)`. Previously, grouped `filter()` returned rows of `NA` and ungrouped `filter()` gave the error "object '.data' not found".
+* Grouped `filter()` now finds variables in the calling environment, e.g. inside a function. Previously, it gave an "object not found" error.
+* Grouped `filter()` now evaluates its conditions for empty groups, and evaluates every condition for a group before the next group, as in `dplyr`. It now gives the deprecation warning for data frame results once for each condition which returns one, as in `dplyr`. Previously, conditions with the same warning shared a single warning.
 
 Grouped operations now match `dplyr`:
 

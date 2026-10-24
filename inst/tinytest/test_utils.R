@@ -74,3 +74,21 @@ expect_error(
   "can't combine NULL and non NULL results",
   info = "combine_groups() cannot combine NULL with other results"
 )
+
+eg_check <- poorman:::eval_groups(
+  eg_gd, list(k = quote(x)), environment(),
+  check = function(value, size, group, details) list(size = size, group = group, keys = details$g)
+)
+expect_equal(
+  eg_check$values[[1L]],
+  list(list(size = 1L, group = 1L, keys = c("a", "b")), list(size = 2L, group = 2L, keys = c("a", "b"))),
+  info = "eval_groups() replaces each result with the result of check, given the group and its size"
+)
+expect_equal(
+  poorman:::eval_groups(
+    data.frame(x = 1:3), list(k = quote(x)), environment(),
+    check = function(value, size, group, details) list(size, group, details)
+  )$values[[1L]],
+  list(list(3L, NULL, NULL)),
+  info = "eval_groups() gives check no group for data without groups"
+)
