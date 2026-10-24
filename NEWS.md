@@ -12,6 +12,7 @@
 * `arrange()` now supports `across()` (#88).
 * `arrange()` now supports list, data frame and matrix columns. Data frame and matrix columns are sorted by each of their columns in turn and list columns are sorted by the first appearance of each element, as in `dplyr` (#90).
 * New `nest_join()` returns all rows and columns of `x` with a list column of the matching rows of `y`, as `data.frame`s. Rows of `x` with no match get a 0-row `data.frame` (#78).
+* `semi_join()` and `anti_join()` gain the `copy`, `...` and `na_matches` arguments of `dplyr`. `copy` and `...` are ignored. Use `na_matches = "never"` to stop keys with `NA` or `NaN` values from matching.
 
 ## Improvements
 

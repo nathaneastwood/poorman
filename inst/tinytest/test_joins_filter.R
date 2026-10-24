@@ -112,3 +112,56 @@ expect_error(
   info = "Natural filtering joins error when there are no common columns"
 )
 rm(x, y)
+
+nax <- data.frame(a = c(1, NA, NaN, 2, NA), b = c("p", "q", "r", NA, "t"), v = 1:5)
+nay <- data.frame(a = c(1, NA, NaN, NA), b = c("p", "q", "r", "t"))
+
+expect_equal(
+  list(semi_join(nax, nay, by = "a")$v, anti_join(nax, nay, by = "a")$v),
+  list(c(1L, 2L, 3L, 5L), 4L),
+  info = "By default, NA matches NA and NaN matches NaN in filtering joins"
+)
+
+expect_equal(
+  list(semi_join(nax, nay, by = "a", na_matches = "never")$v, anti_join(nax, nay, by = "a", na_matches = "never")$v),
+  list(1L, 2:5),
+  info = "na_matches = 'never' stops NA and NaN keys matching in filtering joins"
+)
+
+expect_equal(
+  list(
+    semi_join(nax, nay, by = c("a", "b"), na_matches = "never")$v,
+    semi_join(nax, nay, by = "b", na_matches = "never")$v
+  ),
+  list(1L, c(1L, 2L, 3L, 5L)),
+  info = "na_matches = 'never' only drops the rows with a missing value in one of the keys"
+)
+
+expect_error(
+  semi_join(nax, nay, by = "a", na_matches = "no"),
+  info = "Filtering joins reject an invalid na_matches"
+)
+
+expect_equal(
+  semi_join(nax, nay, "a", TRUE, foo = 1),
+  semi_join(nax, nay, by = "a"),
+  info = "Filtering joins ignore copy and the arguments in ..."
+)
+
+expect_equal(
+  formals(semi_join),
+  formals(anti_join),
+  info = "semi_join() and anti_join() have the same arguments"
+)
+expect_equal(
+  names(formals(semi_join)),
+  c("x", "y", "by", "copy", "...", "na_matches"),
+  info = "Filtering joins have the dplyr arguments"
+)
+
+res <- semi_join(group_by(nax, b), nay, by = "a", na_matches = "never")
+expect_equal(
+  list(res$v, group_vars(res)),
+  list(1L, "b"),
+  info = "na_matches works on grouped data in filtering joins"
+)
