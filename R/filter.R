@@ -33,7 +33,7 @@ filter <- function(.data, ..., .preserve = FALSE) {
 filter.data.frame <- function(.data, ..., .preserve = FALSE) {
   conditions <- dotdotdot(...)
   if (length(conditions) == 0L) return(.data)
-  check_filter(conditions)
+  check_filter(conditions, parent.frame())
   # As in dplyr, each group is given all of the conditions before the next group, so they are evaluated as one call
   # whose result is checked and combined into the rows to keep
   warned <- logical(length(conditions))
@@ -61,8 +61,17 @@ filter.data.frame <- function(.data, ..., .preserve = FALSE) {
 
 # -- Helpers -------------------------------------------------------------------
 
-# The rows of the groups that remain after `filter()`. The keys do not change, as the rows keep their order. Groups
-# left empty are dropped unless `.preserve = TRUE` or the groups were made with `.drop = FALSE`.
+#' Find the groups that remain after `filter()`
+#'
+#' The keys of the groups do not change, as `filter()` keeps the rows in their order, so only the rows of each group
+#' are found again, as positions in the result. Groups left empty are dropped unless `.preserve = TRUE` or the groups
+#' were made with `.drop = FALSE`.
+#'
+#' @param details A `data.frame` of the groups of the input, as returned by `get_groups()`.
+#' @param keep `logical(n)`. Whether each row of the input is kept, with no missing values.
+#' @param .preserve `logical(1)`. Should empty groups be kept?
+#' @return `details`, with the `.rows` of the result and without the groups that were dropped.
+#' @noRd
 filter_groups <- function(details, keep, .preserve) {
   rows <- details[[".rows"]]
   idx <- unlist(rows, use.names = FALSE)
@@ -80,9 +89,22 @@ filter_groups <- function(details, keep, .preserve) {
   details
 }
 
-# Check the result of a condition for a group of size `size` and give the rows to keep, a `logical` of size `size` or
-# one. As in dplyr, the columns of a data frame result, e.g. from `across()`, are combined with `&`, and matrix results
-# must have a single column. The size is checked before the type.
+#' Check the result of a condition and find the rows to keep
+#'
+#' As in dplyr, the result must have the size of its group or size one, which is checked before its type. The columns
+#' of a data frame result, e.g. from `across()`, are each checked and then combined with `&`, and a matrix result must
+#' have a single column.
+#'
+#' @param res The result of the condition for one group.
+#' @param cond The unevaluated condition, for error messages.
+#' @param i `integer(1)`. The position of the condition in the `...` of `filter()`.
+#' @param size `integer(1)`. The size of the group.
+#' @param group `integer(1)`. The position of the group in `details`, or `NULL` if the data is not grouped.
+#' @param details A `data.frame` of the groups, as returned by `get_groups()`, or `NULL`.
+#' @param warn `logical(1)`. Should a data frame result give the deprecation warning? It is given once for each
+#' condition, rather than once for each group.
+#' @return A `logical` vector of size `size` or one, which may contain missing values.
+#' @noRd
 filter_rows <- function(res, cond, i, size, group, details, warn) {
   res_size <- NROW(res)
   if (res_size != size && res_size != 1L) {
@@ -105,14 +127,29 @@ filter_rows <- function(res, cond, i, size, group, details, warn) {
   Reduce("&", res, rep(TRUE, res_size))
 }
 
-# Give an error unless `x`, the result of a condition or a column of it called `name`, is a logical vector or a one
-# column logical matrix
+#' Check that the result of a condition is logical
+#'
+#' @param x The result of a condition, or a column of a data frame result.
+#' @param name `character(1)`. The name of `x` in the error message, e.g. `..1` or `..1$a`.
+#' @inheritParams filter_rows
+#' @return `NULL`, invisibly, if `x` is a logical vector or a one column logical matrix; otherwise an error naming
+#' the type of `x`, e.g. `integer`, `factor` or `logical[,2]`.
+#' @noRd
 check_filter_type <- function(x, name, cond, i, group, details) {
   if (is.logical(x) && (!is.matrix(x) || ncol(x) == 1L)) return(invisible())
   type <- if (is.matrix(x)) sprintf("%s[,%s]", typeof(x), ncol(x)) else if (is.object(x)) class(x)[1L] else typeof(x)
   stop_filter(cond, i, group, details, sprintf("x Input `%s` must be a logical vector, not a %s.", name, type))
 }
 
+#' Give the error for an invalid condition
+#'
+#' The error names the condition by its position and expression and, on grouped data, the group where it occurred.
+#'
+#' @param msg `character(1)`. The line which describes the problem, e.g. "x Input `..1` must be of size 1, not size
+#' 2.".
+#' @inheritParams filter_rows
+#' @return Does not return; gives an error.
+#' @noRd
 stop_filter <- function(cond, i, group, details, msg) {
   stop(
     sprintf("Problem while computing `..%s = %s`.\n", i, paste(deparse(cond), collapse = " ")),
@@ -122,16 +159,24 @@ stop_filter <- function(cond, i, group, details, msg) {
   )
 }
 
-check_filter <- function(conditions) {
-  named <- have_name(conditions)
-  for (i in which(named)) {
-    if (!is.logical(conditions[[i]])) {
-      stop(
-        sprintf("Problem with `filter()` input `..%s`.\n", i),
-        sprintf("Input `..%s` is named.\n", i),
-        "This usually means that you've used `=` instead of `==`.\n",
-        sprintf("Did you mean `%s == %s`?", names(conditions)[[i]], conditions[[i]])
-      )
-    }
-  }
+#' Check that no condition is named
+#'
+#' As in dplyr, a named condition is taken to be a mistake for `==`, e.g. `filter(df, x = 1)`, unless it is a logical
+#' constant such as `a = TRUE`. The error suggests `==` for the first named condition, labelled as `auto_label()`
+#' labels an expression, so a long one is abbreviated, e.g. `x == c(...)`.
+#'
+#' @param conditions A `list` of unevaluated conditions, as returned by `dotdotdot()`.
+#' @param env An `environment` in which to look up variables for the label, e.g. the subscript of `.data[[var]]`.
+#' @return `NULL`, invisibly, if no condition is named; otherwise an error.
+#' @noRd
+check_filter <- function(conditions, env) {
+  named <- have_name(conditions) & !vapply(conditions, is.logical, NA)
+  if (!any(named)) return(invisible())
+  i <- which(named)[[1L]]
+  stop(
+    "We detected a named input.\n",
+    "i This usually means that you've used `=` instead of `==`.\n",
+    sprintf("i Did you mean `%s == %s`?", names(conditions)[[i]], auto_label(conditions[[i]], env = env)),
+    call. = FALSE
+  )
 }
