@@ -4,6 +4,8 @@
 
 * The arguments of `pivot_wider()` are now in the same order as in `tidyr` 1.1: `data`, `id_cols`, `names_from`, `names_prefix`, `names_sep`, `names_glue`, `names_sort`, `names_repair`, `values_from`, `values_fill`, `values_fn`. Code which passes `values_from` or `names_from` by position must now name them.
 * Joins now give an error when the join keys of `x` and `y` have incompatible types, such as integer and character, as in `dplyr`. Previously, the keys were silently converted. A natural join of tables with no common columns is now also an error; previously, the mutating joins returned a cross join and the filtering joins returned or dropped every row. Use `by = character()` for a cross join.
+* The mutating joins no longer pass `...` to `merge()`; as in `dplyr`, arguments in `...` are ignored.
+* `inner_join()`, `left_join()`, `right_join()` and `full_join()` gain a `copy` argument, which is ignored, before `suffix`, as in `dplyr`. Code which passes `suffix` by position must now name it.
 
 ## New features
 
@@ -13,6 +15,8 @@
 
 ## Improvements
 
+`inner_join()`, `left_join()`, `right_join()` and `full_join()` have been rewritten without `merge()`. Rows are matched by sorting `y` by key once rather than by `merge()`, and the result is built from the matched row numbers. On 100,000 rows, the joins are 13-16x faster and allocate 2.5x less memory; on 1,000,000 rows, they are 13-20x faster.
+
 Grouped operations are now considerably faster. Groups are identified in a single pass over the data rather than by comparing every group against every row, so the cost of `group_by()` no longer grows with the number of groups. On 100,000 rows with 1,000 groups, `group_by()` and `arrange()` are over 100x faster, `filter()`, `mutate()` and `count()` 7-20x faster, `group_indices()` over 1,000x faster, and grouping by several high cardinality columns no longer exhausts memory.
 
 `pivot_longer()` and `pivot_wider()` have been rewritten without `stats::reshape()` and are now considerably faster and use far less memory. On 100,000 rows by 10 columns, `pivot_longer()` is over 35x faster; on 1,000,000 rows, `pivot_wider()` is over 15x faster, and widening to 1,000 columns is over 150x faster and no longer allocates 3.5GB. Both functions now follow `tidyr` 1.1.
@@ -21,6 +25,9 @@ Grouped operations are now considerably faster. Groups are identified in a singl
 
 ## Bug fixes
 
+* `keep = TRUE` now works as in `dplyr`. The keys of `x` and `y` are both kept, each with `NA` where a row has no match in its table; previously, the key of `y` repeated the key of `x`, and `keep = TRUE` with a named `by` failed. `inner_join()` now supports `keep` too.
+* The columns of a join are now in the order of `x` followed by `y`, and the rows of `y` without a match now come last in their order in `y`, as in `dplyr`. Previously, the key columns came first and the rows of `y` without a match were sorted by key. Suffixes are now repeated until the names are unique, e.g. `k.x.x`.
+* A join which renames all of the grouping columns of `x`, e.g. with `keep = TRUE`, now returns an ungrouped `data.frame`.
 * The join keys of `inner_join()`, `left_join()`, `right_join()` and `full_join()` are now cast to their common type, as in `dplyr`. For example, joining an integer key to a double key gives a double key, a factor key joined to a character key gives a character key, and factor keys keep the levels of both tables. Previously, the type of the result depended on the join.
 * `semi_join()` and `anti_join()` now support a named `by`, e.g. `by = c("a" = "b")`. Previously, they looked for the names of `y` in `x` and returned the wrong rows.
 * Joins on missing columns now give the `dplyr` error, which names the missing columns.

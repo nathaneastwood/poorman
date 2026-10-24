@@ -209,14 +209,22 @@ cast_ptype <- function(x, to, x_arg = "x") {
   res
 }
 
-#' Is a vector unspecified?
+#' Is a vector a logical vector of only missing values?
 #'
-#' Following `vctrs`, a logical vector of missing values has no type of its own and can be combined with a vector of
-#' any type, taking that type. An empty, classed or matrix logical vector is not unspecified.
+#' As in `dplyr`, such a vector has no type of its own and can be combined with a vector of any type, taking that type.
+#' An empty, classed or matrix logical vector does not count.
 #'
 #' @param x A vector.
 #' @return `logical(1)`.
 #' @noRd
-is_unspecified <- function(x) {
+is_all_na_logical <- function(x) {
   is.logical(x) && !is.object(x) && is.null(dim(x)) && length(x) > 0L && all(is.na(x))
+}
+
+#' Build a data.frame from a list of columns without copying or checking them
+#' @param x A named `list` of columns, each of length `n`.
+#' @param n `integer(1)`. The number of rows.
+#' @noRd
+new_data_frame <- function(x, n) {
+  structure(x, class = "data.frame", row.names = .set_row_names(n))
 }

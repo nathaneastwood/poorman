@@ -89,8 +89,8 @@ expect_equal(
   df1 %>% left_join(df2, by = c("a", "d")),
   data.frame(
     a = c(1, 2, 3, 4, 5, 6),
-    d = c("q", "l", "o", "n", "q", "z"),
     b = c("a", "b", "f", "e", "r", "h"),
+    d = c("q", "l", "o", "n", "q", "z"),
     stringsAsFactors = FALSE
   ),
   info = "Explicit `by` parameter"
@@ -119,8 +119,8 @@ expect_equal(
   df1 %>% left_join(df2, by = c("a1" = "a2", "d" = "d")),
   data.frame(
     a1 = c(1, 2, 3, 4, 5, 6),
-    d = c("q", "l", "o", "n", "q", "z"),
     b = c("a", "b", "f", "e", "r", "h"),
+    d = c("q", "l", "o", "n", "q", "z"),
     stringsAsFactors = FALSE
   ),
   info = "Non-matching column names"
@@ -133,8 +133,8 @@ expect_equal(
   data.frame(
     x.xx = c(1, NA, NA),
     y = c(2, 2, NA),
-    z = c(3, NA, 3),
-    x.yy = c(1, NA, NA)
+    x.yy = c(1, NA, NA),
+    z = c(3, NA, 3)
   ),
   info = "keep = TRUE keeps the join columns"
 )
@@ -208,3 +208,80 @@ expect_error(
   info = "Natural mutating joins error when there are no common columns"
 )
 rm(x, y)
+
+# keep = TRUE, column order and row order follow dplyr
+x <- data.frame(k = c(3L, 1L, 2L), v = c("c", "a", "b"), w = 1:3, stringsAsFactors = FALSE)
+y <- data.frame(w = c(9L, 8L, 7L, 6L), m = c(2L, 9L, 3L, 5L), k = c(20L, 90L, 30L, 50L))
+expect_identical(
+  full_join(x, y, by = c(k = "m"), keep = TRUE),
+  data.frame(
+    k.x = c(3L, 1L, 2L, NA, NA), v = c("c", "a", "b", NA, NA), w.x = c(1L, 2L, 3L, NA, NA),
+    w.y = c(7L, NA, 9L, 8L, 6L), m = c(3L, NA, 2L, 9L, 5L), k.y = c(30L, NA, 20L, 90L, 50L),
+    stringsAsFactors = FALSE
+  ),
+  info = "full_join(keep = TRUE) keeps both keys, with NA where a row has no match"
+)
+expect_identical(
+  left_join(x, y, by = c(k = "m"), keep = TRUE),
+  data.frame(
+    k.x = c(3L, 1L, 2L), v = c("c", "a", "b"), w.x = 1:3,
+    w.y = c(7L, NA, 9L), m = c(3L, NA, 2L), k.y = c(30L, NA, 20L),
+    stringsAsFactors = FALSE
+  ),
+  info = "left_join(keep = TRUE) works with a named `by`"
+)
+expect_identical(
+  names(inner_join(x, y, by = c(k = "m"), keep = TRUE)),
+  c("k.x", "v", "w.x", "w.y", "m", "k.y"),
+  info = "inner_join() supports keep = TRUE"
+)
+expect_identical(
+  right_join(x, y, by = c(k = "m")),
+  data.frame(
+    k = c(3L, 2L, 9L, 5L), v = c("c", "b", NA, NA), w.x = c(1L, 3L, NA, NA), w.y = c(7L, 9L, 8L, 6L),
+    k.y = c(30L, 20L, 90L, 50L), stringsAsFactors = FALSE
+  ),
+  info = "Rows of y without a match come last, in their order in y, and take their keys from y"
+)
+expect_identical(
+  names(left_join(data.frame(k = 1:2, k.x = 3:4), data.frame(k = 1:2, k.y = 5:6), by = "k", keep = TRUE)),
+  c("k.x", "k.x.x", "k.y", "k.y.y"),
+  info = "Suffixes are repeated until the names are unique"
+)
+expect_identical(
+  names(full_join(x, y[c("m", "k")], by = character())),
+  c("k.x", "v", "w", "m", "k.y"),
+  info = "A cross join suffixes the columns found in both tables"
+)
+expect_identical(
+  full_join(data.frame(k = c(NA, NaN, 1)), data.frame(k = c(NaN, NA, NA), z = 1:3), by = "k", na_matches = "never"),
+  data.frame(k = c(NA, NaN, 1, NaN, NA, NA), z = c(NA, NA, NA, 1L, 2L, 3L)),
+  info = "With na_matches = 'never', rows of y without a match keep their order"
+)
+expect_identical(
+  left_join(x, y, by = c(k = "m"), sort = TRUE, foo = 1),
+  left_join(x, y, by = c(k = "m")),
+  info = "Arguments in `...` are ignored"
+)
+for (join in list(inner_join, left_join, right_join, full_join)) {
+  expect_identical(
+    names(formals(join)),
+    c("x", "y", "by", "copy", "suffix", "...", "keep", "na_matches"),
+    info = "The mutating joins take their arguments in the order of dplyr"
+  )
+}
+expect_identical(
+  names(left_join(data.frame(k = 1:2, v = 1:2), data.frame(k = 1:2, v = 3:4), "k", FALSE, c("_l", "_r"))),
+  c("k", "v_l", "v_r"),
+  info = "`suffix` is the fifth argument, after `copy`"
+)
+expect_identical(
+  left_join(x, y, by = c(k = "m"), copy = TRUE),
+  left_join(x, y, by = c(k = "m")),
+  info = "`copy` is ignored"
+)
+res <- left_join(group_by(x, k), y, by = c(k = "m"), keep = TRUE)
+expect_identical(class(res), "data.frame", info = "Data which loses its grouping column is no longer grouped")
+res <- left_join(group_by(x, k, v), y, by = c(k = "m"))
+expect_identical(group_vars(res), c("k", "v"), info = "Joins keep the groups of x")
+rm(x, y, res)

@@ -66,7 +66,7 @@ nest_join <- function(x, y, by = NULL, copy = FALSE, keep = FALSE, name = NULL, 
 #' @export
 nest_join.data.frame <- function(x, y, by = NULL, copy = FALSE, keep = FALSE, name = NULL, ...) {
   nest_col <- if (is.null(name)) expr_label(substitute(y)) else name
-  by <- standardise_join_by(by, names(x), names(y))
+  by <- join_key_names(by, names(x), names(y))
 
   n_x <- nrow(x)
   n_y <- nrow(y)
@@ -82,7 +82,7 @@ nest_join.data.frame <- function(x, y, by = NULL, copy = FALSE, keep = FALSE, na
   y_rows <- split_rows(ids[n_x + seq_len(n_y)], max(ids, 0L))
 
   y_cols <- if (isTRUE(keep)) names(y) else setdiff(names(y), by$y)
-  y_data <- structure(as.list(.subset(y, y_cols)), class = "data.frame", row.names = .set_row_names(n_y))
+  y_data <- new_data_frame(as.list(.subset(y, y_cols)), n_y)
   # Slice `y` once per matched key rather than once per row of `x`; keys missing from `y` give a 0-row data.frame
   used <- unique(x_ids)
   nested <- vector("list", length(y_rows))
@@ -93,6 +93,6 @@ nest_join.data.frame <- function(x, y, by = NULL, copy = FALSE, keep = FALSE, na
   })
   out[[nest_col]] <- nested[x_ids]
 
-  out <- structure(out, class = "data.frame", row.names = .set_row_names(n_x))
+  out <- new_data_frame(out, n_x)
   reconstruct_attrs(out, x)
 }

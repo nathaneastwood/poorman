@@ -18,6 +18,7 @@ reconstruct_attrs.data.frame <- function(data, template) {
 
 reconstruct_attrs.grouped_df <- function(data, template) {
   group_vars <- intersect(group_vars(template), colnames(data))
+  if (length(group_vars) == 0L) return(structure(data, class = "data.frame"))
   structure(
     groups_set(data, group_vars, drop = group_by_drop_default(template)),
     class = c("grouped_df", "data.frame")
