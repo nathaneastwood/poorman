@@ -40,16 +40,9 @@ semi_join <- function(x, y, by = NULL) {
 
 filter_join_worker <- function(x, y, by = NULL, type = c("anti", "semi")) {
   type <- match.arg(type, choices = c("anti", "semi"), several.ok = FALSE)
-  if (is.null(by)) {
-    by <- intersect(names(x), names(y))
-    join_message(by)
-  }
-  keys <- lapply(by, function(col) {
-    x_col <- x[[col]]
-    y_col <- y[[col]]
-    if (is.factor(x_col) || is.factor(y_col)) c(as.character(x_col), as.character(y_col)) else c(x_col, y_col)
-  })
-  ids <- group_ids(keys)
+  by <- standardise_join_by(by, names(x), names(y))
+  keys <- lapply(seq_along(by$x), function(i) join_key_cast(.subset2(x, by$x[i]), .subset2(y, by$y[i]), by$x[i])$key)
+  ids <- group_ids(keys, n = nrow(x) + nrow(y))
   rows <- ids[seq_len(nrow(x))] %in% ids[nrow(x) + seq_len(nrow(y))]
   if (type == "anti") rows <- !rows
   res <- x[rows, , drop = FALSE]
