@@ -3,16 +3,16 @@
 #' Gather the unevaluated dots into a list, storing them as is.
 #'
 #' @param ... Arguments to be stored in the list.
-#' @param .impute_names `logical(1)`. Whether to fill any missing names of the list.
+#' @param .impute_names `logical(1)`. Whether to fill any missing names of the list with the automatic names of
+#' `auto_label()`.
 #'
 #' @noRd
 dotdotdot <- function(..., .impute_names = FALSE) {
   dots <- eval(substitute(alist(...)))
   if (isTRUE(.impute_names)) {
-    deparse_dots <- lapply(dots, deparse)
     names_dots <- names(dots)
     unnamed <- if (is.null(names_dots)) rep(TRUE, length(dots)) else nchar(names_dots) == 0L
-    names(dots)[unnamed] <- deparse_dots[unnamed]
+    names(dots)[unnamed] <- vapply(dots[unnamed], auto_label, NA_character_)
   }
   dots
 }

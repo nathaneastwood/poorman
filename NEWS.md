@@ -36,6 +36,7 @@ Grouped operations are now considerably faster. Groups are identified in a singl
 * `rename_with()` no longer renames grouping variables which were not selected. Previously, it added them to the selection with an "Adding missing grouping variables" message.
 * `mutate()` and `transmute()` now support the `.data` pronoun, e.g. `mutate(df, z = .data[[var]] * 2)`. As in `dplyr`, `.data` sees the columns made by earlier expressions and, on grouped data, holds the rows of the current group. Previously, `.data` gave the error "object '.data' not found".
 * `transmute()` now finds variables in the calling environment, e.g. inside a function. Previously, it gave an "object not found" error, or found a function of the same name.
+* `mutate()`, `transmute()` and `group_by()` now give unnamed expressions the same automatic names as `summarise()`. Long expressions are abbreviated, e.g. `... + x`, and `.data$x` is named `x`. Previously, an expression which R deparses over several lines gave a broken name such as `c("{", "    x + 1", "}")`.
 
 Grouped operations now match `dplyr`:
 

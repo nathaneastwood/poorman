@@ -218,3 +218,11 @@ expect_equal(
 )
 
 rm(df, res)
+
+gb_df <- data.frame(x = 1:2, y = c(10, 20))
+res <- group_by(gb_df, x + y + x + y + x + y + x + y + x + y + x + y + x + y + x + y + x + y + x)
+expect_equal(
+  list(names(res), group_vars(res)),
+  list(c("x", "y", "... + x"), "... + x"),
+  info = "group_by() abbreviates long automatic names"
+)

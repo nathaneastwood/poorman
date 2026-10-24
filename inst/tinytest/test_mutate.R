@@ -388,3 +388,27 @@ expect_equal(
   data.frame(z = c(3, 6, 9, 12)),
   info = "transmute() supports the .data pronoun"
 )
+
+nm_df <- data.frame(x = 1:2, y = c(10, 20))
+expect_equal(
+  names(mutate(nm_df, x + y + x + y + x + y + x + y + x + y + x + y + x + y + x + y + x + y + x)),
+  c("x", "y", "... + x"),
+  info = "mutate() abbreviates long automatic names"
+)
+expect_equal(
+  names(mutate(nm_df, {
+    x * 2
+  })),
+  c("x", "y", "{ ... }"),
+  info = "mutate() names a multi-line expression on one line"
+)
+expect_equal(
+  mutate(nm_df, .data$y * 2, .data$x),
+  data.frame(x = 1:2, y = c(10, 20), `.data$y * 2` = c(20, 40), check.names = FALSE),
+  info = "mutate() names .data$x after the column, which it overwrites"
+)
+expect_equal(
+  names(transmute(nm_df, x + y + x + y + x + y + x + y + x + y + x + y + x + y + x + y + x + y + x)),
+  "... + x",
+  info = "transmute() abbreviates long automatic names"
+)
