@@ -59,11 +59,8 @@ filter_join_worker <- function(x, y, by = NULL, na_matches = c("na", "never"), t
   type <- match.arg(type, choices = c("anti", "semi"), several.ok = FALSE)
   na_matches <- match.arg(arg = na_matches, choices = c("na", "never"), several.ok = FALSE)
   by <- join_key_names(by, names(x), names(y))
-  keys <- lapply(seq_along(by$x), function(i) join_key_cast(.subset2(x, by$x[i]), .subset2(y, by$y[i]), by$x[i])$key)
-  ids <- group_ids(keys, n = nrow(x) + nrow(y))
-  # With `na_matches = "never"`, keys with a missing value get the id 0, which is dropped from the ids of `y`
-  if (na_matches == "never" && length(keys) > 0L) ids[Reduce(`|`, lapply(keys, is.na))] <- 0L
-  rows <- ids[seq_len(nrow(x))] %in% setdiff(ids[nrow(x) + seq_len(nrow(y))], 0L)
+  keys <- join_keys(x, y, by, never_na = na_matches == "never")
+  rows <- !is.na(keys$x_ids) & keys$x_ids %in% keys$y_ids
   if (type == "anti") rows <- !rows
   res <- x[rows, , drop = FALSE]
   rownames(res) <- NULL

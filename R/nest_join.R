@@ -70,16 +70,11 @@ nest_join.data.frame <- function(x, y, by = NULL, copy = FALSE, keep = FALSE, na
 
   n_x <- nrow(x)
   n_y <- nrow(y)
+  keys <- join_keys(x, y, by)
   out <- as.list(.subset(x))
-  keys <- vector("list", length(by$x))
-  for (i in seq_along(by$x)) {
-    cast <- join_key_cast(.subset2(x, by$x[i]), .subset2(y, by$y[i]), by$x[i])
-    out[[by$x[i]]] <- cast$x
-    keys[[i]] <- cast$key
-  }
-  ids <- group_ids(keys, n = n_x + n_y)
-  x_ids <- ids[seq_len(n_x)]
-  y_rows <- split_rows(ids[n_x + seq_len(n_y)], max(ids, 0L))
+  out[by$x] <- keys$x
+  x_ids <- keys$x_ids
+  y_rows <- split_rows(keys$y_ids, keys$n)
 
   y_cols <- if (isTRUE(keep)) names(y) else setdiff(names(y), by$y)
   y_data <- new_data_frame(as.list(.subset(y, y_cols)), n_y)

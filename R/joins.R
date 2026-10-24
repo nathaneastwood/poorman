@@ -105,21 +105,15 @@ join_worker <- function(x, y, by, suffix, keep, na_matches, type) {
   na_matches <- match.arg(arg = na_matches, choices = c("na", "never"), several.ok = FALSE)
   keep <- isTRUE(keep)
   by <- join_key_names(by, names(x), names(y))
-  x_keys <- y_keys <- keys <- vector("list", length(by$x))
-  for (i in seq_along(by$x)) {
-    cast <- join_key_cast(.subset2(x, by$x[i]), .subset2(y, by$y[i]), by$x[i], mutating = TRUE)
-    x_keys[[i]] <- cast$x
-    y_keys[[i]] <- cast$y
-    keys[[i]] <- cast$key
-  }
-  rows <- join_rows(keys, nrow(x), nrow(y), type, na_matches == "never")
+  keys <- join_keys(x, y, by, mutating = TRUE, never_na = na_matches == "never")
+  rows <- join_rows(keys, type)
 
   x_names <- names(x)
   y_names <- names(y)
   x_data <- as.list(.subset(x))
-  x_data[match(by$x, x_names)] <- x_keys
+  x_data[match(by$x, x_names)] <- keys$x
   y_data <- as.list(.subset(y))
-  y_data[match(by$y, y_names)] <- y_keys
+  y_data[match(by$y, y_names)] <- keys$y
   out_x <- lapply(x_data, vec_slice, i = rows$x)
   if (keep) {
     out_names <- c(suffix_clashes(x_names, y_names, suffix[1L]), suffix_clashes(y_names, x_names, suffix[2L]))
@@ -128,7 +122,7 @@ join_worker <- function(x, y, by, suffix, keep, na_matches, type) {
     y_only <- which(is.na(rows$x))
     for (i in seq_along(by$x)) {
       pos <- match(by$x[i], x_names)
-      out_x[[pos]][y_only] <- vec_slice(y_keys[[i]], rows$y[y_only])
+      out_x[[pos]][y_only] <- vec_slice(keys$y[[i]], rows$y[y_only])
     }
     is_x_key <- x_names %in% by$x
     x_out <- x_names
@@ -142,22 +136,48 @@ join_worker <- function(x, y, by, suffix, keep, na_matches, type) {
   reconstruct_attrs(new_data_frame(out, length(rows$x)), x)
 }
 
+#' Cast the keys of a join and identify their values
+#'
+#' @param x,y The `data.frame`s to join.
+#' @param by A `list` with `x` and `y`, the names of the key columns, as returned by `join_key_names()`.
+#' @param mutating `logical(1)`. Is the join a mutating join? These report incompatible types differently.
+#' @param never_na `logical(1)`. Should keys containing `NA` or `NaN` never match?
+#' @return A `list` with
+#' * `x` and `y`: `list`s of the key columns of `x` and `y`, cast to their common types;
+#' * `x_ids` and `y_ids`: an `integer` id for each row of `x` and of `y`, which is the same for rows with the same
+#'   keys and `NA` for rows which can never match;
+#' * `n`: the number of distinct ids.
+#' @noRd
+join_keys <- function(x, y, by, mutating = FALSE, never_na = FALSE) {
+  n_x <- nrow(x)
+  casts <- lapply(seq_along(by$x), function(i) {
+    join_key_cast(.subset2(x, by$x[i]), .subset2(y, by$y[i]), by$x[i], mutating = mutating)
+  })
+  keys <- lapply(casts, `[[`, "key")
+  ids <- group_ids(keys, n = n_x + nrow(y))
+  if (never_na && length(keys) > 0L) ids[Reduce(`|`, lapply(keys, is.na))] <- NA_integer_
+  list(
+    x = lapply(casts, `[[`, "x"),
+    y = lapply(casts, `[[`, "y"),
+    x_ids = ids[seq_len(n_x)],
+    y_ids = ids[n_x + seq_len(nrow(y))],
+    n = max(ids, 0L, na.rm = TRUE)
+  )
+}
+
 #' Find the matching rows of a join
 #'
-#' @param keys A `list` of the join keys, each holding the values for `x` followed by those for `y`.
-#' @param n_x,n_y `integer(1)`. The number of rows in `x` and `y`.
+#' @param keys The keys of the join, as returned by `join_keys()`.
 #' @param type `character(1)`. One of `"inner"`, `"left"`, `"right"` or `"full"`.
-#' @param never_na `logical(1)`. Should keys containing `NA` or `NaN` never match?
 #' @return A `list` with `x` and `y`, the row of `x` and of `y` for each row of the result, which are `NA` where the
 #' row has no match. The rows follow `x`, with the matches of each row in the order of `y`; rows of `y` without a
 #' match come last.
 #' @noRd
-join_rows <- function(keys, n_x, n_y, type, never_na) {
-  ids <- group_ids(keys, n = n_x + n_y)
-  if (never_na && length(keys) > 0L) ids[Reduce(`|`, lapply(keys, is.na))] <- NA_integer_
-  x_ids <- ids[seq_len(n_x)]
-  y_ids <- ids[n_x + seq_len(n_y)]
-  n_groups <- max(ids, 0L, na.rm = TRUE)
+join_rows <- function(keys, type) {
+  x_ids <- keys$x_ids
+  y_ids <- keys$y_ids
+  n_x <- length(x_ids)
+  n_groups <- keys$n
 
   # Rather than matching row by row, sort `y` by key once: the matches of a key are then a run of `y_sorted`
   y_counts <- tabulate(y_ids, n_groups)
@@ -257,11 +277,11 @@ join_key_cast <- function(x_col, y_col, name, mutating = FALSE) {
   if (is_all_na_logical(x_col) && !is_all_na_logical(y_col)) x_col <- y_col[rep(NA_integer_, length(x_col))]
   if (is_all_na_logical(y_col)) y_col <- x_col[rep(NA_integer_, length(y_col))]
 
-  x_kind <- join_key_kind(x_col)
-  y_kind <- join_key_kind(y_col)
-  if (x_kind != y_kind) {
-    x_type <- join_key_type(x_col)
-    y_type <- join_key_type(y_col)
+  x_class <- join_key_class(x_col)
+  y_class <- join_key_class(y_col)
+  if (x_class[["kind"]] != y_class[["kind"]]) {
+    x_type <- x_class[["type"]]
+    y_type <- y_class[["type"]]
     if (mutating) {
       stop(
         "Can't join on `x$", name, "` x `y$", name, "` because of incompatible types.\n",
@@ -272,7 +292,7 @@ join_key_cast <- function(x_col, y_col, name, mutating = FALSE) {
     stop("Can't combine `", name, "` <", x_type, "> and `", name, "` <", y_type, ">.")
   }
   switch(
-    x_kind,
+    x_class[["kind"]],
     character = join_key_cast_character(x_col, y_col),
     numeric = {
       type <- typeof(c(x_col[0L], y_col[0L]))
@@ -319,18 +339,34 @@ join_key_tz <- function(x) {
   if (is.null(tz)) "" else tz[1L]
 }
 
-join_key_kind <- function(x) {
-  if (is.character(x) || is.factor(x)) return("character")
-  if (inherits(x, c("Date", "POSIXct", "POSIXlt"))) return("datetime")
-  if (is.null(attr(x, "class")) && typeof(x) %in% c("logical", "integer", "double")) return("numeric")
-  paste(class(x), collapse = "/")
-}
-
-join_key_type <- function(x) {
-  if (is.ordered(x)) return("ordered")
-  if (is.factor(x)) return("factor")
-  if (inherits(x, "Date")) return("date")
-  if (inherits(x, c("POSIXct", "POSIXlt"))) return("datetime")
-  if (is.null(attr(x, "class"))) return(typeof(x))
-  class(x)[1L]
+#' Classify a join key
+#'
+#' @param x A key column.
+#' @return A `character(2)` with `kind`, which keys of the same kind can be cast to a common type, and `type`, the
+#' name of the type of the key in errors.
+#' @noRd
+join_key_class <- function(x) {
+  type <- if (is.ordered(x)) {
+    "ordered"
+  } else if (is.factor(x)) {
+    "factor"
+  } else if (inherits(x, "Date")) {
+    "date"
+  } else if (inherits(x, c("POSIXct", "POSIXlt"))) {
+    "datetime"
+  } else if (is.null(attr(x, "class"))) {
+    typeof(x)
+  } else {
+    class(x)[1L]
+  }
+  kind <- if (is.character(x) || is.factor(x)) {
+    "character"
+  } else if (type %in% c("date", "datetime")) {
+    "datetime"
+  } else if (type %in% c("logical", "integer", "double") && is.null(attr(x, "class"))) {
+    "numeric"
+  } else {
+    paste(class(x), collapse = "/")
+  }
+  c(kind = kind, type = type)
 }
