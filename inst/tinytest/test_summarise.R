@@ -435,3 +435,19 @@ expect_error(
   "The LHS of `:=` must be a string or a symbol.",
   info = "The left of := must be a string or a symbol"
 )
+
+ds_df <- data.frame(x = 1:3, y = c(2, 4, 6))
+ds_var <- "y"
+expect_equal(
+  names(summarise(ds_df, .data[[ds_var]], mean(.data[[ds_var]]), .data[[paste0("", ds_var)]] + .data$x)),
+  c("y", "mean(.data[[\"y\"]])", ".data[[\"y\"]] + .data$x"),
+  info = "summarise() names .data[[var]] after the value of var"
+)
+ds_fn <- function(data) {
+  inner <- "x"
+  names(summarise(data, .data[[inner]], max(.data[[inner]])))
+}
+expect_equal(
+  ds_fn(ds_df), c("x", "max(.data[[\"x\"]])"),
+  info = "The subscript of .data[[var]] is found in the calling environment"
+)

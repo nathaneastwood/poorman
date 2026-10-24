@@ -429,3 +429,16 @@ expect_equal(
   c("x", "y", "inner"),
   info = "Gluestick templates are filled in from the calling environment on grouped data"
 )
+
+ds_df <- data.frame(x = 1:3, y = c(2, 4, 6))
+ds_var <- "y"
+expect_equal(
+  names(mutate(ds_df, .data[[ds_var]] * 2)),
+  c("x", "y", ".data[[\"y\"]] * 2"),
+  info = "mutate() names .data[[var]] after the value of var"
+)
+expect_equal(
+  names(transmute(ds_df, .data[[ds_var]], -.data[[ds_var]])),
+  c("y", "-.data[[\"y\"]]"),
+  info = "transmute() names .data[[var]] after the value of var"
+)

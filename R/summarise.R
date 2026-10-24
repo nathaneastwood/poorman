@@ -160,7 +160,7 @@ summarise_groups <- function(.data, dots, env) {
   if (is.null(dot_names)) dot_names <- character(length(dots))
   unnamed <- !nzchar(dot_names)
   labels <- dot_names
-  labels[unnamed] <- vapply(dots[unnamed], auto_label, NA_character_)
+  labels[unnamed] <- vapply(dots[unnamed], auto_label, NA_character_, env = env)
 
   # Restore any outer context so that a summarise() inside another verb does not break it
   outer <- get0(".data", envir = context, inherits = FALSE)

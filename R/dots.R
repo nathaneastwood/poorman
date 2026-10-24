@@ -15,7 +15,7 @@ dotdotdot <- function(..., .impute_names = FALSE, .env = parent.frame(2L)) {
   if (isTRUE(.impute_names)) {
     names_dots <- names(dots)
     unnamed <- if (is.null(names_dots)) rep(TRUE, length(dots)) else nchar(names_dots) == 0L
-    names(dots)[unnamed] <- vapply(dots[unnamed], auto_label, NA_character_)
+    names(dots)[unnamed] <- vapply(dots[unnamed], auto_label, NA_character_, env = .env)
   }
   dots
 }

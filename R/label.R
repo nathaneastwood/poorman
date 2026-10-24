@@ -11,13 +11,19 @@
 #' * Any other call is abbreviated when R itself deparses it over several lines. It keeps the head of the call, e.g.
 #'   `mean(...)`, `{ ... }` or `function(x) ...`.
 #'
+#' When `env` is given, the subscript of each `.data[[...]]` is first replaced by its value in `env`, so that with
+#' `var <- "x"`, `.data[[var]]` is named `x` and `mean(.data[[var]])` is named `mean(.data[["x"]])`.
+#'
 #' The names match those of `dplyr`, except that the limit of 60 characters is fixed and counts characters rather than
 #' bytes, and that `?` and `:=` are treated as prefix calls, as R prints them.
 #'
 #' @param expr An unevaluated expression.
+#' @param env An `environment` in which to evaluate the subscripts of `.data[[...]]`, or `NULL` to leave them as they
+#' are.
 #' @return `character(1)`. The name.
 #' @noRd
-auto_label <- function(expr) {
+auto_label <- function(expr, env = NULL) {
+  if (!is.null(env)) expr <- inline_data_subscripts(expr, env)
   if (is.symbol(expr)) return(as.character(expr))
   if (!is.call(expr)) return(one_line(expr))
   col <- data_pronoun_name(expr)
@@ -55,6 +61,38 @@ data_pronoun_name <- function(expr) {
   col <- expr[[3L]]
   if (identical(expr[[1L]], as.name("$")) && is.symbol(col)) return(as.character(col))
   if (identical(expr[[1L]], as.name("[[")) && is.character(col) && length(col) == 1L) col else NULL
+}
+
+#' Replace the subscripts of `.data[[...]]` by their values
+#'
+#' A subscript which is not a literal, e.g. `var` in `.data[[var]]`, is evaluated in `env`. It is replaced when its
+#' value is a single atomic value, and left as it is otherwise, including when it can't be evaluated.
+#'
+#' @param expr An unevaluated expression.
+#' @param env An `environment` in which to evaluate the subscripts.
+#' @return `expr`, with the subscripts replaced.
+#' @noRd
+inline_data_subscripts <- function(expr, env) {
+  if (!is.call(expr)) return(expr)
+  if (is_computed_data_subscript(expr)) {
+    value <- tryCatch(eval(expr[[3L]], env), error = function(e) NULL)
+    if (is.atomic(value) && length(value) == 1L) expr[[3L]] <- value
+    return(expr)
+  }
+  for (i in seq_along(expr)[-1L]) {
+    if (is.call(expr[[i]])) expr[[i]] <- inline_data_subscripts(expr[[i]], env)
+  }
+  expr
+}
+
+#' Test whether a call takes a column from `.data` by a computed subscript
+#'
+#' @param expr A call.
+#' @return `logical(1)`. `TRUE` for `.data[[i]]` where `i` is a symbol or a call rather than a literal.
+#' @noRd
+is_computed_data_subscript <- function(expr) {
+  length(expr) == 3L && identical(expr[[1L]], as.name("[[")) && identical(expr[[2L]], as.name(".data")) &&
+    (is.call(expr[[3L]]) || is.symbol(expr[[3L]]))
 }
 
 #' Split a binary operator call into its parts

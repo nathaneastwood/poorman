@@ -204,3 +204,17 @@ expect_identical(
 )
 
 rm(long_a, block)
+
+lbl_env <- list2env(list(v = "col", n = 2L))
+expect_equal(
+  vapply(
+    list(quote(.data[[v]]), quote(f(.data[[v]], .data[[n]])), quote(.data[[undefined_thing]]), quote(.data[["lit"]])),
+    poorman:::auto_label, "", env = lbl_env
+  ),
+  c("col", "f(.data[[\"col\"]], .data[[2L]])", ".data[[undefined_thing]]", "lit"),
+  info = "auto_label() replaces the subscripts of .data[[...]] by their values in env"
+)
+expect_equal(
+  poorman:::auto_label(quote(.data[[v]])), ".data[[v]]",
+  info = "auto_label() leaves subscripts alone without env"
+)
