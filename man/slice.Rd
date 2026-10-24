@@ -35,13 +35,14 @@ supplied, \code{n = 1} will be used.
 If \code{n} is greater than the number of rows in the group (or \code{prop > 1}), the result will be silently truncated to the
 group size. If the \code{prop}ortion of a group size is not an integer, it is rounded down.}
 
-\item{order_by}{The variable to order by.}
+\item{order_by}{A variable, or an expression of the variables, to order by, e.g. \code{x * y}. It must have a value for
+each row of the group.}
 
 \item{with_ties}{\code{logical(1)}. Should ties be kept together? The default, \code{TRUE}, may return more rows than you
 request. Use \code{FALSE} to ignore ties, and return the first \code{n} rows.}
 
 \item{weight_by}{Sampling weights. This must evaluate to a vector of non-negative numbers the same length as the
-input. Weights are automatically standardised to sum to 1.}
+input, or the group on grouped data. Weights are automatically standardised to sum to 1.}
 
 \item{replace}{\code{logical(1)}. Should sampling be performed with (\code{TRUE}) or without (\code{FALSE}, the default)
 replacement.}

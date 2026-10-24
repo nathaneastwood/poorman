@@ -189,11 +189,6 @@ recode.factor <- function(.x, ..., .default = NULL, .missing = NULL) {
   }
 }
 
-have_name <- function(x) {
-  nms <- names(x)
-  if (is.null(nms)) rep(FALSE, length(x)) else !(nms == "" | is.na(nms))
-}
-
 compact <- function(.x) Filter(length, .x)
 
 find_template <- function(values, .default = NULL, .missing = NULL) {

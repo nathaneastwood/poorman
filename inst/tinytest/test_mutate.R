@@ -533,3 +533,19 @@ expect_equal(
 expect_equal(attr(ext_res, "ext"), "kept", info = "The method of an extension class is used by mutate()")
 expect_equal(ext_res$y, c(101, 102, 103), info = "mutate() called through NextMethod() finds local variables")
 expect_equal(ext_res$n, c(2L, 1L, 2L), info = "mutate() called through NextMethod() respects the groups")
+
+# Each group has its own variables: an assignment in one group is not seen by the next (dplyr 1.0.10 leaks it)
+df <- data.frame(g = c("a", "b", "a", "c", "b"), x = 1:5)
+expect_equal(
+  mutate(group_by(df, g), k = { if (!exists("cnt", inherits = FALSE)) cnt <- 0; cnt <- cnt + 1; cnt })$k, rep(1, 5),
+  info = "grouped mutate() does not share assignments between groups"
+)
+expect_equal(
+  mutate(group_by(df, g), a = { tmp <- 1; 1 }, b = exists("tmp", inherits = FALSE))$b, rep(TRUE, 5),
+  info = "grouped mutate() shares assignments with the later expressions of the same group"
+)
+expect_equal(
+  filter(group_by(df, g), { if (!exists("cnt", inherits = FALSE)) cnt <- 0; cnt <- cnt + 1; cnt < 2 })$x, 1:5,
+  info = "grouped filter() does not share assignments between groups"
+)
+rm(df)

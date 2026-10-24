@@ -30,37 +30,6 @@ has_groups <- function(x) {
   if (length(groups) == 0L) FALSE else TRUE
 }
 
-#' Apply a function to each group
-#'
-#' The function is given as a closure of one argument so that the names of the user's expressions, e.g.
-#' `mutate(x, .fn = 1)`, never meet the arguments of this function.
-#' @param .data A `data.frame`.
-#' @param .fn A function of one argument, a `data.frame`, applied to each group, e.g. `function(df) mutate(df, ...)`.
-#' @param .drop `logical(1)`. Should empty groups be skipped?
-#' @param .reorder `logical(1)`. Should the rows of the result be put back into the order they appear in `.data`? This
-#' relies on `.fn` returning rows with the row names of `.data`.
-#' @noRd
-apply_grouped_function <- function(.data, .fn, .drop = FALSE, .reorder = FALSE) {
-  groups <- group_vars(.data)
-  grouped <- split_into_groups(.data, groups, .drop)
-  res <- bind_groups(lapply(grouped, .fn))
-  if (is.null(res)) return(res)
-  attr(res, "group_id") <- NULL
-  if (isTRUE(.reorder)) {
-    pos <- match(rownames(res), rownames(.data))
-    if (!anyNA(pos)) {
-      pos <- sort(pos)
-      res <- subset_rows(res, order(match(rownames(res), rownames(.data))))
-      attr(res, "row.names") <- attr(.data, "row.names")[pos]
-    }
-  }
-  if (any(groups %in% colnames(res))) {
-    class(res) <- c("grouped_df", class(res))
-    res <- groups_set(res, groups[groups %in% colnames(res)])
-  }
-  res
-}
-
 #' Calculate the groups
 #' @param data A `data.frame`.
 #' @param groups `character(n)`. The names of the groups.
@@ -348,7 +317,47 @@ combine_groups <- function(vals, sizes, label) {
   }
   recycle <- which(vapply(vals, NROW, 1L) != sizes)
   vals[recycle] <- lapply(recycle, function(g) vec_slice(vals[[g]], rep(1L, sizes[[g]])))
-  if (length(vals) == 1L) vals[[1L]] else combine_summaries(vals)
+  if (length(vals) == 1L) vals[[1L]] else combine_values(vals)
+}
+
+#' Drop the groups left empty by a verb
+#'
+#' Empty groups are kept if the groups were made with `.drop = FALSE`.
+#'
+#' @param details A `data.frame` of the groups, as returned by `get_groups()`, with the `.rows` of the result.
+#' @return `details`, without its empty groups unless its `".drop"` attribute is `FALSE`.
+#' @noRd
+drop_empty_groups <- function(details) {
+  drop <- attr(details, ".drop")
+  empty <- lengths(details[[".rows"]]) == 0L
+  if (!isTRUE(drop) || !any(empty)) return(details)
+  details <- details[!empty, , drop = FALSE]
+  rownames(details) <- NULL
+  attr(details, ".drop") <- drop
+  details
+}
+
+#' Combine the values of each group into one vector
+#'
+#' Values without attributes are combined directly; factors, plain `Date`s and unclassed lists use `combine_columns()`,
+#' so they follow the type rules of `pivot_longer()` and incompatible types are an error; data frames and matrices are
+#' bound by row; anything else falls back to `rbind()`.
+#'
+#' @param x A `list` of values, one for each group, none of them `NULL`.
+#' @return The combined values.
+#' @noRd
+combine_values <- function(x) {
+  if (all(lengths(lapply(x, attributes)) == 0L)) {
+    is_atomic <- vapply(x, is.atomic, NA)
+    if (all(is_atomic) || !any(is_atomic) && all(vapply(x, is.list, NA))) {
+      return(unlist(x, recursive = FALSE, use.names = FALSE))
+    }
+  }
+  if (all(vapply(x, is_simple_column, NA))) return(combine_columns(x))
+  if (all(vapply(x, is.data.frame, NA))) return(do.call(rbind, unname(x)))
+  if (all(vapply(x, is.matrix, NA))) return(do.call(rbind, unname(x)))
+  x <- lapply(x, function(v) structure(list(v), names = "x", class = "data.frame", row.names = .set_row_names(NROW(v))))
+  .subset2(do.call(rbind, x), 1L)
 }
 
 #' Find the order that puts results in group order back into the order of the rows
@@ -490,29 +499,6 @@ with_factor_codes <- function(codes, template) {
   structure(as.integer(codes), levels = levels(template), class = class(template))
 }
 
-#' Split a `data.frame` into groups.
-#'
-#' Each element of the result carries the full grouping structure in its `"groups"` attribute and the position of the
-#' group within that structure in its `"group_id"` attribute.
-#'
-#' @param .data A `data.frame`.
-#' @param groups `character(n)`. A `vector` of grouping variables to split by.
-#' @param drop `logical(1)`. Should empty groups be skipped?
-#'
-#' @return A `list` with a `data.frame` for each group.
-#' @noRd
-split_into_groups <- function(.data, groups, drop = FALSE) {
-  details <- get_groups(.data, groups)
-  rows <- details[[".rows"]]
-  ids <- if (isTRUE(drop)) which(lengths(rows) > 0L) else seq_along(rows)
-  class(.data) <- "data.frame"
-  attr(.data, "groups") <- details
-  if (length(ids) == 0L) {
-    return(list(structure(subset_rows(.data, integer()), group_id = NA_integer_)))
-  }
-  lapply(ids, function(i) structure(subset_rows(.data, rows[[i]]), group_id = i))
-}
-
 #' Select rows of a `data.frame`
 #'
 #' A faster equivalent of `x[i, , drop = FALSE]` for a `data.frame` whose columns are all vectors. Other attributes of
@@ -535,31 +521,7 @@ subset_rows <- function(x, i) {
   res
 }
 
-#' Combine the results of applying a function to each group
-#'
-#' A faster equivalent of `do.call(rbind, x)` for the common case where each element is a `data.frame` with the same
-#' column names and simple vector columns. Anything else falls back to `rbind()`.
-#'
-#' @param x A `list` of `data.frame`s.
-#' @noRd
-bind_groups <- function(x) {
-  x <- unname(x)
-  if (length(x) <= 1L) return(if (length(x) == 0L) NULL else x[[1L]])
-  first <- x[[1L]]
-  nms <- names(first)
-  simple <- all(vapply(x, function(df) is.data.frame(df) && identical(names(df), nms), NA)) &&
-    !anyDuplicated(nms) &&
-    all(vapply(x, function(df) all(vapply(df, is_simple_column, NA)), NA))
-  if (!simple) return(do.call(rbind, x))
-  cols <- lapply(seq_along(nms), function(j) combine_columns(lapply(x, .subset2, j)))
-  if (any(vapply(cols, is.null, NA))) return(do.call(rbind, x))
-  attrs <- attributes(first)
-  attrs[["row.names"]] <- bind_row_names(x)
-  attributes(cols) <- attrs
-  cols
-}
-
-#' Check whether a column can be combined by `combine_columns()`
+#' Check whether a column can be combined by `combine_columns()` in `combine_values()`
 #'
 #' @param col A column of a `data.frame`.
 #' @return `logical(1)`. `TRUE` for a factor, a plain `Date`, or an atomic vector or unclassed list with no attributes
@@ -570,63 +532,6 @@ is_simple_column <- function(col) {
   attrs <- names(attributes(col))
   (is.atomic(col) || (is.list(col) && is.null(attr(col, "class")))) && all(attrs %in% "names") ||
     inherits(col, "Date") && all(attrs %in% "class") && identical(class(col), "Date")
-}
-
-#' Combine columns
-#'
-#' A faster equivalent of `c()` for the columns accepted by `is_simple_column()`. Factors are combined with the union of
-#' their levels, and `Date`s keep their class.
-#'
-#' @param cols A `list` of columns.
-#' @return The combined column, or `NULL` if the columns cannot be combined this way, e.g. a factor with a character
-#' vector.
-#' @noRd
-combine_columns <- function(cols) {
-  is_fct <- vapply(cols, is.factor, NA)
-  if (all(is_fct)) {
-    lvls <- unique(unlist(lapply(cols, levels), use.names = FALSE))
-    codes <- unlist(lapply(cols, function(col) match(levels(col), lvls)[col]), use.names = FALSE)
-    cls <- class(cols[[1L]])
-    if (!all(vapply(cols, function(col) identical(class(col), cls) && identical(levels(col), lvls), NA))) {
-      cls <- "factor"
-    }
-    return(structure(if (is.null(codes)) integer() else codes, levels = lvls, class = cls))
-  }
-  if (any(is_fct)) return(NULL)
-  is_date <- vapply(cols, inherits, NA, "Date")
-  if (all(is_date)) return(structure(unlist(lapply(cols, unclass), use.names = FALSE), class = "Date"))
-  if (any(is_date)) return(NULL)
-  is_list <- vapply(cols, is.list, NA)
-  if (any(is_list) && !all(is_list)) return(NULL)
-  unlist(cols, recursive = FALSE, use.names = FALSE)
-}
-
-#' Find the row names of `data.frame`s bound by row
-#'
-#' Follows the row name rules of `rbind.data.frame()`.
-#'
-#' @param x A `list` of `data.frame`s.
-#' @return The row names of the bound `data.frame`, as for the `"row.names"` attribute.
-#' @noRd
-bind_row_names <- function(x) {
-  auto <- TRUE
-  n <- 0L
-  labels <- vector(mode = "list", length = length(x))
-  for (k in seq_along(x)) {
-    rn <- attr(x[[k]], "row.names")
-    n_k <- length(rn)
-    if (auto && n > 0L && identical(rn, seq_len(n_k))) {
-      rn <- seq.int(from = n + 1L, length.out = n_k)
-    } else if (auto && (n > 0L || !identical(rn, seq_len(n_k)))) {
-      auto <- FALSE
-    }
-    labels[[k]] <- rn
-    n <- n + n_k
-  }
-  if (auto) return(.set_row_names(n))
-  labels <- unlist(labels, use.names = FALSE)
-  if (anyDuplicated(labels)) labels <- make.unique(as.character(labels), sep = "")
-  labels
 }
 
 #' Check whether an object is a grouped `data.frame`

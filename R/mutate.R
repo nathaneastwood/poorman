@@ -18,6 +18,12 @@
 #'
 #' * [if_else()], [recode()], [case_when()]
 #'
+#' @section Variables made inside expressions:
+#' A variable assigned inside an expression, e.g. `{ tmp <- x * 2; tmp + 1 }`, can be used by the later expressions of
+#' the same call. On grouped data, each group has its own variables, so a variable assigned while evaluating one group
+#' is never seen by the next group. This differs from `dplyr` 1.0.10, where such a variable can leak into the groups
+#' evaluated after it.
+#'
 #' @param .data A `data.frame`.
 #' @param ... Name-value pairs of expressions, each with length `1L`. The name of each argument will be the name of a
 #' new column and the value will be its corresponding value. Use a `NULL` value in `mutate` to drop a variable. New

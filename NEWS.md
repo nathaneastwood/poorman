@@ -29,6 +29,8 @@ Grouped operations are now considerably faster. Groups are identified in a singl
 
 `filter()` is now considerably faster. As in `mutate()`, the conditions are evaluated for each group in a data mask and the rows are subset once, rather than building and binding a `data.frame` for each group. On 100,000 rows, grouped `filter()` is 7-10x faster with 10 groups, 5x faster with 1,000 groups and 3-3.6x faster with 10,000 groups, and allocates about half the memory; on 1,000,000 rows with 10,000 groups, it is 5-6x faster. Ungrouped `filter()` is 2-3x faster.
 
+`slice()`, `slice_head()`, `slice_tail()`, `slice_min()`, `slice_max()`, `slice_sample()`, `distinct()` and `fill()` are now considerably faster on grouped data. The rows to keep are found for each group and the data is subset once, and `fill()` fills every group in one pass, rather than building and binding a `data.frame` for each group. On 100,000 rows with 1,000 groups, `slice_head()` is 28x faster, `slice()` and `slice_min()` 3-5x faster, `slice_sample()` 14x faster, `distinct()` 20x faster and `fill()` 79x faster; with 10,000 groups, `fill()` is over 400x faster.
+
 ## Bug fixes
 
 * `keep = TRUE` now works as in `dplyr`. The keys of `x` and `y` are both kept, each with `NA` where a row has no match in its table; previously, the key of `y` repeated the key of `x`, and `keep = TRUE` with a named `by` failed. `inner_join()` now supports `keep` too.
@@ -54,6 +56,13 @@ Grouped operations are now considerably faster. Groups are identified in a singl
 * Grouped `filter()` now evaluates its conditions for empty groups, and evaluates every condition for a group before the next group, as in `dplyr`. It now gives the deprecation warning for data frame results once for each condition which returns one, as in `dplyr`. Previously, conditions with the same warning shared a single warning.
 * `if_any()` and `if_all()` now return `TRUE` when no columns are selected, as in `dplyr`, so `filter()` keeps every row. Previously, they returned `FALSE`, so `filter()` dropped every row.
 * `filter()` now gives the `dplyr` error for a named condition, e.g. `filter(df, x = 1)`: "We detected a named input. i This usually means that you've used `=` instead of `==`. i Did you mean `x == 1`?". Previously, it gave an older wording, and a named expression or variable, e.g. `filter(df, z = x == 1)`, failed with "invalid type of argument[2]: 'language'".
+* Grouped `slice()`, `slice_min()`, `slice_max()`, `slice_sample()`, `distinct()` and `fill()` now find variables in the calling environment, e.g. inside a function. Previously, they gave an "object not found" error.
+* `slice_min()`, `slice_max()` and `slice_sample()` now evaluate `order_by` and `weight_by` as expressions, e.g. `slice_min(df, x * y)` or `slice_sample(df, n = 1, weight_by = x > 0)`, and check that they have a value for each row, as in `dplyr`. Previously, they only accepted a column name.
+* Grouped `distinct()` now returns the rows in their original order, as in `dplyr`. Previously, the rows were in group order. It now also keeps the empty groups of data grouped with `.drop = FALSE`.
+* Grouped `slice()` without indices now returns the data unchanged, as in `dplyr`. Previously, the rows were put in group order.
+* `slice_tail()` now rounds `n` down, e.g. `slice_tail(df, n = 2.5)` returns the last 2 rows. Previously, it returned the wrong rows.
+* `fill()` now replaces `NULL`s in list columns, as documented. Grouped `fill()` no longer gives an "Adding missing grouping variables" message for each group.
+* Each group of `mutate()`, `transmute()`, `summarise()` and `filter()` now has its own variables, so a variable assigned inside an expression for one group is not seen by the next group. In `dplyr` 1.0.10, such a variable leaks into the groups evaluated after it.
 
 Grouped operations now match `dplyr`:
 

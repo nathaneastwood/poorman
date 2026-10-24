@@ -138,3 +138,44 @@ expect_equal(
   data.frame(z = c("a", "b")),
   info = "distinct() supports :="
 )
+
+# Grouped distinct() keeps the rows in their original order
+df <- data.frame(g = c(2, 1, 2, 1, 2, 1), x = c(1, 1, 1, 2, 3, 2), y = c("p", "q", "r", "s", "t", "u"))
+gf <- group_by(df, g)
+res <- distinct(gf, x)
+expect_equal(
+  as.data.frame(ungroup(res)), data.frame(g = c(2, 1, 1, 2), x = c(1, 1, 2, 3)),
+  info = "grouped distinct() keeps the first rows in their original order"
+)
+expect_equal(group_data(res)$.rows, list(2:3, c(1L, 4L)), info = "grouped distinct() recalculates the group rows")
+expect_equal(
+  as.data.frame(ungroup(distinct(gf, x, .keep_all = TRUE))),
+  data.frame(g = c(2, 1, 1, 2), x = c(1, 1, 2, 3), y = c("p", "q", "s", "t")),
+  info = "grouped distinct() with .keep_all keeps the original order"
+)
+expect_equal(
+  as.data.frame(ungroup(distinct(gf, z = x * 2, .keep_all = TRUE))),
+  data.frame(g = c(2, 1, 1, 2), x = c(1, 1, 2, 3), y = c("p", "q", "s", "t"), z = c(2, 2, 4, 6)),
+  info = "grouped distinct() with .keep_all puts new columns last"
+)
+expect_equal(
+  as.data.frame(ungroup(distinct(gf, m = mean(x)))), data.frame(g = c(2, 1), m = c(5, 5) / 3),
+  info = "grouped distinct() evaluates expressions for each group"
+)
+expect_equal(
+  as.data.frame(ungroup(distinct(gf, g = g * 10))), data.frame(g = c(20, 10)),
+  info = "grouped distinct() can change the grouping column"
+)
+f <- function() {
+  k <- 10
+  distinct(gf, z = x + k)
+}
+expect_equal(f()$z, c(11, 11, 12, 13), info = "grouped distinct() finds local variables of the caller")
+res <- distinct(group_by(data.frame(g = c(NA, 1, NA), x = c(1, 1, 1)), g))
+expect_equal(res$g, c(NA, 1), info = "grouped distinct() keeps missing groups in their original order")
+fd <- group_by(data.frame(g = factor(c("x", "x"), levels = c("x", "y")), v = c(1, 1)), g, .drop = FALSE)
+expect_equal(
+  group_data(distinct(fd, v))$.rows, list(1L, integer()),
+  info = "grouped distinct() keeps empty groups with .drop = FALSE"
+)
+rm(df, gf, res, f, fd)

@@ -40,6 +40,8 @@
 #'   abbreviated sooner.
 #' * `?` and `:=` are treated as calls rather than operators, e.g. `` `?`(...) ``, as R prints them.
 #'
+#' @inheritSection mutate Variables made inside expressions
+#'
 #' @examples
 #' # A summary applied to ungrouped tbl returns a single row
 #' mtcars %>%
@@ -172,25 +174,6 @@ summarise_result <- function(keys, cols, sizes, grouped) {
   n <- if (grouped) sum(sizes) else sizes[[1L]]
   attributes(keys) <- list(names = as.character(names(keys)), class = "data.frame", row.names = .set_row_names(n))
   list(data = keys, all_one = all_one)
-}
-
-# Combine the results of a summary across the groups. Results without attributes are combined directly; other common
-# types use `combine_columns()`; data frames and matrices are bound by row; anything else falls back to `rbind()`.
-combine_summaries <- function(x) {
-  if (all(lengths(lapply(x, attributes)) == 0L)) {
-    is_atomic <- vapply(x, is.atomic, NA)
-    if (all(is_atomic) || !any(is_atomic) && all(vapply(x, is.list, NA))) {
-      return(unlist(x, recursive = FALSE, use.names = FALSE))
-    }
-  }
-  if (all(vapply(x, is_simple_column, NA))) {
-    res <- combine_columns(x)
-    if (!is.null(res)) return(res)
-  }
-  if (all(vapply(x, is.data.frame, NA))) return(do.call(rbind, unname(x)))
-  if (all(vapply(x, is.matrix, NA))) return(do.call(rbind, unname(x)))
-  x <- lapply(x, function(v) structure(list(v), names = "x", class = "data.frame", row.names = .set_row_names(NROW(v))))
-  .subset2(do.call(rbind, x), 1L)
 }
 
 summarise_regroup <- function(x, groups, drop) {
