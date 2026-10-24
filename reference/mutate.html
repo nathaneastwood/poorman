@@ -70,7 +70,10 @@ Variables can be removed by setting their value to <code>NULL</code>.</p>
 <dt id="arg--">...<a class="anchor" aria-label="anchor" href="#arg--"></a></dt>
 <dd><p>Name-value pairs of expressions, each with length <code>1L</code>. The name of each argument will be the name of a
 new column and the value will be its corresponding value. Use a <code>NULL</code> value in <code>mutate</code> to drop a variable. New
-variables overwrite existing variables of the same name.</p></dd>
+variables overwrite existing variables of the same name.</p>
+<p>A name can also be given with <code>:=</code>, e.g. <code>total := sum(x)</code>. A string on the left of <code>:=</code> is a <code>gluestick</code> template
+which is filled in from the calling environment, so that a name can be built from a variable, e.g.
+<code>"{var}_mean" := mean(x)</code>.</p></dd>
 
 
 <dt id="arg--keep">.keep<a class="anchor" aria-label="anchor" href="#arg--keep"></a></dt>

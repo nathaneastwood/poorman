@@ -56,7 +56,10 @@ result in one row in the output for each group.</p>
 
 
 <dt id="arg--">...<a class="anchor" aria-label="anchor" href="#arg--"></a></dt>
-<dd><p>Name-value pairs of summary functions. The name will be the name of the variable in the result.</p></dd>
+<dd><p>Name-value pairs of summary functions. The name will be the name of the variable in the result.</p>
+<p>A name can also be given with <code>:=</code>, e.g. <code>total := sum(x)</code>. A string on the left of <code>:=</code> is a <code>gluestick</code> template
+which is filled in from the calling environment, so that a name can be built from a variable, e.g.
+<code>"{var}_mean" := mean(x)</code>.</p></dd>
 
 
 <dt id="arg--groups">.groups<a class="anchor" aria-label="anchor" href="#arg--groups"></a></dt>

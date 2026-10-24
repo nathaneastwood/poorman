@@ -49,9 +49,9 @@ if_all(.cols, .fns = NULL, ..., .names = NULL)
 
 - .names:
 
-  A glue specification that describes how to name the output columns.
-  This can use `{.col}` to stand for the selected column name, and
-  `{.fn}` to stand for the name of the function being applied. The
+  A gluestick specification that describes how to name the output
+  columns. This can use `{.col}` to stand for the selected column name,
+  and `{.fn}` to stand for the name of the function being applied. The
   default (`NULL`) is equivalent to "`{.col}`" for the single function
   case and "`{.col}_{.fn}`" for the case where a list is used for
   `.fns`.

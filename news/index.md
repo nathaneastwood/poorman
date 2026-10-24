@@ -39,6 +39,18 @@
   columns of `x` with a list column of the matching rows of `y`, as
   `data.frame`s. Rows of `x` with no match get a 0-row `data.frame`
   ([\#78](https://github.com/nathaneastwood/poorman/issues/78)).
+- Arguments can now be named with `:=`, as in `dplyr`,
+  e.g. `summarise(df, total := sum(x))`. A string on the left is a
+  `gluestick` template, which is filled in from the calling environment,
+  e.g. `mutate(df, "{var}_mean" := mean(x))`. This works in every verb
+  whose arguments take names, such as
+  [`summarise()`](../reference/summarise.md),
+  [`mutate()`](../reference/mutate.md),
+  [`transmute()`](../reference/mutate.md),
+  [`rename()`](../reference/rename.md),
+  [`select()`](../reference/select.md) and
+  [`distinct()`](../reference/distinct.md). Unlike `dplyr`, `!!` and
+  `{{` are not supported on the left of `:=`.
 - [`semi_join()`](../reference/filter_joins.md) and
   [`anti_join()`](../reference/filter_joins.md) gain the `copy`, `...`
   and `na_matches` arguments of `dplyr`. `copy` and `...` are ignored.
@@ -128,6 +140,34 @@ also speeds up [`mutate()`](../reference/mutate.md).
 - [`rename_with()`](../reference/rename.md) no longer renames grouping
   variables which were not selected. Previously, it added them to the
   selection with an “Adding missing grouping variables” message.
+- [`mutate()`](../reference/mutate.md) and
+  [`transmute()`](../reference/mutate.md) now support the `.data`
+  pronoun, e.g. `mutate(df, z = .data[[var]] * 2)`. As in `dplyr`,
+  `.data` sees the columns made by earlier expressions and, on grouped
+  data, holds the rows of the current group. Previously, `.data` gave
+  the error “object ‘.data’ not found”.
+- [`transmute()`](../reference/mutate.md) now finds variables in the
+  calling environment, e.g. inside a function. Previously, it gave an
+  “object not found” error, or found a function of the same name.
+- [`mutate()`](../reference/mutate.md),
+  [`transmute()`](../reference/mutate.md) and
+  [`group_by()`](../reference/group_by.md) now give unnamed expressions
+  the same automatic names as
+  [`summarise()`](../reference/summarise.md). Long expressions are
+  abbreviated, e.g. `... + x`, and `.data$x` is named `x`. Previously,
+  an expression which R deparses over several lines gave a broken name
+  such as `c("{", " x + 1", "}")`.
+- Automatic names now show the value of the subscript of `.data[[...]]`,
+  as in `dplyr`. With `var <- "y"`, `summarise(df, .data[[var]])` is
+  named `y` and `summarise(df, mean(.data[[var]]))` is named
+  `mean(.data[["y"]])`. Previously, they were named `.data[[var]]` and
+  `mean(.data[[var]])`.
+- [`group_by()`](../reference/group_by.md) and
+  [`count()`](../reference/count.md) now group by renamed columns and
+  literals, e.g. `group_by(df, total = g)` or `count(df, 5)`, and add
+  columns with `.add = TRUE`, e.g. `group_by(df, h = x, .add = TRUE)`.
+  Previously, these gave an “Invalid groups” error. They also now find
+  variables in the calling environment, e.g. inside a function.
 
 Grouped operations now match `dplyr`:
 

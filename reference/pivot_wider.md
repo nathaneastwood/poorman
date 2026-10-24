@@ -55,10 +55,9 @@ pivot_wider(
 - names_glue:
 
   `character(1)`. Instead of `names_sep` and `names_prefix`, you can
-  supply a [glue specification](https://glue.tidyverse.org/index.html)
-  that uses the `names_from` columns to create custom column names. Note
-  that the only delimiters supported by `names_glue` are curly brackets,
-  `{` and `}`.
+  supply a gluestick specification that uses the `names_from` columns to
+  create custom column names. Note that the only delimiters supported by
+  `names_glue` are curly brackets, `{` and `}`.
 
 - names_sort:
 

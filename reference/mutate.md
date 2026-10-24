@@ -36,6 +36,11 @@ transmute(.data, ...)
   its corresponding value. Use a `NULL` value in `mutate` to drop a
   variable. New variables overwrite existing variables of the same name.
 
+  A name can also be given with `:=`, e.g. `total := sum(x)`. A string
+  on the left of `:=` is a `gluestick` template which is filled in from
+  the calling environment, so that a name can be built from a variable,
+  e.g. `"{var}_mean" := mean(x)`.
+
 - .keep:
 
   This argument allows you to control which columns from `.data` are
