@@ -86,7 +86,11 @@ across <- function(.cols = everything(), .fns = NULL, ..., .names = NULL) {
   }
   cols <- setup$cols
   n_cols <- length(cols)
-  if (n_cols == 0L) return(data.frame())
+  # As in dplyr, no columns still give a data frame with a row for each row of the group, e.g. so that `filter()` keeps
+  # every row
+  if (n_cols == 0L) {
+    return(structure(list(), names = character(), row.names = .set_row_names(context$get_nrow()), class = "data.frame"))
+  }
   funs <- setup$funs
   data <- context$get_columns(cols)
   names <- setup$names
@@ -117,7 +121,7 @@ across <- function(.cols = everything(), .fns = NULL, ..., .names = NULL) {
 #' @export
 if_any <- function(.cols, .fns = NULL, ..., .names = NULL) {
   df <- do.call(across, list(.cols = substitute(.cols), .fns = .fns, ..., .names = .names))
-  if (nrow(df) == 0L) return(FALSE)
+  if (ncol(df) == 0L) return(FALSE)
   check_if_types(df)
   Reduce(`|`, df)
 }
@@ -126,7 +130,7 @@ if_any <- function(.cols, .fns = NULL, ..., .names = NULL) {
 #' @export
 if_all <- function(.cols, .fns = NULL, ..., .names = NULL) {
   df <- do.call(across, list(.cols = substitute(.cols), .fns = .fns, ..., .names = .names))
-  if (nrow(df) == 0L) return(FALSE)
+  if (ncol(df) == 0L) return(FALSE)
   check_if_types(df)
   Reduce(`&`, df)
 }

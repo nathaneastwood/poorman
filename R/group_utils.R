@@ -146,6 +146,10 @@ is_valid_groups <- function(.data, details, groups) {
 #' the results of a group which are not of size one must have the same size, as in `summarise()`.
 #' @param drop_null `logical(1)`. Does a `NULL` result remove the variable of that name, as in `mutate()`? If not, it is
 #' ignored, as in `summarise()`.
+#' @param check A `function(value, size, group, details)` which checks each result as soon as it is evaluated and
+#' returns the value to keep in its place, or `NULL` to keep each result as it is. It is given the size of the group,
+#' its position `group` in `details` (`NULL` if `.data` is not grouped or has no groups) and `details`, for error
+#' messages.
 #' @return A `list` with:
 #' * `rows`, the rows of each group that was evaluated;
 #' * `details`, the grouping structure of `.data` (`NULL` if it is not grouped) and `groups`, the grouping columns;
@@ -155,7 +159,7 @@ is_valid_groups <- function(.data, details, groups) {
 #'   results are kept as `NULL`);
 #' * `sizes`, the size of the results of each group: the size of its results which are not of size one, or one.
 #' @noRd
-eval_groups <- function(.data, dots, env, group_size = FALSE, drop_null = FALSE) {
+eval_groups <- function(.data, dots, env, group_size = FALSE, drop_null = FALSE, check = NULL) {
   groups <- group_vars(.data)
   grouped <- length(groups) > 0L
   details <- if (grouped) get_groups(.data, groups)
@@ -220,6 +224,7 @@ eval_groups <- function(.data, dots, env, group_size = FALSE, drop_null = FALSE)
       mask <- masks[[g]]
       delayedAssign(".data", .data, eval.env = mask, assign.env = context)
       value <- eval(dots[[i]], mask)
+      if (!is.null(check)) value <- check(value, length(rows[[g]]), if (grouped && !empty) g, details)
       if (is.null(value)) {
         if (drop_null && exists(labels[[i]], envir = mask, inherits = FALSE)) rm(list = labels[[i]], envir = mask)
         next
@@ -281,7 +286,7 @@ stop_wrong_size <- function(expr, name, size, value_size, size_from, group, deta
     stop(
       sprintf("Problem while computing `%s = %s`.\n", name, paste(deparse(expr), collapse = " ")),
       sprintf("x `%s` must be size %d or 1, not %d.", name, size, value_size),
-      if (!is.null(group)) sprintf("\ni The error occurred in group %d: %s.", group, describe_group(details, group)),
+      error_group(group, details),
       call. = FALSE
     )
   }
@@ -291,6 +296,16 @@ stop_wrong_size <- function(expr, name, size, value_size, size_from, group, deta
     if (!is.null(group)) sprintf(" The error occurred in group %d.", group),
     call. = FALSE
   )
+}
+
+#' Give the line of an error message which names the group where the error occurred
+#'
+#' @param group `integer(1)`. The position of the group in `details`, or `NULL` if the data is not grouped.
+#' @param details A `data.frame` of the groups, as returned by `get_groups()`.
+#' @return `character(1)`, starting with a new line, or `NULL` if `group` is `NULL`.
+#' @noRd
+error_group <- function(group, details) {
+  if (!is.null(group)) sprintf("\ni The error occurred in group %d: %s.", group, describe_group(details, group))
 }
 
 #' Describe a group by its keys
