@@ -40,7 +40,7 @@ semi_join <- function(x, y, by = NULL) {
 
 filter_join_worker <- function(x, y, by = NULL, type = c("anti", "semi")) {
   type <- match.arg(type, choices = c("anti", "semi"), several.ok = FALSE)
-  by <- standardise_join_by(by, names(x), names(y))
+  by <- join_key_names(by, names(x), names(y))
   keys <- lapply(seq_along(by$x), function(i) join_key_cast(.subset2(x, by$x[i]), .subset2(y, by$y[i]), by$x[i])$key)
   ids <- group_ids(keys, n = nrow(x) + nrow(y))
   rows <- ids[seq_len(nrow(x))] %in% ids[nrow(x) + seq_len(nrow(y))]

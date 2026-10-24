@@ -12,8 +12,10 @@ inner_join(
   x,
   y,
   by = NULL,
+  copy = FALSE,
   suffix = c(".x", ".y"),
   ...,
+  keep = FALSE,
   na_matches = c("na", "never")
 )
 
@@ -21,6 +23,7 @@ left_join(
   x,
   y,
   by = NULL,
+  copy = FALSE,
   suffix = c(".x", ".y"),
   ...,
   keep = FALSE,
@@ -31,6 +34,7 @@ right_join(
   x,
   y,
   by = NULL,
+  copy = FALSE,
   suffix = c(".x", ".y"),
   ...,
   keep = FALSE,
@@ -41,6 +45,7 @@ full_join(
   x,
   y,
   by = NULL,
+  copy = FALSE,
   suffix = c(".x", ".y"),
   ...,
   keep = FALSE,
@@ -63,20 +68,21 @@ To join by multiple variables, use a vector with length > 1. For example, \code{
 
 To perform a cross-join, generating all combinations of \code{x} and \code{y}, use \code{by = character()}.}
 
+\item{copy}{Ignored. Included for compatibility with \code{dplyr}, where it allows \code{y} to come from a different data
+source.}
+
 \item{suffix}{\code{character(2)}. If there are non-joined duplicate variables in \code{x} and \code{y}, these suffixes will be
 added to the output to disambiguate them.}
 
-\item{...}{Additional arguments to pass to \code{\link[=merge]{merge()}}}
+\item{...}{Ignored. Included for compatibility with \code{dplyr}.}
+
+\item{keep}{\code{logical(1)}. Should the join keys from both \code{x} and \code{y} be preserved in the output?}
 
 \item{na_matches}{Should \code{NA} and \code{NaN} values match one another?
 
-The default, \code{"na"}, treats two \code{NA} or \code{NaN} values as equal, like \code{\%in\%}, \code{\link[=match]{match()}}, \code{\link[=merge]{merge()}}.
+The default, \code{"na"}, treats two \code{NA} or two \code{NaN} values as equal, like \code{\%in\%} and \code{\link[=match]{match()}}.
 
-Use \code{"never"} to always treat two \code{NA} or \code{NaN} values as different, like joins for database sources, similarly to
-\code{merge(incomparables = FALSE)}.}
-
-\item{keep}{\code{logical(1)}. Should the join keys from both \code{x} and \code{y} be preserved in the output? Only applies to
-\code{left_join()}, \code{right_join()}, and \code{full_join()}.}
+Use \code{"never"} to always treat two \code{NA} or \code{NaN} values as different, like joins for database sources.}
 }
 \value{
 A \code{data.frame}. The order of the rows and columns of \code{x} is preserved as much as possible. The output has the
