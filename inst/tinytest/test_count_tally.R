@@ -66,18 +66,13 @@ expect_equal(
 
 exp <- mtcars %>% add_count(cyl, wt = am, sort = TRUE, name = "freq")
 expect_equal(
-  exp %>% ungroup(),
+  exp,
   {
     res <- mtcars
     res[, "freq"] <- c(3, 3, 8, 3, 2, 3, 2, 8, 8, 3, 3, 2, 2, 2, 2, 2, 2, 8, 8, 8, 8, 2, 2, 2, 2, 8, 8, 8, 2, 3, 2, 8)
-    res
+    res[c(3, 8, 9, 18:21, 26:28, 32, 1, 2, 4, 6, 10, 11, 30, 5, 7, 12:17, 22:25, 29, 31), ]
   },
-  info = "add_count() returns the expected data.frame"
-)
-expect_equal(
-  group_vars(exp),
-  "cyl",
-  info = "add_count() adds the expected groups"
+  info = "add_count() returns the expected data.frame, sorted and ungrouped"
 )
 
 expect_equal(
@@ -174,7 +169,7 @@ fe_fn <- function(data) {
   nm <- "new"
   list(
     count(data, h = x %% fe_k),
-    ungroup(add_count(data, h = x %% fe_k)),
+    add_count(data, h = x %% fe_k),
     names(count(data, "{nm}" := x)), # nolint: object_name_linter.
     names(add_count(data, "{nm}" := x)) # nolint: object_name_linter.
   )
@@ -188,4 +183,85 @@ expect_equal(
     c("g", "x", "new", "n")
   ),
   info = "count() and add_count() use a local variable over a global one, also in a := template"
+)
+
+ac_df <- data.frame(
+  g = c("b", "a", "b", "a", "b"),
+  h = factor(c("u", "v", "u", "u", "v"), levels = c("u", "v", "w")),
+  w = 1:5,
+  stringsAsFactors = FALSE
+)
+expect_equal(
+  add_count(ac_df, g),
+  data.frame(ac_df, n = c(3L, 2L, 3L, 2L, 3L)),
+  info = "add_count() on ungrouped data returns ungrouped data"
+)
+res <- add_count(group_by(ac_df, h, .drop = FALSE), g)
+expect_equal(
+  list(group_vars(res), group_by_drop_default(res), res$n),
+  list("h", FALSE, c(2L, 1L, 2L, 1L, 1L)),
+  info = "add_count() returns the groups and .drop of its input"
+)
+res <- add_count(group_by(ac_df, g))
+expect_equal(
+  list(group_vars(res), res$n),
+  list("g", c(3L, 2L, 3L, 2L, 3L)),
+  info = "add_count() without ... keeps groups"
+)
+res <- add_count(ac_df, g, sort = TRUE)
+expect_equal(
+  list(res$w, res$n, group_vars(res)),
+  list(c(1L, 3L, 5L, 2L, 4L), c(3L, 3L, 3L, 2L, 2L), character(0L)),
+  info = "add_count(sort = TRUE) sorts the rows by the count, largest first"
+)
+res <- add_count(group_by(ac_df, h), g, sort = TRUE)
+expect_equal(
+  list(res$w, res$n, group_vars(res)),
+  list(c(1L, 3L, 2L, 4L, 5L), c(2L, 2L, 1L, 1L, 1L), "h"),
+  info = "add_count(sort = TRUE) sorts all rows, not within the groups of its input"
+)
+expect_equal(
+  add_count(ac_df, g, wt = w)$n,
+  c(9L, 6L, 9L, 6L, 9L),
+  info = "add_count() with wt sums the weights in each group"
+)
+
+res <- add_tally(group_by(ac_df, h, .drop = FALSE))
+expect_equal(
+  list(group_vars(res), group_by_drop_default(res), res$n),
+  list("h", FALSE, c(3L, 2L, 3L, 3L, 2L)),
+  info = "add_tally() returns the groups and .drop of its input"
+)
+
+# `add_tally()` and `add_count()` add their column through the `mutate()` generic and keep the class of their input
+ac_calls <- 0L
+registerS3method("mutate", "ac_class", function(.data, ...) {
+  ac_calls <<- ac_calls + 1L
+  NextMethod()
+}, envir = asNamespace("poorman"))
+ac_cls <- structure(data.frame(g = c(1, 1, 2), x = 1:3), class = c("ac_class", "data.frame"))
+ac_res <- lapply(
+  list(
+    function() add_tally(ac_cls),
+    function() add_count(ac_cls),
+    function() add_count(ac_cls, g),
+    function() add_tally(group_by(ac_cls, g)),
+    function() add_count(group_by(ac_cls, g), x)
+  ),
+  function(f) {
+    ac_calls <<- 0L
+    res <- f()
+    list(ac_calls > 0L, inherits(res, "ac_class"), group_vars(res))
+  }
+)
+expect_equal(
+  ac_res,
+  list(
+    list(TRUE, TRUE, character(0L)),
+    list(TRUE, TRUE, character(0L)),
+    list(TRUE, TRUE, character(0L)),
+    list(TRUE, TRUE, "g"),
+    list(TRUE, TRUE, "g")
+  ),
+  info = "add_tally() and add_count() call mutate() methods, keep the class and return the groups of their input"
 )
