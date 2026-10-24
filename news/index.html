@@ -49,6 +49,8 @@
 <li>
 <code><a href="../reference/arrange.html">arrange()</a></code> now supports list, data frame and matrix columns. Data frame and matrix columns are sorted by each of their columns in turn and list columns are sorted by the first appearance of each element, as in <code>dplyr</code> (<a href="https://github.com/nathaneastwood/poorman/issues/90" class="external-link">#90</a>).</li>
 <li>New <code><a href="../reference/nest_join.html">nest_join()</a></code> returns all rows and columns of <code>x</code> with a list column of the matching rows of <code>y</code>, as <code>data.frame</code>s. Rows of <code>x</code> with no match get a 0-row <code>data.frame</code> (<a href="https://github.com/nathaneastwood/poorman/issues/78" class="external-link">#78</a>).</li>
+<li>
+<code><a href="../reference/filter_joins.html">semi_join()</a></code> and <code><a href="../reference/filter_joins.html">anti_join()</a></code> gain the <code>copy</code>, <code>...</code> and <code>na_matches</code> arguments of <code>dplyr</code>. <code>copy</code> and <code>...</code> are ignored. Use <code>na_matches = "never"</code> to stop keys with <code>NA</code> or <code>NaN</code> values from matching.</li>
 </ul></div>
 <div class="section level3">
 <h3 id="improvements-0-2-9">Improvements<a class="anchor" aria-label="anchor" href="#improvements-0-2-9"></a></h3>

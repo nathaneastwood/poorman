@@ -39,6 +39,11 @@
   columns of `x` with a list column of the matching rows of `y`, as
   `data.frame`s. Rows of `x` with no match get a 0-row `data.frame`
   ([\#78](https://github.com/nathaneastwood/poorman/issues/78)).
+- [`semi_join()`](../reference/filter_joins.md) and
+  [`anti_join()`](../reference/filter_joins.md) gain the `copy`, `...`
+  and `na_matches` arguments of `dplyr`. `copy` and `...` are ignored.
+  Use `na_matches = "never"` to stop keys with `NA` or `NaN` values from
+  matching.
 
 ### Improvements
 
