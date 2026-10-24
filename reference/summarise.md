@@ -56,6 +56,26 @@ summarize(.data, ..., .groups = NULL)
 
 `summarise()` and `summarize()` are synonyms.
 
+## Automatic names
+
+An unnamed expression is named after its code, e.g. `mean(disp)`, and
+`.data$disp` is named `disp`. When the code is too long to read as a
+name, it is abbreviated with `...`. A call keeps its function, e.g.
+`mean(...)`, and an operator keeps as many of its two sides as fit in 60
+characters, e.g. `... %>% select(a, b)`.
+
+The names are those of `dplyr`, with these differences:
+
+- The limit of 60 characters is fixed. `dplyr` keeps some names of up to
+  63 characters whose right side is a call, such as a long name followed
+  by `+ g()`.
+
+- Characters are counted rather than bytes, so names with accented or
+  other multibyte characters are not abbreviated sooner.
+
+- `?` and `:=` are treated as calls rather than operators, e.g.
+  [`` `?`(...) ``](https://rdrr.io/r/base/dots.html), as R prints them.
+
 ## Examples
 
 ``` r

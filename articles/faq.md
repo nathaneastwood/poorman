@@ -25,6 +25,7 @@ As a brief overview, however, {poorman} includes what is considered as
 
     inner_join(), left_join(), right_join(), full_join()
     anti_join(), semi_join()
+    nest_join()
 
 Finally {poorman} includes its own version of the pipe so you do not
 need to load or install `magrittr`.

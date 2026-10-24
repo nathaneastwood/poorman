@@ -38,6 +38,8 @@
   [`right_join()`](mutate_joins.md) [`full_join()`](mutate_joins.md) :
   Mutating Joins
 
+- [`nest_join()`](nest_join.md) : Nest Join
+
 - [`union_all()`](union_all.md) : Union All
 
 ## Pivoting

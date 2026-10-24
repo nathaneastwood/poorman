@@ -9,6 +9,21 @@
   `names_from`, `names_prefix`, `names_sep`, `names_glue`, `names_sort`,
   `names_repair`, `values_from`, `values_fill`, `values_fn`. Code which
   passes `values_from` or `names_from` by position must now name them.
+- Joins now give an error when the join keys of `x` and `y` have
+  incompatible types, such as integer and character, as in `dplyr`.
+  Previously, the keys were silently converted. A natural join of tables
+  with no common columns is now also an error; previously, the mutating
+  joins returned a cross join and the filtering joins returned or
+  dropped every row. Use `by = character()` for a cross join.
+- The mutating joins no longer pass `...` to
+  [`merge()`](https://rdrr.io/r/base/merge.html); as in `dplyr`,
+  arguments in `...` are ignored.
+- [`inner_join()`](../reference/mutate_joins.md),
+  [`left_join()`](../reference/mutate_joins.md),
+  [`right_join()`](../reference/mutate_joins.md) and
+  [`full_join()`](../reference/mutate_joins.md) gain a `copy` argument,
+  which is ignored, before `suffix`, as in `dplyr`. Code which passes
+  `suffix` by position must now name it.
 
 ### New features
 
@@ -20,8 +35,23 @@
   of their columns in turn and list columns are sorted by the first
   appearance of each element, as in `dplyr`
   ([\#90](https://github.com/nathaneastwood/poorman/issues/90)).
+- New [`nest_join()`](../reference/nest_join.md) returns all rows and
+  columns of `x` with a list column of the matching rows of `y`, as
+  `data.frame`s. Rows of `x` with no match get a 0-row `data.frame`
+  ([\#78](https://github.com/nathaneastwood/poorman/issues/78)).
 
 ### Improvements
+
+[`inner_join()`](../reference/mutate_joins.md),
+[`left_join()`](../reference/mutate_joins.md),
+[`right_join()`](../reference/mutate_joins.md) and
+[`full_join()`](../reference/mutate_joins.md) have been rewritten
+without [`merge()`](https://rdrr.io/r/base/merge.html). Rows are matched
+by sorting `y` by key once rather than by
+[`merge()`](https://rdrr.io/r/base/merge.html), and the result is built
+from the matched row numbers. On 100,000 rows, the joins are 13-16x
+faster and allocate 2.5x less memory; on 1,000,000 rows, they are 13-20x
+faster.
 
 Grouped operations are now considerably faster. Groups are identified in
 a single pass over the data rather than by comparing every group against
@@ -57,6 +87,34 @@ groups and 5x faster with 10,000 groups, and
 also speeds up [`mutate()`](../reference/mutate.md).
 
 ### Bug fixes
+
+- `keep = TRUE` now works as in `dplyr`. The keys of `x` and `y` are
+  both kept, each with `NA` where a row has no match in its table;
+  previously, the key of `y` repeated the key of `x`, and `keep = TRUE`
+  with a named `by` failed.
+  [`inner_join()`](../reference/mutate_joins.md) now supports `keep`
+  too.
+- The columns of a join are now in the order of `x` followed by `y`, and
+  the rows of `y` without a match now come last in their order in `y`,
+  as in `dplyr`. Previously, the key columns came first and the rows of
+  `y` without a match were sorted by key. Suffixes are now repeated
+  until the names are unique, e.g. `k.x.x`.
+- A join which renames all of the grouping columns of `x`, e.g. with
+  `keep = TRUE`, now returns an ungrouped `data.frame`.
+- The join keys of [`inner_join()`](../reference/mutate_joins.md),
+  [`left_join()`](../reference/mutate_joins.md),
+  [`right_join()`](../reference/mutate_joins.md) and
+  [`full_join()`](../reference/mutate_joins.md) are now cast to their
+  common type, as in `dplyr`. For example, joining an integer key to a
+  double key gives a double key, a factor key joined to a character key
+  gives a character key, and factor keys keep the levels of both tables.
+  Previously, the type of the result depended on the join.
+- [`semi_join()`](../reference/filter_joins.md) and
+  [`anti_join()`](../reference/filter_joins.md) now support a named
+  `by`, e.g. `by = c("a" = "b")`. Previously, they looked for the names
+  of `y` in `x` and returned the wrong rows.
+- Joins on missing columns now give the `dplyr` error, which names the
+  missing columns.
 
 Grouped operations now match `dplyr`:
 
@@ -140,10 +198,12 @@ Grouped operations now match `dplyr`:
   available to later expressions.
 - Named vector results, e.g. `q = quantile(x, 0.5)`, are now named `q`
   rather than `x`. Unnamed expressions among named ones are now named
-  after the expression rather than `""`, long expressions are named as
-  [`rlang::as_label()`](https://rlang.r-lib.org/reference/as_label.html)
-  does, e.g. `mean(...)`, and unnamed list results are named after the
-  expression.
+  after the expression rather than `""`, long expressions are
+  abbreviated as in `dplyr`, e.g. `mean(...)` or `... %>% select(a, b)`
+  (unlike `dplyr` 1.0.10, the limit of 60 characters is fixed and counts
+  characters rather than bytes, and `?` and `:=` are abbreviated as
+  calls; see [`?summarise`](../reference/summarise.md)), and unnamed
+  list results are named after the expression.
 - Duplicated names now keep the last result rather than giving
   duplicated columns, and a result named as a grouping column now
   replaces it.

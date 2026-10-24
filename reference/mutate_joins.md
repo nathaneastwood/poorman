@@ -21,8 +21,10 @@ inner_join(
   x,
   y,
   by = NULL,
+  copy = FALSE,
   suffix = c(".x", ".y"),
   ...,
+  keep = FALSE,
   na_matches = c("na", "never")
 )
 
@@ -30,6 +32,7 @@ left_join(
   x,
   y,
   by = NULL,
+  copy = FALSE,
   suffix = c(".x", ".y"),
   ...,
   keep = FALSE,
@@ -40,6 +43,7 @@ right_join(
   x,
   y,
   by = NULL,
+  copy = FALSE,
   suffix = c(".x", ".y"),
   ...,
   keep = FALSE,
@@ -50,6 +54,7 @@ full_join(
   x,
   y,
   by = NULL,
+  copy = FALSE,
   suffix = c(".x", ".y"),
   ...,
   keep = FALSE,
@@ -83,6 +88,11 @@ full_join(
   To perform a cross-join, generating all combinations of `x` and `y`,
   use `by = character()`.
 
+- copy:
+
+  Ignored. Included for compatibility with `dplyr`, where it allows `y`
+  to come from a different data source.
+
 - suffix:
 
   `character(2)`. If there are non-joined duplicate variables in `x` and
@@ -90,26 +100,22 @@ full_join(
 
 - ...:
 
-  Additional arguments to pass to
-  [`merge()`](https://rdrr.io/r/base/merge.html)
+  Ignored. Included for compatibility with `dplyr`.
+
+- keep:
+
+  `logical(1)`. Should the join keys from both `x` and `y` be preserved
+  in the output?
 
 - na_matches:
 
   Should `NA` and `NaN` values match one another?
 
-  The default, `"na"`, treats two `NA` or `NaN` values as equal, like
-  `%in%`, [`match()`](https://rdrr.io/r/base/match.html),
-  [`merge()`](https://rdrr.io/r/base/merge.html).
+  The default, `"na"`, treats two `NA` or two `NaN` values as equal,
+  like `%in%` and [`match()`](https://rdrr.io/r/base/match.html).
 
   Use `"never"` to always treat two `NA` or `NaN` values as different,
-  like joins for database sources, similarly to
-  `merge(incomparables = FALSE)`.
-
-- keep:
-
-  `logical(1)`. Should the join keys from both `x` and `y` be preserved
-  in the output? Only applies to `left_join()`, `right_join()`, and
-  `full_join()`.
+  like joins for database sources.
 
 ## Value
 
