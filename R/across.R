@@ -121,7 +121,8 @@ across <- function(.cols = everything(), .fns = NULL, ..., .names = NULL) {
 #' @export
 if_any <- function(.cols, .fns = NULL, ..., .names = NULL) {
   df <- do.call(across, list(.cols = substitute(.cols), .fns = .fns, ..., .names = .names))
-  if (ncol(df) == 0L) return(FALSE)
+  # As in dplyr, no columns give TRUE, so `filter()` keeps every row, rather than the FALSE of `any()`
+  if (ncol(df) == 0L) return(TRUE)
   check_if_types(df)
   Reduce(`|`, df)
 }
@@ -130,7 +131,7 @@ if_any <- function(.cols, .fns = NULL, ..., .names = NULL) {
 #' @export
 if_all <- function(.cols, .fns = NULL, ..., .names = NULL) {
   df <- do.call(across, list(.cols = substitute(.cols), .fns = .fns, ..., .names = .names))
-  if (ncol(df) == 0L) return(FALSE)
+  if (ncol(df) == 0L) return(TRUE)
   check_if_types(df)
   Reduce(`&`, df)
 }

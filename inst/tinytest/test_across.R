@@ -225,11 +225,26 @@ expect_identical(
 
 expect_equal(
   mtcars %>% filter(if_any(contains("Width"), ~ . > 4)),
-  mtcars[mtcars$mpg > 100, ],
-  info = "if_any() conditions that return empty data.frames do not fail."
+  mtcars,
+  info = "if_any() without columns keeps every row in filter()"
 )
 expect_equal(
   mtcars %>% filter(if_all(contains("Width"), ~ . > 4)),
-  mtcars[mtcars$mpg > 100, ],
-  info = "if_all() conditions that return empty data.frames do not fail."
+  mtcars,
+  info = "if_all() without columns keeps every row in filter()"
+)
+expect_equal(
+  nrow(filter(group_by(mtcars, cyl), if_any(contains("Width"), ~ . > 4), mpg > 30)),
+  4L,
+  info = "if_any() without columns keeps every row in grouped filter(), combined with other conditions"
+)
+expect_equal(
+  mutate(data.frame(x = 1:3), k = if_any(starts_with("z"), ~ .x > 1), m = if_all(starts_with("z"), ~ .x > 1)),
+  data.frame(x = 1:3, k = TRUE, m = TRUE),
+  info = "if_any() and if_all() without columns give TRUE in mutate()"
+)
+expect_equal(
+  summarise(group_by(data.frame(g = c("b", "a", "b"), x = 1:3), g), k = if_all(starts_with("z"), ~ .x > 1)),
+  data.frame(g = c("a", "b"), k = TRUE),
+  info = "if_all() without columns gives TRUE in grouped summarise()"
 )
