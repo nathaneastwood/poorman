@@ -26,3 +26,29 @@ expect_equal(
   c("CYL", "AM"),
   info = "Group names are updated"
 )
+
+gdf <- group_by(data.frame(id = 1:2, g = c("a", "b"), v = 3:4), id)
+
+expect_silent(
+  res <- rename_with(gdf, toupper, g),
+  info = "rename_with() does not add grouping variables to the selection"
+)
+expect_equal(
+  list(colnames(res), group_vars(res)),
+  list(c("id", "G", "v"), "id"),
+  info = "rename_with() only renames the selected columns of grouped data"
+)
+
+res <- rename_with(gdf, toupper, -id)
+expect_equal(
+  list(colnames(res), group_vars(res)),
+  list(c("id", "G", "V"), "id"),
+  info = "rename_with() leaves a deselected grouping variable alone"
+)
+
+res <- rename_with(gdf, toupper, -g)
+expect_equal(
+  list(colnames(res), group_vars(res)),
+  list(c("ID", "g", "V"), "ID"),
+  info = "rename_with() renames a grouping variable kept by a negative selection"
+)

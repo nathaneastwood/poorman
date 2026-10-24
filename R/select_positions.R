@@ -48,20 +48,7 @@ select_positions <- function(.data, ..., .group_pos = FALSE, .env = parent.frame
       if (oor_len > 1) " don't " else " doesn't ", "exist. There are only ", col_len, " columns."
     )
   }
-  if (isTRUE(.group_pos)) {
-    groups <- group_vars(.data)
-    missing_groups <- !(groups %in% cols)
-    if (any(missing_groups)) {
-      sel_missing <- groups[missing_groups]
-      readd <- match(sel_missing, data_names)
-      readd <- readd[!(readd %in% pos)]
-      if (length(readd) > 0L) {
-        message("Adding missing grouping variables: `", paste(sel_missing, collapse = "`, `"), "`")
-        if (length(names(cols)) > 0L) names(readd) <- data_names[readd]
-        pos <- c(readd, pos)
-      }
-    }
-  }
+  if (isTRUE(.group_pos)) pos <- select_add_groups(pos, .data, cols)
   if (length(data_names[pos]) != 0L) {
     nm_pos <- names(pos)
     if (any(nm_pos == "")) {
@@ -82,6 +69,28 @@ select_positions <- function(.data, ..., .group_pos = FALSE, .env = parent.frame
     }
   }
   res
+}
+
+#' Add back the grouping variables which a selection leaves out
+#'
+#' The grouping variables go in front of the selection, in the order of the groups.
+#'
+#' @param pos `integer`. The positions selected, either all positive or all negative.
+#' @param cols `list`. The selection expressions.
+#'
+#' @noRd
+select_add_groups <- function(pos, .data, cols) {
+  data_names <- colnames(.data)
+  # A negative selection keeps every other column. Turn it into those positions so that missing grouping variables
+  # can be added back without mixing positive and negative subscripts.
+  if (length(pos) > 0L && pos[1L] < 0L) pos <- setdiff(seq_along(data_names), -pos)
+  groups <- group_vars(.data)
+  readd <- match(groups[!(groups %in% cols)], data_names)
+  readd <- readd[!(readd %in% pos)]
+  if (length(readd) == 0L) return(pos)
+  message("Adding missing grouping variables: `", paste(data_names[readd], collapse = "`, `"), "`")
+  if (length(names(cols)) > 0L) names(readd) <- data_names[readd]
+  c(readd, pos)
 }
 
 eval_expr <- function(x) {

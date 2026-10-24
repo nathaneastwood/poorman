@@ -64,7 +64,7 @@ rename_with.data.frame <- function(.data, .fn, .cols = everything(), ...) {
   if (!is.function(.fn)) stop("`", .fn, "` is not a valid function")
   grouped <- is.grouped_df(.data)
   if (grouped) grp_pos <- which(colnames(.data) %in% group_vars(.data))
-  col_pos <- eval_select_pos(.data = .data, .group_pos = TRUE, .cols = substitute(.cols))
+  col_pos <- eval_select_pos(.data = .data, .cols = substitute(.cols))
   cols <- colnames(.data)[col_pos]
   new_cols <- .fn(cols, ...)
   if (any(duplicated(new_cols))) {

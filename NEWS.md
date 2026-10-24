@@ -31,6 +31,8 @@ Grouped operations are now considerably faster. Groups are identified in a singl
 * The join keys of `inner_join()`, `left_join()`, `right_join()` and `full_join()` are now cast to their common type, as in `dplyr`. For example, joining an integer key to a double key gives a double key, a factor key joined to a character key gives a character key, and factor keys keep the levels of both tables. Previously, the type of the result depended on the join.
 * `semi_join()` and `anti_join()` now support a named `by`, e.g. `by = c("a" = "b")`. Previously, they looked for the names of `y` in `x` and returned the wrong rows.
 * Joins on missing columns now give the `dplyr` error, which names the missing columns.
+* `select()` now supports negative selections on grouped data, e.g. `select(group_by(df, id), -g)`. Previously, it failed with "only 0's may be mixed with negative subscripts". A deselected grouping variable is added back in front, with a message, as in `dplyr`.
+* `rename_with()` no longer renames grouping variables which were not selected. Previously, it added them to the selection with an "Adding missing grouping variables" message.
 
 Grouped operations now match `dplyr`:
 

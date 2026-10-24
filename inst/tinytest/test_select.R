@@ -84,3 +84,60 @@ expect_equal(
   c("cyl", "MilesPerGallon"),
   info = "Ensure columns are named correctly when renaming grouped data"
 )
+
+df <- data.frame(id = 1:2, g = c("a", "b"), v = 3:4, w = 5:6)
+gdf <- group_by(df, id)
+
+expect_equal(
+  select(gdf, -g),
+  group_by(df[, c("id", "v", "w")], id),
+  info = "A negative selection works on grouped data"
+)
+
+expect_equal(
+  colnames(select(gdf, -c(g, v))),
+  c("id", "w"),
+  info = "A negative selection of several columns works on grouped data"
+)
+
+expect_equal(
+  colnames(select(gdf, !(g:v))),
+  c("id", "w"),
+  info = "A negated range works on grouped data"
+)
+
+expect_equal(
+  colnames(select(gdf, -starts_with("g"))),
+  c("id", "v", "w"),
+  info = "A negated selection helper works on grouped data"
+)
+
+expect_equal(
+  colnames(select(group_by(df, v), -id)),
+  c("g", "v", "w"),
+  info = "Grouping variables kept by a negative selection stay in place"
+)
+
+expect_message(
+  res <- select(gdf, -id),
+  "Adding missing grouping variables: `id`",
+  info = "Deselecting a grouping variable adds it back with a message"
+)
+expect_equal(colnames(res), c("id", "g", "v", "w"), info = "A deselected grouping variable is added back first")
+
+res <- suppressMessages(select(group_by(df, w, id), -c(id, w)))
+expect_equal(
+  list(colnames(res), group_vars(res)),
+  list(c("w", "id", "g", "v"), c("w", "id")),
+  info = "Deselected grouping variables are added back in the order of the groups"
+)
+
+res <- suppressMessages(select(gdf, -everything()))
+expect_equal(colnames(res), "id", info = "Deselecting everything on grouped data keeps the grouping variables")
+
+expect_message(
+  res <- select(group_by(df, w, id), starts_with("i")),
+  "Adding missing grouping variables: `w`\n",
+  info = "The message only names the grouping variables which are added back"
+)
+expect_equal(colnames(res), c("w", "id"), info = "Selected grouping variables are not added twice")
