@@ -53,6 +53,7 @@ Grouped operations are now considerably faster. Groups are identified in a singl
 * Grouped `filter()` now finds variables in the calling environment, e.g. inside a function. Previously, it gave an "object not found" error.
 * Grouped `filter()` now evaluates its conditions for empty groups, and evaluates every condition for a group before the next group, as in `dplyr`. It now gives the deprecation warning for data frame results once for each condition which returns one, as in `dplyr`. Previously, conditions with the same warning shared a single warning.
 * `if_any()` and `if_all()` now return `TRUE` when no columns are selected, as in `dplyr`, so `filter()` keeps every row. Previously, they returned `FALSE`, so `filter()` dropped every row.
+* `filter()` now gives the `dplyr` error for a named condition, e.g. `filter(df, x = 1)`: "We detected a named input. i This usually means that you've used `=` instead of `==`. i Did you mean `x == 1`?". Previously, it gave an older wording, and a named expression or variable, e.g. `filter(df, z = x == 1)`, failed with "invalid type of argument[2]: 'language'".
 
 Grouped operations now match `dplyr`:
 

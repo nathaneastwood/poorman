@@ -104,10 +104,50 @@ expect_equal(
 
 # Errors
 
-expect_error(
-  filter(.data = mtcars, mpg > 20, am = 1),
-  info = "Check for named arguments works"
+named_error <- function(suggestion) {
+  paste0(
+    "We detected a named input.\n",
+    "i This usually means that you've used `=` instead of `==`.\n",
+    "i Did you mean `", suggestion, "`?"
+  )
+}
+named_message <- function(expr) tryCatch(expr, error = conditionMessage)
+expect_equal(
+  named_message(filter(.data = mtcars, mpg > 20, am = 1)),
+  named_error("am == 1"),
+  info = "filter() rejects a named condition and suggests `==`"
 )
+expect_equal(
+  named_message(filter(group_by(mtcars, cyl), am = 1, gear = 4)),
+  named_error("am == 1"),
+  info = "grouped filter() names the first named condition"
+)
+expect_equal(
+  named_message(filter(iris, Species = "setosa")),
+  named_error("Species == \"setosa\""),
+  info = "filter() quotes a string in the suggestion"
+)
+expect_equal(
+  named_message(filter(mtcars, z = am == 1)),
+  named_error("z == am == 1"),
+  info = "filter() suggests `==` for a named expression"
+)
+expect_equal(
+  named_message({
+    k <- 4
+    filter(mtcars, cyl = k)
+  }),
+  named_error("cyl == k"),
+  info = "filter() suggests `==` for a named variable"
+)
+expect_equal(
+  named_message(filter(mtcars, cyl = c(4, 6, 8, 10, 12, 14, 16, 18, 20, 22, 24, 26, 28, 30, 32, 34, 36, 38, 40))),
+  named_error("cyl == c(...)"),
+  info = "filter() abbreviates a long expression in the suggestion"
+)
+expect_equal(filter(mtcars, a = TRUE), mtcars, info = "filter() accepts a named logical constant")
+expect_equal(nrow(filter(mtcars, a = NA)), 0L, info = "filter() accepts a named missing value")
+rm(named_error, named_message)
 
 # Grouped filter ----------------------------------------------------------------
 
