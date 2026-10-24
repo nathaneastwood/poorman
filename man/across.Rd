@@ -27,7 +27,7 @@ respectively.}
 
 \item{...}{Additional arguments for the function calls in \code{.fns}.}
 
-\item{.names}{A glue specification that describes how to name the output
+\item{.names}{A gluestick specification that describes how to name the output
 columns. This can use \code{{.col}} to stand for the selected column name, and \code{{.fn}}
 to stand for the name of the function being applied. The default (\code{NULL}) is
 equivalent to "\code{{.col}}" for the single function case and "\verb{\{.col\}_\{.fn\}}" for

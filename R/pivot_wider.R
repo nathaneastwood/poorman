@@ -13,8 +13,8 @@
 #' @param names_sep `character(1)`. If `names_from` or `values_from` contains multiple variables, this will be used to
 #' join their values together into a single string to use as a column name.
 #' @param names_glue `character(1)`. Instead of `names_sep` and `names_prefix`, you can supply a
-#' [glue specification](https://glue.tidyverse.org/index.html) that uses the `names_from` columns to create custom
-#' column names. Note that the only delimiters supported by `names_glue` are curly brackets, `{` and `}`.
+#' gluestick specification that uses the `names_from` columns to create custom column names. Note that the only
+#' delimiters supported by `names_glue` are curly brackets, `{` and `}`.
 #' @param values_from <[`poor-select`][select_helpers]>. The column(s) that contain the values to be used as future
 #' variable values. If the values are not uniquely identified by the `id_cols` and `names_from` columns, the output
 #' will contain list-columns and a warning is given.

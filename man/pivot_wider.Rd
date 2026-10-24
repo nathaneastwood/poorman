@@ -35,8 +35,8 @@ column names.}
 join their values together into a single string to use as a column name.}
 
 \item{names_glue}{\code{character(1)}. Instead of \code{names_sep} and \code{names_prefix}, you can supply a
-\href{https://glue.tidyverse.org/index.html}{glue specification} that uses the \code{names_from} columns to create custom
-column names. Note that the only delimiters supported by \code{names_glue} are curly brackets, \verb{\{} and \verb{\}}.}
+gluestick specification that uses the \code{names_from} columns to create custom column names. Note that the only
+delimiters supported by \code{names_glue} are curly brackets, \verb{\{} and \verb{\}}.}
 
 \item{names_sort}{\code{logical(1)}. Should the column names be sorted? If \code{FALSE}, the default, column names are ordered
 by first appearance. Factors are sorted by their levels and characters in the C locale, with \code{NA} last.}
