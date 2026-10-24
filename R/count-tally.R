@@ -46,9 +46,7 @@ count <- function(x, ..., wt = NULL, sort = FALSE, name = NULL) {
   if (!missing(...)) x <- group_by_caller(x, ..., .add = TRUE)
   wt <- deparse_var(wt)
   res <- do.call(tally, list(x, wt, sort, name))
-  res <- ungroup(res)
-  if (length(groups) > 0L) res <- do.call(group_by, c(list(res), lapply(groups, as.name), list(.drop = drop)))
-  res
+  restore_groups(res, groups, drop)
 }
 
 #' @rdname count
@@ -68,11 +66,13 @@ tally <- function(x, wt = NULL, sort = FALSE, name = NULL) {
 #' @rdname count
 add_count <- function(x, ..., wt = NULL, sort = FALSE, name = NULL) {
   name <- check_name(x, name)
-  row_names <- rownames(x)
   wt <- deparse_var(wt)
-  if (!missing(...)) x <- group_by_caller(x, ..., .add = TRUE)
+  if (missing(...)) return(do.call(add_tally, list(x, wt, sort, name)))
+  groups <- group_vars(x)
+  drop <- group_by_drop_default(x)
+  x <- group_by_caller(x, ..., .add = TRUE)
   res <- do.call(add_tally, list(x, wt, sort, name))
-  res[row_names, ]
+  restore_groups(res, groups, drop)
 }
 
 #' @export
@@ -102,6 +102,13 @@ tally_n <- function(x, wt) {
   } else {
     call("sum", as.name(wt), na.rm = TRUE)
   }
+}
+
+# `count()` and `add_count()` group by their `...` only to count, so their result has the groups of their input
+restore_groups <- function(res, groups, drop) {
+  res <- ungroup(res)
+  if (length(groups) > 0L) res <- do.call(group_by, c(list(res), lapply(groups, as.name), list(.drop = drop)))
+  res
 }
 
 check_name <- function(df, name) {
