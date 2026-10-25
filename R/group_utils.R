@@ -497,7 +497,8 @@ check_group_types <- function(vals, dot, details) {
 #' Find the kind of a result, for `check_group_types()`
 #'
 #' Results of the same kind can be combined: logical, integer and double vectors; factors and character vectors; `Date`
-#' and `POSIXct` vectors; unclassed lists; data frames; matrices; or objects of the same class.
+#' and `POSIXct` vectors; unclassed lists; data frames; or objects of the same class. A matrix or array is of the kind
+#' of its base type.
 #'
 #' @param x A result of an expression for one group.
 #' @return `character(1)`, or `""` for a logical vector of only `NA`, which can be combined with any kind.
@@ -505,10 +506,11 @@ check_group_types <- function(vals, dot, details) {
 result_kind <- function(x) {
   if (is_all_na_logical(x)) return("")
   if (is.data.frame(x)) return("data.frame")
-  if (!is.null(dim(x))) return("matrix")
   if (is.factor(x)) return("character")
   if (inherits(x, c("Date", "POSIXct"))) return("datetime")
   if (is.object(x)) return(paste(class(x), collapse = "/"))
+  # A matrix is not a kind of its own: as in dplyr, a vector of the same base type is combined with it, each element
+  # filling a row
   type <- typeof(x)
   if (type %in% c("logical", "integer", "double")) "number" else type
 }

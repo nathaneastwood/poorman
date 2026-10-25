@@ -521,6 +521,38 @@ expect_identical(
   info = "summarise() combines logical NAs with a character"
 )
 
+# Matrix results across groups
+mt_df <- group_by(data.frame(g = c(1, 2)), g)
+expect_equal(
+  unname(summarise(mt_df, y = if (g[1L] == 1) matrix(1:2, 1L) else 2.5)$y), matrix(c(1, 2.5, 2, 2.5), 2L),
+  info = "summarise() combines a matrix with a number, which fills a row"
+)
+expect_equal(
+  unname(summarise(mt_df, y = if (g[1L] == 1) matrix(1:2, 1L) else c(3, 4))$y), matrix(c(1, 3, 4, 2, 3, 4), 3L),
+  info = "summarise() combines a matrix with a vector, each element filling a row"
+)
+expect_equal(
+  unname(summarise(mt_df, y = if (g[1L] == 1) matrix(c("a", "b"), 1L) else "c")$y),
+  matrix(c("a", "c", "b", "c"), 2L),
+  info = "summarise() combines a character matrix with a character"
+)
+expect_equal(
+  summarise(mt_df, y = if (g[1L] == 1) matrix(1:2, 1L) else matrix(c(1.5, 2), 1L))$y, matrix(c(1, 1.5, 2, 2), 2L),
+  info = "summarise() combines an integer and a double matrix to a double matrix"
+)
+expect_error(
+  summarise(mt_df, y = if (g[1L] == 1) matrix(1:2, 1L) else "a"),
+  "! `y` must return compatible vectors across groups.",
+  fixed = TRUE,
+  info = "summarise() cannot combine a numeric matrix with a character"
+)
+expect_error(
+  summarise(mt_df, y = if (g[1L] == 1) matrix(c("a", "b"), 1L) else matrix(1:2, 1L)),
+  "! `y` must return compatible vectors across groups.",
+  fixed = TRUE,
+  info = "summarise() cannot combine a character matrix with an integer matrix"
+)
+
 expect_identical(
   summarise(it_df, y = if (g[1L] == "a") as.Date("2021-03-05") else as.POSIXct("2021-03-04 15:45:00", tz = "UTC"))$y,
   structure(c(1614902400, 1614872700), class = c("POSIXct", "POSIXt"), tzone = "UTC"),
