@@ -41,6 +41,7 @@
 #' * `?` and `:=` are treated as calls rather than operators, e.g. `` `?`(...) ``, as R prints them.
 #'
 #' @inheritSection mutate Variables made inside expressions
+#' @inheritSection mutate Results of incompatible types across groups
 #'
 #' @examples
 #' # A summary applied to ungrouped tbl returns a single row
