@@ -244,54 +244,6 @@ extract_names <- function(x, pattern, n) {
   lapply(seq_len(n) + 1L, function(i) vapply(matches, `[`, NA_character_, i))
 }
 
-# Combine a list of columns into a single vector following the `tidyr` type rules: logical, integer and double
-# columns are combined into the richest of those types, factors into a factor with the union of their levels, factors
-# and characters into a character and columns of the same class keep that class. Columns which are entirely `NA` are
-# compatible with any type. Other combinations are an error.
-combine_columns <- function(cols) {
-  unspecified <- vapply(cols, function(x) is.logical(x) && is.null(attributes(x)) && all(is.na(x)), NA)
-  if (all(unspecified)) return(unlist(cols, use.names = FALSE))
-  typed <- cols[!unspecified]
-  template <- typed[[1L]]
-  cols[unspecified] <- lapply(cols[unspecified], function(x) vec_slice(template, rep(NA_integer_, length(x))))
-
-  is_plain <- function(x) is.atomic(x) && !is.object(x) && is.null(dim(x))
-  same_attrs <- function(x) identical(attributes(x)[names(attributes(x)) != "names"], attrs)
-  attrs <- attributes(template)
-  attrs <- attrs[names(attrs) != "names"]
-
-  if (all(vapply(typed, is_plain, NA))) {
-    if (all(vapply(typed, is.character, NA)) || !any(vapply(typed, is.character, NA))) {
-      return(unlist(lapply(cols, as.vector), use.names = FALSE))
-    }
-  } else if (all(vapply(typed, is.factor, NA))) {
-    if (all(vapply(typed, same_attrs, NA))) {
-      res <- unlist(lapply(cols, as.integer), use.names = FALSE)
-      attributes(res) <- attrs
-      return(res)
-    }
-    lvls <- unique(unlist(lapply(typed, levels), use.names = FALSE))
-    return(factor(unlist(lapply(cols, as.character), use.names = FALSE), levels = lvls))
-  } else if (all(vapply(typed, function(x) is.factor(x) || (is_plain(x) && is.character(x)), NA))) {
-    return(unlist(lapply(cols, as.character), use.names = FALSE))
-  } else if (all(vapply(typed, function(x) is.list(x) && !is.object(x), NA))) {
-    return(unlist(cols, recursive = FALSE, use.names = FALSE))
-  } else if (is.atomic(template) && is.null(dim(template)) && all(vapply(typed, same_attrs, NA))) {
-    res <- unlist(lapply(cols, unclass), use.names = FALSE)
-    attributes(res) <- attrs
-    return(res)
-  }
-
-  type_name <- function(x) if (is.object(x)) class(x)[1L] else typeof(x)
-  types <- vapply(typed, type_name, NA_character_)
-  other <- which(types != types[1L])[1L]
-  if (is.na(other)) other <- 2L
-  stop(
-    "Can't combine `", names(typed)[1L], "` <", types[1L], "> and `", names(typed)[other], "` <", types[other], ">.",
-    call. = FALSE
-  )
-}
-
 # Reorder a vector made up of `length(x) / n` blocks of length `n` so that the first element of each block comes
 # first, then the second element of each block and so on
 interleave <- function(x, n) {

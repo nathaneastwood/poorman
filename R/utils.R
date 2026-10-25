@@ -209,6 +209,60 @@ cast_ptype <- function(x, to, x_arg = "x") {
   res
 }
 
+#' Combine a list of columns into one vector
+#'
+#' Follows the `tidyr` type rules: logical, integer and double columns are combined into the richest of those types,
+#' factors into a factor with the union of their levels, factors and characters into a character and columns of the
+#' same class keep that class. Columns which are entirely `NA` are compatible with any type. Other combinations are an
+#' error. Used by `pivot_longer()`, `pivot_wider()` and, through `combine_values()`, the grouped verbs.
+#'
+#' @param cols A `list` of vectors, optionally named; the names are used in the error message.
+#' @return The combined vector.
+#' @noRd
+combine_columns <- function(cols) {
+  unspecified <- vapply(cols, function(x) is.logical(x) && is.null(attributes(x)) && all(is.na(x)), NA)
+  if (all(unspecified)) return(unlist(cols, use.names = FALSE))
+  typed <- cols[!unspecified]
+  template <- typed[[1L]]
+  cols[unspecified] <- lapply(cols[unspecified], function(x) vec_slice(template, rep(NA_integer_, length(x))))
+
+  is_plain <- function(x) is.atomic(x) && !is.object(x) && is.null(dim(x))
+  same_attrs <- function(x) identical(attributes(x)[names(attributes(x)) != "names"], attrs)
+  attrs <- attributes(template)
+  attrs <- attrs[names(attrs) != "names"]
+
+  if (all(vapply(typed, is_plain, NA))) {
+    if (all(vapply(typed, is.character, NA)) || !any(vapply(typed, is.character, NA))) {
+      return(unlist(lapply(cols, as.vector), use.names = FALSE))
+    }
+  } else if (all(vapply(typed, is.factor, NA))) {
+    if (all(vapply(typed, same_attrs, NA))) {
+      res <- unlist(lapply(cols, as.integer), use.names = FALSE)
+      attributes(res) <- attrs
+      return(res)
+    }
+    lvls <- unique(unlist(lapply(typed, levels), use.names = FALSE))
+    return(factor(unlist(lapply(cols, as.character), use.names = FALSE), levels = lvls))
+  } else if (all(vapply(typed, function(x) is.factor(x) || (is_plain(x) && is.character(x)), NA))) {
+    return(unlist(lapply(cols, as.character), use.names = FALSE))
+  } else if (all(vapply(typed, function(x) is.list(x) && !is.object(x), NA))) {
+    return(unlist(cols, recursive = FALSE, use.names = FALSE))
+  } else if (is.atomic(template) && is.null(dim(template)) && all(vapply(typed, same_attrs, NA))) {
+    res <- unlist(lapply(cols, unclass), use.names = FALSE)
+    attributes(res) <- attrs
+    return(res)
+  }
+
+  type_name <- function(x) if (is.object(x)) class(x)[1L] else typeof(x)
+  types <- vapply(typed, type_name, NA_character_)
+  other <- which(types != types[1L])[1L]
+  if (is.na(other)) other <- 2L
+  stop(
+    "Can't combine `", names(typed)[1L], "` <", types[1L], "> and `", names(typed)[other], "` <", types[other], ">.",
+    call. = FALSE
+  )
+}
+
 #' Is a vector a logical vector of only missing values?
 #'
 #' As in `dplyr`, such a vector has no type of its own and can be combined with a vector of any type, taking that type.
