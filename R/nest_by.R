@@ -24,7 +24,7 @@ nest_by <- function(.data, ..., .key = "data", .keep = FALSE) {
 
 #' @export
 nest_by.data.frame <- function(.data, ..., .key = "data", .keep = FALSE) {
-  .data <- group_by_caller(.data, ...)
+  .data <- group_by_caller(.data, ..., .env = parent.frame())
   nest_by(.data, .key = .key, .keep = .keep)
 }
 

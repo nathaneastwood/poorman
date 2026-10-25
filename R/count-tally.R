@@ -43,7 +43,7 @@
 count <- function(x, ..., wt = NULL, sort = FALSE, name = NULL) {
   groups <- group_vars(x)
   drop <- group_by_drop_default(x)
-  if (!missing(...)) x <- group_by_caller(x, ..., .add = TRUE)
+  if (!missing(...)) x <- group_by_caller(x, ..., .add = TRUE, .env = parent.frame())
   wt <- deparse_var(wt)
   res <- do.call(tally, list(x, wt, sort, name))
   restore_groups(res, groups, drop)
@@ -70,7 +70,7 @@ add_count <- function(x, ..., wt = NULL, sort = FALSE, name = NULL) {
   if (missing(...)) return(do.call(add_tally, list(x, wt, sort, name)))
   groups <- group_vars(x)
   drop <- group_by_drop_default(x)
-  x <- group_by_caller(x, ..., .add = TRUE)
+  x <- group_by_caller(x, ..., .add = TRUE, .env = parent.frame())
   res <- do.call(add_tally, list(x, wt, sort, name))
   restore_groups(res, groups, drop)
 }
