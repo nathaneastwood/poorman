@@ -57,7 +57,7 @@ expect_equal(
 )
 expect_error(
   poorman:::eval_groups(eg_gd, list(y = quote(1:3)), environment(), poorman:::group_size_rule),
-  "must be size 1 or 1, not 3",
+  "must be size 1, not 3",
   info = "eval_groups() with group_size_rule checks that each result has the size of its group or size one"
 )
 

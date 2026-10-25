@@ -374,7 +374,8 @@ stop_group_size <- function(dot, size, value_size, group, details) {
   name <- if (dot$unnamed) paste0("..", dot$position) else dot$label
   stop(
     sprintf("Problem while computing `%s = %s`.\n", name, paste(deparse(dot$expr), collapse = " ")),
-    sprintf("x `%s` must be size %d or 1, not %d.", name, size, value_size),
+    # When the group has one row, the size is given once, as in dplyr
+    sprintf("x `%s` must be size %s, not %d.", name, if (size == 1L) "1" else paste(size, "or 1"), value_size),
     error_group(group, details),
     call. = FALSE
   )
