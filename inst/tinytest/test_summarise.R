@@ -480,3 +480,30 @@ expect_equal(
   c("a1", "a2", "b1", "b2"),
   info = "summarise() evaluates each expression for every group before the next expression"
 )
+
+# Results of incompatible types across groups
+it_df <- group_by(data.frame(g = c("a", "b", "b")), g)
+expect_error(
+  summarise(it_df, y = if (g[1L] == "a") "x" else 2.5),
+  paste0(
+    "Problem while computing `y = if (g[1L] == \"a\") \"x\" else 2.5`.\nCaused by error:\n",
+    "! `y` must return compatible vectors across groups.\n",
+    "i Result type for group 1 (g = \"a\"): <character>.\ni Result type for group 2 (g = \"b\"): <double>."
+  ),
+  fixed = TRUE,
+  info = "summarise() gives an error for results of incompatible types across groups"
+)
+expect_error(
+  summarise(it_df, if (g[1L] == "a") logical() else "x"),
+  paste0(
+    "Problem while computing `..1 = if (g[1L] == \"a\") logical() else \"x\"`.\nCaused by error:\n",
+    "! `if (g[1L] == \"a\") logical() else \"x\"` must return compatible vectors across groups.\n",
+    "i Result type for group 1 (g = \"a\"): <logical>.\ni Result type for group 2 (g = \"b\"): <character>."
+  ),
+  fixed = TRUE,
+  info = "summarise() cannot combine an empty logical with a character"
+)
+expect_identical(
+  summarise(it_df, y = if (g[1L] == "a") c(NA, NA) else "x")$y, c(NA, NA, "x"),
+  info = "summarise() combines logical NAs with a character"
+)

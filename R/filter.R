@@ -52,7 +52,7 @@ filter.data.frame <- function(.data, ..., .preserve = FALSE) {
     .data, list(conditions = as.call(c(list(base::list), unname(conditions)))), parent.frame(),
     group_size_rule, transform = keep_rows
   )
-  keep <- combine_groups(res$values[[1L]], res$sizes, "")
+  keep <- combine_groups(res, 1L)
   keep[is.na(keep)] <- FALSE
   order <- ungroup_order(res$rows, .row_names_info(.data, 2L))
   if (!is.null(order)) keep <- keep[order]

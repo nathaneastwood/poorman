@@ -124,7 +124,8 @@ is_valid_groups <- function(.data, details, groups) {
 #' * `rows`, the rows of each group that was evaluated;
 #' * `details`, the grouping structure of `.data` (`NULL` if it is not grouped) and `groups`, the grouping columns;
 #' * `empty`, whether `.data` has no groups and was evaluated once on its empty data;
-#' * `labels`, the name of each expression, and `unnamed`, whether the name was made automatically;
+#' * `numbered`, whether `.data` has groups, so that a group can be named by its position in `details`;
+#' * `exprs`, the expressions, `labels`, the name of each, and `unnamed`, whether the name was made automatically;
 #' * `values`, a `list` with an element for each expression, itself a `list` with the result for each group (`NULL`
 #'   results are kept as `NULL`);
 #' * `sizes`, the size of the results of each group: the size of its results which are not of size one, or one.
@@ -153,7 +154,8 @@ eval_groups <- function(.data, dots, env, size_rule, drop_null = FALSE, transfor
 
   list(
     rows = layout$rows, details = layout$details, groups = layout$groups, empty = layout$empty,
-    labels = labels$labels, unnamed = labels$unnamed, values = values, sizes = sizes$sizes
+    numbered = layout$numbered, exprs = dots, labels = labels$labels, unnamed = labels$unnamed, values = values,
+    sizes = sizes$sizes
   )
 }
 
@@ -370,10 +372,9 @@ common_size_rule <- list(
 #' @return Does not return; gives an error.
 #' @noRd
 stop_group_size <- function(dot, size, value_size, group, details) {
-  # As in dplyr, the error of `mutate()` calls an unnamed expression by its position
   name <- if (dot$unnamed) paste0("..", dot$position) else dot$label
   stop(
-    sprintf("Problem while computing `%s = %s`.\n", name, paste(deparse(dot$expr), collapse = " ")),
+    computing_problem(dot),
     # When the group has one row, the size is given once, as in dplyr
     sprintf("x `%s` must be size %s, not %d.", name, if (size == 1L) "1" else paste(size, "or 1"), value_size),
     error_group(group, details),
@@ -397,6 +398,18 @@ stop_common_size <- function(name, size, value_size, size_from, group) {
     if (!is.null(group)) sprintf(" The error occurred in group %d.", group),
     call. = FALSE
   )
+}
+
+#' Give the first line of an error in an expression
+#'
+#' As in dplyr, the line calls an unnamed expression by its position, e.g. "Problem while computing `..1 = 1:2`.".
+#'
+#' @param dot A `list` describing the expression, as given to `eval_expression()`.
+#' @return `character(1)`, ending with a new line.
+#' @noRd
+computing_problem <- function(dot) {
+  name <- if (dot$unnamed) paste0("..", dot$position) else dot$label
+  sprintf("Problem while computing `%s = %s`.\n", name, paste(deparse(dot$expr), collapse = " "))
 }
 
 #' Give the line of an error message which names the group where the error occurred
@@ -430,26 +443,144 @@ describe_group <- function(details, g) {
 #' Combine the results of an expression across the groups
 #'
 #' Results of size one are recycled to the size of their group. As in dplyr, `NULL` results are ignored, but `NULL`
-#' results cannot be combined with other results.
+#' results cannot be combined with other results, and results of incompatible types are an error.
 #'
-#' @param vals A `list` with the result of the expression for each group, as returned by `eval_groups()`.
-#' @param sizes `integer(n)`. The size of each group's results, as returned by `eval_groups()`.
-#' @param label `character(1)`. The name of the expression, for error messages.
+#' @param res The result of `eval_groups()`.
+#' @param i `integer(1)`. The position of the expression whose results are combined.
+#' @param sizes `integer(n)`. The size of each group's results.
 #' @return The combined results, in group order, or `NULL` if every result was `NULL`.
 #' @noRd
-combine_groups <- function(vals, sizes, label) {
+combine_groups <- function(res, i, sizes = res$sizes) {
+  vals <- res$values[[i]]
   is_null <- vapply(vals, is.null, NA)
   if (all(is_null)) return(NULL)
+  dot <- list(expr = res$exprs[[i]], position = i, label = res$labels[[i]], unnamed = res$unnamed[[i]])
   if (any(is_null)) {
     stop(
-      sprintf("`%s` must return compatible vectors across groups: ", label),
+      sprintf("`%s` must return compatible vectors across groups: ", dot$label),
       "it can't combine NULL and non NULL results.",
       call. = FALSE
     )
   }
+  if (length(vals) > 1L) check_group_types(vals, dot, res$details)
   recycle <- which(vapply(vals, NROW, 1L) != sizes)
   vals[recycle] <- lapply(recycle, function(g) vec_slice(vals[[g]], rep(1L, sizes[[g]])))
   if (length(vals) == 1L) vals[[1L]] else combine_values(vals)
+}
+
+#' Check that the results of an expression can be combined across the groups
+#'
+#' Results are compatible when they are of the same kind, as given by `result_kind()`. Within a kind, the existing rules
+#' of `combine_values()` apply, e.g. integers and doubles combine to a double. A logical vector of only `NA` is
+#' compatible with any kind.
+#'
+#' @param vals A `list` with the result of the expression for each group, none of them `NULL`.
+#' @param dot A `list` describing the expression, as given to `eval_expression()`.
+#' @param details A `data.frame` of the groups, as returned by `get_groups()`.
+#' @return `NULL`, invisibly, or gives an error.
+#' @noRd
+check_group_types <- function(vals, dot, details) {
+  # Most results are plain vectors of one type, or of numbers, which can always be combined; this is checked first as
+  # it is much faster than finding the kind of each result
+  if (all(lengths(lapply(vals, attributes)) == 0L)) {
+    types <- unique(vapply(vals, typeof, NA_character_))
+    if (length(types) == 1L || all(types %in% c("logical", "integer", "double"))) return(invisible())
+  }
+  kinds <- vapply(vals, result_kind, NA_character_)
+  if (length(unique(kinds[nzchar(kinds)])) > 1L) stop_group_types(vals, kinds, dot, details)
+  invisible()
+}
+
+#' Find the kind of a result, for `check_group_types()`
+#'
+#' Results of the same kind can be combined: logical, integer and double vectors; factors and character vectors; `Date`
+#' and `POSIXct` vectors; unclassed lists; data frames; matrices; or objects of the same class.
+#'
+#' @param x A result of an expression for one group.
+#' @return `character(1)`, or `""` for a logical vector of only `NA`, which can be combined with any kind.
+#' @noRd
+result_kind <- function(x) {
+  if (is_all_na_logical(x)) return("")
+  if (is.data.frame(x)) return("data.frame")
+  if (!is.null(dim(x))) return("matrix")
+  if (is.factor(x)) return("character")
+  if (inherits(x, c("Date", "POSIXct"))) return("datetime")
+  if (is.object(x)) return(paste(class(x), collapse = "/"))
+  type <- typeof(x)
+  if (type %in% c("logical", "integer", "double")) "number" else type
+}
+
+#' Give the error for results of incompatible types
+#'
+#' As in dplyr, the error names two groups: the group whose result gave the type of the results before the first
+#' incompatible one, and the group of that incompatible result. The type is given by the earliest group whose result
+#' raised it, e.g. from integer to double; a logical vector of only `NA` takes the type of the result that follows it.
+#'
+#' @param vals A `list` with the result of the expression for each group.
+#' @param kinds `character(n)`. The kind of each result, as given by `result_kind()`.
+#' @param dot A `list` describing the expression, as given to `eval_expression()`.
+#' @param details A `data.frame` of the groups, as returned by `get_groups()`.
+#' @return Does not return; gives an error.
+#' @noRd
+stop_group_types <- function(vals, kinds, dot, details) {
+  ref <- 1L
+  ref_kind <- kinds[[1L]]
+  ref_type <- type_label(vals[[1L]])
+  for (g in seq_along(vals)[-1L]) {
+    if (!nzchar(kinds[[g]])) next
+    type <- type_label(vals[[g]])
+    if (!nzchar(ref_kind)) {
+      ref_kind <- kinds[[g]]
+      ref_type <- type
+      next
+    }
+    if (kinds[[g]] != ref_kind) break
+    common <- richer_type(ref_type, type)
+    if (common != ref_type) {
+      ref <- g
+      ref_type <- common
+    }
+  }
+  line <- "\ni Result type for group %d (%s): <%s>."
+  stop(
+    computing_problem(dot),
+    "Caused by error:\n",
+    sprintf("! `%s` must return compatible vectors across groups.", dot$label),
+    sprintf(line, ref, describe_group(details, ref), ref_type),
+    sprintf(line, g, describe_group(details, g), type),
+    call. = FALSE
+  )
+}
+
+#' Name the type of a result in an error message
+#'
+#' Base types are given by `typeof()`, `Date` as `date` and `POSIXct` as `datetime<tz>`, as in dplyr. Other objects are
+#' given by their first class.
+#'
+#' @param x A result of an expression for one group.
+#' @return `character(1)`.
+#' @noRd
+type_label <- function(x) {
+  if (inherits(x, "Date")) return("date")
+  if (inherits(x, "POSIXct")) {
+    tz <- attr(x, "tzone", exact = TRUE)[1L]
+    return(sprintf("datetime<%s>", if (is.null(tz) || is.na(tz) || !nzchar(tz)) "local" else tz))
+  }
+  if (is.object(x)) return(class(x)[1L])
+  typeof(x)
+}
+
+#' Find the type of two combined results of the same kind
+#'
+#' @param a,b `character(1)`. The types of the results, as given by `type_label()`.
+#' @return `character(1)`. The type of the combined results.
+#' @noRd
+richer_type <- function(a, b) {
+  numbers <- c("logical", "integer", "double")
+  if (a %in% numbers && b %in% numbers) return(numbers[max(match(c(a, b), numbers))])
+  # A factor combined with a character vector gives a character vector, and a date combined with a datetime a datetime
+  if (b == "character" || a == "date") return(b)
+  a
 }
 
 #' Drop the groups left empty by a verb

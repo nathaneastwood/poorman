@@ -145,7 +145,7 @@ summarise_groups <- function(.data, dots, env) {
 
   out <- list()
   for (i in seq_along(dots)) {
-    col <- combine_groups(res$values[[i]], sizes, res$labels[[i]])
+    col <- combine_groups(res, i, sizes)
     if (is.null(col)) next
     if (is.data.frame(col)) attr(col, "row.names") <- .set_row_names(nrow(col))
     if (res$unnamed[[i]] && is.data.frame(col)) {
