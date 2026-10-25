@@ -81,7 +81,8 @@ expect_null(
 )
 expect_error(
   poorman:::combine_groups(cg_res(list(NULL, 1), c(1L, 1L)), 1L),
-  "can't combine NULL and non NULL results",
+  "x `y` must return compatible vectors across groups.\nx Can't combine NULL and non NULL results.",
+  fixed = TRUE,
   info = "combine_groups() cannot combine NULL with other results"
 )
 expect_error(

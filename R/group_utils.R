@@ -456,9 +456,12 @@ combine_groups <- function(res, i, sizes = res$sizes) {
   if (all(is_null)) return(NULL)
   dot <- list(expr = res$exprs[[i]], position = i, label = res$labels[[i]], unnamed = res$unnamed[[i]])
   if (any(is_null)) {
+    # Unlike the error for incompatible types, dplyr calls an unnamed expression by its position here
+    name <- if (dot$unnamed) paste0("..", i) else dot$label
     stop(
-      sprintf("`%s` must return compatible vectors across groups: ", dot$label),
-      "it can't combine NULL and non NULL results.",
+      computing_problem(dot),
+      sprintf("x `%s` must return compatible vectors across groups.\n", name),
+      "x Can't combine NULL and non NULL results.",
       call. = FALSE
     )
   }
