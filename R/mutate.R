@@ -170,7 +170,7 @@ mutate_df <- function(.data, dots, env) {
   order <- ungroup_order(res$rows, .row_names_info(.data, 2L))
   new_cols <- character()
   for (i in seq_along(dots)) {
-    col <- combine_groups(res$values[[i]], res$sizes, res$labels[[i]])
+    col <- combine_groups(res, i)
     if (!is.null(order)) col <- vec_slice(col, order)
     if (res$unnamed[[i]] && is.data.frame(col)) {
       for (j in names(col)) .data[[j]] <- .subset2(col, j)

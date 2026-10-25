@@ -576,3 +576,82 @@ expect_equal(
   info = "grouped filter() does not share assignments between groups"
 )
 rm(df)
+
+# Results of incompatible types across groups
+it_df <- group_by(data.frame(g = c(1, 2, 3, 3), x = 1:4), g)
+expect_error(
+  mutate(it_df, y = if (g[1L] == 1) "a" else 2.5),
+  paste0(
+    "Problem while computing `y = if (g[1L] == 1) \"a\" else 2.5`.\nCaused by error:\n",
+    "! `y` must return compatible vectors across groups.\n",
+    "i Result type for group 1 (g = 1): <character>.\ni Result type for group 2 (g = 2): <double>."
+  ),
+  fixed = TRUE,
+  info = "mutate() gives an error for results of incompatible types across groups"
+)
+expect_error(
+  transmute(it_df, if (g[1L] == 3) "a" else 2.5),
+  paste0(
+    "Problem while computing `..1 = if (g[1L] == 3) \"a\" else 2.5`.\nCaused by error:\n",
+    "! `if (g[1L] == 3) \"a\" else 2.5` must return compatible vectors across groups.\n",
+    "i Result type for group 1 (g = 1): <double>.\ni Result type for group 3 (g = 3): <character>."
+  ),
+  fixed = TRUE,
+  info = "The type error of transmute() calls an unnamed expression by its position"
+)
+expect_error(
+  mutate(it_df, y = if (g[1L] == 1) 1L else if (g[1L] == 2) 2.5 else "a"),
+  "i Result type for group 2 (g = 2): <double>.\ni Result type for group 3 (g = 3): <character>.",
+  fixed = TRUE,
+  info = "The type error names the group which raised the type of the earlier results"
+)
+expect_error(
+  mutate(it_df, y = if (g[1L] == 1) NA else if (g[1L] == 2) 2.5 else "a"),
+  "i Result type for group 1 (g = 1): <double>.\ni Result type for group 3 (g = 3): <character>.",
+  fixed = TRUE,
+  info = "A logical NA in the first group takes the type of the result that follows it"
+)
+expect_error(
+  mutate(it_df, y = if (g[1L] == 1) as.Date("2020-01-01") else 2.5),
+  "i Result type for group 1 (g = 1): <date>.\ni Result type for group 2 (g = 2): <double>.",
+  fixed = TRUE,
+  info = "mutate() cannot combine a Date with a double"
+)
+expect_error(
+  mutate(it_df, y = if (g[1L] == 1) list(1) else 2L),
+  "i Result type for group 1 (g = 1): <list>.\ni Result type for group 2 (g = 2): <integer>.",
+  fixed = TRUE,
+  info = "mutate() cannot combine a list with an integer"
+)
+expect_error(
+  mutate(it_df, y = if (g[1L] == 1) as.POSIXct("2020-01-01", tz = "UTC") else 2L),
+  "i Result type for group 1 (g = 1): <datetime<UTC>>.\ni Result type for group 2 (g = 2): <integer>.",
+  fixed = TRUE,
+  info = "The type error names a POSIXct result by its time zone"
+)
+expect_error(
+  mutate(group_by(data.frame(g = c("x", "y"), h = 1:2), g, h), y = if (g == "x") "a" else 2.5),
+  "i Result type for group 1 (g = \"x\", h = 1): <character>.\ni Result type for group 2 (g = \"y\", h = 2): <double>.",
+  fixed = TRUE,
+  info = "The type error describes each group by all of its keys"
+)
+expect_equal(
+  ungroup(mutate(it_df, y = if (g[1L] == 1) 1L else 2.5))$y, c(1, 2.5, 2.5, 2.5),
+  info = "mutate() combines integer and double results to a double"
+)
+expect_identical(
+  ungroup(mutate(it_df, y = if (g[1L] == 1) TRUE else 2L))$y, c(1L, 2L, 2L, 2L),
+  info = "mutate() combines logical and integer results to an integer"
+)
+expect_identical(
+  ungroup(mutate(it_df, y = if (g[1L] == 1) factor("a") else "b"))$y, c("a", "b", "b", "b"),
+  info = "mutate() combines factor and character results to a character"
+)
+expect_identical(
+  ungroup(mutate(it_df, y = factor(if (g[1L] == 1) "a" else "b")))$y, factor(c("a", "b", "b", "b")),
+  info = "mutate() combines factors with different levels to a factor"
+)
+expect_identical(
+  ungroup(mutate(it_df, y = if (g[1L] == 1) "a" else NA))$y, c("a", NA, NA, NA),
+  info = "mutate() combines a logical NA with a character"
+)

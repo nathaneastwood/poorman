@@ -65,16 +65,37 @@ expect_equal(poorman:::ungroup_order(list(2L, c(1L, 3L)), 3L), c(2L, 1L, 3L), in
 expect_null(poorman:::ungroup_order(list(1:3), 3L), info = "ungroup_order() gives NULL for rows already in order")
 expect_null(poorman:::ungroup_order(list(1L, 2:3), 3L), info = "ungroup_order() gives NULL for groups in row order")
 
+cg_res <- function(vals, sizes) {
+  list(
+    values = list(vals), sizes = sizes, exprs = list(quote(f(x))), labels = "y", unnamed = FALSE,
+    details = data.frame(g = c("a", "b"))
+  )
+}
 expect_equal(
-  poorman:::combine_groups(list(1, c(2, 3)), c(2L, 2L), "x"),
+  poorman:::combine_groups(cg_res(list(1, c(2, 3)), c(2L, 2L)), 1L),
   c(1, 1, 2, 3),
   info = "combine_groups() recycles results of size one to the size of their group"
 )
-expect_null(poorman:::combine_groups(list(NULL, NULL), c(1L, 1L), "x"), info = "combine_groups() ignores NULL results")
+expect_null(
+  poorman:::combine_groups(cg_res(list(NULL, NULL), c(1L, 1L)), 1L), info = "combine_groups() ignores NULL results"
+)
 expect_error(
-  poorman:::combine_groups(list(NULL, 1), c(1L, 1L), "x"),
+  poorman:::combine_groups(cg_res(list(NULL, 1), c(1L, 1L)), 1L),
   "can't combine NULL and non NULL results",
   info = "combine_groups() cannot combine NULL with other results"
+)
+expect_error(
+  poorman:::combine_groups(cg_res(list(1L, "a"), c(1L, 1L)), 1L),
+  paste0(
+    "Problem while computing `y = f(x)`.\nCaused by error:\n! `y` must return compatible vectors across groups.\n",
+    "i Result type for group 1 (g = \"a\"): <integer>.\ni Result type for group 2 (g = \"b\"): <character>."
+  ),
+  fixed = TRUE,
+  info = "combine_groups() gives an error for results of incompatible types"
+)
+expect_equal(
+  poorman:::combine_groups(cg_res(list(NA, "a"), c(1L, 1L)), 1L), c(NA, "a"),
+  info = "combine_groups() combines a logical NA with any type"
 )
 
 eg_check <- poorman:::eval_groups(
