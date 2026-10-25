@@ -49,7 +49,7 @@ filter.data.frame <- function(.data, ..., .preserve = FALSE) {
     keep
   }
   res <- eval_groups(
-    .data, list(conditions = as.call(c(list(base::list), unname(conditions)))), parent.frame(),
+    .data, list(conditions = list_call(conditions)), parent.frame(),
     group_size_rule, transform = keep_rows
   )
   keep <- combine_groups(res, 1L)
