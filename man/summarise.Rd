@@ -71,6 +71,21 @@ is never seen by the next group. This differs from \code{dplyr} 1.0.10, where su
 evaluated after it.
 }
 
+\section{Results of incompatible types across groups}{
+
+On grouped data, the results of an expression for each group are combined into one column. When two results have
+incompatible types, e.g. a character in one group and a double in another, there is an error which names the type
+of the results before the incompatible one and the type of the incompatible one, as in \code{dplyr} 1.0.10, with these
+differences:
+\itemize{
+\item A factor is named \verb{<factor>} and a data frame \verb{<data.frame>}. \code{dplyr} adds a hash of the levels of a factor and the
+types of the columns of a data frame, e.g. \verb{<data.frame< a: double b: character >>}.
+\item When factors and character vectors come before the incompatible result, the group named for the results before it
+can differ. For example, with a factor, \code{"b"} and \code{1} as the results of groups 1 to 3, \code{dplyr} names group 1 as
+\verb{<character>} and \code{poorman} names group 2.
+}
+}
+
 \examples{
 # A summary applied to ungrouped tbl returns a single row
 mtcars \%>\%

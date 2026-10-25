@@ -24,6 +24,17 @@
 #' is never seen by the next group. This differs from `dplyr` 1.0.10, where such a variable can leak into the groups
 #' evaluated after it.
 #'
+#' @section Results of incompatible types across groups:
+#' On grouped data, the results of an expression for each group are combined into one column. When two results have
+#' incompatible types, e.g. a character in one group and a double in another, there is an error which names the type
+#' of the results before the incompatible one and the type of the incompatible one, as in `dplyr` 1.0.10, with these
+#' differences:
+#' * A factor is named `<factor>` and a data frame `<data.frame>`. `dplyr` adds a hash of the levels of a factor and the
+#'   types of the columns of a data frame, e.g. `<data.frame< a: double b: character >>`.
+#' * When factors and character vectors come before the incompatible result, the group named for the results before it
+#'   can differ. For example, with a factor, `"b"` and `1` as the results of groups 1 to 3, `dplyr` names group 1 as
+#'   `<character>` and `poorman` names group 2.
+#'
 #' @param .data A `data.frame`.
 #' @param ... Name-value pairs of expressions, each with length `1L`. The name of each argument will be the name of a
 #' new column and the value will be its corresponding value. Use a `NULL` value in `mutate` to drop a variable. New
