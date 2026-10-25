@@ -9,6 +9,14 @@
 #' @param .drop `logical(1)`. Drop groups formed by factor levels that don't appear in the data? The default is `TRUE`
 #' except when `.data` has been previously grouped with `.drop = FALSE`. See [group_by_drop_default()] for details.
 #'
+#' @section Extension classes:
+#' On grouped data, `mutate()`, `transmute()`, `filter()`, `arrange()`, `slice()`, `select()`, `rename()`, `distinct()`
+#' and the other verbs which modify their input keep its class, including a subclass of a grouped `data.frame` added by
+#' another package. This differs from `dplyr` 1.0.10, which drops such a subclass. A method for an extension class
+#' which calls `NextMethod()`, e.g. `mutate.myclass <- function(.data, ...) NextMethod()`, gets back its own class and
+#' should not add it again. `summarise()` and `count()` build a new `data.frame`, so their result does not keep the
+#' subclass.
+#'
 #' @examples
 #' group_by(mtcars, am, cyl)
 #' ungroup(mutate(group_by(mtcars, am, cyl), sumMpg = sum(mpg)))

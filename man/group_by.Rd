@@ -30,6 +30,16 @@ When using \code{\link[=ungroup]{ungroup()}}, a \code{data.frame}.
 \description{
 Determine the groups within a \code{data.frame} to perform operations on. \code{\link[=ungroup]{ungroup()}} removes the grouping levels.
 }
+\section{Extension classes}{
+
+On grouped data, \code{mutate()}, \code{transmute()}, \code{filter()}, \code{arrange()}, \code{slice()}, \code{select()}, \code{rename()}, \code{distinct()}
+and the other verbs which modify their input keep its class, including a subclass of a grouped \code{data.frame} added by
+another package. This differs from \code{dplyr} 1.0.10, which drops such a subclass. A method for an extension class
+which calls \code{NextMethod()}, e.g. \code{mutate.myclass <- function(.data, ...) NextMethod()}, gets back its own class and
+should not add it again. \code{summarise()} and \code{count()} build a new \code{data.frame}, so their result does not keep the
+subclass.
+}
+
 \examples{
 group_by(mtcars, am, cyl)
 ungroup(mutate(group_by(mtcars, am, cyl), sumMpg = sum(mpg)))
