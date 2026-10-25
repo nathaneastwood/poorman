@@ -118,11 +118,16 @@ add_group_columns <- function(.data, vars, env) {
 #' calls this rather than `group_by()`, so that the variables are looked up in the frame of the user, which calls the
 #' verb. `group_by()` is still called through its generic, so that a method for another class is used.
 #'
+#' The verb passes its own `parent.frame()` as `.env`, rather than this function finding the frame by counting frames
+#' up the stack, so that a wrapper added between the verb and this function cannot change where variables are found.
+#' The argument is named with a dot so that it cannot take a group of the user named `env`.
+#'
 #' @param .data A `data.frame`.
 #' @param ... The `...` of the verb.
 #' @param .add As `group_by()`.
+#' @param .env The `environment` of the caller of the verb, in which `group_by()` is called.
 #' @return The result of `group_by()`.
 #' @noRd
-group_by_caller <- function(.data, ..., .add = FALSE) {
-  do.call(group_by, c(list(.data), eval(substitute(alist(...))), .add = .add), envir = parent.frame(2L))
+group_by_caller <- function(.data, ..., .add = FALSE, .env) {
+  do.call(group_by, c(list(.data), eval(substitute(alist(...))), .add = .add), envir = .env)
 }

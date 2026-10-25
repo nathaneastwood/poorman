@@ -306,3 +306,25 @@ gd_res <- vapply(
   NA
 )
 expect_true(all(gd_res), info = "count(), add_count(), group_split() and nest_by() call group_by() methods")
+
+# A verb which groups its own `...` finds variables in the frame of its caller, also when it is reached through a
+# method which forwards to it with `NextMethod()` or through a function which passes `...` on to it
+registerS3method("nest_by", "gw_class", function(.data, ...) NextMethod(), envir = asNamespace("poorman"))
+registerS3method("group_split", "gw_class", function(.data, ...) NextMethod(), envir = asNamespace("poorman"))
+gw_df <- structure(data.frame(x = 1:4), class = c("gw_class", "data.frame"))
+# nolint start: object_usage_linter. `x` is a column, not a global variable.
+gw_fn <- function(data) {
+  k <- 2L
+  wrap <- function(d, ...) add_count(d, ...)
+  list(
+    nrow(nest_by(data, h = x %/% k)),
+    length(group_split(data, h = x %/% k)),
+    wrap(ungroup(data), h = x %/% k)$n
+  )
+}
+# nolint end
+expect_equal(
+  gw_fn(gw_df),
+  list(3L, 3L, c(1L, 2L, 2L, 1L)),
+  info = "group_split(), nest_by() and add_count() find variables through a NextMethod() method or a wrapper"
+)
