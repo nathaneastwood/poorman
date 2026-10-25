@@ -104,7 +104,16 @@ tally_n <- function(x, wt) {
   }
 }
 
-# `count()` and `add_count()` group by their `...` only to count, so their result has the groups of their input
+#' Restore the groups of the input of a counting verb
+#'
+#' `count()` and `add_count()` group by their `...` only to count, so their result has the groups of their input. The
+#' groups are rebuilt from scratch, as the result may still carry the groups added for counting.
+#'
+#' @param res A `data.frame`, the result of the count.
+#' @param groups A `character` vector of the grouping variables of the input.
+#' @param drop `logical(1)`. The `.drop` setting of the input, as from `group_by_drop_default()`.
+#' @return `res`, grouped by `groups` with `.drop = drop`, or ungrouped when `groups` is empty.
+#' @noRd
 restore_groups <- function(res, groups, drop) {
   res <- ungroup(res)
   if (length(groups) > 0L) res <- do.call(group_by, c(list(res), lapply(groups, as.name), list(.drop = drop)))
