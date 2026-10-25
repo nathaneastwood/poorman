@@ -42,7 +42,8 @@ filter.data.frame <- function(.data, ..., .preserve = FALSE) {
   keep_rows <- function(value, size, group, details) {
     keep <- TRUE
     for (i in seq_along(conditions)) {
-      cond <- filter_rows(value[[i]], conditions[[i]], i, size, group, details, warn = !warned[[i]])
+      where <- list(expr = conditions[[i]], position = i, unnamed = TRUE, group = group, details = details)
+      cond <- filter_rows(value[[i]], where, size, warn = !warned[[i]])
       warned[[i]] <<- warned[[i]] || is.data.frame(value[[i]])
       keep <- keep & cond
     }
@@ -92,27 +93,30 @@ filter_groups <- function(details, keep, .preserve) {
 #' have a single column.
 #'
 #' @param res The result of the condition for one group.
-#' @param cond The unevaluated condition, for error messages.
-#' @param i `integer(1)`. The position of the condition in the `...` of `filter()`.
+#' @param where A `list` which says where the result came from, for error messages: `expr`, the unevaluated
+#' condition, `position`, its position in the `...` of `filter()`, `unnamed = TRUE`, as the condition is named by its
+#' position, `group`, the position of the group in `details` (`NULL` if the data is not grouped), and `details`, a
+#' `data.frame` of the groups, as returned by `get_groups()`, or `NULL`. It describes the condition as `dot` does in
+#' `eval_expression()`, so that `computing_problem()` can name it.
 #' @param size `integer(1)`. The size of the group.
-#' @param group `integer(1)`. The position of the group in `details`, or `NULL` if the data is not grouped.
-#' @param details A `data.frame` of the groups, as returned by `get_groups()`, or `NULL`.
 #' @param warn `logical(1)`. Should a data frame result give the deprecation warning? It is given once for each
 #' condition, rather than once for each group.
 #' @return A `logical` vector of size `size` or one, which may contain missing values.
 #' @noRd
-filter_rows <- function(res, cond, i, size, group, details, warn) {
+filter_rows <- function(res, where, size, warn) {
+  i <- where$position
   res_size <- NROW(res)
   if (res_size != size && res_size != 1L) {
     expected <- if (size == 1L) "size 1" else sprintf("size %s or 1", size)
-    stop_filter(cond, i, group, details, sprintf("x Input `..%s` must be of %s, not size %s.", i, expected, res_size))
+    stop_filter(where, sprintf("x Input `..%s` must be of %s, not size %s.", i, expected, res_size))
   }
   if (!is.data.frame(res)) {
-    check_filter_type(res, paste0("..", i), cond, i, group, details)
+    check_filter_type(res, paste0("..", i), where)
     return(if (is.matrix(res)) res[, 1L] else res)
   }
-  for (j in names(res)) check_filter_type(res[[j]], sprintf("..%s$%s", i, j), cond, i, group, details)
+  for (j in names(res)) check_filter_type(res[[j]], sprintf("..%s$%s", i, j), where)
   if (warn) {
+    cond <- where$expr
     msg <- if (is.call(cond) && identical(cond[[1L]], as.name("across"))) {
       "Using `across()` in `filter()` is deprecated, use `if_any()` or `if_all()`."
     } else {
@@ -131,10 +135,10 @@ filter_rows <- function(res, cond, i, size, group, details, warn) {
 #' @return `NULL`, invisibly, if `x` is a logical vector or a one column logical matrix; otherwise an error naming
 #' the type of `x`, e.g. `integer`, `factor` or `logical[,2]`.
 #' @noRd
-check_filter_type <- function(x, name, cond, i, group, details) {
+check_filter_type <- function(x, name, where) {
   if (is.logical(x) && (!is.matrix(x) || ncol(x) == 1L)) return(invisible())
   type <- if (is.matrix(x)) sprintf("%s[,%s]", typeof(x), ncol(x)) else if (is.object(x)) class(x)[1L] else typeof(x)
-  stop_filter(cond, i, group, details, sprintf("x Input `%s` must be a logical vector, not a %s.", name, type))
+  stop_filter(where, sprintf("x Input `%s` must be a logical vector, not a %s.", name, type))
 }
 
 #' Give the error for an invalid condition
@@ -146,13 +150,8 @@ check_filter_type <- function(x, name, cond, i, group, details) {
 #' @inheritParams filter_rows
 #' @return Does not return; gives an error.
 #' @noRd
-stop_filter <- function(cond, i, group, details, msg) {
-  stop(
-    sprintf("Problem while computing `..%s = %s`.\n", i, paste(deparse(cond), collapse = " ")),
-    msg,
-    error_group(group, details),
-    call. = FALSE
-  )
+stop_filter <- function(where, msg) {
+  stop(computing_problem(where), msg, error_group(where$group, where$details), call. = FALSE)
 }
 
 #' Check that no condition is named
