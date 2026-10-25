@@ -102,13 +102,6 @@ expect_error(
   mtcars %>% count(cyl, name = c("name_one", "name_two"))
 )
 
-expect_error(
-  {
-    res <- mtcars
-    colnames(res)[1] <- "n"
-    res %>% tally()
-  }
-)
 
 
 # Grouping of the results
@@ -345,4 +338,80 @@ expect_equal(
     data.frame(g = c("a", "b"), nn = c(11L, 7L))
   ),
   info = "a column n is used as a weight only when it is given as wt"
+)
+
+# An existing column n
+nm_df <- data.frame(g = c("a", "a", "b"), n = c(5L, 6L, 7L))
+nm_msg <- "Storing counts in `nn`, as `n` already present in input\ni Use `name = \"new_name\"` to pick a new name."
+expect_silent(count(nm_df, g), info = "count() does not report a column n that its summary drops")
+expect_silent(tally(group_by(nm_df, g)), info = "tally() does not report a column n that its summary drops")
+expect_equal(
+  list(
+    count(nm_df, g),
+    tally(nm_df),
+    count(nm_df, g, wt = n),
+    count(nm_df, g, sort = TRUE),
+    count(nm_df, g, name = "n"),
+    count(nm_df, g, name = "g")
+  ),
+  list(
+    data.frame(g = c("a", "b"), n = 2:1),
+    data.frame(n = 3L),
+    data.frame(g = c("a", "b"), n = c(11L, 7L)),
+    data.frame(g = c("a", "b"), n = 2:1),
+    data.frame(g = c("a", "b"), n = 2:1),
+    data.frame(g = 2:1)
+  ),
+  info = "count() and tally() store the count in n when the column n is summarised away"
+)
+expect_message(add_count(nm_df, g), nm_msg, fixed = TRUE, info = "add_count() reports that the count is stored in nn")
+expect_message(add_tally(nm_df), nm_msg, fixed = TRUE, info = "add_tally() reports that the count is stored in nn")
+expect_message(count(nm_df, n), nm_msg, fixed = TRUE, info = "count() reports a grouping variable n")
+expect_message(
+  tally(group_by(nm_df, n)), nm_msg, fixed = TRUE, info = "tally() reports a grouping variable n"
+)
+expect_equal(
+  suppressMessages(list(
+    add_count(nm_df, g),
+    add_tally(nm_df),
+    add_count(nm_df, g, wt = n),
+    add_count(nm_df, g, sort = TRUE),
+    add_tally(group_by(nm_df, g)),
+    add_count(mtcars[c(1L, 3L, 4L), "cyl", drop = FALSE], n = cyl)$nn
+  )),
+  list(
+    data.frame(g = c("a", "a", "b"), n = c(5L, 6L, 7L), nn = c(2L, 2L, 1L)),
+    data.frame(g = c("a", "a", "b"), n = c(5L, 6L, 7L), nn = 3L),
+    data.frame(g = c("a", "a", "b"), n = c(5L, 6L, 7L), nn = c(11L, 11L, 7L)),
+    data.frame(g = c("a", "a", "b"), n = c(5L, 6L, 7L), nn = c(2L, 2L, 1L)),
+    group_by(data.frame(g = c("a", "a", "b"), n = c(5L, 6L, 7L), nn = c(2L, 2L, 1L)), g),
+    c(2L, 1L, 2L)
+  ),
+  info = "add_count() and add_tally() store the count in nn when the input has a column n"
+)
+expect_equal(
+  suppressMessages(list(count(nm_df, n), count(nm_df, g, n), tally(group_by(nm_df, n)))),
+  list(
+    data.frame(n = 5:7, nn = 1L),
+    data.frame(g = c("a", "a", "b"), n = 5:7, nn = 1L),
+    data.frame(n = 5:7, nn = 1L)
+  ),
+  info = "count() and tally() store the count in nn when n is a grouping variable"
+)
+nm_df$nn <- 1:3
+expect_message(
+  add_count(nm_df, g), "Storing counts in `nnn`", fixed = TRUE, info = "add_count() extends the name until it is unique"
+)
+expect_equal(
+  suppressMessages(list(add_tally(nm_df)$nnn, count(nm_df, n, nn))),
+  list(c(3L, 3L, 3L), data.frame(n = 5:7, nn = 1:3, nnn = 1L)),
+  info = "the count is stored in nnn when the columns n and nn are kept"
+)
+expect_equal(
+  list(add_count(nm_df, g, name = "n"), add_tally(nm_df, name = "g")),
+  list(
+    data.frame(g = c("a", "a", "b"), n = c(2L, 2L, 1L), nn = 1:3),
+    data.frame(g = 3L, n = c(5L, 6L, 7L), nn = 1:3)
+  ),
+  info = "an explicit name replaces an existing column without a message"
 )
