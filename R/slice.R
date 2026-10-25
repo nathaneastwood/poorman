@@ -17,6 +17,12 @@
 #' keeps all rows but the last two in `slice_head()`. Any fractional part of a negative `n` is ignored, and the number
 #' of rows a negative `prop` drops is rounded down. `slice_sample()` does not accept a negative `n` or `prop`.
 #'
+#' `n = 0` or `prop = 0` selects no rows, as does a negative `n` or `prop` which drops at least as many rows as a group
+#' has. This differs from `dplyr` 1.0.10, where `n = 0` and `prop = 0` return every row in `slice_head()`,
+#' `slice_tail()`, `slice_min()` and `slice_max()` and are an error in `slice_sample()`, and where `slice_min()` and
+#' `slice_max()` with `with_ties = FALSE` can return rows when a negative `n` or `prop` is larger than the group. Later
+#' versions of `dplyr` select no rows, as `poorman` does.
+#'
 #' @return
 #' An object of the same type as `.data`. The output has the following properties:
 #'
