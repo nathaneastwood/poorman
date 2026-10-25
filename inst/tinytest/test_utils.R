@@ -34,7 +34,9 @@ expect_false(
 )
 
 eg_gd <- group_by(data.frame(g = c("b", "a", "b"), x = c(1, 2, 5)), g)
-eg_res <- poorman:::eval_groups(eg_gd, list(m = quote(mean(x)), quote(m * 2), y = quote(x)), environment())
+eg_res <- poorman:::eval_groups(
+  eg_gd, list(m = quote(mean(x)), quote(m * 2), y = quote(x)), environment(), poorman:::common_size_rule
+)
 expect_equal(eg_res$rows, list(2L, c(1L, 3L)), info = "eval_groups() returns the rows of each group")
 expect_equal(eg_res$labels, c("m", "m * 2", "y"), info = "eval_groups() names unnamed expressions automatically")
 expect_equal(
@@ -45,18 +47,18 @@ expect_equal(
 expect_equal(eg_res$sizes, c(1L, 2L), info = "eval_groups() returns the size of the results of each group")
 eg_mut <- poorman:::eval_groups(
   eg_gd, list(m = quote(mean(x)), x = quote(NULL), k = quote(exists("x"))), environment(),
-  group_size = TRUE, drop_null = TRUE
+  poorman:::group_size_rule, drop_null = TRUE
 )
-expect_equal(eg_mut$sizes, c(1L, 2L), info = "eval_groups() with group_size gives the size of each group")
+expect_equal(eg_mut$sizes, c(1L, 2L), info = "eval_groups() with group_size_rule gives the size of each group")
 expect_equal(
   eg_mut$values[[3L]],
   list(FALSE, FALSE),
   info = "eval_groups() with drop_null removes a variable whose result is NULL"
 )
 expect_error(
-  poorman:::eval_groups(eg_gd, list(y = quote(1:3)), environment(), group_size = TRUE),
+  poorman:::eval_groups(eg_gd, list(y = quote(1:3)), environment(), poorman:::group_size_rule),
   "must be size 1 or 1, not 3",
-  info = "eval_groups() with group_size checks that each result has the size of its group or size one"
+  info = "eval_groups() with group_size_rule checks that each result has the size of its group or size one"
 )
 
 expect_equal(poorman:::ungroup_order(list(2L, c(1L, 3L)), 3L), c(2L, 1L, 3L), info = "ungroup_order() inverts the rows")
@@ -76,19 +78,19 @@ expect_error(
 )
 
 eg_check <- poorman:::eval_groups(
-  eg_gd, list(k = quote(x)), environment(),
-  check = function(value, size, group, details) list(size = size, group = group, keys = details$g)
+  eg_gd, list(k = quote(x)), environment(), poorman:::common_size_rule,
+  transform = function(value, size, group, details) list(size = size, group = group, keys = details$g)
 )
 expect_equal(
   eg_check$values[[1L]],
   list(list(size = 1L, group = 1L, keys = c("a", "b")), list(size = 2L, group = 2L, keys = c("a", "b"))),
-  info = "eval_groups() replaces each result with the result of check, given the group and its size"
+  info = "eval_groups() replaces each result with the result of transform, given the group and its size"
 )
 expect_equal(
   poorman:::eval_groups(
-    data.frame(x = 1:3), list(k = quote(x)), environment(),
-    check = function(value, size, group, details) list(size, group, details)
+    data.frame(x = 1:3), list(k = quote(x)), environment(), poorman:::common_size_rule,
+    transform = function(value, size, group, details) list(size, group, details)
   )$values[[1L]],
   list(list(3L, NULL, NULL)),
-  info = "eval_groups() gives check no group for data without groups"
+  info = "eval_groups() gives transform no group for data without groups"
 )

@@ -111,11 +111,12 @@ is_valid_groups <- function(.data, details, groups) {
 #' @param .data A `data.frame`.
 #' @param dots A `list` of unevaluated expressions, as returned by `dotdotdot()`.
 #' @param env An `environment` in which to look up variables that are not columns.
-#' @param group_size `logical(1)`. Must each result have the size of its group or size one, as in `mutate()`? If not,
-#' the results of a group which are not of size one must have the same size, as in `summarise()`.
+#' @param size_rule The rule which the sizes of the results must follow: `group_size_rule`, where each result has the
+#' size of its group or size one, as in `mutate()`, or `common_size_rule`, where the results of a group which are not
+#' of size one have the same size, as in `summarise()`.
 #' @param drop_null `logical(1)`. Does a `NULL` result remove the variable of that name, as in `mutate()`? If not, it is
 #' ignored, as in `summarise()`.
-#' @param check A `function(value, size, group, details)` which checks each result as soon as it is evaluated and
+#' @param transform A `function(value, size, group, details)` which is given each result as soon as it is evaluated and
 #' returns the value to keep in its place, or `NULL` to keep each result as it is. It is given the size of the group,
 #' its position `group` in `details` (`NULL` if `.data` is not grouped or has no groups) and `details`, for error
 #' messages.
@@ -128,137 +129,267 @@ is_valid_groups <- function(.data, details, groups) {
 #'   results are kept as `NULL`);
 #' * `sizes`, the size of the results of each group: the size of its results which are not of size one, or one.
 #' @noRd
-eval_groups <- function(.data, dots, env, group_size = FALSE, drop_null = FALSE, check = NULL) {
+eval_groups <- function(.data, dots, env, size_rule, drop_null = FALSE, transform = NULL) {
+  layout <- group_layout(.data)
+  # Grouped data with no groups is evaluated once, as a single empty group, so that the type of each result is known
+  if (layout$empty) layout$rows <- list(integer())
+  labels <- expression_labels(dots, env)
+  # The columns that `.data` holds, in order: those of `.data`, followed by the results of the expressions
+  seen <- new.env(hash = FALSE, parent = emptyenv())
+  seen$col_names <- names(.data)
+  masks <- group_masks(.data, layout, env, seen)
+
+  context$setup(.data)
+  on.exit(context$clean(), add = TRUE)
+
+  values <- vector(mode = "list", length = length(dots))
+  sizes <- size_rule$start(layout$rows)
+  for (i in seq_along(dots)) {
+    dot <- list(expr = dots[[i]], position = i, label = labels$labels[[i]], unnamed = labels$unnamed[[i]])
+    vals <- eval_expression(dot, masks, layout, seen, drop_null, transform)
+    sizes <- size_rule$check(sizes, vals, dot, layout)
+    values[[i]] <- vals
+  }
+
+  list(
+    rows = layout$rows, details = layout$details, groups = layout$groups, empty = layout$empty,
+    labels = labels$labels, unnamed = labels$unnamed, values = values, sizes = sizes$sizes
+  )
+}
+
+#' Find the rows of each group
+#'
+#' @param .data A `data.frame`.
+#' @return A `list` with:
+#' * `groups`, the grouping columns, and `details`, the grouping structure of `.data` (`NULL` if it is not grouped);
+#' * `grouped`, whether `.data` is grouped;
+#' * `rows`, the rows of each group, or all of the rows as one group if `.data` is not grouped;
+#' * `empty`, whether `.data` is grouped but has no groups;
+#' * `numbered`, whether `.data` has groups, so that a group can be named by its position in `details`.
+#' @noRd
+group_layout <- function(.data) {
   groups <- group_vars(.data)
   grouped <- length(groups) > 0L
   details <- if (grouped) get_groups(.data, groups)
   rows <- if (grouped) details[[".rows"]] else list(seq_len(.row_names_info(.data, 2L)))
   empty <- length(rows) == 0L
-  if (empty) rows <- list(integer())
-  n_groups <- length(rows)
+  list(groups = groups, details = details, grouped = grouped, rows = rows, empty = empty, numbered = grouped && !empty)
+}
 
+#' Name the expressions given to a verb
+#'
+#' @param dots A `list` of unevaluated expressions, as returned by `dotdotdot()`.
+#' @param env An `environment` in which to look up variables that are not columns.
+#' @return A `list` with `labels`, the name of each expression, and `unnamed`, whether the name was made automatically
+#' by `auto_label()`.
+#' @noRd
+expression_labels <- function(dots, env) {
   dot_names <- names(dots)
   if (is.null(dot_names)) dot_names <- character(length(dots))
   unnamed <- !nzchar(dot_names)
   labels <- dot_names
   labels[unnamed] <- vapply(dots[unnamed], auto_label, NA_character_, env = env)
+  list(labels = labels, unnamed = unnamed)
+}
 
-  chunks <- if (grouped) split_columns(.data, rows) else lapply(.data, list)
-  # The columns of `.data`, in order, followed by the results of the expressions
-  col_names <- names(.data)
-  # Other than its names, the attributes of the data each group sees as `.data` and through the context functions
-  slice_attrs <- if (grouped) {
-    auto_row_names <- .row_names_info(.data) < 0L
-    function(g) {
-      list(
-        class = "data.frame",
-        row.names = if (auto_row_names) as.integer(rows[[g]]) else attr(.data, "row.names")[rows[[g]]],
-        groups = details,
-        group_id = if (empty) NA_integer_ else g
-      )
-    }
-  } else {
-    attrs <- attributes(.data)
-    attrs[["names"]] <- NULL
-    function(g) attrs
-  }
-  # Most expressions never look at `.data`, so it is an active binding which builds it from the mask when it is used
-  # As poorman has no `rowwise()`, a list column holding a single data.frame, such as the nested data of a group made by
-  # `nest_by()`, is seen as that data.frame
+#' Build the data mask of each group
+#'
+#' Most expressions never look at `.data`, so each mask holds it as an active binding which builds it from the mask
+#' when it is used. As poorman has no `rowwise()`, a list column holding a single data.frame, such as the nested data of
+#' a group made by `nest_by()`, is seen as that data.frame.
+#'
+#' @param .data A `data.frame`.
+#' @param layout The groups of `.data`, as returned by `group_layout()`.
+#' @param env An `environment`, the parent of each mask.
+#' @param seen An `environment` whose `col_names` are the columns, in order, that `.data` holds. The evaluation adds the
+#' results of the expressions to it.
+#' @return A `list` with an `environment` for each group.
+#' @noRd
+group_masks <- function(.data, layout, env, seen) {
+  chunks <- if (layout$grouped) split_columns(.data, layout$rows) else lapply(.data, list)
+  mask_attrs <- mask_attributes(.data, layout)
   list_cols <- which(vapply(.data, function(col) is.list(col) && !is.data.frame(col), NA))
-  masks <- lapply(seq_len(n_groups), function(g) {
+  lapply(seq_along(layout$rows), function(g) {
     cols <- lapply(chunks, .subset2, g)
     for (j in list_cols) {
       if (length(cols[[j]]) == 1L && is.data.frame(cols[[j]][[1L]])) cols[[j]] <- cols[[j]][[1L]]
     }
     mask <- list2env(cols, envir = new.env(hash = FALSE, parent = env))
     makeActiveBinding(".data", function() {
-      res <- mget(col_names, envir = mask, inherits = FALSE, ifnotfound = list(NULL))
+      res <- mget(seen$col_names, envir = mask, inherits = FALSE, ifnotfound = list(NULL))
       res <- res[!vapply(res, is.null, NA)]
-      attributes(res) <- c(list(names = names(res)), slice_attrs(g))
+      attributes(res) <- c(list(names = names(res)), mask_attrs(g))
       res
     }, mask)
     mask
   })
+}
 
-  context$setup(.data)
-  on.exit(context$clean(), add = TRUE)
+#' Build the attributes of the data each group sees as `.data`
+#'
+#' @param .data A `data.frame`.
+#' @param layout The groups of `.data`, as returned by `group_layout()`.
+#' @return A `function(g)` which gives the attributes, other than its names, of the data of group `g` as seen through
+#' `.data` and the context functions.
+#' @noRd
+mask_attributes <- function(.data, layout) {
+  if (!layout$grouped) {
+    attrs <- attributes(.data)
+    attrs[["names"]] <- NULL
+    return(function(g) attrs)
+  }
+  rows <- layout$rows
+  details <- layout$details
+  empty <- layout$empty
+  auto_row_names <- .row_names_info(.data) < 0L
+  function(g) {
+    list(
+      class = "data.frame",
+      row.names = if (auto_row_names) as.integer(rows[[g]]) else attr(.data, "row.names")[rows[[g]]],
+      groups = details,
+      group_id = if (empty) NA_integer_ else g
+    )
+  }
+}
 
-  values <- vector(mode = "list", length = length(dots))
-  sizes <- if (group_size) lengths(rows) else rep(1L, n_groups)
-  size_from <- character(n_groups)
-  for (i in seq_along(dots)) {
-    vals <- vector(mode = "list", length = n_groups)
-    for (g in seq_len(n_groups)) {
-      mask <- masks[[g]]
-      delayedAssign(".data", .data, eval.env = mask, assign.env = context)
-      value <- eval(dots[[i]], mask)
-      if (!is.null(check)) value <- check(value, length(rows[[g]]), if (grouped && !empty) g, details)
-      if (is.null(value)) {
-        if (drop_null && exists(labels[[i]], envir = mask, inherits = FALSE)) rm(list = labels[[i]], envir = mask)
-        next
-      }
-      vals[g] <- list(value)
-      if (unnamed[[i]] && is.data.frame(value)) {
-        list2env(value, envir = mask)
-        col_names <- union(col_names, names(value))
-      } else {
-        assign(labels[[i]], value, envir = mask)
-      }
+#' Evaluate one expression for each group
+#'
+#' Each result is stored in the mask of its group, so that the expressions which follow can use it.
+#'
+#' @param dot A `list` describing the expression: `expr`, the unevaluated expression, `position`, its position in the
+#' `dots`, `label`, its name, and `unnamed`, whether the name was made automatically.
+#' @param masks A `list` of the data mask of each group, as returned by `group_masks()`.
+#' @param layout The groups, as returned by `group_layout()`.
+#' @param seen An `environment` whose `col_names` are the columns that `.data` holds, updated with the result.
+#' @param drop_null,transform As in `eval_groups()`.
+#' @return A `list` with the result for each group.
+#' @noRd
+eval_expression <- function(dot, masks, layout, seen, drop_null, transform) {
+  rows <- layout$rows
+  details <- layout$details
+  numbered <- layout$numbered
+  expr <- dot$expr
+  label <- dot$label
+  # An unnamed data frame result, e.g. from `across()`, gives its columns rather than a column of its own
+  spread <- dot$unnamed
+  vals <- vector(mode = "list", length = length(masks))
+  for (g in seq_along(masks)) {
+    mask <- masks[[g]]
+    # The data of the context functions is a promise, so that it is only built if one of them uses it. It reads the
+    # `.data` of `mask` when it is forced, which can only happen while this group is evaluated
+    delayedAssign(".data", get(".data", envir = mask, inherits = FALSE), eval.env = environment(), assign.env = context)
+    value <- eval(expr, mask)
+    if (!is.null(transform)) value <- transform(value, length(rows[[g]]), if (numbered) g, details)
+    if (is.null(value)) {
+      if (drop_null && exists(label, envir = mask, inherits = FALSE)) rm(list = label, envir = mask)
+      next
     }
-    is_null <- vapply(vals, is.null, NA)
-    if (drop_null && all(is_null)) {
-      col_names <- setdiff(col_names, labels[[i]])
-    } else if (!unnamed[[i]] || !all(vapply(vals, is.data.frame, NA))) {
-      col_names <- union(col_names, labels[[i]])
+    vals[g] <- list(value)
+    if (spread && is.data.frame(value)) {
+      list2env(value, envir = mask)
+      seen$col_names <- union(seen$col_names, names(value))
+    } else {
+      assign(label, value, envir = mask)
     }
+  }
+  track_result(seen, vals, dot, drop_null)
+  vals
+}
+
+#' Add the result of an expression to the columns that `.data` holds
+#'
+#' @param seen An `environment` whose `col_names` are the columns that `.data` holds.
+#' @param vals A `list` with the result of the expression for each group.
+#' @param dot A `list` describing the expression, as given to `eval_expression()`.
+#' @param drop_null `logical(1)`. Does a `NULL` result remove the variable of that name?
+#' @return `NULL`, invisibly; `seen` is updated in place.
+#' @noRd
+track_result <- function(seen, vals, dot, drop_null) {
+  if (drop_null && all(vapply(vals, is.null, NA))) {
+    seen$col_names <- setdiff(seen$col_names, dot$label)
+  } else if (!dot$unnamed || !all(vapply(vals, is.data.frame, NA))) {
+    seen$col_names <- union(seen$col_names, dot$label)
+  }
+  invisible()
+}
+
+#' Rules for the sizes of the results of each group
+#'
+#' A size rule is a `list` of two functions, used by `eval_groups()`:
+#' * `start(rows)` gives the sizes before any expression is evaluated, as a `list` with `sizes`, the size of each
+#'   group's results;
+#' * `check(sizes, vals, dot, layout)` checks the results `vals` of an expression for each group against `sizes`, gives
+#'   an error for a result of the wrong size and returns the sizes for the expressions which follow. `dot` describes the
+#'   expression, as given to `eval_expression()`, and `layout` gives the groups, as returned by `group_layout()`.
+#'
+#' With `group_size_rule`, as in `mutate()`, each result must have the size of its group or size one. With
+#' `common_size_rule`, as in `summarise()`, the results of a group which are not of size one must have the same size,
+#' which is set by the first of them; `start()` also gives `from`, the name of the expression which set the size of
+#' each group, or `""`.
+#' @noRd
+group_size_rule <- list(
+  start = function(rows) list(sizes = lengths(rows)),
+  check = function(sizes, vals, dot, layout) {
     vals_size <- vapply(vals, NROW, 1L)
-    resized <- !is_null & vals_size != 1L & vals_size != sizes
-    wrong <- which(if (group_size) resized else resized & sizes != 1L)
+    wrong <- which(!vapply(vals, is.null, NA) & vals_size != 1L & vals_size != sizes$sizes)
     if (length(wrong) > 0L) {
       g <- wrong[[1L]]
-      # As in dplyr, the error of `mutate()` calls an unnamed expression by its position
-      name <- if (group_size && unnamed[[i]]) paste0("..", i) else labels[[i]]
-      stop_wrong_size(
-        dots[[i]], name, sizes[[g]], vals_size[[g]], size_from[[g]],
-        group = if (grouped && !empty) g, details = details, group_size = group_size
-      )
+      stop_group_size(dot, sizes$sizes[[g]], vals_size[[g]], if (layout$numbered) g, layout$details)
     }
-    if (!group_size) {
-      sizes[resized] <- vals_size[resized]
-      size_from[resized] <- labels[[i]]
-    }
-    values[[i]] <- vals
+    sizes
   }
+)
 
-  list(
-    rows = rows, details = details, groups = groups, empty = empty, labels = labels, unnamed = unnamed,
-    values = values, sizes = sizes
+#' The size rule of `summarise()`
+#'
+#' See `group_size_rule`.
+#' @noRd
+common_size_rule <- list(
+  start = function(rows) list(sizes = rep(1L, length(rows)), from = character(length(rows))),
+  check = function(sizes, vals, dot, layout) {
+    vals_size <- vapply(vals, NROW, 1L)
+    resized <- !vapply(vals, is.null, NA) & vals_size != 1L & vals_size != sizes$sizes
+    wrong <- which(resized & sizes$sizes != 1L)
+    if (length(wrong) > 0L) {
+      g <- wrong[[1L]]
+      stop_common_size(dot$label, sizes$sizes[[g]], vals_size[[g]], sizes$from[[g]], if (layout$numbered) g)
+    }
+    sizes$sizes[resized] <- vals_size[resized]
+    sizes$from[resized] <- dot$label
+    sizes
+  }
+)
+
+#' Give the error for a result which does not have the size of its group or size one
+#'
+#' @param dot A `list` describing the expression, as given to `eval_expression()`.
+#' @param size `integer(1)`. The size of the group.
+#' @param value_size `integer(1)`. The size of the result.
+#' @param group `integer(1)`. The group of the result, or `NULL` if the data is not grouped.
+#' @param details A `data.frame` of the groups, as returned by `get_groups()`.
+#' @return Does not return; gives an error.
+#' @noRd
+stop_group_size <- function(dot, size, value_size, group, details) {
+  # As in dplyr, the error of `mutate()` calls an unnamed expression by its position
+  name <- if (dot$unnamed) paste0("..", dot$position) else dot$label
+  stop(
+    sprintf("Problem while computing `%s = %s`.\n", name, paste(deparse(dot$expr), collapse = " ")),
+    sprintf("x `%s` must be size %d or 1, not %d.", name, size, value_size),
+    error_group(group, details),
+    call. = FALSE
   )
 }
 
-#' Give the error for a result of the wrong size
+#' Give the error for a result whose size differs from the earlier results of its group
 #'
-#' @param expr The unevaluated expression which gave the result.
 #' @param name `character(1)`. The name of the expression.
 #' @param size `integer(1)`. The size the result should have.
 #' @param value_size `integer(1)`. The size of the result.
 #' @param size_from `character(1)`. The name of the earlier expression which set `size`, or `""` if none did.
 #' @param group `integer(1)`. The group of the result, or `NULL` if the data is not grouped.
-#' @param details A `data.frame` of the groups, as returned by `get_groups()`.
-#' @param group_size `logical(1)`. Give the error of `mutate()`, whose results must have the size of their group or
-#' size one, rather than that of `summarise()`?
 #' @return Does not return; gives an error.
 #' @noRd
-stop_wrong_size <- function(expr, name, size, value_size, size_from, group, details, group_size) {
-  if (group_size) {
-    stop(
-      sprintf("Problem while computing `%s = %s`.\n", name, paste(deparse(expr), collapse = " ")),
-      sprintf("x `%s` must be size %d or 1, not %d.", name, size, value_size),
-      error_group(group, details),
-      call. = FALSE
-    )
-  }
+stop_common_size <- function(name, size, value_size, size_from, group) {
   stop(
     sprintf("`%s` must be size %d or 1, not %d.", name, size, value_size),
     if (nzchar(size_from)) sprintf(" An earlier column, `%s`, had size %d.", size_from, size),

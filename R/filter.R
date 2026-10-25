@@ -50,7 +50,7 @@ filter.data.frame <- function(.data, ..., .preserve = FALSE) {
   }
   res <- eval_groups(
     .data, list(conditions = as.call(c(list(base::list), unname(conditions)))), parent.frame(),
-    group_size = TRUE, check = keep_rows
+    group_size_rule, transform = keep_rows
   )
   keep <- combine_groups(res$values[[1L]], res$sizes, "")
   keep[is.na(keep)] <- FALSE
