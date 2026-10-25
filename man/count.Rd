@@ -27,8 +27,11 @@ weight unless it is given as \code{wt}.}
 
 \item{sort}{\code{logical(1)}. If \code{TRUE}, will show the largest groups at the top.}
 
-\item{name}{\code{character(1)}. The name of the new column in the output. If omitted, it will default to \code{n}. If there's
-already a column called \code{n}, it will error, and require you to specify the name.}
+\item{name}{\code{character(1)}. The name of the new column in the output. If omitted, it will default to \code{n}. If \code{n}
+would clash with a column that the output keeps, i.e. a grouping variable for \code{count()} and \code{tally()} or any column
+of the input for \code{add_count()} and \code{add_tally()}, \code{n} is repeated until the name is unique (\code{nn}, \code{nnn}, ...) and a
+message gives the name used. A column \code{n} that is not kept, e.g. a column summarised away by \code{count()}, does not
+clash, and the count is stored in \code{n}. An explicit \code{name} is used as given and replaces any column of that name.}
 }
 \value{
 A \code{data.frame}. \code{count()} and \code{add_count()} have the same groups as the input.

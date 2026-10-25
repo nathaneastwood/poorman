@@ -15,8 +15,11 @@
 #' columns and variables of the calling environment, e.g. `wt = price * k`. A column named `n` is not used as a
 #' weight unless it is given as `wt`.
 #' @param sort `logical(1)`. If `TRUE`, will show the largest groups at the top.
-#' @param name `character(1)`. The name of the new column in the output. If omitted, it will default to `n`. If there's
-#' already a column called `n`, it will error, and require you to specify the name.
+#' @param name `character(1)`. The name of the new column in the output. If omitted, it will default to `n`. If `n`
+#' would clash with a column that the output keeps, i.e. a grouping variable for `count()` and `tally()` or any column
+#' of the input for `add_count()` and `add_tally()`, `n` is repeated until the name is unique (`nn`, `nnn`, ...) and a
+#' message gives the name used. A column `n` that is not kept, e.g. a column summarised away by `count()`, does not
+#' clash, and the count is stored in `n`. An explicit `name` is used as given and replaces any column of that name.
 #'
 #' @examples
 #' # count() is a convenient way to get a sense of the distribution of
@@ -55,7 +58,8 @@ count <- function(x, ..., wt = NULL, sort = FALSE, name = NULL) {
 #' @rdname count
 #' @export
 tally <- function(x, wt = NULL, sort = FALSE, name = NULL) {
-  name <- check_name(x, name)
+  # the summary keeps only the grouping variables, so only these can clash with the default name
+  name <- check_name(name, group_vars(x))
   n <- count_expr(substitute(wt))
   old <- options(poorman.summarise.inform = FALSE)
   on.exit(options(old), add = TRUE)
@@ -68,7 +72,6 @@ tally <- function(x, wt = NULL, sort = FALSE, name = NULL) {
 #' @export
 #' @rdname count
 add_count <- function(x, ..., wt = NULL, sort = FALSE, name = NULL) {
-  name <- check_name(x, name)
   env <- parent.frame()
   wt <- substitute(wt)
   if (missing(...)) return(do.call(add_tally, list(x, wt, sort, name), envir = env))
@@ -82,7 +85,9 @@ add_count <- function(x, ..., wt = NULL, sort = FALSE, name = NULL) {
 #' @export
 #' @rdname count
 add_tally <- function(x, wt = NULL, sort = FALSE, name = NULL) {
-  name <- check_name(x, name)
+  # `mutate()` keeps every column. `add_count()` checks the name here, after grouping, so that a grouping variable it
+  # creates, e.g. `n = cyl`, is seen
+  name <- check_name(name, colnames(x))
   n <- count_expr(substitute(wt))
   res <- do.call(mutate, setNames(list(x, n), c(".data", name)), envir = parent.frame())
 
@@ -126,18 +131,29 @@ restore_groups <- function(res, groups, drop) {
   res
 }
 
-check_name <- function(df, name) {
+#' Choose the name of the count column
+#'
+#' An explicit `name` is used as given, even when it replaces a column. The default `n` is extended with further `n`s
+#' until it is not one of `vars`, the columns the result keeps, and the user is told which name was used.
+#'
+#' @param name The `name` argument of the verb: `NULL` or a single string.
+#' @param vars A `character` vector of the columns of the input that the result keeps.
+#' @return `character(1)`, the name of the count column.
+#' @noRd
+check_name <- function(name, vars) {
   if (is.null(name)) {
-    if ("n" %in% colnames(df)) {
-      stop(
-        "Column 'n' is already present in output\n",
-        "* Use `name = \"new_name\"` to pick a new name"
+    name <- "n"
+    while (name %in% vars) name <- paste0(name, "n")
+    if (name != "n") {
+      message(
+        "Storing counts in `", name, "`, as `n` already present in input\n",
+        "i Use `name = \"new_name\"` to pick a new name."
       )
     }
-    return("n")
+    return(name)
   }
 
-  if (!is.character(name) || length(name) != 1) {
+  if (!is.character(name) || length(name) != 1L) {
     stop("`name` must be a single string")
   }
 
