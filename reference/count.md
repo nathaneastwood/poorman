@@ -35,11 +35,12 @@ add_tally(x, wt = NULL, sort = FALSE, name = NULL)
 
 - wt:
 
-  If omitted, will count the number of rows. If specified, will perform
-  a "weighted" count by summing the (non-missing) values of variable
-  `wt`. If omitted, and column `n` exists, it will automatically be used
-  as a weighting variable, although you will have to specify `name` to
-  provide a new name for the output.
+  Frequency weights. If `NULL`, the default, the rows of each group are
+  counted. Otherwise, the weighted count of each group is the sum of the
+  (non-missing) values of `wt`, which may be a column or an expression
+  of columns and variables of the calling environment, e.g.
+  `wt = price * k`. A column named `n` is not used as a weight unless it
+  is given as `wt`.
 
 - sort:
 
@@ -48,8 +49,14 @@ add_tally(x, wt = NULL, sort = FALSE, name = NULL)
 - name:
 
   `character(1)`. The name of the new column in the output. If omitted,
-  it will default to `n`. If there's already a column called `n`, it
-  will error, and require you to specify the name.
+  it will default to `n`. If `n` would clash with a column that the
+  output keeps, i.e. a grouping variable for `count()` and `tally()` or
+  any column of the input for `add_count()` and `add_tally()`, `n` is
+  repeated until the name is unique (`nn`, `nnn`, ...) and a message
+  gives the name used. A column `n` that is not kept, e.g. a column
+  summarised away by `count()`, does not clash, and the count is stored
+  in `n`. An explicit `name` is used as given and replaces any column of
+  that name.
 
 ## Value
 

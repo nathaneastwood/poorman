@@ -43,9 +43,25 @@ slice_sample(.data, ..., n, prop, weight_by = NULL, replace = FALSE)
   If the `prop`ortion of a group size is not an integer, it is rounded
   down.
 
+  A negative value of `n` or `prop` gives the number or proportion of
+  rows to drop from each group, e.g. `n = -2` keeps all rows but the
+  last two in `slice_head()`. Any fractional part of a negative `n` is
+  ignored, and the number of rows a negative `prop` drops is rounded
+  down. `slice_sample()` does not accept a negative `n` or `prop`.
+
+  `n = 0` or `prop = 0` selects no rows, as does a negative `n` or
+  `prop` which drops at least as many rows as a group has. This differs
+  from `dplyr` 1.0.10, where `n = 0` and `prop = 0` return every row in
+  `slice_head()`, `slice_tail()`, `slice_min()` and `slice_max()` and
+  are an error in `slice_sample()`, and where `slice_min()` and
+  `slice_max()` with `with_ties = FALSE` can return rows when a negative
+  `n` or `prop` is larger than the group. Later versions of `dplyr`
+  select no rows, as `poorman` does.
+
 - order_by:
 
-  The variable to order by.
+  A variable, or an expression of the variables, to order by, e.g.
+  `x * y`. It must have a value for each row of the group.
 
 - with_ties:
 
@@ -56,8 +72,8 @@ slice_sample(.data, ..., n, prop, weight_by = NULL, replace = FALSE)
 - weight_by:
 
   Sampling weights. This must evaluate to a vector of non-negative
-  numbers the same length as the input. Weights are automatically
-  standardised to sum to 1.
+  numbers the same length as the input, or the group on grouped data.
+  Weights are automatically standardised to sum to 1.
 
 - replace:
 

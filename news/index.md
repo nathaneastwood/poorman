@@ -24,6 +24,15 @@
   [`full_join()`](../reference/mutate_joins.md) gain a `copy` argument,
   which is ignored, before `suffix`, as in `dplyr`. Code which passes
   `suffix` by position must now name it.
+- [`count()`](../reference/count.md),
+  [`tally()`](../reference/count.md),
+  [`add_count()`](../reference/count.md) and
+  [`add_tally()`](../reference/count.md) no longer use a column named
+  `n` as the weight when `wt` is omitted, and no longer give the message
+  “Using `n` as weighting variable”. As in `dplyr`, they count the rows;
+  use `wt = n` to weight by the column. A string given as `wt`,
+  e.g. `wt = "x"`, is no longer taken as a column name; as in `dplyr`,
+  it gives an error.
 
 ### New features
 
@@ -103,6 +112,46 @@ groups and 5x faster with 10,000 groups, and
 [`across()`](../reference/across.md) builds its result faster, which
 also speeds up [`mutate()`](../reference/mutate.md).
 
+[`mutate()`](../reference/mutate.md) and
+[`transmute()`](../reference/mutate.md) are now considerably faster on
+grouped data. As in [`summarise()`](../reference/summarise.md), each
+column is split by group once and the expressions are evaluated for each
+group in a data mask, rather than building and binding a `data.frame`
+for each group. On 100,000 rows, grouped
+[`mutate()`](../reference/mutate.md) is 17x faster with 10 groups, 10x
+faster with 1,000 groups and 6x faster with 10,000 groups, and allocates
+3x less memory; [`transmute()`](../reference/mutate.md) is 10-20x
+faster.
+
+[`filter()`](../reference/filter.md) is now considerably faster. As in
+[`mutate()`](../reference/mutate.md), the conditions are evaluated for
+each group in a data mask and the rows are subset once, rather than
+building and binding a `data.frame` for each group. On 100,000 rows,
+grouped [`filter()`](../reference/filter.md) is 7-10x faster with 10
+groups, 5x faster with 1,000 groups and 3-3.6x faster with 10,000
+groups, and allocates about half the memory; on 1,000,000 rows with
+10,000 groups, it is 5-6x faster. Ungrouped
+[`filter()`](../reference/filter.md) is 2-3x faster.
+
+[`slice()`](../reference/slice.md),
+[`slice_head()`](../reference/slice.md),
+[`slice_tail()`](../reference/slice.md),
+[`slice_min()`](../reference/slice.md),
+[`slice_max()`](../reference/slice.md),
+[`slice_sample()`](../reference/slice.md),
+[`distinct()`](../reference/distinct.md) and
+[`fill()`](../reference/fill.md) are now considerably faster on grouped
+data. The rows to keep are found for each group and the data is subset
+once, and [`fill()`](../reference/fill.md) fills every group in one
+pass, rather than building and binding a `data.frame` for each group. On
+100,000 rows with 1,000 groups, [`slice_head()`](../reference/slice.md)
+is 28x faster, [`slice()`](../reference/slice.md) and
+[`slice_min()`](../reference/slice.md) 3-5x faster,
+[`slice_sample()`](../reference/slice.md) 14x faster,
+[`distinct()`](../reference/distinct.md) 20x faster and
+[`fill()`](../reference/fill.md) 79x faster; with 10,000 groups,
+[`fill()`](../reference/fill.md) is over 400x faster.
+
 ### Bug fixes
 
 - `keep = TRUE` now works as in `dplyr`. The keys of `x` and `y` are
@@ -146,6 +195,64 @@ also speeds up [`mutate()`](../reference/mutate.md).
   `.data` sees the columns made by earlier expressions and, on grouped
   data, holds the rows of the current group. Previously, `.data` gave
   the error “object ‘.data’ not found”.
+- [`across()`](../reference/across.md) and the `.data` pronoun in
+  [`summarise()`](../reference/summarise.md) now see the summaries made
+  by earlier expressions,
+  e.g. `summarise(df, m = mean(x), across(m, ~ .x * 10))`, as in
+  `dplyr`. Previously, [`across()`](../reference/across.md) gave the
+  error “Column m does not exist” and `.data$m` gave a result with no
+  rows. As in `dplyr`, each expression is now evaluated for every group
+  before the next expression.
+- Grouped [`mutate()`](../reference/mutate.md) and
+  [`transmute()`](../reference/mutate.md) now evaluate their expressions
+  for empty groups, such as the unused levels of a factor grouped with
+  `.drop = FALSE`, as in `dplyr`. As in `dplyr`, each expression is now
+  evaluated for every group before the next expression.
+- [`mutate()`](../reference/mutate.md) and
+  [`transmute()`](../reference/mutate.md) now give the `dplyr` error
+  when a result has the wrong size, e.g. “x `k` must be size 3 or 1, not
+  2”, or “x `k` must be size 1, not 2” when the data or the group has
+  one row, naming the group on grouped data. Previously, they gave the
+  error of `[[<-.data.frame`, “replacement has 2 rows, data has 3”.
+- [`mutate()`](../reference/mutate.md),
+  [`transmute()`](../reference/mutate.md) and
+  [`summarise()`](../reference/summarise.md) now give the `dplyr` error
+  when the results of the groups have incompatible types, e.g. a
+  character in one group and a double in another: “`y` must return
+  compatible vectors across groups”, followed by the type of the result
+  of each of two groups, e.g. “i Result type for group 1 (g = 1): .”.
+  Previously, [`summarise()`](../reference/summarise.md) silently
+  combined them, e.g. into a character, and
+  [`mutate()`](../reference/mutate.md) gave the error “Can’t combine
+  `<character> and` ”. Integers and doubles, factors and characters, and
+  logical `NA`s and any type are still combined. Unlike `dplyr`, a
+  factor is named `<factor>` and a data frame `<data.frame>`, without
+  the levels hash or column types (see
+  [`?mutate`](../reference/mutate.md)).
+- Grouped [`mutate()`](../reference/mutate.md),
+  [`transmute()`](../reference/mutate.md) and
+  [`summarise()`](../reference/summarise.md) now combine a `Date` result
+  in one group and a `POSIXct` result in another into a `POSIXct`, as in
+  `dplyr`, with each date at midnight in the time zone of the result.
+  Previously, the result was a `Date` and the times were lost. Combined
+  datetimes now take the first time zone which is set, or the local time
+  zone, as in `dplyr`; previously, a datetime without a time zone in the
+  first group dropped the time zone of the others, and a logical `NA`
+  before a date and a datetime gave a plain number.
+- Grouped [`mutate()`](../reference/mutate.md),
+  [`transmute()`](../reference/mutate.md) and
+  [`summarise()`](../reference/summarise.md) now give the `dplyr` error
+  when an expression returns `NULL` in only some groups: “Problem while
+  computing `y = ...`. x `y` must return compatible vectors across
+  groups. x Can’t combine NULL and non NULL results.”. Previously,
+  [`mutate()`](../reference/mutate.md) gave the error “numbers of
+  columns of arguments do not match” and
+  [`summarise()`](../reference/summarise.md) gave a shorter error.
+- A verb can now be used inside the expressions of another,
+  e.g. `mutate(group_by(df, g), k = nrow(filter(df, x > 2)) + n())`.
+  Previously, the inner verb removed the data of the outer one, so
+  [`n()`](../reference/context.md) and the other context functions
+  failed after it.
 - [`transmute()`](../reference/mutate.md) now finds variables in the
   calling environment, e.g. inside a function. Previously, it gave an
   “object not found” error, or found a function of the same name.
@@ -168,6 +275,143 @@ also speeds up [`mutate()`](../reference/mutate.md).
   columns with `.add = TRUE`, e.g. `group_by(df, h = x, .add = TRUE)`.
   Previously, these gave an “Invalid groups” error. They also now find
   variables in the calling environment, e.g. inside a function.
+- [`filter()`](../reference/filter.md) now checks the size of each
+  condition and gives the `dplyr` error, e.g. “x Input `..1` must be of
+  size 3 or 1, not size 2”, naming the group on grouped data.
+  Previously, a condition of the wrong size was recycled, and a
+  condition of size one on data without rows returned a row of `NA`. The
+  error for a condition which is not logical now names the group too,
+  and a data frame result is checked column by column, e.g. “x Input
+  `..1$a` must be a logical vector, not a integer”.
+- [`filter()`](../reference/filter.md) now supports the `.data` pronoun,
+  e.g. `filter(df, .data[[var]] > 2)`. Previously, grouped
+  [`filter()`](../reference/filter.md) returned rows of `NA` and
+  ungrouped [`filter()`](../reference/filter.md) gave the error “object
+  ‘.data’ not found”.
+- [`add_count()`](../reference/count.md) now returns the groups of its
+  input, as its documentation says and as
+  [`count()`](../reference/count.md) does. Previously, it also grouped
+  the result by the variables it counted, e.g. `add_count(df, g)`
+  returned data grouped by `g`.
+- `add_count(sort = TRUE)` now sorts the rows by the count, largest
+  first. Previously, `sort` was ignored.
+- [`count()`](../reference/count.md),
+  [`tally()`](../reference/count.md),
+  [`add_count()`](../reference/count.md) and
+  [`add_tally()`](../reference/count.md) no longer give an error when
+  the input has a column named `n` and `name` is omitted. As in `dplyr`,
+  [`count()`](../reference/count.md) and
+  [`tally()`](../reference/count.md) store the count in `n` when the
+  column `n` is summarised away, and otherwise, e.g. `add_count(df, g)`
+  or `count(df, n)`, store it in `nn` (or `nnn`, …) with the message
+  “Storing counts in `nn`, as `n` already present in input”.
+- [`add_count()`](../reference/count.md),
+  [`group_split()`](../reference/group_split.md) and
+  [`nest_by()`](../reference/nest_by.md) now find variables in the
+  calling environment, e.g. inside a function. Previously, they gave an
+  “object not found” error, or silently used a global variable of the
+  same name.
+- The `wt` argument of [`count()`](../reference/count.md),
+  [`tally()`](../reference/count.md),
+  [`add_count()`](../reference/count.md) and
+  [`add_tally()`](../reference/count.md) now takes an expression of
+  columns and finds variables in the calling environment,
+  e.g. `wt = x * k` inside a function, as in `dplyr`. Previously, `wt`
+  had to be a bare column name, and an expression or a local variable
+  gave an “object not found” error. `wt = n()` now gives the `dplyr`
+  deprecation warning and counts the rows.
+- A [`mutate()`](../reference/mutate.md) called inside the arguments of
+  [`transmute()`](../reference/mutate.md),
+  [`group_by()`](../reference/group_by.md) or
+  [`count()`](../reference/count.md), e.g. in a user function, now finds
+  variables in its own calling environment. Previously, it looked in the
+  environment of the outer verb’s caller and gave an “object not found”
+  error.
+- Grouped [`filter()`](../reference/filter.md) now finds variables in
+  the calling environment, e.g. inside a function. Previously, it gave
+  an “object not found” error.
+- Grouped [`filter()`](../reference/filter.md) now evaluates its
+  conditions for empty groups, and evaluates every condition for a group
+  before the next group, as in `dplyr`. It now gives the deprecation
+  warning for data frame results once for each condition which returns
+  one, as in `dplyr`. Previously, conditions with the same warning
+  shared a single warning.
+- [`if_any()`](../reference/across.md) and
+  [`if_all()`](../reference/across.md) now return `TRUE` when no columns
+  are selected, as in `dplyr`, so [`filter()`](../reference/filter.md)
+  keeps every row. Previously, they returned `FALSE`, so
+  [`filter()`](../reference/filter.md) dropped every row.
+- [`filter()`](../reference/filter.md) now gives the `dplyr` error for a
+  named condition, e.g. `filter(df, x = 1)`: “We detected a named input.
+  i This usually means that you’ve used `=` instead of `==`. i Did you
+  mean `x == 1`?”. Previously, it gave an older wording, and a named
+  expression or variable, e.g. `filter(df, z = x == 1)`, failed with
+  “invalid type of argument\[2\]: ‘language’”.
+- Grouped [`slice()`](../reference/slice.md),
+  [`slice_min()`](../reference/slice.md),
+  [`slice_max()`](../reference/slice.md),
+  [`slice_sample()`](../reference/slice.md),
+  [`distinct()`](../reference/distinct.md) and
+  [`fill()`](../reference/fill.md) now find variables in the calling
+  environment, e.g. inside a function. Previously, they gave an “object
+  not found” error.
+- [`slice_min()`](../reference/slice.md),
+  [`slice_max()`](../reference/slice.md) and
+  [`slice_sample()`](../reference/slice.md) now evaluate `order_by` and
+  `weight_by` as expressions, e.g. `slice_min(df, x * y)` or
+  `slice_sample(df, n = 1, weight_by = x > 0)`, and check that they have
+  a value for each row, as in `dplyr`. Previously, they only accepted a
+  column name.
+- Grouped [`distinct()`](../reference/distinct.md) now returns the rows
+  in their original order, as in `dplyr`. Previously, the rows were in
+  group order. It now also keeps the empty groups of data grouped with
+  `.drop = FALSE`.
+- Grouped [`slice()`](../reference/slice.md) without indices now returns
+  the data unchanged, as in `dplyr`. Previously, the rows were put in
+  group order.
+- [`slice_tail()`](../reference/slice.md) now rounds `n` down,
+  e.g. `slice_tail(df, n = 2.5)` returns the last 2 rows. Previously, it
+  returned the wrong rows.
+- [`slice_head()`](../reference/slice.md),
+  [`slice_tail()`](../reference/slice.md),
+  [`slice_min()`](../reference/slice.md) and
+  [`slice_max()`](../reference/slice.md) now accept a negative `n` or
+  `prop`, which gives the number or proportion of rows to drop from each
+  group, as in `dplyr`. For example, `slice_tail(df, n = -1)` returns
+  all rows but the first in each group. Previously, it was an error.
+  [`slice_sample()`](../reference/slice.md) gives the error “`n` must be
+  positive.” for a negative `n`, and the errors for a missing `n` or
+  `prop`, or for both, now have the same text as in `dplyr`.
+- [`slice_head()`](../reference/slice.md),
+  [`slice_tail()`](../reference/slice.md),
+  [`slice_min()`](../reference/slice.md),
+  [`slice_max()`](../reference/slice.md) and
+  [`slice_sample()`](../reference/slice.md) select no rows for `n = 0`
+  or `prop = 0`, and [`slice_min()`](../reference/slice.md) and
+  [`slice_max()`](../reference/slice.md) with `with_ties = FALSE` select
+  no rows from a group when a negative `n` or `prop` drops at least as
+  many rows as it has. This differs from `dplyr` 1.0.10, where `n = 0`
+  and `prop = 0` return every row in
+  [`slice_head()`](../reference/slice.md),
+  [`slice_tail()`](../reference/slice.md),
+  [`slice_min()`](../reference/slice.md) and
+  [`slice_max()`](../reference/slice.md) and are an error in
+  [`slice_sample()`](../reference/slice.md), and where
+  [`slice_min()`](../reference/slice.md) and
+  [`slice_max()`](../reference/slice.md) with `with_ties = FALSE` return
+  rows again when a negative `n` is larger than the group,
+  e.g. `n = -10` on 7 rows returns 4 rows. Later versions of `dplyr`
+  select no rows in each case (see [`?slice`](../reference/slice.md)).
+- [`fill()`](../reference/fill.md) now replaces `NULL`s in list columns,
+  as documented. Grouped [`fill()`](../reference/fill.md) no longer
+  gives an “Adding missing grouping variables” message for each group.
+- Each group of [`mutate()`](../reference/mutate.md),
+  [`transmute()`](../reference/mutate.md),
+  [`summarise()`](../reference/summarise.md) and
+  [`filter()`](../reference/filter.md) now has its own variables, so a
+  variable assigned inside an expression for one group is not seen by
+  the next group. In `dplyr` 1.0.10, such a variable leaks into the
+  groups evaluated after it.
 
 Grouped operations now match `dplyr`:
 

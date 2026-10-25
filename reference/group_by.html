@@ -75,6 +75,17 @@ except when <code>.data</code> has been previously grouped with <code>.drop = FA
     <p>When using <code>group_by()</code>, a <code>data.frame</code>, grouped by the grouping variables.</p>
 <p>When using <code>ungroup()</code>, a <code>data.frame</code>.</p>
     </div>
+    <div class="section level2">
+    <h2 id="extension-classes">Extension classes<a class="anchor" aria-label="anchor" href="#extension-classes"></a></h2>
+
+
+<p>On grouped data, <code><a href="mutate.html">mutate()</a></code>, <code><a href="mutate.html">transmute()</a></code>, <code><a href="filter.html">filter()</a></code>, <code><a href="arrange.html">arrange()</a></code>, <code><a href="slice.html">slice()</a></code>, <code><a href="select.html">select()</a></code>, <code><a href="rename.html">rename()</a></code>, <code><a href="distinct.html">distinct()</a></code>
+and the other verbs which modify their input keep its class, including a subclass of a grouped <code>data.frame</code> added by
+another package. This differs from <code>dplyr</code> 1.0.10, which drops such a subclass. A method for an extension class
+which calls <code><a href="https://rdrr.io/r/base/UseMethod.html" class="external-link">NextMethod()</a></code>, e.g. <code>mutate.myclass &lt;- function(.data, ...) NextMethod()</code>, gets back its own class and
+should not add it again. <code><a href="summarise.html">summarise()</a></code> and <code><a href="count.html">count()</a></code> build a new <code>data.frame</code>, so their result does not keep the
+subclass.</p>
+    </div>
 
     <div class="section level2">
     <h2 id="ref-examples">Examples<a class="anchor" aria-label="anchor" href="#ref-examples"></a></h2>

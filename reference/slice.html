@@ -70,11 +70,20 @@ or negative. Indices beyond the number of rows in the input are silently ignored
 <dd><p>Provide either <code>n</code>, the number of rows, or <code>prop</code>, the proportion of rows to select. If neither are
 supplied, <code>n = 1</code> will be used.</p>
 <p>If <code>n</code> is greater than the number of rows in the group (or <code>prop &gt; 1</code>), the result will be silently truncated to the
-group size. If the <code>prop</code>ortion of a group size is not an integer, it is rounded down.</p></dd>
+group size. If the <code>prop</code>ortion of a group size is not an integer, it is rounded down.</p>
+<p>A negative value of <code>n</code> or <code>prop</code> gives the number or proportion of rows to drop from each group, e.g. <code>n = -2</code>
+keeps all rows but the last two in <code>slice_head()</code>. Any fractional part of a negative <code>n</code> is ignored, and the number
+of rows a negative <code>prop</code> drops is rounded down. <code>slice_sample()</code> does not accept a negative <code>n</code> or <code>prop</code>.</p>
+<p><code>n = 0</code> or <code>prop = 0</code> selects no rows, as does a negative <code>n</code> or <code>prop</code> which drops at least as many rows as a group
+has. This differs from <code>dplyr</code> 1.0.10, where <code>n = 0</code> and <code>prop = 0</code> return every row in <code>slice_head()</code>,
+<code>slice_tail()</code>, <code>slice_min()</code> and <code>slice_max()</code> and are an error in <code>slice_sample()</code>, and where <code>slice_min()</code> and
+<code>slice_max()</code> with <code>with_ties = FALSE</code> can return rows when a negative <code>n</code> or <code>prop</code> is larger than the group. Later
+versions of <code>dplyr</code> select no rows, as <code>poorman</code> does.</p></dd>
 
 
 <dt id="arg-order-by">order_by<a class="anchor" aria-label="anchor" href="#arg-order-by"></a></dt>
-<dd><p>The variable to order by.</p></dd>
+<dd><p>A variable, or an expression of the variables, to order by, e.g. <code>x * y</code>. It must have a value for
+each row of the group.</p></dd>
 
 
 <dt id="arg-with-ties">with_ties<a class="anchor" aria-label="anchor" href="#arg-with-ties"></a></dt>
@@ -84,7 +93,7 @@ request. Use <code>FALSE</code> to ignore ties, and return the first <code>n</co
 
 <dt id="arg-weight-by">weight_by<a class="anchor" aria-label="anchor" href="#arg-weight-by"></a></dt>
 <dd><p>Sampling weights. This must evaluate to a vector of non-negative numbers the same length as the
-input. Weights are automatically standardised to sum to 1.</p></dd>
+input, or the group on grouped data. Weights are automatically standardised to sum to 1.</p></dd>
 
 
 <dt id="arg-replace">replace<a class="anchor" aria-label="anchor" href="#arg-replace"></a></dt>

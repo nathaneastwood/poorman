@@ -92,6 +92,28 @@ such as a long name followed by <code>+ g()</code>.</p></li>
 abbreviated sooner.</p></li>
 <li><p><code>?</code> and <code>:=</code> are treated as calls rather than operators, e.g. <code><a href="https://rdrr.io/r/base/dots.html" class="external-link">`?`(...)</a></code>, as R prints them.</p></li>
 </ul></div>
+    <div class="section level2">
+    <h2 id="variables-made-inside-expressions">Variables made inside expressions<a class="anchor" aria-label="anchor" href="#variables-made-inside-expressions"></a></h2>
+
+
+<p>A variable assigned inside an expression, e.g. <code>{ tmp &lt;- x * 2; tmp + 1 }</code>, can be used by the later expressions of
+the same call. On grouped data, each group has its own variables, so a variable assigned while evaluating one group
+is never seen by the next group. This differs from <code>dplyr</code> 1.0.10, where such a variable can leak into the groups
+evaluated after it.</p>
+    </div>
+    <div class="section level2">
+    <h2 id="results-of-incompatible-types-across-groups">Results of incompatible types across groups<a class="anchor" aria-label="anchor" href="#results-of-incompatible-types-across-groups"></a></h2>
+
+
+<p>On grouped data, the results of an expression for each group are combined into one column. When two results have
+incompatible types, e.g. a character in one group and a double in another, there is an error which names the type
+of the results before the incompatible one and the type of the incompatible one, as in <code>dplyr</code> 1.0.10, with these
+differences:</p><ul><li><p>A factor is named <code>&lt;factor&gt;</code> and a data frame <code>&lt;data.frame&gt;</code>. <code>dplyr</code> adds a hash of the levels of a factor and the
+types of the columns of a data frame, e.g. <code>&lt;data.frame&lt; a: double b: character &gt;&gt;</code>.</p></li>
+<li><p>When factors and character vectors come before the incompatible result, the group named for the results before it
+can differ. For example, with a factor, <code>"b"</code> and <code>1</code> as the results of groups 1 to 3, <code>dplyr</code> names group 1 as
+<code>&lt;character&gt;</code> and <code>poorman</code> names group 2.</p></li>
+</ul></div>
 
     <div class="section level2">
     <h2 id="ref-examples">Examples<a class="anchor" aria-label="anchor" href="#ref-examples"></a></h2>

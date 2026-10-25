@@ -72,6 +72,15 @@ grouping structure is recalculated based on the resulting data, otherwise the gr
 <li><p><code>&amp;</code>, <code>|</code>, <code>!</code>, <code><a href="https://rdrr.io/r/base/Logic.html" class="external-link">xor()</a></code></p></li>
 <li><p><code><a href="https://rdrr.io/r/base/NA.html" class="external-link">is.na()</a></code></p></li>
 </ul></div>
+    <div class="section level2">
+    <h2 id="variables-made-inside-expressions">Variables made inside expressions<a class="anchor" aria-label="anchor" href="#variables-made-inside-expressions"></a></h2>
+
+
+<p>A variable assigned inside an expression, e.g. <code>{ tmp &lt;- x * 2; tmp + 1 }</code>, can be used by the later expressions of
+the same call. On grouped data, each group has its own variables, so a variable assigned while evaluating one group
+is never seen by the next group. This differs from <code>dplyr</code> 1.0.10, where such a variable can leak into the groups
+evaluated after it.</p>
+    </div>
 
     <div class="section level2">
     <h2 id="ref-examples">Examples<a class="anchor" aria-label="anchor" href="#ref-examples"></a></h2>

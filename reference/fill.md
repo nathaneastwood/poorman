@@ -116,9 +116,6 @@ squirrels %>%
   group_by(group) %>%
   fill(n_squirrels, .direction = "downup") %>%
   ungroup()
-#> Adding missing grouping variables: `group`
-#> Adding missing grouping variables: `group`
-#> Adding missing grouping variables: `group`
 #>    group     name        role n_squirrels
 #> 1      1      Sam    Observer           8
 #> 2      1     Mara Scorekeeper           8

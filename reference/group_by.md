@@ -44,6 +44,21 @@ variables.
 
 When using `ungroup()`, a `data.frame`.
 
+## Extension classes
+
+On grouped data, [`mutate()`](mutate.md), [`transmute()`](mutate.md),
+[`filter()`](filter.md), [`arrange()`](arrange.md),
+[`slice()`](slice.md), [`select()`](select.md), [`rename()`](rename.md),
+[`distinct()`](distinct.md) and the other verbs which modify their input
+keep its class, including a subclass of a grouped `data.frame` added by
+another package. This differs from `dplyr` 1.0.10, which drops such a
+subclass. A method for an extension class which calls
+[`NextMethod()`](https://rdrr.io/r/base/UseMethod.html), e.g.
+`mutate.myclass <- function(.data, ...) NextMethod()`, gets back its own
+class and should not add it again. [`summarise()`](summarise.md) and
+[`count()`](count.md) build a new `data.frame`, so their result does not
+keep the subclass.
+
 ## Examples
 
 ``` r
