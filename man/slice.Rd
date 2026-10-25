@@ -33,7 +33,11 @@ or negative. Indices beyond the number of rows in the input are silently ignored
 supplied, \code{n = 1} will be used.
 
 If \code{n} is greater than the number of rows in the group (or \code{prop > 1}), the result will be silently truncated to the
-group size. If the \code{prop}ortion of a group size is not an integer, it is rounded down.}
+group size. If the \code{prop}ortion of a group size is not an integer, it is rounded down.
+
+A negative value of \code{n} or \code{prop} gives the number or proportion of rows to drop from each group, e.g. \code{n = -2}
+keeps all rows but the last two in \code{slice_head()}. Any fractional part of a negative \code{n} is ignored, and the number
+of rows a negative \code{prop} drops is rounded down. \code{slice_sample()} does not accept a negative \code{n} or \code{prop}.}
 
 \item{order_by}{A variable, or an expression of the variables, to order by, e.g. \code{x * y}. It must have a value for
 each row of the group.}

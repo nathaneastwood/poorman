@@ -147,38 +147,24 @@ expect_equal(
 )
 
 expect_error(
-  poorman:::check_slice_size(n = c(1, 2)),
-  info = "`n` must be a single number."
+  poorman:::check_slice_size(n = c(1, 2)), "`n` must be a single number.",
+  info = "check_slice_size() rejects an n of length 2"
 )
-
 expect_error(
-  poorman:::check_slice_size(n = NA),
-  info = "`n` must be a non-missing positive number."
+  poorman:::check_slice_size(n = NA), "`n` must be a single number.",
+  info = "check_slice_size() rejects a missing n"
 )
-
 expect_error(
-  poorman:::check_slice_size(n = -1),
-  info = "`n` must be a non-missing positive number."
+  poorman:::check_slice_size(prop = c(1, 2)), "`prop` must be a single number.",
+  info = "check_slice_size() rejects a prop of length 2"
 )
-
 expect_error(
-  poorman:::check_slice_size(prop = c(1, 2)),
-  info = "`prop` must be a single number."
+  poorman:::check_slice_size(prop = NA), "`prop` must be a single number.",
+  info = "check_slice_size() rejects a missing prop"
 )
-
 expect_error(
-  poorman:::check_slice_size(prop = NA),
-  info = "`prop` must be a non-missing positive number."
-)
-
-expect_error(
-  poorman:::check_slice_size(prop = -1),
-  info = "`prop` must be a non-missing positive number."
-)
-
-expect_error(
-  poorman:::check_slice_size(n = 1, prop = 0.1),
-  info = "Must supply exactly one of `n` and `prop` arguments."
+  poorman:::check_slice_size(n = 1, prop = 0.1), "Must supply `n` or `prop`, but not both.",
+  info = "check_slice_size() rejects both n and prop"
 )
 
 rm(df)
@@ -193,7 +179,7 @@ expect_equal(slice_tail(gf, n = 2)$v, c(1, 2, 5, 4), info = "grouped slice_tail(
 expect_equal(slice_min(gf, v, n = 1)$v, c(1, 4), info = "grouped slice_min() with n")
 expect_equal(slice_max(gf, v, prop = 0.5)$v, c(3, 5), info = "grouped slice_max() with prop")
 expect_equal(nrow(slice_sample(gf, n = 1)), 2L, info = "grouped slice_sample() with n")
-expect_error(slice_head(gf, n = 1, prop = 0.5), "exactly one of", info = "grouped slice_head() rejects n and prop")
+expect_error(slice_head(gf, n = 1, prop = 0.5), "but not both", info = "grouped slice_head() rejects n and prop")
 expect_error(slice_min(gf), "order_by", info = "grouped slice_min() requires order_by")
 rm(df, gf)
 
@@ -269,3 +255,57 @@ expect_error(
   info = "grouped slice_sample() checks the size of weight_by"
 )
 rm(df, gf, fd, f, res)
+
+# A negative n or prop drops that many rows from each group, as in dplyr 1.0.10
+df <- data.frame(g = c(1, 1, 1, 1, 2, 2, 3), x = c(3, 1, 1, 4, 5, 2, 9), id = 1:7)
+gf <- group_by(df, g)
+expect_equal(slice_head(df, n = -1)$id, 1:6, info = "slice_head() with a negative n drops the last rows")
+expect_equal(slice_head(gf, n = -1)$id, c(1L, 2L, 3L, 5L), info = "grouped slice_head() with a negative n")
+expect_equal(slice_tail(df, n = -2)$id, 3:7, info = "slice_tail() with a negative n drops the first rows")
+expect_equal(slice_tail(gf, n = -1)$id, c(2L, 3L, 4L, 6L), info = "grouped slice_tail() with a negative n")
+expect_equal(slice_head(gf, n = -2)$id, c(1L, 2L), info = "A negative n drops whole groups no larger than it")
+expect_equal(nrow(slice_tail(gf, n = -10)), 0L, info = "A negative n larger than every group drops every row")
+expect_equal(nrow(slice_head(df, n = -Inf)), 0L, info = "n = -Inf drops every row")
+expect_equal(slice_head(gf, n = -1.5)$id, c(1L, 2L, 3L, 5L), info = "The fraction of a negative n is ignored")
+expect_equal(slice_tail(gf, n = -2.7)$id, c(3L, 4L), info = "The fraction of a negative n is ignored by slice_tail()")
+expect_equal(slice_head(gf, n = -0.5)$id, 1:7, info = "A negative n above -1 drops no rows")
+expect_equal(slice_head(gf, n = -1L)$id, c(1L, 2L, 3L, 5L), info = "A negative integer n")
+expect_equal(group_vars(slice_head(gf, n = -1)), "g", info = "A negative n keeps the groups")
+expect_equal(
+  slice_min(df, x, n = -1)$id, c(2L, 3L, 6L, 1L, 4L, 5L),
+  info = "slice_min() with a negative n drops the largest rows"
+)
+expect_equal(
+  slice_max(df, x, n = -1)$id, c(7L, 5L, 4L, 1L, 6L, 2L, 3L),
+  info = "slice_max() with a negative n keeps rows tied with the last row kept"
+)
+expect_equal(slice_min(gf, x, n = -1)$id, c(2L, 3L, 1L, 6L), info = "grouped slice_min() with a negative n")
+expect_equal(slice_max(gf, x, n = -1)$id, c(4L, 1L, 2L, 3L, 5L), info = "grouped slice_max() keeps ties")
+expect_equal(
+  slice_max(gf, x, n = -1, with_ties = FALSE)$id, c(4L, 1L, 2L, 5L),
+  info = "grouped slice_max() with a negative n and with_ties = FALSE"
+)
+expect_equal(slice_min(gf, x, n = -3)$id, c(2L, 3L), info = "grouped slice_min() keeps ties with a negative n")
+expect_equal(slice_head(df, prop = -0.6)$id, 1:3, info = "A negative prop drops a proportion of the rows, rounded down")
+expect_equal(slice_head(gf, prop = -0.5)$id, c(1L, 2L, 5L, 7L), info = "grouped slice_head() with a negative prop")
+expect_equal(slice_tail(gf, prop = -0.25)$id, 2:7, info = "grouped slice_tail() with a negative prop")
+expect_equal(slice_tail(gf, prop = -0.75)$id, c(4L, 6L, 7L), info = "grouped slice_tail() with prop = -0.75")
+expect_equal(slice_min(gf, x, prop = -0.75)$id, c(2L, 3L, 6L, 7L), info = "grouped slice_min() keeps ties with a prop")
+expect_equal(
+  slice_min(gf, x, prop = -0.75, with_ties = FALSE)$id, c(2L, 6L, 7L),
+  info = "grouped slice_min() with a negative prop and with_ties = FALSE"
+)
+expect_equal(slice_max(gf, x, prop = -0.5)$id, c(4L, 1L, 5L, 7L), info = "grouped slice_max() with a negative prop")
+expect_equal(nrow(slice_head(gf, prop = -1)), 0L, info = "prop = -1 drops every row")
+expect_equal(nrow(slice_tail(gf, prop = -2)), 0L, info = "A prop below -1 drops every row")
+expect_error(slice_sample(gf, n = -1), "`n` must be positive.", info = "slice_sample() rejects a negative n")
+expect_error(slice_sample(df, n = -0.5), "`n` must be positive.", info = "slice_sample() rejects n = -0.5")
+expect_error(slice_sample(gf, prop = -0.5), "`prop` must be positive.", info = "slice_sample() rejects a negative prop")
+expect_error(slice_sample(df, n = NA), "`n` must be a single number.", info = "slice_sample() checks n is a number")
+expect_error(
+  slice_tail(df, n = -1, prop = 1), "Must supply `n` or `prop`, but not both.",
+  info = "Giving both n and prop is an error, whatever their values"
+)
+expect_error(slice_head(df, n = "a"), "`n` must be a single number.", info = "A character n is an error")
+expect_error(slice_head(df, n = TRUE), "`n` must be a single number.", info = "A logical n is an error")
+rm(df, gf)

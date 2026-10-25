@@ -13,6 +13,10 @@
 #' If `n` is greater than the number of rows in the group (or `prop > 1`), the result will be silently truncated to the
 #' group size. If the `prop`ortion of a group size is not an integer, it is rounded down.
 #'
+#' A negative value of `n` or `prop` gives the number or proportion of rows to drop from each group, e.g. `n = -2`
+#' keeps all rows but the last two in `slice_head()`. Any fractional part of a negative `n` is ignored, and the number
+#' of rows a negative `prop` drops is rounded down. `slice_sample()` does not accept a negative `n` or `prop`.
+#'
 #' @return
 #' An object of the same type as `.data`. The output has the following properties:
 #'
@@ -128,7 +132,7 @@ slice_sample <- function(.data, ..., n, prop, weight_by = NULL, replace = FALSE)
 
 #' @export
 slice_sample.data.frame <- function(.data, ..., n, prop, weight_by = NULL, replace = FALSE) {
-  size <- check_slice_size(n, prop)
+  size <- check_slice_size(n, prop, allow_negative = FALSE)
   positions <- function(wt, n_rows) {
     if (!is.null(wt)) check_slice_input_size(wt, "weight_by", n_rows)
     sample.int(n_rows, slice_count(size, n_rows, replace), replace = isTRUE(replace), prob = wt)
@@ -228,10 +232,13 @@ slice_order_positions <- function(size, with_ties, decreasing) {
 #' @param size The size of the slice, as returned by `check_slice_size()`.
 #' @param n_rows `integer(1)`. The number of rows in the group.
 #' @param replace `logical(1)`. Are rows sampled with replacement, so that more than `n_rows` can be selected?
-#' @return `integer(1)`, rounded down and, unless `replace = TRUE`, no more than `n_rows`.
+#' @return `integer(1)`, rounded down and, unless `replace = TRUE`, no more than `n_rows`. A negative size gives the
+#' rows which remain once that many are dropped, as many as `n_rows` less the size rounded towards zero, or none.
 #' @noRd
 slice_count <- function(size, n_rows, replace = FALSE) {
-  k <- floor(if (size$type == "n") size$n else size$prop * n_rows)
+  k <- if (size$type == "n") size$n else size$prop * n_rows
+  if (k < 0) return(as.integer(max(n_rows - floor(-k), 0)))
+  k <- floor(k)
   as.integer(if (isTRUE(replace)) k else min(k, n_rows))
 }
 
@@ -247,29 +254,35 @@ check_slice_input_size <- function(x, arg, n_rows) {
   stop(sprintf("`%s` must have size %d, not size %d.", arg, n_rows, length(x)), call. = FALSE)
 }
 
-check_slice_size <- function(n, prop) {
-  if (missing(n) && missing(prop)) {
-    list(type = "n", n = 1L)
-  } else if (!missing(n) && missing(prop)) {
-    if (!is.numeric(n) || length(n) != 1) {
-      stop("`n` must be a single number.")
-    }
-    if (is.na(n) || n < 0) {
-      stop("`n` must be a non-missing positive number.")
-    }
-
-    list(type = "n", n = n)
-  } else if (!missing(prop) && missing(n)) {
-    if (!is.numeric(prop) || length(prop) != 1) {
-      stop("`prop` must be a single number.")
-    }
-    if (is.na(prop) || prop < 0) {
-      stop("`prop` must be a non-missing positive number.")
-    }
-    list(type = "prop", prop = prop)
+#' Check the size given to a slice helper
+#'
+#' As in dplyr, giving both `n` and `prop` is checked first, then that the one given is a single number. A negative
+#' size drops rows, except in `slice_sample()`.
+#'
+#' @param n,prop The `n` and `prop` arguments of the slice helper, either of which may be missing.
+#' @param allow_negative `logical(1)`. May the size be negative?
+#' @return A `list` with `type`, `"n"` or `"prop"`, and the size, named by `type`. `n = 1` if neither is given.
+#' @noRd
+check_slice_size <- function(n, prop, allow_negative = TRUE) {
+  if (missing(prop)) {
+    size <- list(type = "n", n = if (missing(n)) 1L else check_slice_number(n, "n"))
   } else {
-    stop("Must supply exactly one of `n` and `prop` arguments.")
+    if (!missing(n)) stop("Must supply `n` or `prop`, but not both.", call. = FALSE)
+    size <- list(type = "prop", prop = check_slice_number(prop, "prop"))
   }
+  if (!allow_negative && size[[2L]] < 0) stop(sprintf("`%s` must be positive.", size$type), call. = FALSE)
+  size
+}
+
+#' Check that the `n` or `prop` of a slice helper is a single number
+#'
+#' @param x The value of the argument.
+#' @param arg `character(1)`. The name of the argument, for the error message.
+#' @return `x`, or an error if it is not a single, non-missing number.
+#' @noRd
+check_slice_number <- function(x, arg) {
+  if (is.numeric(x) && length(x) == 1L && !is.na(x)) return(x)
+  stop(sprintf("`%s` must be a single number.", arg), call. = FALSE)
 }
 
 smaller_ranks <- function(x, y) {
