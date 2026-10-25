@@ -507,3 +507,9 @@ expect_identical(
   summarise(it_df, y = if (g[1L] == "a") c(NA, NA) else "x")$y, c(NA, NA, "x"),
   info = "summarise() combines logical NAs with a character"
 )
+
+expect_identical(
+  summarise(it_df, y = if (g[1L] == "a") as.Date("2021-03-05") else as.POSIXct("2021-03-04 15:45:00", tz = "UTC"))$y,
+  structure(c(1614902400, 1614872700), class = c("POSIXct", "POSIXt"), tzone = "UTC"),
+  info = "summarise() combines a Date and a POSIXct to a POSIXct"
+)

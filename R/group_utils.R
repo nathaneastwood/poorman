@@ -602,25 +602,63 @@ drop_empty_groups <- function(details) {
 
 #' Combine the values of each group into one vector
 #'
-#' Values without attributes are combined directly; factors, plain `Date`s and unclassed lists use `combine_columns()`,
-#' so they follow the type rules of `pivot_longer()` and incompatible types are an error; data frames and matrices are
-#' bound by row; anything else falls back to `rbind()`.
+#' Values without attributes are combined directly; `POSIXct`s, with any `Date`s, use `combine_datetimes()`; factors,
+#' plain `Date`s and unclassed lists use `combine_columns()`, so they follow the type rules of `pivot_longer()` and
+#' incompatible types are an error; data frames and matrices are bound by row; anything else falls back to `rbind()`.
 #'
 #' @param x A `list` of values, one for each group, none of them `NULL`.
 #' @return The combined values.
 #' @noRd
 combine_values <- function(x) {
-  if (all(lengths(lapply(x, attributes)) == 0L)) {
-    is_atomic <- vapply(x, is.atomic, NA)
-    if (all(is_atomic) || !any(is_atomic) && all(vapply(x, is.list, NA))) {
-      return(unlist(x, recursive = FALSE, use.names = FALSE))
-    }
-  }
+  if (is_plain_values(x)) return(unlist(x, recursive = FALSE, use.names = FALSE))
+  if (is_datetime_mix(x)) return(combine_datetimes(x))
   if (all(vapply(x, is_simple_column, NA))) return(combine_columns(x))
   if (all(vapply(x, is.data.frame, NA))) return(do.call(rbind, unname(x)))
   if (all(vapply(x, is.matrix, NA))) return(do.call(rbind, unname(x)))
   x <- lapply(x, function(v) structure(list(v), names = "x", class = "data.frame", row.names = .set_row_names(NROW(v))))
   .subset2(do.call(rbind, x), 1L)
+}
+
+#' Check whether values can be combined with `unlist()`, for `combine_values()`
+#'
+#' @param x A `list` of values, one for each group.
+#' @return `logical(1)`. `TRUE` if no value has attributes and the values are all atomic vectors or all lists.
+#' @noRd
+is_plain_values <- function(x) {
+  if (!all(lengths(lapply(x, attributes)) == 0L)) return(FALSE)
+  is_atomic <- vapply(x, is.atomic, NA)
+  all(is_atomic) || !any(is_atomic) && all(vapply(x, is.list, NA))
+}
+
+#' Check whether values are datetimes, possibly with dates, for `combine_datetimes()`
+#'
+#' @param x A `list` of values, one for each group.
+#' @return `logical(1)`. `TRUE` if at least one value is a `POSIXct` and the others are `POSIXct`, `Date` or logical
+#' vectors of only `NA`.
+#' @noRd
+is_datetime_mix <- function(x) {
+  any(vapply(x, inherits, NA, "POSIXct")) &&
+    all(vapply(x, function(v) inherits(v, c("Date", "POSIXct")) || is_all_na_logical(v), NA))
+}
+
+#' Combine dates and datetimes into one datetime vector
+#'
+#' As in dplyr, the result has the time zone of the first datetime which has one, or the local time zone if none has,
+#' and each date is the midnight that starts it in that time zone, so that no datetime loses its time.
+#'
+#' @param x A `list` of `POSIXct` and `Date` vectors and logical vectors of only `NA`, at least one of them `POSIXct`.
+#' @return A `POSIXct` vector.
+#' @noRd
+combine_datetimes <- function(x) {
+  zones <- unlist(lapply(x, function(v) if (inherits(v, "POSIXct")) attr(v, "tzone", exact = TRUE)[1L]))
+  zones <- zones[!is.na(zones) & nzchar(zones)]
+  tz <- if (length(zones) > 0L) zones[[1L]] else ""
+  secs <- lapply(x, function(v) {
+    if (inherits(v, "Date")) return(as.numeric(as.POSIXct(format(v), tz = tz)))
+    if (is.logical(v)) return(rep(NA_real_, length(v)))
+    as.numeric(v)
+  })
+  structure(unlist(secs, use.names = FALSE), class = c("POSIXct", "POSIXt"), tzone = tz)
 }
 
 #' Find the order that puts results in group order back into the order of the rows
