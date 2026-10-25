@@ -655,3 +655,32 @@ expect_identical(
   ungroup(mutate(it_df, y = if (g[1L] == 1) "a" else NA))$y, c("a", NA, NA, NA),
   info = "mutate() combines a logical NA with a character"
 )
+
+# Dates and datetimes across groups
+dt_df <- group_by(data.frame(g = c(1, 2, 2)), g)
+dt_ny <- as.POSIXct("2021-03-04 15:45:00", tz = "America/New_York")
+expect_identical(
+  ungroup(mutate(dt_df, y = if (g[1L] == 1) as.Date("2021-03-05") else dt_ny))$y,
+  structure(c(1614920400, 1614890700, 1614890700), class = c("POSIXct", "POSIXt"), tzone = "America/New_York"),
+  info = "mutate() combines a Date and a POSIXct to a POSIXct, the Date at midnight in its time zone"
+)
+expect_identical(
+  ungroup(mutate(dt_df, y = if (g[1L] == 1) dt_ny else as.Date("2021-03-05")))$y,
+  structure(c(1614890700, 1614920400, 1614920400), class = c("POSIXct", "POSIXt"), tzone = "America/New_York"),
+  info = "mutate() combines a POSIXct and a Date to a POSIXct"
+)
+expect_identical(
+  ungroup(mutate(dt_df, y = if (g[1L] == 1) NA else as.POSIXct("2021-03-04 15:45:00", tz = "UTC")))$y,
+  structure(c(NA, 1614872700, 1614872700), class = c("POSIXct", "POSIXt"), tzone = "UTC"),
+  info = "mutate() combines a logical NA and a POSIXct to a POSIXct"
+)
+expect_identical(
+  attr(ungroup(mutate(dt_df, y = if (g[1L] == 1) .POSIXct(0) else dt_ny))$y, "tzone"),
+  "America/New_York",
+  info = "Combined datetimes take the first time zone which is set"
+)
+expect_identical(
+  attr(ungroup(mutate(dt_df, y = if (g[1L] == 1) as.Date("2021-03-05") else .POSIXct(0)))$y, "tzone"),
+  "",
+  info = "Combined datetimes take the local time zone if none is set"
+)
