@@ -309,3 +309,49 @@ expect_error(
 expect_error(slice_head(df, n = "a"), "`n` must be a single number.", info = "A character n is an error")
 expect_error(slice_head(df, n = TRUE), "`n` must be a single number.", info = "A logical n is an error")
 rm(df, gf)
+
+# A size of zero, or a negative size larger than the group, selects no rows. These differ from dplyr 1.0.10, which
+# returns rows for them (or gives an error in slice_sample()); later versions of dplyr select no rows too
+df <- data.frame(g = c(1, 1, 1, 1, 2, 2, 3), x = c(3, 1, 1, 4, 5, 2, 9), id = 1:7)
+gf <- group_by(df, g)
+for (d in list(df, gf)) {
+  expect_equal(nrow(slice_head(d, n = 0)), 0L, info = "slice_head() with n = 0 selects no rows")
+  expect_equal(nrow(slice_tail(d, n = 0)), 0L, info = "slice_tail() with n = 0 selects no rows")
+  expect_equal(nrow(slice_min(d, x, n = 0)), 0L, info = "slice_min() with n = 0 selects no rows")
+  expect_equal(nrow(slice_max(d, x, n = 0)), 0L, info = "slice_max() with n = 0 selects no rows")
+  expect_equal(nrow(slice_head(d, prop = 0)), 0L, info = "slice_head() with prop = 0 selects no rows")
+  expect_equal(nrow(slice_tail(d, prop = 0)), 0L, info = "slice_tail() with prop = 0 selects no rows")
+  expect_equal(nrow(slice_min(d, x, prop = 0)), 0L, info = "slice_min() with prop = 0 selects no rows")
+  expect_equal(nrow(slice_max(d, x, prop = 0)), 0L, info = "slice_max() with prop = 0 selects no rows")
+  expect_equal(nrow(slice_sample(d, n = 0)), 0L, info = "slice_sample() with n = 0 selects no rows")
+  expect_equal(nrow(slice_sample(d, prop = 0)), 0L, info = "slice_sample() with prop = 0 selects no rows")
+}
+expect_equal(names(slice_sample(df, n = 0)), c("g", "x", "id"), info = "slice_sample() with n = 0 keeps the columns")
+expect_equal(group_vars(slice_sample(gf, prop = 0)), "g", info = "slice_sample() with prop = 0 keeps the groups")
+for (n in c(-8, -10, -14)) {
+  expect_equal(
+    nrow(slice_min(df, x, n = n, with_ties = FALSE)), 0L,
+    info = paste("slice_min() with with_ties = FALSE and n =", n, "larger than the data selects no rows")
+  )
+  expect_equal(
+    nrow(slice_max(df, x, n = n, with_ties = FALSE)), 0L,
+    info = paste("slice_max() with with_ties = FALSE and n =", n, "larger than the data selects no rows")
+  )
+}
+expect_equal(
+  slice_min(gf, x, n = -3, with_ties = FALSE)$id, 2L,
+  info = "grouped slice_min() with with_ties = FALSE drops the groups no larger than a negative n"
+)
+expect_equal(
+  slice_max(gf, x, n = -3, with_ties = FALSE)$id, 4L,
+  info = "grouped slice_max() with with_ties = FALSE drops the groups no larger than a negative n"
+)
+expect_equal(
+  nrow(slice_min(gf, x, prop = -1.5, with_ties = FALSE)), 0L,
+  info = "grouped slice_min() with with_ties = FALSE and prop = -1.5 selects no rows"
+)
+expect_equal(
+  nrow(slice_max(df, x, prop = -1.5, with_ties = FALSE)), 0L,
+  info = "slice_max() with with_ties = FALSE and prop = -1.5 selects no rows"
+)
+rm(df, gf, d, n)
