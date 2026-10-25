@@ -156,11 +156,14 @@ slice_sample.data.frame <- function(.data, ..., n, prop, weight_by = NULL, repla
 slice_rows <- function(.data, positions, dots = NULL, env = NULL) {
   if (.row_names_info(.data, 2L) == 0L) return(.data)
   if (is.null(dots)) {
-    details <- if (has_groups(.data)) get_groups(.data)
-    rows <- if (is.null(details)) list(seq_len(.row_names_info(.data, 2L))) else details[[".rows"]]
+    layout <- group_layout(.data)
+    details <- layout$details
+    rows <- layout$rows
     local <- lapply(lengths(rows), function(n_rows) positions(NULL, n_rows))
   } else {
-    res <- eval_groups(.data, dots, env, check = function(value, size, group, details) positions(value, size))
+    # The positions of a group can have any size, so only the results of one group are checked against each other
+    transform <- function(value, size, group, details) positions(value, size)
+    res <- eval_groups(.data, dots, env, common_size_rule, transform = transform)
     details <- res$details
     rows <- res$rows
     local <- res$values[[1L]]

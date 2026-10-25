@@ -135,7 +135,7 @@ summarize.grouped_df <- summarise.grouped_df
 #' `all_one`, whether every group gave exactly one row.
 #' @noRd
 summarise_groups <- function(.data, dots, env) {
-  res <- eval_groups(.data, dots, env)
+  res <- eval_groups(.data, dots, env, common_size_rule)
   grouped <- length(res$groups) > 0L
   keys <- if (grouped) as.list(res$details)[res$groups]
   sizes <- res$sizes

@@ -166,7 +166,7 @@ mutate_df <- function(.data, dots, env) {
   if (length(dots) == 0L) return(list(data = .data, used_cols = NULL, new_cols = NULL))
   used <- unname(do.call(c, lapply(dots, find_used)))
   used <- used[used %in% colnames(.data)]
-  res <- eval_groups(.data, dots, env, group_size = TRUE, drop_null = TRUE)
+  res <- eval_groups(.data, dots, env, group_size_rule, drop_null = TRUE)
   order <- ungroup_order(res$rows, .row_names_info(.data, 2L))
   new_cols <- character()
   for (i in seq_along(dots)) {

@@ -86,7 +86,7 @@ fill.data.frame <- function(data, ..., .direction = c("down", "up", "downup", "u
     "downup" = c("down", "up")
   )
   # Each group is filled on its own, so the rows are put into group order and filled in one pass
-  rows <- if (has_groups(data)) get_groups(data)[[".rows"]] else list(seq_len(.row_names_info(data, 2L)))
+  rows <- group_layout(data)$rows
   idx <- unlist(rows, use.names = FALSE)
   first <- logical(length(idx))
   first[cumsum(c(1L, lengths(rows)[-length(rows)]))[lengths(rows) > 0L]] <- TRUE
