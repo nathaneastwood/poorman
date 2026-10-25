@@ -57,7 +57,7 @@ slice.data.frame <- function(.data, ...) {
   dots <- dotdotdot(...)
   if (length(dots) == 0L) return(.data)
   # As in `filter()`, the indices are evaluated as one call, so each group is given all of them before the next group
-  slice_rows(.data, slice_positions, list(indices = as.call(c(list(base::list), unname(dots)))), parent.frame())
+  slice_rows(.data, slice_positions, list(indices = list_call(dots)), parent.frame())
 }
 
 #' @rdname slice

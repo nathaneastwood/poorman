@@ -159,6 +159,18 @@ eval_groups <- function(.data, dots, env, size_rule, drop_null = FALSE, transfor
   )
 }
 
+#' Build one call which evaluates several expressions together
+#'
+#' `filter()` and `slice()` give each group all of their expressions before the next group, so they evaluate them as
+#' one expression, a call to `list()`, through `eval_groups()`.
+#'
+#' @param exprs A `list` of unevaluated expressions, as returned by `dotdotdot()`.
+#' @return A call to `base::list()` with `exprs` as its unnamed arguments.
+#' @noRd
+list_call <- function(exprs) {
+  as.call(c(list(base::list), unname(exprs)))
+}
+
 #' Find the rows of each group
 #'
 #' @param .data A `data.frame`.
