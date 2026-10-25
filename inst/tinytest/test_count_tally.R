@@ -110,13 +110,6 @@ expect_error(
   }
 )
 
-expect_message(
-  {
-    res <- mtcars
-    colnames(res)[1] <- "n"
-    res %>% add_tally(name = "freq")
-  }
-)
 
 # Grouping of the results
 df <- data.frame(g = c(2, 1, 2, NA), h = c("x", "y", "x", "y"), v = 1:4, stringsAsFactors = FALSE)
@@ -264,4 +257,92 @@ expect_equal(
     list(TRUE, TRUE, "g")
   ),
   info = "add_tally() and add_count() call mutate() methods, keep the class and return the groups of their input"
+)
+
+# `wt` is evaluated as an expression of the columns and the variables of the calling environment
+wt_df <- data.frame(g = c("a", "b", "a", "b", "b"), x = c(1L, 2L, 3L, NA, 5L), y = c(0.5, 1, NA, 2, 1.5))
+# nolint start: object_usage_linter. `x` and `y` are columns, not global variables.
+wt_fn <- function(data) {
+  k <- 10
+  list(
+    count(data, g, wt = x * k),
+    tally(group_by(data, g), wt = x * k),
+    add_count(data, g, wt = x * k)$n,
+    add_tally(group_by(data, g), wt = x * k)$n,
+    tally(data, wt = x * k),
+    add_count(data, g, wt = y + k, sort = TRUE)$x
+  )
+}
+wt_local <- function(data) {
+  z <- 1
+  w <- NULL
+  list(add_count(data, wt = z)$n, count(data, g, wt = z), tally(data, wt = w))
+}
+wt_mask <- function(data) {
+  x <- 100L
+  count(data, g, wt = x)
+}
+# nolint end
+expect_equal(
+  wt_fn(wt_df),
+  list(
+    data.frame(g = c("a", "b"), n = c(40, 70)),
+    data.frame(g = c("a", "b"), n = c(40, 70)),
+    c(40, 70, 40, 70, 70),
+    c(40, 70, 40, 70, 70),
+    data.frame(n = 110),
+    c(2L, NA, 5L, 1L, 3L)
+  ),
+  info = "count(), tally(), add_count() and add_tally() take an expression of columns and local variables as wt"
+)
+expect_equal(
+  wt_local(wt_df),
+  list(c(1, 1, 1, 1, 1), data.frame(g = c("a", "b"), n = c(1, 1)), data.frame(n = 0L)),
+  info = "wt can be a local variable which is not a column, including NULL"
+)
+expect_equal(
+  wt_mask(wt_df),
+  data.frame(g = c("a", "b"), n = c(4L, 7L)),
+  info = "a column used as wt masks a local variable of the same name"
+)
+expect_equal(
+  list(count(wt_df, g, wt = x), count(wt_df, g, wt = y), count(wt_df, g, wt = 2)),
+  list(
+    data.frame(g = c("a", "b"), n = c(4L, 7L)),
+    data.frame(g = c("a", "b"), n = c(0.5, 4.5)),
+    data.frame(g = c("a", "b"), n = c(2, 2))
+  ),
+  info = "count() sums the non-missing weights of a column, keeping its type, or a constant weight"
+)
+expect_error(count(wt_df, g, wt = "x"), info = "count() does not take a column name as a string for wt")
+expect_warning(
+  tally(group_by(wt_df, g), wt = n()),
+  "`wt = n()` is deprecated",
+  fixed = TRUE,
+  info = "tally() warns that wt = n() is deprecated"
+)
+expect_equal(
+  suppressWarnings(tally(group_by(wt_df, g), wt = n())),
+  data.frame(g = c("a", "b"), n = 2:3),
+  info = "tally() with wt = n() counts the rows"
+)
+
+wt_n <- data.frame(g = c("a", "a", "b"), n = c(5L, 6L, 7L))
+expect_silent(add_tally(wt_n, name = "nn"), info = "add_tally() does not report a column n as a weight")
+expect_equal(
+  list(
+    count(wt_n, g, name = "nn"),
+    tally(wt_n, name = "nn"),
+    add_count(wt_n, g, name = "nn")$nn,
+    add_tally(wt_n, name = "nn")$nn,
+    count(wt_n, g, wt = n, name = "nn")
+  ),
+  list(
+    data.frame(g = c("a", "b"), nn = 2:1),
+    data.frame(nn = 3L),
+    c(2L, 2L, 1L),
+    c(3L, 3L, 3L),
+    data.frame(g = c("a", "b"), nn = c(11L, 7L))
+  ),
+  info = "a column n is used as a weight only when it is given as wt"
 )

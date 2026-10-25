@@ -10,9 +10,10 @@
 #'
 #' @param x A `data.frame`.
 #' @param ... Variables to group by.
-#' @param wt If omitted, will count the number of rows. If specified, will perform a "weighted" count by summing the
-#' (non-missing) values of variable `wt`. If omitted, and column `n` exists, it will automatically be used as a
-#' weighting variable, although you will have to specify `name` to provide a new name for the output.
+#' @param wt Frequency weights. If `NULL`, the default, the rows of each group are counted. Otherwise, the weighted
+#' count of each group is the sum of the (non-missing) values of `wt`, which may be a column or an expression of
+#' columns and variables of the calling environment, e.g. `wt = price * k`. A column named `n` is not used as a
+#' weight unless it is given as `wt`.
 #' @param sort `logical(1)`. If `TRUE`, will show the largest groups at the top.
 #' @param name `character(1)`. The name of the new column in the output. If omitted, it will default to `n`. If there's
 #' already a column called `n`, it will error, and require you to specify the name.
@@ -43,9 +44,11 @@
 count <- function(x, ..., wt = NULL, sort = FALSE, name = NULL) {
   groups <- group_vars(x)
   drop <- group_by_drop_default(x)
-  if (!missing(...)) x <- group_by_caller(x, ..., .add = TRUE, .env = parent.frame())
-  wt <- deparse_var(wt)
-  res <- do.call(tally, list(x, wt, sort, name))
+  env <- parent.frame()
+  if (!missing(...)) x <- group_by_caller(x, ..., .add = TRUE, .env = env)
+  # `wt` is passed on unevaluated and `tally()` is called from the caller's environment, so `tally()` finds the
+  # variables of `wt` where `count()` would
+  res <- do.call(tally, list(x, substitute(wt), sort, name), envir = env)
   restore_groups(res, groups, drop)
 }
 
@@ -53,10 +56,10 @@ count <- function(x, ..., wt = NULL, sort = FALSE, name = NULL) {
 #' @export
 tally <- function(x, wt = NULL, sort = FALSE, name = NULL) {
   name <- check_name(x, name)
-  wt <- deparse_var(wt)
+  n <- count_expr(substitute(wt))
   old <- options(poorman.summarise.inform = FALSE)
   on.exit(options(old), add = TRUE)
-  res <- do.call(summarise, setNames(list(x, tally_n(x, wt)), c(".data", name)))
+  res <- do.call(summarise, setNames(list(x, n), c(".data", name)), envir = parent.frame())
   if (isTRUE(sort)) res <- do.call(arrange, list(res, call("desc", as.name(name))))
   rownames(res) <- NULL
   res
@@ -66,22 +69,22 @@ tally <- function(x, wt = NULL, sort = FALSE, name = NULL) {
 #' @rdname count
 add_count <- function(x, ..., wt = NULL, sort = FALSE, name = NULL) {
   name <- check_name(x, name)
-  wt <- deparse_var(wt)
-  if (missing(...)) return(do.call(add_tally, list(x, wt, sort, name)))
+  env <- parent.frame()
+  wt <- substitute(wt)
+  if (missing(...)) return(do.call(add_tally, list(x, wt, sort, name), envir = env))
   groups <- group_vars(x)
   drop <- group_by_drop_default(x)
-  x <- group_by_caller(x, ..., .add = TRUE, .env = parent.frame())
-  res <- do.call(add_tally, list(x, wt, sort, name))
+  x <- group_by_caller(x, ..., .add = TRUE, .env = env)
+  res <- do.call(add_tally, list(x, wt, sort, name), envir = env)
   restore_groups(res, groups, drop)
 }
 
 #' @export
 #' @rdname count
 add_tally <- function(x, wt = NULL, sort = FALSE, name = NULL) {
-  wt <- deparse_var(wt)
-  n <- tally_n(x, wt)
   name <- check_name(x, name)
-  res <- do.call(mutate, setNames(list(x, n), c(".data", name)))
+  n <- count_expr(substitute(wt))
+  res <- do.call(mutate, setNames(list(x, n), c(".data", name)), envir = parent.frame())
 
   if (isTRUE(sort)) {
     do.call(arrange, list(res, call("desc", as.name(name))))
@@ -90,18 +93,21 @@ add_tally <- function(x, wt = NULL, sort = FALSE, name = NULL) {
   }
 }
 
-tally_n <- function(x, wt) {
-  if (is.null(wt) && "n" %in% colnames(x)) {
-    message("Using `n` as weighting variable")
-    wt <- "n"
+#' Build the expression which counts the rows of a group
+#'
+#' The expression is evaluated by `summarise()` or `mutate()` in the environment of the user, where `n` and `sum` may
+#' be undefined, e.g. when poorman is not attached, or may be other objects. So the functions themselves are put in
+#' the call, rather than their names.
+#'
+#' @param wt The unevaluated `wt` argument of the verb: `NULL` to count rows, or an expression of the weights.
+#' @return A `call`, `n()` or `sum(<wt>, na.rm = TRUE)`.
+#' @noRd
+count_expr <- function(wt) {
+  if (identical(wt, quote(n()))) {
+    warning("`wt = n()` is deprecated\ni You can now omit the `wt` argument", call. = FALSE)
+    wt <- NULL
   }
-  context$setup(.data = x)
-  on.exit(context$clean(), add = TRUE)
-  if (is.null(wt)) {
-    call("n")
-  } else {
-    call("sum", as.name(wt), na.rm = TRUE)
-  }
+  if (is.null(wt)) as.call(list(n)) else as.call(list(sum, wt, na.rm = TRUE))
 }
 
 #' Restore the groups of the input of a counting verb
