@@ -6,6 +6,7 @@
 * Joins now give an error when the join keys of `x` and `y` have incompatible types, such as integer and character, as in `dplyr`. Previously, the keys were silently converted. A natural join of tables with no common columns is now also an error; previously, the mutating joins returned a cross join and the filtering joins returned or dropped every row. Use `by = character()` for a cross join.
 * The mutating joins no longer pass `...` to `merge()`; as in `dplyr`, arguments in `...` are ignored.
 * `inner_join()`, `left_join()`, `right_join()` and `full_join()` gain a `copy` argument, which is ignored, before `suffix`, as in `dplyr`. Code which passes `suffix` by position must now name it.
+* `count()`, `tally()`, `add_count()` and `add_tally()` no longer use a column named `n` as the weight when `wt` is omitted, and no longer give the message "Using `n` as weighting variable". As in `dplyr`, they count the rows; use `wt = n` to weight by the column. A string given as `wt`, e.g. `wt = "x"`, is no longer taken as a column name; as in `dplyr`, it gives an error.
 
 ## New features
 
@@ -58,6 +59,7 @@ Grouped operations are now considerably faster. Groups are identified in a singl
 * `add_count()` now returns the groups of its input, as its documentation says and as `count()` does. Previously, it also grouped the result by the variables it counted, e.g. `add_count(df, g)` returned data grouped by `g`.
 * `add_count(sort = TRUE)` now sorts the rows by the count, largest first. Previously, `sort` was ignored.
 * `add_count()`, `group_split()` and `nest_by()` now find variables in the calling environment, e.g. inside a function. Previously, they gave an "object not found" error, or silently used a global variable of the same name.
+* The `wt` argument of `count()`, `tally()`, `add_count()` and `add_tally()` now takes an expression of columns and finds variables in the calling environment, e.g. `wt = x * k` inside a function, as in `dplyr`. Previously, `wt` had to be a bare column name, and an expression or a local variable gave an "object not found" error. `wt = n()` now gives the `dplyr` deprecation warning and counts the rows.
 * A `mutate()` called inside the arguments of `transmute()`, `group_by()` or `count()`, e.g. in a user function, now finds variables in its own calling environment. Previously, it looked in the environment of the outer verb's caller and gave an "object not found" error.
 * Grouped `filter()` now finds variables in the calling environment, e.g. inside a function. Previously, it gave an "object not found" error.
 * Grouped `filter()` now evaluates its conditions for empty groups, and evaluates every condition for a group before the next group, as in `dplyr`. It now gives the deprecation warning for data frame results once for each condition which returns one, as in `dplyr`. Previously, conditions with the same warning shared a single warning.

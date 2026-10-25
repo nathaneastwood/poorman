@@ -20,9 +20,10 @@ add_tally(x, wt = NULL, sort = FALSE, name = NULL)
 
 \item{...}{Variables to group by.}
 
-\item{wt}{If omitted, will count the number of rows. If specified, will perform a "weighted" count by summing the
-(non-missing) values of variable \code{wt}. If omitted, and column \code{n} exists, it will automatically be used as a
-weighting variable, although you will have to specify \code{name} to provide a new name for the output.}
+\item{wt}{Frequency weights. If \code{NULL}, the default, the rows of each group are counted. Otherwise, the weighted
+count of each group is the sum of the (non-missing) values of \code{wt}, which may be a column or an expression of
+columns and variables of the calling environment, e.g. \code{wt = price * k}. A column named \code{n} is not used as a
+weight unless it is given as \code{wt}.}
 
 \item{sort}{\code{logical(1)}. If \code{TRUE}, will show the largest groups at the top.}
 
