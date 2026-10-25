@@ -520,6 +520,7 @@ result_kind <- function(x) {
 #' As in dplyr, the error names two groups: the group whose result gave the type of the results before the first
 #' incompatible one, and the group of that incompatible result. The type is given by the earliest group whose result
 #' raised it, e.g. from integer to double; a logical vector of only `NA` takes the type of the result that follows it.
+#' Durations of different units combine to seconds, but keep the earlier group.
 #'
 #' @param vals A `list` with the result of the expression for each group.
 #' @param kinds `character(n)`. The kind of each result, as given by `result_kind()`.
@@ -542,7 +543,8 @@ stop_group_types <- function(vals, kinds, dot, details) {
     if (kinds[[g]] != ref_kind) break
     common <- richer_type(ref_type, type)
     if (common != ref_type) {
-      ref <- g
+      # dplyr keeps the earlier group when only the units of a duration change
+      if (!startsWith(common, "duration<")) ref <- g
       ref_type <- common
     }
   }
@@ -559,20 +561,34 @@ stop_group_types <- function(vals, kinds, dot, details) {
 
 #' Name the type of a result in an error message
 #'
-#' Base types are given by `typeof()`, `Date` as `date` and `POSIXct` as `datetime<tz>`, as in dplyr. Other objects are
-#' given by their first class.
+#' Base types are given by `typeof()`, `Date` as `date`, `POSIXct` as `datetime<tz>` and `difftime` as
+#' `duration<units>`, as in dplyr. A matrix or array adds its dimensions other than the rows, e.g. `integer[,2]`, or
+#' `[1d]` if it has one dimension. Other objects are given by their first class.
 #'
 #' @param x A result of an expression for one group.
 #' @return `character(1)`.
 #' @noRd
 type_label <- function(x) {
+  if (is.object(x)) return(object_type_label(x))
+  dims <- dim(x)
+  if (length(dims) == 1L) return(paste0(typeof(x), "[1d]"))
+  if (length(dims) > 1L) return(sprintf("%s[,%s]", typeof(x), paste(dims[-1L], collapse = ",")))
+  typeof(x)
+}
+
+#' Name the type of a result with a class in an error message, for `type_label()`
+#'
+#' @param x A result of an expression for one group, with a class.
+#' @return `character(1)`.
+#' @noRd
+object_type_label <- function(x) {
   if (inherits(x, "Date")) return("date")
   if (inherits(x, "POSIXct")) {
     tz <- attr(x, "tzone", exact = TRUE)[1L]
     return(sprintf("datetime<%s>", if (is.null(tz) || is.na(tz) || !nzchar(tz)) "local" else tz))
   }
-  if (is.object(x)) return(class(x)[1L])
-  typeof(x)
+  if (inherits(x, "difftime")) return(sprintf("duration<%s>", attr(x, "units", exact = TRUE)))
+  class(x)[1L]
 }
 
 #' Find the type of two combined results of the same kind
@@ -581,11 +597,25 @@ type_label <- function(x) {
 #' @return `character(1)`. The type of the combined results.
 #' @noRd
 richer_type <- function(a, b) {
+  # A matrix combined with a vector keeps its dimensions, e.g. an integer matrix and a double give `double[,2]`
+  dims <- sub("^[^[]*", "", c(a, b))
+  dims <- c(dims[nzchar(dims)], "")[[1L]]
+  a <- sub("[[].*", "", a)
+  b <- sub("[[].*", "", b)
   numbers <- c("logical", "integer", "double")
-  if (a %in% numbers && b %in% numbers) return(numbers[max(match(c(a, b), numbers))])
-  # A factor combined with a character vector gives a character vector, and a date combined with a datetime a datetime
-  if (b == "character" || a == "date") return(b)
-  a
+  type <- if (a %in% numbers && b %in% numbers) {
+    numbers[max(match(c(a, b), numbers))]
+  } else if (startsWith(a, "duration<") && a != b) {
+    # Durations of different units are combined in seconds
+    "duration<secs>"
+  } else if (b == "character" || a == "date") {
+    # A factor combined with a character vector gives a character vector, and a date combined with a datetime a
+    # datetime
+    b
+  } else {
+    a
+  }
+  paste0(type, dims)
 }
 
 #' Drop the groups left empty by a verb

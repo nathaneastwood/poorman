@@ -542,15 +542,56 @@ expect_equal(
 )
 expect_error(
   summarise(mt_df, y = if (g[1L] == 1) matrix(1:2, 1L) else "a"),
-  "! `y` must return compatible vectors across groups.",
+  "i Result type for group 1 (g = 1): <integer[,2]>.\ni Result type for group 2 (g = 2): <character>.",
   fixed = TRUE,
-  info = "summarise() cannot combine a numeric matrix with a character"
+  info = "summarise() cannot combine a numeric matrix with a character, and names the matrix by its columns"
 )
 expect_error(
   summarise(mt_df, y = if (g[1L] == 1) matrix(c("a", "b"), 1L) else matrix(1:2, 1L)),
-  "! `y` must return compatible vectors across groups.",
+  "i Result type for group 1 (g = 1): <character[,2]>.\ni Result type for group 2 (g = 2): <integer[,2]>.",
   fixed = TRUE,
   info = "summarise() cannot combine a character matrix with an integer matrix"
+)
+expect_error(
+  summarise(mt_df, y = if (g[1L] == 1) matrix(1.5, 1L, 1L) else "a"),
+  "i Result type for group 1 (g = 1): <double[,1]>.",
+  fixed = TRUE,
+  info = "The type error names a one column matrix by its column"
+)
+expect_error(
+  summarise(mt_df, y = if (g[1L] == 1) array(1:8, c(1L, 2L, 4L)) else "a"),
+  "i Result type for group 1 (g = 1): <integer[,2,4]>.",
+  fixed = TRUE,
+  info = "The type error names an array by its dimensions other than the rows"
+)
+expect_error(
+  summarise(group_by(data.frame(g = 1:3), g), y = if (g == 1L) 1L else if (g == 2L) matrix(1.5, 1L, 2L) else "a"),
+  "i Result type for group 2 (g = 2): <double[,2]>.\ni Result type for group 3 (g = 3): <character>.",
+  fixed = TRUE,
+  info = "The type error names the matrix group which raised the type of the earlier results"
+)
+expect_error(
+  summarise(group_by(data.frame(g = 1:3), g), y = if (g == 1L) matrix(1:2, 1L) else if (g == 2L) 2.5 else "a"),
+  "i Result type for group 2 (g = 2): <double[,2]>.\ni Result type for group 3 (g = 3): <character>.",
+  fixed = TRUE,
+  info = "An integer matrix combined with a double gives a double matrix in the type error"
+)
+
+# Durations across groups
+du_df <- group_by(data.frame(g = 1:3), g)
+du_days <- as.difftime(1, units = "days")
+du_hours <- as.difftime(1, units = "hours")
+expect_error(
+  summarise(du_df, y = if (g == 1L) as.difftime(1, units = "mins") else 2),
+  "i Result type for group 1 (g = 1): <duration<mins>>.\ni Result type for group 2 (g = 2): <double>.",
+  fixed = TRUE,
+  info = "The type error names a difftime as a duration with its units"
+)
+expect_error(
+  summarise(du_df, y = if (g == 1L) du_days else if (g == 2L) du_hours else "a"),
+  "i Result type for group 1 (g = 1): <duration<secs>>.\ni Result type for group 3 (g = 3): <character>.",
+  fixed = TRUE,
+  info = "Durations of different units combine to seconds in the type error, and keep the earlier group"
 )
 
 expect_identical(
