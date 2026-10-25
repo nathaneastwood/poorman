@@ -486,6 +486,33 @@ expect_error(
   fixed = TRUE,
   info = "Ungrouped mutate() gives an error when a result has the wrong size"
 )
+expect_error(
+  mutate(data.frame(x = 1), y = 1:2),
+  "Problem while computing `y = 1:2`.\nx `y` must be size 1, not 2.",
+  fixed = TRUE,
+  info = "The size error of mutate() on data with one row gives the size once"
+)
+expect_error(
+  transmute(data.frame(x = 1), 1:2),
+  "Problem while computing `..1 = 1:2`.\nx `..1` must be size 1, not 2.",
+  fixed = TRUE,
+  info = "The size error of transmute() on data with one row gives the size once"
+)
+expect_error(
+  mutate(group_by(se_df, g1, g2), k = if (g1[1L] == "a") 1:3 else 1L),
+  paste0(
+    "Problem while computing `k = if (g1[1L] == \"a\") 1:3 else 1L`.\nx `k` must be size 2 or 1, not 3.\n",
+    "i The error occurred in group 1: g1 = \"a\", g2 = 1."
+  ),
+  fixed = TRUE,
+  info = "The size error of grouped mutate() gives the size of the group"
+)
+expect_error(
+  transmute(group_by(data.frame(g = c(1, 2, 2), x = 1:3), g), y = 1:2),
+  "Problem while computing `y = 1:2`.\nx `y` must be size 1, not 2.\ni The error occurred in group 1: g = 1.",
+  fixed = TRUE,
+  info = "The size error of grouped transmute() gives the size once for a group with one row"
+)
 
 nv_df <- data.frame(g = c("b", "a", "b", "c", "a"), x = 1:5)
 expect_equal(
