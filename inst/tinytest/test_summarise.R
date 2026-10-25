@@ -362,8 +362,21 @@ expect_error(
 )
 expect_error(
   summarise(group_by(mtcars, cyl), a = if (cyl[1L] == 4) NULL else 1),
-  "can't combine NULL and non NULL results",
+  paste0(
+    "Problem while computing `a = if (cyl[1L] == 4) NULL else 1`.\n",
+    "x `a` must return compatible vectors across groups.\nx Can't combine NULL and non NULL results."
+  ),
+  fixed = TRUE,
   info = "summarise() gives an error for NULL results in only some groups"
+)
+expect_error(
+  summarise(group_by(mtcars, cyl), if (cyl[1L] == 6) NULL else 1),
+  paste0(
+    "Problem while computing `..1 = if (cyl[1L] == 6) NULL else 1`.\n",
+    "x `..1` must return compatible vectors across groups.\nx Can't combine NULL and non NULL results."
+  ),
+  fixed = TRUE,
+  info = "The NULL error of summarise() calls an unnamed expression by its position"
 )
 
 res <- summarise(group_by(mtcars[0, ], cyl, am), n = n())

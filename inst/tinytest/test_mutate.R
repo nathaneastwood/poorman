@@ -684,3 +684,29 @@ expect_identical(
   "",
   info = "Combined datetimes take the local time zone if none is set"
 )
+
+# NULL results in only some groups
+expect_error(
+  mutate(dt_df, y = if (g[1L] == 2) NULL else 1),
+  paste0(
+    "Problem while computing `y = if (g[1L] == 2) NULL else 1`.\n",
+    "x `y` must return compatible vectors across groups.\nx Can't combine NULL and non NULL results."
+  ),
+  fixed = TRUE,
+  info = "mutate() gives an error for NULL results in only some groups"
+)
+expect_error(
+  transmute(dt_df, if (g[1L] == 1) NULL else 1),
+  paste0(
+    "Problem while computing `..1 = if (g[1L] == 1) NULL else 1`.\n",
+    "x `..1` must return compatible vectors across groups.\nx Can't combine NULL and non NULL results."
+  ),
+  fixed = TRUE,
+  info = "The NULL error of transmute() calls an unnamed expression by its position"
+)
+expect_error(
+  mutate(it_df, y = if (g[1L] == 1) "a" else if (g[1L] == 2) 1 else NULL),
+  "x Can't combine NULL and non NULL results.",
+  fixed = TRUE,
+  info = "The NULL error of mutate() comes before the error for incompatible types"
+)
