@@ -675,9 +675,15 @@ expect_equal(
 )
 expect_error(
   mutate(mt_df, y = if (g[1L] == 1) matrix(1:2, 1L) else "a"),
-  "! `y` must return compatible vectors across groups.",
+  "i Result type for group 1 (g = 1): <integer[,2]>.\ni Result type for group 2 (g = 2): <character>.",
   fixed = TRUE,
   info = "mutate() cannot combine a numeric matrix with a character"
+)
+expect_error(
+  mutate(mt_df, y = if (g[1L] == 1) as.difftime(1, units = "secs") else "a"),
+  "i Result type for group 1 (g = 1): <duration<secs>>.\ni Result type for group 2 (g = 2): <character>.",
+  fixed = TRUE,
+  info = "The type error of mutate() names a difftime as a duration with its units"
 )
 
 # Dates and datetimes across groups
