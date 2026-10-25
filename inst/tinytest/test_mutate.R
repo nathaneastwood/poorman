@@ -656,6 +656,30 @@ expect_identical(
   info = "mutate() combines a logical NA with a character"
 )
 
+# Matrix results across groups
+mt_df <- group_by(data.frame(g = c(1, 2, 2)), g)
+expect_equal(
+  unname(ungroup(mutate(mt_df, y = if (g[1L] == 1) matrix(1:2, 1L) else 2.5))$y),
+  matrix(c(1, 2.5, 2.5, 2, 2.5, 2.5), 3L),
+  info = "mutate() combines a matrix with a number, which fills the rows of its group"
+)
+expect_equal(
+  unname(ungroup(mutate(mt_df, y = if (g[1L] == 1) matrix(1:2, 1L) else c(3, 4)))$y),
+  matrix(c(1, 3, 4, 2, 3, 4), 3L),
+  info = "mutate() combines a matrix with a vector, each element filling a row"
+)
+expect_equal(
+  unname(ungroup(mutate(mt_df, y = if (g[1L] == 1) matrix(c("a", "b"), 1L) else "c"))$y),
+  matrix(c("a", "c", "c", "b", "c", "c"), 3L),
+  info = "mutate() combines a character matrix with a character"
+)
+expect_error(
+  mutate(mt_df, y = if (g[1L] == 1) matrix(1:2, 1L) else "a"),
+  "! `y` must return compatible vectors across groups.",
+  fixed = TRUE,
+  info = "mutate() cannot combine a numeric matrix with a character"
+)
+
 # Dates and datetimes across groups
 dt_df <- group_by(data.frame(g = c(1, 2, 2)), g)
 dt_ny <- as.POSIXct("2021-03-04 15:45:00", tz = "America/New_York")
