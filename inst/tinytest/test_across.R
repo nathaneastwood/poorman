@@ -150,6 +150,57 @@ expect_identical(
   info = "across() internal cache key depends on all inputs"
 )
 
+# The selection finds objects in the environment where across() is called, e.g. inside a function
+df <- data.frame(g = c(1, 1, 2), x = c(3, 1, 2), y = c(10, 20, 30), z = c("a", "b", "c"))
+local_selections <- function(df) {
+  cols <- c("x", "y")
+  is_big <- function(v) is.numeric(v) && max(v) > 5
+  pfx <- "y"
+  list(
+    summarise = summarise(df, across(all_of(cols), sum)),
+    grouped = summarise(group_by(df, g), across(all_of(cols), sum)),
+    where = mutate(df, across(where(is_big), ~ .x * 2)),
+    helper = mutate(df, across(starts_with(pfx), ~ .x + 1)),
+    bare = summarise(df, across(cols, sum)),
+    if_any = filter(df, if_any(all_of(cols), ~ .x > 15)),
+    if_all = filter(group_by(df, g), if_all(all_of(cols), ~ .x > 1)),
+    arrange = arrange(df, across(all_of(cols), desc))
+  )
+}
+res <- local_selections(df)
+expect_equal(
+  res$summarise, data.frame(x = 6, y = 60),
+  info = "across() finds a vector given to all_of() in the calling function"
+)
+expect_equal(
+  ungroup(res$grouped), data.frame(g = c(1, 2), x = c(4, 2), y = c(30, 30)),
+  info = "across() finds a vector given to all_of() in the calling function in grouped data"
+)
+expect_equal(
+  res$where, data.frame(g = c(1, 1, 2), x = c(3, 1, 2), y = c(20, 40, 60), z = c("a", "b", "c")),
+  info = "across() finds a predicate given to where() in the calling function"
+)
+expect_equal(
+  res$helper, data.frame(g = c(1, 1, 2), x = c(3, 1, 2), y = c(11, 21, 31), z = c("a", "b", "c")),
+  info = "across() finds a string given to a selection helper in the calling function"
+)
+expect_equal(
+  res$bare, data.frame(x = 6, y = 60),
+  info = "across() finds a bare vector of names in the calling function"
+)
+expect_equal(
+  res$if_any, data.frame(g = c(1, 2), x = c(1, 2), y = c(20, 30), z = c("b", "c"), row.names = 2:3),
+  info = "if_any() finds a vector given to all_of() in the calling function"
+)
+expect_equal(
+  ungroup(res$if_all), data.frame(g = c(1, 2), x = c(3, 2), y = c(10, 30), z = c("a", "c"), row.names = c(1L, 3L)),
+  info = "if_all() finds a vector given to all_of() in the calling function in grouped data"
+)
+expect_equal(
+  res$arrange, data.frame(g = c(1, 2, 1), x = c(3, 2, 1), y = c(10, 30, 20), z = c("a", "c", "b")),
+  info = "across() in arrange() finds a vector given to all_of() in the calling function"
+)
+
 expect_error(
   data.frame(x = 1) %>% summarise(across(everything(), "foo")),
   info = "across() fails on non-function"
