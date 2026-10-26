@@ -120,7 +120,7 @@ across_columns <- function(.cols, .fns, ..., .names, .env, .call) {
   setup <- across_setup(.cols, .fns, .names, .env, .call)
   # The functions are the same objects in every group unless they are made in the expression, e.g. a lambda, which
   # must then be taken from each group so that it sees the columns of its group
-  funs <- if (identical(.fns, setup$fns)) setup$funs else across_funs(.fns)
+  funs <- if (identical(.fns, setup$fns)) setup$funs else across_group_funs(.fns, setup)
   cols <- setup$cols
   n_cols <- length(cols)
   # As in dplyr, no columns still give a data frame with a row for each row of the group, e.g. so that `filter()` keeps
@@ -231,6 +231,40 @@ across_funs <- function(.fns) {
     names(funs)[miss] <- miss
   }
   structure(lapply(funs, as_function), unnamed = attr(funs, "unnamed"))
+}
+
+#' Turn the `.fns` of `across()` in a group into functions, reusing those of the setup
+#'
+#' A lambda written in the expression is a new formula in each group, whose environment is the data mask of the group.
+#' Rather than building its function again, the function built from the same formula by `across_setup()` is given the
+#' environment of the new formula. Any other function which differs from that of the setup is converted as usual.
+#'
+#' @param .fns As in `across()`.
+#' @param setup The setup of the call, as returned by `across_setup()`, made with `.fns` of the same length and names.
+#' @return As `across_funs()`.
+#' @noRd
+across_group_funs <- function(.fns, setup) {
+  funs <- setup$funs
+  if (is.null(.fns) || is.null(funs)) return(across_funs(.fns))
+  fns <- if (is.list(.fns)) .fns else list(.fns)
+  first <- if (is.list(setup$fns)) setup$fns else list(setup$fns)
+  for (i in seq_along(fns)) {
+    fn <- fns[[i]]
+    if (identical(fn, first[[i]])) next
+    if (is_same_lambda(fn, first[[i]])) {
+      f <- funs[[i]]
+      environment(f) <- attr(fn, ".Environment", exact = TRUE)
+      funs[[i]] <- f
+    } else {
+      funs[[i]] <- as_function(fn)
+    }
+  }
+  funs
+}
+
+# Is `fn` the same one-sided formula as `first`, whatever their environments?
+is_same_lambda <- function(fn, first) {
+  is_formula(fn) && length(fn) == 2L && is_formula(first) && identical(fn[[2L]], first[[2L]])
 }
 
 #' Name the results of an `across()` call
