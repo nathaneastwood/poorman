@@ -69,7 +69,51 @@
 #'
 #' @export
 across <- function(.cols = everything(), .fns = NULL, ..., .names = NULL) {
-  setup <- setup_across(substitute(.cols), .fns, .names)
+  across_columns(substitute(.cols), .fns, ..., .names = .names, .env = parent.frame())
+}
+
+#' @rdname across
+#' @export
+if_any <- function(.cols, .fns = NULL, ..., .names = NULL) {
+  df <- across_columns(substitute(.cols), .fns, ..., .names = .names, .env = parent.frame())
+  # As in dplyr, no columns give TRUE, so `filter()` keeps every row, rather than the FALSE of `any()`
+  if (ncol(df) == 0L) return(TRUE)
+  check_if_types(df)
+  Reduce(`|`, df)
+}
+
+#' @rdname across
+#' @export
+if_all <- function(.cols, .fns = NULL, ..., .names = NULL) {
+  df <- across_columns(substitute(.cols), .fns, ..., .names = .names, .env = parent.frame())
+  if (ncol(df) == 0L) return(TRUE)
+  check_if_types(df)
+  Reduce(`&`, df)
+}
+
+check_if_types <- function(df) {
+  types <- vapply(df, class, NA_character_)
+  not_logical <- types != "logical"
+  if (any(not_logical)) {
+    stop(
+      "Cannot convert the following columns to <logical>:\n    ",
+      paste0(colnames(df)[not_logical], " <", types, "> ", collapse = "\n    ")
+    )
+  }
+}
+
+# -- helpers -----------------------------------------------------------------------------------------------------------
+
+#' Apply functions across columns, the body of `across()`, `if_any()` and `if_all()`
+#'
+#' @param .cols The unevaluated selection of columns.
+#' @param .fns,...,.names As in `across()`.
+#' @param .env The `environment` in which `across()` was called, where the objects that the selection uses are found,
+#' e.g. a vector of names given to `all_of()` or a predicate given to `where()`.
+#' @return A `data.frame` with a column for each selected column and each function.
+#' @noRd
+across_columns <- function(.cols, .fns, ..., .names, .env) {
+  setup <- setup_across(.cols, .fns, .names, .env)
   # deal with {.fn} and {.col} in .names
   if (length(setup$names) == 1 && grepl("\\{\\.col\\}|\\{\\.fn\\}", setup$names)) {
     ref <- setup$names
@@ -117,38 +161,6 @@ across <- function(.cols = everything(), .fns = NULL, ..., .names = NULL) {
   across_data_frame(res)
 }
 
-#' @rdname across
-#' @export
-if_any <- function(.cols, .fns = NULL, ..., .names = NULL) {
-  df <- do.call(across, list(.cols = substitute(.cols), .fns = .fns, ..., .names = .names))
-  # As in dplyr, no columns give TRUE, so `filter()` keeps every row, rather than the FALSE of `any()`
-  if (ncol(df) == 0L) return(TRUE)
-  check_if_types(df)
-  Reduce(`|`, df)
-}
-
-#' @rdname across
-#' @export
-if_all <- function(.cols, .fns = NULL, ..., .names = NULL) {
-  df <- do.call(across, list(.cols = substitute(.cols), .fns = .fns, ..., .names = .names))
-  if (ncol(df) == 0L) return(TRUE)
-  check_if_types(df)
-  Reduce(`&`, df)
-}
-
-check_if_types <- function(df) {
-  types <- vapply(df, class, NA_character_)
-  not_logical <- types != "logical"
-  if (any(not_logical)) {
-    stop(
-      "Cannot convert the following columns to <logical>:\n    ",
-      paste0(colnames(df)[not_logical], " <", types, "> ", collapse = "\n    ")
-    )
-  }
-}
-
-# -- helpers -----------------------------------------------------------------------------------------------------------
-
 # A faster equivalent of `as.data.frame(x)` for the common case where each result is a plain vector of the same
 # length, with names which `as.data.frame()` would leave unchanged. Anything else falls back to `as.data.frame()`.
 across_data_frame <- function(x) {
@@ -162,8 +174,8 @@ across_data_frame <- function(x) {
   x
 }
 
-setup_across <- function(.cols, .fns, .names) {
-  cols <- eval_select_pos(.data = context$.data, .cols, .group_pos = FALSE)
+setup_across <- function(.cols, .fns, .names, .env) {
+  cols <- eval_select_pos(.data = context$.data, .cols, .group_pos = FALSE, .env = .env)
   cols <- context$get_colnames()[cols]
   if (context$is_grouped()) cols <- setdiff(cols, group_vars(context$.data))
 
