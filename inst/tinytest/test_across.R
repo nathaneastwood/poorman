@@ -447,5 +447,10 @@ expect_equal(
   data.frame(g = c(1, 2), x = c(3L, 3L), y = c(30, 30)),
   info = "where() in across() does not test the grouping columns"
 )
+expect_equal(
+  summarise(gdf, across(where(~ is.numeric(.x) && mean(.x) > 3), sum)),
+  data.frame(g = c(1, 2), y = c(30, 30)),
+  info = "where() in across() accepts a formula"
+)
 
 rm(gdf)

@@ -2,12 +2,13 @@
 #'
 #' This selection helper selects the variables for which a function returns `TRUE`.
 #'
-#' @param fn A function that returns `TRUE` or `FALSE`.
+#' @param fn A function that returns `TRUE` or `FALSE`, or a lambda, e.g. `~ is.numeric(.x)`.
 #'
 #' @examples
 #' iris %>% select(where(is.numeric))
 #' iris %>% select(where(function(x) is.numeric(x)))
 #' iris %>% select(where(function(x) is.numeric(x) && mean(x) > 3.5))
+#' iris %>% select(where(~ is.numeric(.x) && mean(.x) > 3.5))
 #'
 #' @return A vector of `integer` column positions which are the result of the `fn` evaluation.
 #'
@@ -15,6 +16,7 @@
 #'
 #' @export
 where <- function(fn) {
+  if (is_formula(fn)) fn <- as_function(fn)
   if (!is.function(fn)) {
     stop(deparse_var(fn), " is not a valid predicate function.")
   }

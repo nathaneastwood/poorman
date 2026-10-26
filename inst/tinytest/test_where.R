@@ -38,3 +38,23 @@ expect_error(
 )
 
 rm(df)
+
+df <- data.frame(a = 1:3, b = c("x", "y", "z"), d = c(10, 20, 30))
+expect_equal(
+  select(df, where(~ is.numeric(.x))),
+  df[, c("a", "d")],
+  info = "where() accepts a formula"
+)
+expect_equal(
+  select(df, where(~ is.numeric(.) && mean(.) > 5)),
+  df[, "d", drop = FALSE],
+  info = "where() accepts a formula using the . pronoun"
+)
+expect_equal(
+  select(group_by(df, a), where(~ is.character(.x))),
+  group_by(df[, c("a", "b")], a),
+  info = "where() accepts a formula in grouped data"
+)
+expect_error(select(df, where(y ~ is.numeric(.x))), info = "where() rejects a two-sided formula")
+expect_error(select(df, where(1)), info = "where() rejects an object which is not a function or a formula")
+rm(df)
