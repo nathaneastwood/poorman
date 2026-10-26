@@ -453,4 +453,24 @@ expect_equal(
   info = "where() in across() accepts a formula"
 )
 
-rm(gdf)
+# Lambdas made in the expression are converted once and given the environment of each group
+expect_equal(
+  ungroup(mutate(gdf, across(c(x, y), list(a = ~ .x + n(), b = ~ .x * cur_group_id())))),
+  data.frame(
+    g = c(1, 1, 2), x = 1:3, y = c(10, 20, 30), z = c("a", "b", "c"),
+    x_a = c(3, 4, 4), x_b = c(1, 2, 6), y_a = c(12, 22, 31), y_b = c(10, 20, 60)
+  ),
+  info = "a lambda in across() sees the data of each group"
+)
+k <- 0
+expect_equal(
+  ungroup(mutate(gdf, across(x, ~ .x + max(y) + k))),
+  data.frame(g = c(1, 1, 2), x = c(21, 22, 33), y = c(10, 20, 30), z = c("a", "b", "c")),
+  info = "a lambda in across() sees the columns of each group and the calling environment"
+)
+expect_equal(
+  ungroup(mutate(gdf, across(x, if (cur_group_id() == 1L) list(~ .x * 10) else list(~ .x * 100)))),
+  data.frame(g = c(1, 1, 2), x = c(10, 20, 300), y = c(10, 20, 30), z = c("a", "b", "c")),
+  info = "a lambda in across() which differs between groups is used in its group"
+)
+rm(gdf, k)
