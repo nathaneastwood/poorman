@@ -3,9 +3,6 @@
 # dependency check CRAN runs on incoming submissions. Run it before submitting to CRAN.
 on:
   workflow_dispatch:
-  push:
-    branches: [main, master]
-    paths: ['R/**', 'DESCRIPTION', 'NAMESPACE']
 
 name: revdep
 
