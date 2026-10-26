@@ -110,12 +110,15 @@ check_if_types <- function(df) {
 #' @param .fns,...,.names As in `across()`.
 #' @param .env The `environment` in which `across()` was called, where the objects that the selection uses are found,
 #' e.g. a vector of names given to `all_of()` or a predicate given to `where()`.
-#' @param .call The call to `across()`, `if_any()` or `if_all()`, which identifies it amongst the calls of the expression.
+#' @param .call The call to `across()`, `if_any()` or `if_all()`, which identifies it amongst the calls of the
+#' expression.
 #' @return A `data.frame` with a column for each selected column and each function.
 #' @noRd
 across_columns <- function(.cols, .fns, ..., .names, .env, .call) {
-  funs <- across_funs(.fns)
-  setup <- across_setup(.cols, funs, .names, .env, .call)
+  setup <- across_setup(.cols, .fns, .names, .env, .call)
+  # The functions are the same objects in every group unless they are made in the expression, e.g. a lambda, which
+  # must then be taken from each group so that it sees the columns of its group
+  funs <- if (identical(.fns, setup$fns)) setup$funs else across_funs(.fns)
   cols <- setup$cols
   n_cols <- length(cols)
   # As in dplyr, no columns still give a data frame with a row for each row of the group, e.g. so that `filter()` keeps
@@ -146,8 +149,8 @@ across_columns <- function(.cols, .fns, ..., .names, .env, .call) {
       k <- k + 1L
     }
   }
-  if (is.null(names(res))) names(res) <- names
-  across_data_frame(res)
+  names(res) <- names
+  across_data_frame(res, setup$plain_names)
 }
 
 #' Find the columns of an `across()` call and the names of its results
@@ -155,29 +158,30 @@ across_columns <- function(.cols, .fns, ..., .names, .env, .call) {
 #' Within a grouped verb, the selection is made in the first group that the call is evaluated in and kept in
 #' `context$across_setups` for the other groups of the expression. As in dplyr, the columns are therefore the same in
 #' every group, and `where()` tests the full columns rather than those of one group. A call is identified by its
-#' expression, the environment it is evaluated in, the names of its functions and `.names`; the environment of a call
-#' evaluated directly in the expression is the data mask of each group, which stands for all of them.
+#' expression, the environment it is evaluated in, the number and names of its functions and `.names`; the environment
+#' of a call evaluated directly in the expression is the data mask of each group, which stands for all of them.
 #'
-#' @param .cols,.names,.env,.call As in `across_columns()`.
-#' @param funs The functions of the call, as returned by `across_funs()`.
-#' @return A `list` with `cols`, the names of the selected columns, and `names`, the names of the results.
+#' @param .cols,.fns,.names,.env,.call As in `across_columns()`.
+#' @return A `list` with `cols`, the names of the selected columns, `names`, the names of the results, `plain_names`,
+#' whether `as.data.frame()` would keep those names as they are, and `fns` and `funs`, the `.fns` that the setup was
+#' made with and its functions, as returned by `across_funs()`.
 #' @noRd
-across_setup <- function(.cols, funs, .names, .env, .call) {
+across_setup <- function(.cols, .fns, .names, .env, .call) {
   mask <- context$mask
-  env <- if (!is.null(mask) && identical(.env, mask)) NULL else .env
-  fn_key <- list(names(funs), attr(funs, "unnamed"))
-  for (setup in context$across_setups) {
-    if (
-      identical(setup$call, .call) && identical(setup$env, env) && identical(setup$fn_key, fn_key) &&
-        identical(setup$names_spec, .names)
-    ) {
-      return(setup)
-    }
-  }
+  key <- list(
+    call = .call,
+    env = if (!is.null(mask) && identical(.env, mask)) NULL else .env,
+    # The names of the results depend on how many functions there are and on their names, not on the functions
+    fns = if (is.list(.fns)) list(length(.fns), names(.fns)) else is.null(.fns),
+    names = .names
+  )
+  for (setup in context$across_setups) if (identical(setup$key, key)) return(setup)
   cols <- across_select(.cols, .env)
+  funs <- across_funs(.fns)
+  names <- across_names(cols, funs, .names)
   setup <- list(
-    call = .call, env = env, fn_key = fn_key, names_spec = .names, cols = cols,
-    names = across_names(cols, funs, .names)
+    key = key, cols = cols, names = names,
+    plain_names = !is.null(names) && identical(make.names(names, unique = TRUE), names), fns = .fns, funs = funs
   )
   if (!is.null(mask)) context$across_setups <- c(context$across_setups, list(setup))
   setup
@@ -227,27 +231,33 @@ across_funs <- function(.fns) {
 #' @noRd
 across_names <- function(cols, funs, .names) {
   if (is.null(funs)) return(.names)
-  fn_names <- unique(names(funs))
-  if (!is.null(.names)) {
-    if (length(.names) != 1L || !grepl("\\{\\.col\\}|\\{\\.fn\\}", .names) || length(cols) == 0L) return(.names)
-    # gluestick() fills in every name at once, as `.col` and `.fn` are vectors
-    return(gluestick(.names, src = list(
-      .col = rep(cols, each = length(fn_names)), .fn = rep(fn_names, times = length(cols))
-    )))
-  }
+  if (!is.null(.names)) return(fill_names_template(.names, cols, unique(names(funs))))
   if (length(funs) == 1L && isTRUE(attr(funs, "unnamed"))) return(cols)
   nms <- do.call(paste, c(rev(expand.grid(names(funs), cols)), sep = "_"))
   if (length(nms) == 0L) NULL else nms
 }
 
+#' Fill in a `.names` template of `across()`
+#'
+#' @param .names As in `across()`.
+#' @param cols `character(n)`. The selected columns.
+#' @param fn_names `character()`. The names of the functions.
+#' @return `character()`. The name of each result, or `.names` as it is if it is not a template using `{.col}` or
+#' `{.fn}`.
+#' @noRd
+fill_names_template <- function(.names, cols, fn_names) {
+  if (length(.names) != 1L || !grepl("\\{\\.col\\}|\\{\\.fn\\}", .names) || length(cols) == 0L) return(.names)
+  # gluestick() fills in every name at once, as `.col` and `.fn` are vectors
+  gluestick(.names, src = list(.col = rep(cols, each = length(fn_names)), .fn = rep(fn_names, times = length(cols))))
+}
+
 # A faster equivalent of `as.data.frame(x)` for the common case where each result is a plain vector of the same
-# length, with names which `as.data.frame()` would leave unchanged. Anything else falls back to `as.data.frame()`.
-across_data_frame <- function(x) {
-  n <- unique(lengths(x))
-  nms <- names(x)
-  plain <- length(n) == 1L && !is.null(nms) &&
-    all(vapply(x, function(col) is.atomic(col) && is.null(attributes(col)), NA))
-  if (!plain || !identical(make.names(nms, unique = TRUE), nms)) return(as.data.frame(x))
+# length, with names which `as.data.frame()` would leave unchanged (`plain_names`, found once for each expression by
+# `across_setup()`). Anything else falls back to `as.data.frame()`.
+across_data_frame <- function(x, plain_names) {
+  if (!plain_names || !all(vapply(x, is_bare_atomic, NA))) return(as.data.frame(x))
+  n <- length(x[[1L]])
+  if (!all(lengths(x) == n)) return(as.data.frame(x))
   attr(x, "row.names") <- .set_row_names(n)
   class(x) <- "data.frame"
   x

@@ -310,7 +310,6 @@ eval_expression <- function(dot, masks, layout, seen, drop_null, transform) {
     vals[g] <- list(value)
     if (spread && is.data.frame(value)) {
       list2env(value, envir = mask)
-      seen$col_names <- union(seen$col_names, names(value))
     } else {
       assign(label, value, envir = mask)
     }
@@ -328,9 +327,15 @@ eval_expression <- function(dot, masks, layout, seen, drop_null, transform) {
 #' @return `NULL`, invisibly; `seen` is updated in place.
 #' @noRd
 track_result <- function(seen, vals, dot, drop_null) {
+  # The columns of a data frame result are spread into the masks, so `.data` holds them. They are added once all of
+  # the groups are evaluated: until then, a group only holds the columns of its own result
+  is_df <- vapply(vals, is.data.frame, NA)
+  if (dot$unnamed && any(is_df)) {
+    seen$col_names <- union(seen$col_names, unlist(lapply(vals[is_df], names), use.names = FALSE))
+  }
   if (drop_null && all(vapply(vals, is.null, NA))) {
     seen$col_names <- setdiff(seen$col_names, dot$label)
-  } else if (!dot$unnamed || !all(vapply(vals, is.data.frame, NA))) {
+  } else if (!dot$unnamed || !all(is_df)) {
     seen$col_names <- union(seen$col_names, dot$label)
     seen$results <- union(seen$results, dot$label)
   } else {

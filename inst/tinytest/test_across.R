@@ -265,6 +265,11 @@ expect_equal(
   info = "the functions of across() see the columns of their own group"
 )
 expect_equal(
+  ungroup(mutate(gdf, across(x, function(v) v + y), s = cur_data()$x)),
+  data.frame(g = c(2, 1, 2, 1), x = c(13, 25, 37, 41), y = c(10, 20, 30, 40), s = c(13, 25, 37, 41)),
+  info = "a function made in the expression sees the columns of its own group, and later expressions see the results"
+)
+expect_equal(
   ungroup(mutate(gdf, n = ncol(summarise(data.frame(p = 1, q = 2), across(everything(), sum))), across(x, ~ .x * n))),
   data.frame(g = c(2, 1, 2, 1), x = c(6, 10, 14, 2), y = c(10, 20, 30, 40), n = c(2L, 2L, 2L, 2L)),
   info = "across() in a verb inside an expression keeps the selections of the outer verb apart"
