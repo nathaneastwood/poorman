@@ -69,13 +69,13 @@
 #'
 #' @export
 across <- function(.cols = everything(), .fns = NULL, ..., .names = NULL) {
-  across_columns(substitute(.cols), .fns, ..., .names = .names, .env = parent.frame())
+  across_columns(substitute(.cols), .fns, ..., .names = .names, .env = parent.frame(), .call = sys.call())
 }
 
 #' @rdname across
 #' @export
 if_any <- function(.cols, .fns = NULL, ..., .names = NULL) {
-  df <- across_columns(substitute(.cols), .fns, ..., .names = .names, .env = parent.frame())
+  df <- across_columns(substitute(.cols), .fns, ..., .names = .names, .env = parent.frame(), .call = sys.call())
   # As in dplyr, no columns give TRUE, so `filter()` keeps every row, rather than the FALSE of `any()`
   if (ncol(df) == 0L) return(TRUE)
   check_if_types(df)
@@ -85,7 +85,7 @@ if_any <- function(.cols, .fns = NULL, ..., .names = NULL) {
 #' @rdname across
 #' @export
 if_all <- function(.cols, .fns = NULL, ..., .names = NULL) {
-  df <- across_columns(substitute(.cols), .fns, ..., .names = .names, .env = parent.frame())
+  df <- across_columns(substitute(.cols), .fns, ..., .names = .names, .env = parent.frame(), .call = sys.call())
   if (ncol(df) == 0L) return(TRUE)
   check_if_types(df)
   Reduce(`&`, df)
@@ -110,24 +110,12 @@ check_if_types <- function(df) {
 #' @param .fns,...,.names As in `across()`.
 #' @param .env The `environment` in which `across()` was called, where the objects that the selection uses are found,
 #' e.g. a vector of names given to `all_of()` or a predicate given to `where()`.
+#' @param .call The call to `across()`, `if_any()` or `if_all()`, which identifies it amongst the calls of the expression.
 #' @return A `data.frame` with a column for each selected column and each function.
 #' @noRd
-across_columns <- function(.cols, .fns, ..., .names, .env) {
-  setup <- setup_across(.cols, .fns, .names, .env)
-  # deal with {.fn} and {.col} in .names
-  if (length(setup$names) == 1 && grepl("\\{\\.col\\}|\\{\\.fn\\}", setup$names)) {
-    ref <- setup$names
-    id <- 1
-    fn_names <- unique(names(setup$funs))
-    for (i in seq_along(setup$cols)) {
-      .col <- setup$cols[i]
-      for (j in seq_along(fn_names)) {
-        .fn <- fn_names[j]
-        setup$names[id] <- gluestick(ref)
-        id <- id + 1
-      }
-    }
-  }
+across_columns <- function(.cols, .fns, ..., .names, .env, .call) {
+  funs <- across_funs(.fns)
+  setup <- across_setup(.cols, funs, .names, .env, .call)
   cols <- setup$cols
   n_cols <- length(cols)
   # As in dplyr, no columns still give a data frame with a row for each row of the group, e.g. so that `filter()` keeps
@@ -135,17 +123,18 @@ across_columns <- function(.cols, .fns, ..., .names, .env) {
   if (n_cols == 0L) {
     return(structure(list(), names = character(), row.names = .set_row_names(context$get_nrow()), class = "data.frame"))
   }
-  funs <- setup$funs
-  data <- context$get_columns(cols)
   names <- setup$names
   if (is.null(funs)) {
-    data <- data.frame(data)
+    data <- data.frame(context$get_columns(cols))
     if (is.null(names)) {
       return(data)
     } else {
       return(setNames(data, names))
     }
   }
+  # Within a grouped verb the columns are read from the data mask of the group, which is faster than building `.data`
+  mask <- context$mask
+  data <- if (is.null(mask)) as.list(context$get_columns(cols)) else mget(cols, envir = mask, inherits = FALSE)
   n_fns <- length(funs)
   res <- vector(mode = "list", length = n_fns * n_cols)
   k <- 1L
@@ -161,6 +150,96 @@ across_columns <- function(.cols, .fns, ..., .names, .env) {
   across_data_frame(res)
 }
 
+#' Find the columns of an `across()` call and the names of its results
+#'
+#' Within a grouped verb, the selection is made in the first group that the call is evaluated in and kept in
+#' `context$across_setups` for the other groups of the expression. As in dplyr, the columns are therefore the same in
+#' every group, and `where()` tests the full columns rather than those of one group. A call is identified by its
+#' expression, the environment it is evaluated in, the names of its functions and `.names`; the environment of a call
+#' evaluated directly in the expression is the data mask of each group, which stands for all of them.
+#'
+#' @param .cols,.names,.env,.call As in `across_columns()`.
+#' @param funs The functions of the call, as returned by `across_funs()`.
+#' @return A `list` with `cols`, the names of the selected columns, and `names`, the names of the results.
+#' @noRd
+across_setup <- function(.cols, funs, .names, .env, .call) {
+  mask <- context$mask
+  env <- if (!is.null(mask) && identical(.env, mask)) NULL else .env
+  fn_key <- list(names(funs), attr(funs, "unnamed"))
+  for (setup in context$across_setups) {
+    if (
+      identical(setup$call, .call) && identical(setup$env, env) && identical(setup$fn_key, fn_key) &&
+        identical(setup$names_spec, .names)
+    ) {
+      return(setup)
+    }
+  }
+  cols <- across_select(.cols, .env)
+  setup <- list(
+    call = .call, env = env, fn_key = fn_key, names_spec = .names, cols = cols,
+    names = across_names(cols, funs, .names)
+  )
+  if (!is.null(mask)) context$across_setups <- c(context$across_setups, list(setup))
+  setup
+}
+
+#' Select the columns of an `across()` call
+#'
+#' @param .cols,.env As in `across_columns()`.
+#' @return `character(n)`. The names of the selected columns, without the grouping columns.
+#' @noRd
+across_select <- function(.cols, .env) {
+  cols <- eval_select_pos(
+    .data = context$.data, .cols, .group_pos = FALSE, .env = .env, .values = context$full_data
+  )
+  cols <- context$get_colnames()[cols]
+  if (context$is_grouped()) cols <- setdiff(cols, group_vars(context$.data))
+  cols
+}
+
+#' Turn the `.fns` of `across()` into a named `list` of functions
+#'
+#' @param .fns As in `across()`.
+#' @return A `list` of functions named by their names in `.fns`, or by their position where they have none, or `NULL`
+#' if `.fns` is `NULL`.
+#' @noRd
+across_funs <- function(.fns) {
+  if (is.null(.fns)) return(NULL)
+  funs <- if (!is.list(.fns)) list(.fns) else .fns
+  f_nms <- names(funs)
+  if (is.null(f_nms)) {
+    names(funs) <- seq_along(funs)
+    # A single unnamed function names its results after the columns alone
+    attr(funs, "unnamed") <- TRUE
+  } else if (any(nchar(f_nms) == 0L)) {
+    miss <- which(nchar(f_nms) == 0L)
+    names(funs)[miss] <- miss
+  }
+  structure(lapply(funs, as_function), unnamed = attr(funs, "unnamed"))
+}
+
+#' Name the results of an `across()` call
+#'
+#' @param cols `character(n)`. The selected columns.
+#' @param funs The functions, as returned by `across_funs()`.
+#' @param .names As in `across()`.
+#' @return `character()` with the name of each result, or `NULL` to keep the names of the columns.
+#' @noRd
+across_names <- function(cols, funs, .names) {
+  if (is.null(funs)) return(.names)
+  fn_names <- unique(names(funs))
+  if (!is.null(.names)) {
+    if (length(.names) != 1L || !grepl("\\{\\.col\\}|\\{\\.fn\\}", .names) || length(cols) == 0L) return(.names)
+    # gluestick() fills in every name at once, as `.col` and `.fn` are vectors
+    return(gluestick(.names, src = list(
+      .col = rep(cols, each = length(fn_names)), .fn = rep(fn_names, times = length(cols))
+    )))
+  }
+  if (length(funs) == 1L && isTRUE(attr(funs, "unnamed"))) return(cols)
+  nms <- do.call(paste, c(rev(expand.grid(names(funs), cols)), sep = "_"))
+  if (length(nms) == 0L) NULL else nms
+}
+
 # A faster equivalent of `as.data.frame(x)` for the common case where each result is a plain vector of the same
 # length, with names which `as.data.frame()` would leave unchanged. Anything else falls back to `as.data.frame()`.
 across_data_frame <- function(x) {
@@ -172,36 +251,4 @@ across_data_frame <- function(x) {
   attr(x, "row.names") <- .set_row_names(n)
   class(x) <- "data.frame"
   x
-}
-
-setup_across <- function(.cols, .fns, .names, .env) {
-  cols <- eval_select_pos(.data = context$.data, .cols, .group_pos = FALSE, .env = .env)
-  cols <- context$get_colnames()[cols]
-  if (context$is_grouped()) cols <- setdiff(cols, group_vars(context$.data))
-
-  funs <- if (is.null(.fns)) NULL else if (!is.list(.fns)) list(.fns) else .fns
-  if (is.null(funs)) return(list(cols = cols, funs = funs, names = .names))
-  f_nms <- names(funs)
-  if (is.null(f_nms) && !is.null(.fns)) names(funs) <- seq_along(funs)
-  if (any(nchar(f_nms) == 0L)) {
-    miss <- which(nchar(f_nms) == 0L)
-    names(funs)[miss] <- miss
-    f_nms <- names(funs)
-  }
-
-  funs <- lapply(funs, as_function)
-
-  names <- if (!is.null(.names)) {
-    .names
-  } else {
-    if (length(funs) == 1L && is.null(f_nms)) {
-      cols
-    } else {
-      nms <- do.call(paste, c(rev(expand.grid(names(funs), cols)), sep = "_"))
-      if (length(nms) == 0L) nms <- NULL
-      nms
-    }
-  }
-
-  list(cols = cols, funs = funs, names = names)
 }

@@ -201,6 +201,80 @@ expect_equal(
   info = "across() in arrange() finds a vector given to all_of() in the calling function"
 )
 
+# The columns are selected once for each expression, and where() tests the full columns rather than those of a group
+expect_equal(
+  ungroup(summarise(
+    group_by(data.frame(g = c(1, 1, 2, 2), x = c(1, 2, 10, 20), y = c(5, 5, 0, 0)), g),
+    across(where(function(v) mean(v) > 3), sum)
+  )),
+  data.frame(g = c(1, 2), x = c(3, 30)),
+  info = "across() selects the same columns in every group, by testing the full columns in where()"
+)
+calls <- 0L
+counting <- function(v) {
+  calls <<- calls + 1L
+  is.numeric(v)
+}
+invisible(summarise(group_by(data.frame(g = rep(1:5, 2), x = 1:10, y = 1:10), g), across(where(counting), sum)))
+expect_true(calls <= 3L, info = "across() tests each column once in where(), not once for each group")
+
+gdf <- group_by(data.frame(g = c(2, 1, 2, 1), x = c(3, 5, 7, 1), y = c(10, 20, 30, 40)), g)
+expect_equal(
+  ungroup(mutate(gdf, x = x * 100, across(where(function(v) mean(v) > 300), ~ 0))),
+  data.frame(g = c(2, 1, 2, 1), x = c(0, 0, 0, 0), y = c(10, 20, 30, 40)),
+  info = "where() in mutate() tests the full column made by an earlier expression"
+)
+expect_equal(
+  summarise(gdf, s = sum(x), across(where(function(v) all(v > 5)), max)),
+  data.frame(g = c(1, 2), s = c(6, 10), y = c(40, 30)),
+  info = "where() in summarise() tests the summaries of every group made by an earlier expression"
+)
+expect_equal(
+  ungroup(mutate(gdf, across(where(function(v) v[1] == 3), ~ -.x))),
+  data.frame(g = c(2, 1, 2, 1), x = c(-3, -5, -7, -1), y = c(10, 20, 30, 40)),
+  info = "where() tests the columns in the order of the rows, not of the groups"
+)
+expect_equal(
+  ungroup(mutate(
+    gdf, s = sum(x), k = 1,
+    across(where(function(v) identical(v, c(10, 6, 10, 6)) || identical(v, c(1, 1, 1, 1))), ~ .x * 0)
+  )),
+  data.frame(g = c(2, 1, 2, 1), x = c(3, 5, 7, 1), y = c(10, 20, 30, 40), s = c(0, 0, 0, 0), k = c(0, 0, 0, 0)),
+  info = "where() in mutate() tests the full columns of earlier results, recycled to the rows and in their order"
+)
+expect_equal(
+  ungroup(summarise(gdf, s = range(x), across(where(function(v) identical(v, c(1, 5, 3, 7))), ~ .x * 10))),
+  data.frame(g = c(1, 1, 2, 2), s = c(10, 50, 30, 70)),
+  info = "where() in summarise() tests the results of every group, in the order of the groups"
+)
+
+across_x <- function(fn) across(x, fn)
+expect_equal(
+  ungroup(mutate(gdf, data.frame(a = across_x(min)$x, b = across_x(max)$x))),
+  data.frame(g = c(2, 1, 2, 1), x = c(3, 5, 7, 1), y = c(10, 20, 30, 40), a = c(3, 1, 3, 1), b = c(7, 5, 7, 5)),
+  info = "across() called from a function in the expression uses the functions of each call"
+)
+expect_equal(
+  ungroup(mutate(gdf, z = across(x, if (cur_group_id() == 1L) ~ .x * 10 else ~ .x * 100)$x)),
+  data.frame(g = c(2, 1, 2, 1), x = c(3, 5, 7, 1), y = c(10, 20, 30, 40), z = c(300, 50, 700, 10)),
+  info = "across() uses the functions it is given in each group"
+)
+expect_equal(
+  ungroup(mutate(gdf, across(x, ~ .x + y))),
+  data.frame(g = c(2, 1, 2, 1), x = c(13, 25, 37, 41), y = c(10, 20, 30, 40)),
+  info = "the functions of across() see the columns of their own group"
+)
+expect_equal(
+  ungroup(mutate(gdf, n = ncol(summarise(data.frame(p = 1, q = 2), across(everything(), sum))), across(x, ~ .x * n))),
+  data.frame(g = c(2, 1, 2, 1), x = c(6, 10, 14, 2), y = c(10, 20, 30, 40), n = c(2L, 2L, 2L, 2L)),
+  info = "across() in a verb inside an expression keeps the selections of the outer verb apart"
+)
+expect_equal(
+  summarise(gdf, across(c(x, y), list(lo = min, hi = max), .names = "{.fn}_{toupper(.col)}")),
+  data.frame(g = c(1, 2), lo_X = c(1, 3), hi_X = c(5, 7), lo_Y = c(20, 10), hi_Y = c(40, 30)),
+  info = "across() fills in .names templates with expressions of .col and .fn"
+)
+
 expect_error(
   data.frame(x = 1) %>% summarise(across(everything(), "foo")),
   info = "across() fails on non-function"
