@@ -34,7 +34,9 @@ equivalent to "\code{{.col}}" for the single function case and "\verb{\{.col\}_\
 the case where a list is used for \code{.fns}.}
 
 \item{cols, .cols}{<\code{\link[=select_helpers]{poor-select}}> Columns to transform. Because \code{across()} is used within functions
-like \code{summarise()} and \code{mutate()}, you can't select or compute upon grouping variables.}
+like \code{summarise()} and \code{mutate()}, you can't select or compute upon grouping variables: positions count the other
+columns, and \code{where()} does not test the grouping variables. Unlike \code{dplyr} 1.0.10, where \code{group_cols()} gives an
+error within \code{across()}, \code{group_cols()} selects no columns, so \code{-group_cols()} selects every column.}
 }
 \value{
 \code{across()} returns a \code{data.frame} with one column for each column in \code{.cols} and each function in \code{.fns}.

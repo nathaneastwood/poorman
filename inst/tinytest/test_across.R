@@ -391,3 +391,61 @@ expect_equal(
   data.frame(g = c("a", "b"), k = TRUE),
   info = "if_all() without columns gives TRUE in grouped summarise()"
 )
+
+# As in dplyr, the grouping columns are not part of the columns that across() selects from, so positions count the
+# other columns and a grouping column cannot be selected
+gdf <- group_by(data.frame(g = c(1, 1, 2), x = 1:3, y = c(10, 20, 30), z = c("a", "b", "c")), g)
+expect_equal(
+  summarise(gdf, across(1, sum)),
+  data.frame(g = c(1, 2), x = c(3L, 3L)),
+  info = "across() counts positions without the grouping columns"
+)
+expect_equal(
+  summarise(gdf, across(1:2, sum)),
+  data.frame(g = c(1, 2), x = c(3L, 3L), y = c(30, 30)),
+  info = "across() selects a range of positions without the grouping columns"
+)
+expect_equal(
+  summarise(gdf, across(-1, ~ .x[1])),
+  data.frame(g = c(1, 2), y = c(10, 30), z = c("a", "c")),
+  info = "across() deselects positions without the grouping columns"
+)
+expect_error(summarise(gdf, across(g, sum)), info = "across() cannot select a grouping column by name")
+expect_error(summarise(gdf, across("g", sum)), info = "across() cannot select a grouping column by string")
+expect_error(summarise(gdf, across(4, sum)), info = "across() counts the columns without the grouping columns")
+expect_equal(
+  ungroup(mutate(gdf, w = x * 2, across(4, ~ .x + 1000))),
+  data.frame(g = c(1, 1, 2), x = 1:3, y = c(10, 20, 30), z = c("a", "b", "c"), w = c(1002, 1004, 1006)),
+  info = "across() in mutate() counts the columns made by earlier expressions after the other columns"
+)
+expect_equal(
+  ungroup(filter(gdf, if_any(1, ~ .x > 1))),
+  data.frame(g = c(1, 2), x = 2:3, y = c(20, 30), z = c("b", "c"), row.names = 2:3),
+  info = "if_any() counts positions without the grouping columns"
+)
+# Unlike dplyr 1.0.10, where group_cols() fails inside across(), it selects nothing there, so -group_cols() selects
+# every column
+expect_equal(
+  summarise(gdf, across(-group_cols(), ~ .x[1])),
+  data.frame(g = c(1, 2), x = c(1L, 3L), y = c(10, 30), z = c("a", "c")),
+  info = "across(-group_cols()) selects every column but the grouping columns"
+)
+expect_equal(
+  summarise(gdf, across(group_cols(), ~ .x[1])),
+  data.frame(g = c(1, 2)),
+  info = "across(group_cols()) selects no columns"
+)
+expect_equal(
+  summarise(data.frame(x = 1:3, y = 4:6), across(-group_cols(), max)),
+  data.frame(x = 3L, y = 6L),
+  info = "across(-group_cols()) selects every column of ungrouped data"
+)
+expect_equal(
+  summarise(
+    gdf, across(where(function(v) if (identical(v, c(1, 1, 2))) stop("tested g") else is.numeric(v)), sum)
+  ),
+  data.frame(g = c(1, 2), x = c(3L, 3L), y = c(30, 30)),
+  info = "where() in across() does not test the grouping columns"
+)
+
+rm(gdf)
