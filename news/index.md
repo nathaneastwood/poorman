@@ -1,6 +1,6 @@
 # Changelog
 
-## poorman 0.2.9
+## poorman 0.3.0
 
 ### Breaking changes
 
