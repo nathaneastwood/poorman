@@ -413,7 +413,10 @@ common_size_rule <- list(
   start = function(rows) list(sizes = rep(1L, length(rows)), from = character(length(rows))),
   check = function(sizes, vals, dot, layout) {
     vals_size <- vapply(vals, NROW, 1L)
-    resized <- !vapply(vals, is.null, NA) & vals_size != 1L & vals_size != sizes$sizes
+    # As in dplyr, an unnamed data frame with no columns, e.g. from an `across()` which selects none, adds no columns,
+    # so it does not set the size of its group
+    unsized <- vapply(vals, function(v) is.null(v) || (dot$unnamed && is.data.frame(v) && length(v) == 0L), NA)
+    resized <- !unsized & vals_size != 1L & vals_size != sizes$sizes
     wrong <- which(resized & sizes$sizes != 1L)
     if (length(wrong) > 0L) {
       g <- wrong[[1L]]
