@@ -37,8 +37,7 @@ select_positions <- function(.data, ..., .group_pos = FALSE, .env = parent.frame
   select_env$setup(.data = .data, calling_frame = .env, values = .values)
   on.exit(select_env$clean(), add = TRUE)
   data_names <- select_env$get_colnames()
-  pos <- unlist(lapply(cols, eval_expr))
-  if (length(pos) > 0) pos <- if (pos[1] >= 0) pos[pos >= 0] else pos[pos < 0]
+  pos <- select_signed(unlist(lapply(cols, eval_expr)), cols[[1L]])
   col_len <- select_env$get_ncol()
   if (any(pos > col_len)) {
     oor <- pos[which(pos > col_len)]
@@ -69,6 +68,24 @@ select_positions <- function(.data, ..., .group_pos = FALSE, .env = parent.frame
     }
   }
   res
+}
+
+#' Keep either the selected or the deselected positions
+#'
+#' @param pos `integer`. The positions of every expression, positive where selected and negative where deselected.
+#' @param first The first selection expression.
+#' @return `integer`. The positions of the same sign as the first, which are all positive or all negative.
+#' @noRd
+select_signed <- function(pos, first) {
+  if (is_negation(first)) {
+    # As in dplyr, a selection which starts with a negation starts from every column, so it keeps every column when
+    # the negation matches none, e.g. `-group_cols()` on data which is not grouped
+    pos <- pos[pos < 0]
+    if (length(pos) == 0L) pos <- seq_len(select_env$get_ncol())
+    return(pos)
+  }
+  if (length(pos) == 0L) return(pos)
+  if (pos[1] >= 0) pos[pos >= 0] else pos[pos < 0]
 }
 
 #' Add back the grouping variables which a selection leaves out
@@ -170,6 +187,10 @@ select_negate <- function(expr) {
     eval_expr(expr[[2]])
   }
   x * -1L
+}
+
+is_negation <- function(expr) {
+  is.call(expr) && length(expr) == 2L && (identical(expr[[1L]], quote(`-`)) || identical(expr[[1L]], quote(`!`)))
 }
 
 is_negated_colon <- function(expr) {

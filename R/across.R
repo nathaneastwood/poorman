@@ -11,7 +11,9 @@
 #' `summarise_all()` and therefore these functions will not be implemented in `poorman`.
 #'
 #' @param cols,.cols <[`poor-select`][select_helpers]> Columns to transform. Because `across()` is used within functions
-#' like `summarise()` and `mutate()`, you can't select or compute upon grouping variables.
+#' like `summarise()` and `mutate()`, you can't select or compute upon grouping variables: positions count the other
+#' columns, and `where()` does not test the grouping variables. Unlike `dplyr` 1.0.10, where `group_cols()` gives an
+#' error within `across()`, `group_cols()` selects no columns, so `-group_cols()` selects every column.
 #' @param .fns Functions to apply to each of the selected columns.
 #' Possible values are:
 #'
@@ -190,15 +192,24 @@ across_setup <- function(.cols, .fns, .names, .env, .call) {
 #' Select the columns of an `across()` call
 #'
 #' @param .cols,.env As in `across_columns()`.
-#' @return `character(n)`. The names of the selected columns, without the grouping columns.
+#' @return `character(n)`. The names of the selected columns, which are never grouping columns.
 #' @noRd
 across_select <- function(.cols, .env) {
-  cols <- eval_select_pos(
-    .data = context$.data, .cols, .group_pos = FALSE, .env = .env, .values = context$full_data
-  )
-  cols <- context$get_colnames()[cols]
-  if (context$is_grouped()) cols <- setdiff(cols, group_vars(context$.data))
-  cols
+  # Called directly in the expression, `across()` is evaluated in the data mask of the group, where a grouping column
+  # is a variable. The objects that the selection uses are found where the verb was called instead, so that a grouping
+  # column is not selected by its values
+  mask <- context$mask
+  if (!is.null(mask) && identical(.env, mask)) .env <- parent.env(mask)
+  data <- context$.data
+  # As in dplyr, the grouping columns cannot be selected, so they are left out before the selection is made: positions
+  # count the other columns, a grouping column is not found and `where()` does not test them. The data left is not
+  # grouped, so `group_cols()` selects nothing
+  if (context$is_grouped()) {
+    keep <- setdiff(names(data), group_vars(data))
+    data <- structure(.subset(data, keep), row.names = .set_row_names(nrow(data)), class = "data.frame")
+  }
+  cols <- eval_select_pos(.data = data, .cols, .group_pos = FALSE, .env = .env, .values = context$full_data)
+  names(data)[cols]
 }
 
 #' Turn the `.fns` of `across()` into a named `list` of functions

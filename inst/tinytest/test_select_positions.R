@@ -226,3 +226,14 @@ expect_equal(
   list("X", "Y1"),
   info = "select() finds variables local to an anonymous function"
 )
+
+# As in dplyr, a selection which starts with a negation starts from every column, even when it deselects none
+df <- data.frame(a = 1, b = 2)
+expect_equal(select(df, -group_cols()), df, info = "-group_cols() on ungrouped data selects every column")
+expect_equal(select(df, -starts_with("z")), df, info = "a negation which matches no column selects every column")
+expect_equal(
+  select(df, -starts_with("z"), a), df,
+  info = "a selection which starts with a negation which matches no column selects every column"
+)
+expect_equal(select(df, !starts_with("z")), df, info = "a ! negation which matches no column selects every column")
+rm(df)
