@@ -599,3 +599,22 @@ expect_identical(
   structure(c(1614902400, 1614872700), class = c("POSIXct", "POSIXt"), tzone = "UTC"),
   info = "summarise() combines a Date and a POSIXct to a POSIXct"
 )
+
+# As in dplyr, an unnamed data frame with no columns does not set the size of the groups
+gdf <- group_by(data.frame(g = c(1, 1, 2), x = 1:3), g)
+expect_equal(
+  summarise(gdf, across(starts_with("z"), sum)),
+  data.frame(g = c(1, 2)),
+  info = "summarise() with an across() which selects no columns gives a row for each group"
+)
+expect_equal(
+  summarise(gdf, data.frame(a = 1:2)[, 0L, drop = FALSE], m = 1),
+  data.frame(g = c(1, 2), m = c(1, 1)),
+  info = "summarise() ignores the size of an unnamed data frame with no columns"
+)
+expect_equal(
+  summarise(data.frame(x = 1:3), across(starts_with("z"), sum), m = 1),
+  data.frame(m = 1),
+  info = "summarise() of ungrouped data with an across() which selects no columns gives one row"
+)
+rm(gdf)
