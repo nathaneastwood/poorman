@@ -3,17 +3,32 @@ context <- new.env()
 # Data
 # A verb sets the data of the context with `setup()` and removes it with `clean()` when it exits. The data and column of
 # any outer verb are kept and restored by `clean()`, so that a verb can be used inside the expressions of another.
+#
+# Verbs which evaluate through `eval_groups()` also set, for `across()`:
+# * `mask`, the data mask of the group being evaluated;
+# * `across_setups`, the setups of the `across()` calls of the expression being evaluated, so that the columns are
+#   selected once for each expression rather than once for each group;
+# * `full_data`, a function which gives the full columns of the data, for `where()`.
 context$setup <- function(.data) {
   context$outer <- list(
     data = get0(".data", envir = context, inherits = FALSE),
     cur_column = context$cur_column,
+    mask = context$mask,
+    across_setups = context$across_setups,
+    full_data = context$full_data,
     outer = context$outer
   )
   context$.data <- .data
+  context$mask <- NULL
+  context$across_setups <- NULL
+  context$full_data <- NULL
 }
 context$get_data <- function() context$.data
 context$get_columns <- function(cols) context$.data[, cols, drop = FALSE]
 context$cur_column <- NULL
+context$mask <- NULL
+context$across_setups <- NULL
+context$full_data <- NULL
 context$get_nrow <- function() nrow(context$.data)
 context$get_colnames <- function() colnames(context$.data)
 context$is_grouped <- function() has_groups(context$.data)
@@ -29,6 +44,9 @@ context$clean <- function() {
   context$outer <- outer$outer
   if (is.null(outer$data)) rm(list = ".data", envir = context) else context$.data <- outer$data
   context$cur_column <- outer$cur_column
+  context$mask <- outer$mask
+  context$across_setups <- outer$across_setups
+  context$full_data <- outer$full_data
 }
 
 #' Context dependent expressions

@@ -30,11 +30,11 @@
 #' select_positions(mtcars, mpg:drat)
 #'
 #' @noRd
-select_positions <- function(.data, ..., .group_pos = FALSE, .env = parent.frame(2L)) {
+select_positions <- function(.data, ..., .group_pos = FALSE, .env = parent.frame(2L), .values = NULL) {
   cols <- dotdotdot(..., .env = .env)
   cols <- cols[!vapply(cols, is.null, FALSE)]
   if (length(cols) == 0L) return(integer(0))
-  select_env$setup(.data = .data, calling_frame = .env)
+  select_env$setup(.data = .data, calling_frame = .env, values = .values)
   on.exit(select_env$clean(), add = TRUE)
   data_names <- select_env$get_colnames()
   pos <- unlist(lapply(cols, eval_expr))
@@ -199,12 +199,15 @@ select_context <- function(expr) {
 # -- Environment ---------------------------------------------------------------
 
 select_env <- new.env()
-select_env$setup <- function(.data, calling_frame) {
+# `values`, if given, is a `function(names)` which gives the columns called `names` for `where()` to test, in place of
+# those of `.data`. `across()` uses it to test the full columns while it selects from the data of one group.
+select_env$setup <- function(.data, calling_frame, values = NULL) {
   select_env$.data <- .data
   select_env$calling_frame <- calling_frame
+  select_env$values <- values
 }
 select_env$clean <- function() {
-  rm(list = c(".data", "calling_frame"), envir = select_env)
+  rm(list = c(".data", "calling_frame", "values"), envir = select_env)
 }
 # Calls are evaluated in the user's environment with the selection helpers masked in on top so that they are found
 # even when poorman is not attached
@@ -226,6 +229,6 @@ select_env$get_ncol <- function() ncol(select_env$.data)
 
 #' A cleaner interface to evaluating select_positions when column names are not passed via ...
 #' @noRd
-eval_select_pos <- function(.data, .cols, .group_pos = FALSE, .env = parent.frame(2L)) {
-  do.call(select_positions, list(.data = .data, .cols, .group_pos = .group_pos, .env = .env))
+eval_select_pos <- function(.data, .cols, .group_pos = FALSE, .env = parent.frame(2L), .values = NULL) {
+  do.call(select_positions, list(.data = .data, .cols, .group_pos = .group_pos, .env = .env, .values = .values))
 }

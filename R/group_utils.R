@@ -138,17 +138,22 @@ eval_groups <- function(.data, dots, env, size_rule, drop_null = FALSE, transfor
   # The columns that `.data` holds, in order: those of `.data`, followed by the results of the expressions
   seen <- new.env(hash = FALSE, parent = emptyenv())
   seen$col_names <- names(.data)
+  # The columns made by the expressions, and the size of the results of each group so far
+  seen$results <- character()
   masks <- group_masks(.data, layout, env, seen)
 
   context$setup(.data)
   on.exit(context$clean(), add = TRUE)
+  context$full_data <- full_data_reader(.data, masks, layout, seen, size_rule$aligned)
 
   values <- vector(mode = "list", length = length(dots))
   sizes <- size_rule$start(layout$rows)
+  seen$sizes <- sizes$sizes
   for (i in seq_along(dots)) {
     dot <- list(expr = dots[[i]], position = i, label = labels$labels[[i]], unnamed = labels$unnamed[[i]])
     vals <- eval_expression(dot, masks, layout, seen, drop_null, transform)
     sizes <- size_rule$check(sizes, vals, dot, layout)
+    seen$sizes <- sizes$sizes
     values[[i]] <- vals
   }
 
@@ -287,8 +292,12 @@ eval_expression <- function(dot, masks, layout, seen, drop_null, transform) {
   # An unnamed data frame result, e.g. from `across()`, gives its columns rather than a column of its own
   spread <- dot$unnamed
   vals <- vector(mode = "list", length = length(masks))
+  # Each `across()` call of the expression selects its columns in the first group it is evaluated in and keeps them for
+  # the other groups
+  context$across_setups <- list()
   for (g in seq_along(masks)) {
     mask <- masks[[g]]
+    context$mask <- mask
     # The data of the context functions is a promise, so that it is only built if one of them uses it. It reads the
     # `.data` of `mask` when it is forced, which can only happen while this group is evaluated
     delayedAssign(".data", get(".data", envir = mask, inherits = FALSE), eval.env = environment(), assign.env = context)
@@ -323,13 +332,48 @@ track_result <- function(seen, vals, dot, drop_null) {
     seen$col_names <- setdiff(seen$col_names, dot$label)
   } else if (!dot$unnamed || !all(vapply(vals, is.data.frame, NA))) {
     seen$col_names <- union(seen$col_names, dot$label)
+    seen$results <- union(seen$results, dot$label)
+  } else {
+    seen$results <- union(seen$results, unlist(lapply(vals, names), use.names = FALSE))
   }
   invisible()
 }
 
+#' Build the full columns of the data that the expressions see
+#'
+#' `where()` in `across()` applies its predicate to each full column, rather than to the rows of one group, as in dplyr.
+#' The columns of `.data` are already whole; a column made by an earlier expression is only built, by combining the
+#' results of the groups, when it is asked for.
+#'
+#' @param .data,layout As in `eval_expression()`.
+#' @param masks A `list` of the data mask of each group, as returned by `group_masks()`.
+#' @param seen An `environment` with `col_names`, the columns that the expressions see, `results`, the columns made by
+#' the expressions, and `sizes`, the size of the results of each group so far.
+#' @param aligned `logical(1)`. Do the results of a group line up with its rows, as in `mutate()`? If so, a column made
+#' by an expression is put in the order of the rows of `.data`; otherwise its results are in the order of the groups.
+#' @return A `function(names)` which gives a `list` of the full columns called `names`.
+#' @noRd
+full_data_reader <- function(.data, masks, layout, seen, aligned) {
+  function(names) {
+    cols <- lapply(names, function(name) {
+      if (!(name %in% seen$results)) return(.subset2(.data, name))
+      vals <- lapply(masks, function(mask) get0(name, envir = mask, inherits = FALSE))
+      sizes <- seen$sizes
+      recycle <- which(vapply(vals, NROW, 1L) == 1L & sizes != 1L)
+      vals[recycle] <- lapply(recycle, function(g) vec_slice(vals[[g]], rep(1L, sizes[[g]])))
+      col <- if (length(vals) == 1L) vals[[1L]] else combine_values(vals)
+      order <- if (aligned) ungroup_order(layout$rows, .row_names_info(.data, 2L))
+      if (is.null(order)) col else vec_slice(col, order)
+    })
+    names(cols) <- names
+    cols
+  }
+}
+
 #' Rules for the sizes of the results of each group
 #'
-#' A size rule is a `list` of two functions, used by `eval_groups()`:
+#' A size rule is a `list` of `aligned`, whether the results of each group line up with its rows, and two functions,
+#' used by `eval_groups()`:
 #' * `start(rows)` gives the sizes before any expression is evaluated, as a `list` with `sizes`, the size of each
 #'   group's results;
 #' * `check(sizes, vals, dot, layout)` checks the results `vals` of an expression for each group against `sizes`, gives
@@ -342,6 +386,7 @@ track_result <- function(seen, vals, dot, drop_null) {
 #' each group, or `""`.
 #' @noRd
 group_size_rule <- list(
+  aligned = TRUE,
   start = function(rows) list(sizes = lengths(rows)),
   check = function(sizes, vals, dot, layout) {
     vals_size <- vapply(vals, NROW, 1L)
@@ -359,6 +404,7 @@ group_size_rule <- list(
 #' See `group_size_rule`.
 #' @noRd
 common_size_rule <- list(
+  aligned = FALSE,
   start = function(rows) list(sizes = rep(1L, length(rows)), from = character(length(rows))),
   check = function(sizes, vals, dot, layout) {
     vals_size <- vapply(vals, NROW, 1L)
