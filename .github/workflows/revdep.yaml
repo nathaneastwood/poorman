@@ -1,0 +1,88 @@
+# Checks each CRAN package which depends on, imports, links to or suggests poorman, first against the CRAN version of
+# poorman and then against this one, and fails where the second check finds new problems. This mirrors the reverse
+# dependency check CRAN runs on incoming submissions. Run it before submitting to CRAN.
+on:
+  workflow_dispatch:
+  push:
+    branches: [main, master]
+    paths: ['R/**', 'DESCRIPTION', 'NAMESPACE']
+
+name: revdep
+
+jobs:
+  list:
+    runs-on: ubuntu-latest
+    outputs:
+      packages: ${{ steps.revdeps.outputs.packages }}
+    steps:
+      - uses: r-lib/actions/setup-r@v2
+        with:
+          use-public-rspm: true
+
+      - name: List reverse dependencies
+        id: revdeps
+        run: |
+          db <- utils::available.packages(repos = "https://cloud.r-project.org")
+          deps <- tools::package_dependencies(
+            "poorman", db = db, reverse = TRUE, which = c("Depends", "Imports", "LinkingTo", "Suggests")
+          )[[1L]]
+          print(deps)
+          json <- paste0("[", paste0('"', sort(deps), '"', collapse = ","), "]")
+          cat("packages=", json, "\n", sep = "", file = Sys.getenv("GITHUB_OUTPUT"), append = TRUE)
+        shell: Rscript {0}
+
+  check:
+    needs: list
+    if: needs.list.outputs.packages != '[]'
+    runs-on: ubuntu-latest
+    name: ${{ matrix.package }}
+
+    strategy:
+      fail-fast: false
+      matrix:
+        package: ${{ fromJSON(needs.list.outputs.packages) }}
+
+    env:
+      GITHUB_PAT: ${{ secrets.GITHUB_TOKEN }}
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: r-lib/actions/setup-pandoc@v2
+
+      - uses: r-lib/actions/setup-r@v2
+        with:
+          use-public-rspm: true
+
+      # Installs the reverse dependency with everything it suggests, which includes the CRAN version of poorman.
+      - uses: r-lib/actions/setup-r-dependencies@v2
+        with:
+          packages: any::${{ matrix.package }}, any::rcmdcheck
+          dependencies: '"all"'
+
+      # The package source comes from CRAN itself; the public RSPM repository may serve a binary.
+      - name: Download source
+        run: |
+          mkdir -p revdep
+          Rscript -e 'utils::download.packages("${{ matrix.package }}", "revdep", repos = "https://cloud.r-project.org", type = "source")'
+
+      - name: Check with CRAN poorman
+        run: Rscript .github/scripts/revdep_check.R check revdep/${{ matrix.package }}_*.tar.gz revdep/old.rds
+
+      - name: Install development poorman
+        run: R CMD INSTALL .
+
+      - name: Check with development poorman
+        run: Rscript .github/scripts/revdep_check.R check revdep/${{ matrix.package }}_*.tar.gz revdep/new.rds
+
+      - name: Compare
+        run: Rscript .github/scripts/revdep_check.R compare revdep/old.rds revdep/new.rds
+
+      - name: Upload check results
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: ${{ matrix.package }}-revdep-results
+          path: |
+            revdep/old
+            revdep/new
