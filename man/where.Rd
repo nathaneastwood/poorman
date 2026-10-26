@@ -7,7 +7,7 @@
 where(fn)
 }
 \arguments{
-\item{fn}{A function that returns \code{TRUE} or \code{FALSE}.}
+\item{fn}{A function that returns \code{TRUE} or \code{FALSE}, or a lambda, e.g. \code{~ is.numeric(.x)}.}
 }
 \value{
 A vector of \code{integer} column positions which are the result of the \code{fn} evaluation.
@@ -19,6 +19,7 @@ This selection helper selects the variables for which a function returns \code{T
 iris \%>\% select(where(is.numeric))
 iris \%>\% select(where(function(x) is.numeric(x)))
 iris \%>\% select(where(function(x) is.numeric(x) && mean(x) > 3.5))
+iris \%>\% select(where(~ is.numeric(.x) && mean(.x) > 3.5))
 
 }
 \seealso{
