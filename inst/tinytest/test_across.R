@@ -275,6 +275,19 @@ expect_equal(
   info = "across() fills in .names templates with expressions of .col and .fn"
 )
 
+# The results of the groups are bound column by column
+gdf <- group_by(data.frame(g = c(2, 1, 2, 1), x = c(3L, 5L, 7L, 1L), f = factor(c("p", "q", "p", "r"))), g)
+expect_identical(
+  ungroup(mutate(gdf, across(x, ~ if (cur_group_id() == 1L) .x else .x / 2))),
+  data.frame(g = c(2, 1, 2, 1), x = c(1.5, 5, 3.5, 1), f = factor(c("p", "q", "p", "r"))),
+  info = "across() results of different numeric types are combined across groups and put back in the order of the rows"
+)
+expect_identical(
+  summarise(gdf, across(c(x, f), ~ .x[1])),
+  data.frame(g = c(1, 2), x = c(5L, 3L), f = factor(c("q", "p"), levels = c("p", "q", "r"))),
+  info = "across() results with factors are combined across groups"
+)
+
 expect_error(
   data.frame(x = 1) %>% summarise(across(everything(), "foo")),
   info = "across() fails on non-function"

@@ -706,10 +706,37 @@ combine_values <- function(x) {
   if (is_plain_values(x)) return(unlist(x, recursive = FALSE, use.names = FALSE))
   if (is_datetime_mix(x)) return(combine_datetimes(x))
   if (all(vapply(x, is_simple_column, NA))) return(combine_columns(x))
-  if (all(vapply(x, is.data.frame, NA))) return(do.call(rbind, unname(x)))
+  if (all(vapply(x, is.data.frame, NA))) return(combine_data_frames(x))
   if (all(vapply(x, is.matrix, NA))) return(do.call(rbind, unname(x)))
   x <- lapply(x, function(v) structure(list(v), names = "x", class = "data.frame", row.names = .set_row_names(NROW(v))))
   .subset2(do.call(rbind, x), 1L)
+}
+
+#' Bind data frames by row, for `combine_values()`
+#'
+#' Data frames such as the results of `across()`, with the same names, automatic row names and columns without
+#' attributes, are bound column by column with `unlist()`, which is much faster than `rbind()` when there are many
+#' groups and gives the same result. Any other data frames are bound with `rbind()`.
+#'
+#' @param x A `list` of data frames, one for each group.
+#' @return A `data.frame`.
+#' @noRd
+combine_data_frames <- function(x) {
+  x <- unname(x)
+  nms <- names(x[[1L]])
+  simple <- all(vapply(
+    x,
+    function(df) identical(class(df), "data.frame") && identical(names(df), nms) && .row_names_info(df) <= 0L,
+    NA
+  ))
+  if (simple) {
+    cols <- lapply(seq_along(nms), function(j) lapply(x, .subset2, j))
+    simple <- all(vapply(cols, function(vals) all(vapply(vals, is_bare_atomic, NA)), NA))
+  }
+  if (!simple) return(do.call(rbind, x))
+  cols <- lapply(cols, unlist, recursive = FALSE, use.names = FALSE)
+  n <- sum(vapply(x, .row_names_info, 1L, type = 2L))
+  structure(cols, names = nms, row.names = .set_row_names(n), class = "data.frame")
 }
 
 #' Check whether values can be combined with `unlist()`, for `combine_values()`

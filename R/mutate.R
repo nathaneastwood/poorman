@@ -182,11 +182,14 @@ mutate_df <- function(.data, dots, env) {
   new_cols <- character()
   for (i in seq_along(dots)) {
     col <- combine_groups(res, i)
-    if (!is.null(order)) col <- vec_slice(col, order)
     if (res$unnamed[[i]] && is.data.frame(col)) {
-      for (j in names(col)) .data[[j]] <- .subset2(col, j)
+      # The columns are spread, so they are put in order one by one, which is faster than slicing the data frame
+      for (j in names(col)) {
+        .data[[j]] <- if (is.null(order)) .subset2(col, j) else slice_column(.subset2(col, j), order)
+      }
       new_cols <- c(new_cols, names(col))
     } else {
+      if (!is.null(order)) col <- vec_slice(col, order)
       .data[[res$labels[[i]]]] <- col
       new_cols <- c(new_cols, res$labels[[i]])
     }
@@ -217,4 +220,14 @@ find_used <- function(expr) {
   } else {
     unique(unlist(lapply(expr[-1], find_used)))
   }
+}
+
+#' Take rows of a column of a data frame
+#'
+#' @param x A column of a `data.frame`.
+#' @param i `integer()`. The rows to take.
+#' @return The rows `i` of `x`, as `[.data.frame` takes them.
+#' @noRd
+slice_column <- function(x, i) {
+  if (is.null(dim(x))) x[i] else x[i, , drop = FALSE]
 }
