@@ -95,8 +95,6 @@ first_positions <- function(id) {
 
 #' Repair column names
 #'
-#' Follows the `vctrs` name repair strategies used by `tidyr`.
-#'
 #' @param names `character()`. The names to repair.
 #' @param repair Either a `character(1)`, one of `"check_unique"`, `"unique"`, `"universal"` or `"minimal"`, or a
 #' function which is applied to `names`.
@@ -166,7 +164,7 @@ report_repair <- function(old, new) {
 
 #' Cast a vector to the type of a prototype
 #'
-#' A small subset of `vctrs::vec_cast()`: casts between logical, integer and double when no information is lost,
+#' Casts between logical, integer and double when no information is lost,
 #' between character and factor, and between objects of the same class. Other casts are an error.
 #'
 #' @param x The vector to cast.
@@ -211,7 +209,7 @@ cast_ptype <- function(x, to, x_arg = "x") {
 
 #' Combine a list of columns into one vector
 #'
-#' Follows the `tidyr` type rules: logical, integer and double columns are combined into the richest of those types,
+#' Logical, integer and double columns are combined into the richest of those types,
 #' factors into a factor with the union of their levels, factors and characters into a character and columns of the
 #' same class keep that class. Columns which are entirely `NA` are compatible with any type. Other combinations are an
 #' error. Used by `pivot_longer()`, `pivot_wider()` and, through `combine_values()`, the grouped verbs.
@@ -265,7 +263,7 @@ combine_columns <- function(cols) {
 
 #' Is a vector a logical vector of only missing values?
 #'
-#' As in `dplyr`, such a vector has no type of its own and can be combined with a vector of any type, taking that type.
+#' Such a vector has no type of its own and can be combined with a vector of any type, taking that type.
 #' An empty, classed or matrix logical vector does not count.
 #'
 #' @param x A vector.

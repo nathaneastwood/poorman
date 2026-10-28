@@ -10,8 +10,6 @@
 #' values. Alternatively, you can use `recode_factor()`, which will change the order of levels to match the order of
 #' replacements.
 #'
-#' This is a direct port of the `dplyr::recode()` function.
-#'
 #' @param .x A vector to modify
 #' @param ... Replacements. For `character` and `factor` `.x`, these should be named and replacement is based only on
 #' their name. For `numeric` `.x`, these can be named or not. If not named, the replacement is done based on position

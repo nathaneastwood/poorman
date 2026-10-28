@@ -156,7 +156,7 @@ expect_equal(
 expect_equal(
   names(formals(semi_join)),
   c("x", "y", "by", "copy", "...", "na_matches"),
-  info = "Filtering joins have the dplyr arguments"
+  info = "Filtering joins have the documented arguments"
 )
 
 res <- semi_join(group_by(nax, b), nay, by = "a", na_matches = "never")

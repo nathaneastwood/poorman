@@ -103,7 +103,7 @@ is_valid_groups <- function(.data, details, groups) {
 #' This is the engine of the grouped verbs. Each column of `.data` is split by group once, rather than splitting
 #' `.data` into a `data.frame` per group. Each group gets its own data mask, an environment holding the columns of the
 #' group whose parent is `env`, the caller's environment, so that local variables are found and the variables of this
-#' function never are. As in dplyr, each expression is evaluated for every group before the next expression, and each
+#' function never are. Each expression is evaluated for every group before the next expression, and each
 #' result is available to the expressions that follow it, both as a variable and through `.data`, `across()` and the
 #' other context functions. Empty groups are evaluated too, and data with no groups is evaluated once, on the empty
 #' data, so that the type of each result is known.
@@ -347,7 +347,7 @@ track_result <- function(seen, vals, dot, drop_null) {
 
 #' Build the full columns of the data that the expressions see
 #'
-#' `where()` in `across()` applies its predicate to each full column, rather than to the rows of one group, as in dplyr.
+#' `where()` in `across()` applies its predicate to each full column, rather than to the rows of one group.
 #' The columns of `.data` are already whole; a column made by an earlier expression is only built, by combining the
 #' results of the groups, when it is asked for.
 #'
@@ -428,8 +428,6 @@ common_size_rule <- list(
   start = function(rows) list(sizes = rep(1L, length(rows)), from = character(length(rows))),
   check = function(sizes, vals, dot, layout) {
     vals_size <- vapply(vals, NROW, 1L)
-    # As in dplyr, an unnamed data frame with no columns, e.g. from an `across()` which selects none, adds no columns,
-    # so it does not set the size of its group
     unsized <- vapply(vals, function(v) is.null(v) || (dot$unnamed && is.data.frame(v) && length(v) == 0L), NA)
     resized <- !unsized & vals_size != 1L & vals_size != sizes$sizes
     wrong <- which(resized & sizes$sizes != 1L)
@@ -456,7 +454,7 @@ stop_group_size <- function(dot, size, value_size, group, details) {
   name <- if (dot$unnamed) paste0("..", dot$position) else dot$label
   stop(
     computing_problem(dot),
-    # When the group has one row, the size is given once, as in dplyr
+    # When the group has one row, the size is given once
     sprintf("x `%s` must be size %s, not %d.", name, if (size == 1L) "1" else paste(size, "or 1"), value_size),
     error_group(group, details),
     call. = FALSE
@@ -483,7 +481,7 @@ stop_common_size <- function(name, size, value_size, size_from, group) {
 
 #' Give the first line of an error in an expression
 #'
-#' As in dplyr, the line calls an unnamed expression by its position, e.g. "Problem while computing `..1 = 1:2`.".
+#' The line calls an unnamed expression by its position, e.g. "Problem while computing `..1 = 1:2`.".
 #'
 #' @param dot A `list` describing the expression, as given to `eval_expression()`.
 #' @return `character(1)`, ending with a new line.
@@ -505,7 +503,7 @@ error_group <- function(group, details) {
 
 #' Describe a group by its keys
 #'
-#' As in the error messages of dplyr, each key is given as `name = value`, with character values in quotes, e.g.
+#' Each key is given as `name = value`, with character values in quotes, e.g.
 #' `g = "a", h = 1`.
 #'
 #' @param details A `data.frame` of the groups, as returned by `get_groups()`.
@@ -523,7 +521,7 @@ describe_group <- function(details, g) {
 
 #' Combine the results of an expression across the groups
 #'
-#' Results of size one are recycled to the size of their group. As in dplyr, `NULL` results are ignored, but `NULL`
+#' Results of size one are recycled to the size of their group. `NULL` results are ignored, but `NULL`
 #' results cannot be combined with other results, and results of incompatible types are an error.
 #'
 #' @param res The result of `eval_groups()`.
@@ -537,7 +535,6 @@ combine_groups <- function(res, i, sizes = res$sizes) {
   if (all(is_null)) return(NULL)
   dot <- list(expr = res$exprs[[i]], position = i, label = res$labels[[i]], unnamed = res$unnamed[[i]])
   if (any(is_null)) {
-    # Unlike the error for incompatible types, dplyr calls an unnamed expression by its position here
     name <- if (dot$unnamed) paste0("..", i) else dot$label
     stop(
       computing_problem(dot),
@@ -556,7 +553,7 @@ combine_groups <- function(res, i, sizes = res$sizes) {
 #'
 #' Results are compatible when they are of the same kind, as given by `result_kind()`. Within a kind, the existing rules
 #' of `combine_values()` apply, e.g. integers and doubles combine to a double. A logical vector of only `NA` is
-#' compatible with any kind. As in dplyr, a complex result is a number, but the results so far cannot be complex when
+#' compatible with any kind. A complex result is a number, but the results so far cannot be complex when
 #' the next is logical, nor logical when the next is complex.
 #'
 #' Data frames are compatible when each of their columns is, so the columns of `across()` follow the same rules as any
@@ -584,7 +581,7 @@ check_group_types <- function(vals, dot, details, name = dot$label) {
 
 #' Check that the columns of data frame results can be combined across the groups, for `check_group_types()`
 #'
-#' As in dplyr, the error for an unnamed result, e.g. from `across()`, names the column; a named result keeps its name.
+#' The error for an unnamed result, e.g. from `across()`, names the column; a named result keeps its name.
 #' Data frames with different columns are left to `combine_values()`.
 #'
 #' @param vals A `list` with the data frame result of the expression for each group.
@@ -616,15 +613,14 @@ result_kind <- function(x) {
   if (is.factor(x)) return("character")
   if (inherits(x, c("Date", "POSIXct"))) return("datetime")
   if (is.object(x)) return(paste(class(x), collapse = "/"))
-  # A matrix is not a kind of its own: as in dplyr, a vector of the same base type is combined with it, each element
-  # filling a row
+  # A matrix is not a kind of its own: a vector of the same base type is combined with it, each element filling a row
   type <- typeof(x)
   if (type %in% c("logical", "integer", "double", "complex")) "number" else type
 }
 
 #' Find the first result which cannot be combined with the results of the groups before it
 #'
-#' As in dplyr, the groups are followed in order, and the type of the results so far is given by the earliest group
+#' The groups are followed in order, and the type of the results so far is given by the earliest group
 #' whose result raised it, e.g. from integer to double; a logical vector of only `NA` takes the type of the result that
 #' follows it. Durations of different units combine to seconds, but keep the earlier group.
 #'
@@ -650,7 +646,6 @@ find_type_clash <- function(vals, kinds) {
     }
     common <- richer_type(ref_type, type)
     if (common != ref_type) {
-      # dplyr keeps the earlier group when only the units of a duration change
       if (!startsWith(common, "duration<")) ref <- g
       ref_type <- common
     }
@@ -658,14 +653,14 @@ find_type_clash <- function(vals, kinds) {
   NULL
 }
 
-# Are two types, as given by `type_label()`, a complex and a logical, which dplyr does not combine?
+# Are two types, as given by `type_label()`, a complex and a logical, which are not combined?
 is_complex_logical <- function(a, b) {
   setequal(sub("[[].*", "", c(a, b)), c("complex", "logical"))
 }
 
 #' Give the error for results of incompatible types
 #'
-#' As in dplyr, the error names two groups: the group whose result gave the type of the results before the first
+#' The error names two groups: the group whose result gave the type of the results before the first
 #' incompatible one, and the group of that incompatible result.
 #'
 #' @param clash The incompatible results, as returned by `find_type_clash()`.
@@ -689,7 +684,7 @@ stop_group_types <- function(clash, dot, details, name = dot$label) {
 #' Name the type of a result in an error message
 #'
 #' Base types are given by `typeof()`, `Date` as `date`, `POSIXct` as `datetime<tz>` and `difftime` as
-#' `duration<units>`, as in dplyr. A matrix or array adds its dimensions other than the rows, e.g. `integer[,2]`, or
+#' `duration<units>`. A matrix or array adds its dimensions other than the rows, e.g. `integer[,2]`, or
 #' `[1d]` if it has one dimension. Other objects are given by their first class.
 #'
 #' @param x A result of an expression for one group.
@@ -862,7 +857,7 @@ is_datetime_mix <- function(x) {
 
 #' Combine dates and datetimes into one datetime vector
 #'
-#' As in dplyr, the result has the time zone of the first datetime which has one, or the local time zone if none has,
+#' The result has the time zone of the first datetime which has one, or the local time zone if none has,
 #' and each date is the midnight that starts it in that time zone, so that no datetime loses its time.
 #'
 #' @param x A `list` of `POSIXct` and `Date` vectors and logical vectors of only `NA`, at least one of them `POSIXct`.
@@ -977,7 +972,7 @@ split_rows <- function(ids, n_groups) {
 
 #' Find the empty groups formed by unused factor levels
 #'
-#' Following `dplyr`, each factor column contributes all of its levels within each combination of the preceding
+#' Each factor column contributes all of its levels within each combination of the preceding
 #' grouping columns. Once a group is empty, each subsequent factor is expanded to all of its levels and each subsequent
 #' non-factor is set to `NA`.
 #'

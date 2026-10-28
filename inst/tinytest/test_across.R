@@ -392,8 +392,6 @@ expect_equal(
   info = "if_all() without columns gives TRUE in grouped summarise()"
 )
 
-# As in dplyr, the grouping columns are not part of the columns that across() selects from, so positions count the
-# other columns and a grouping column cannot be selected
 gdf <- group_by(data.frame(g = c(1, 1, 2), x = 1:3, y = c(10, 20, 30), z = c("a", "b", "c")), g)
 expect_equal(
   summarise(gdf, across(1, sum)),
@@ -561,7 +559,7 @@ expect_equal(
 )
 rm(gdf)
 
-# Each result of across() is one column, whatever its type, as in dplyr
+# Each result of across() is one column, whatever its type
 df <- data.frame(g = c(1, 1, 2), x = 1:3, y = c(10, 20, 30))
 gdf <- group_by(df, g)
 expect_equal(
@@ -604,7 +602,6 @@ expect_equal(
 )
 rm(df, gdf)
 
-# As in dplyr, an empty list of functions gives no columns, as an empty selection does
 gdf <- group_by(data.frame(g = c(1, 1, 2), x = 1:3), g)
 expect_equal(
   mutate(data.frame(x = 1:2), across(x, list())),
@@ -627,7 +624,6 @@ expect_identical(
 )
 rm(gdf)
 
-# As in dplyr, the results are named after the columns alone only for a single function which is not in a list
 df <- data.frame(x = 1:3, y = c(1.5, 2.5, 3.5))
 expect_named(summarise(df, across(x, list(mean))), "x_1", info = "across() names the result of a list of one function")
 expect_named(
@@ -638,7 +634,6 @@ expect_named(
   mutate(df, across(x, list(~ .x * 2))), c("x", "y", "x_1"),
   info = "across() in mutate() with a list of one function adds a column"
 )
-# As in dplyr, names are kept as they are, even when they are not syntactic
 expect_named(
   summarise(df, across(x, list(mean, sd), .names = "{.fn}_{.col}")), c("1_x", "2_x"),
   info = "across() keeps names which start with a number"
@@ -655,7 +650,6 @@ expect_named(
   mutate(df, across(x, list(mean, sd), .names = "{.fn}")), c("x", "y", "1", "2"),
   info = "across() in mutate() keeps names which are numbers"
 )
-# As in dplyr 1.0.10, a template in .names is filled in without functions, as for one unnamed function
 expect_named(
   summarise(df, across(x, NULL, .names = "new_{.col}")), "new_x",
   info = "across() without functions fills in {.col}"
@@ -666,7 +660,6 @@ expect_named(
 )
 rm(df)
 
-# As in dplyr, the names of the results must be unique, as they are no longer repaired
 df <- data.frame(y = 1:2, z = 3:4)
 expect_error(
   summarise(df, across(c(y, z), list(a = sum, a = mean, a = max, b = min, b = sd))),
@@ -690,7 +683,6 @@ expect_error(
   fixed = TRUE,
   info = "across() gives an error for duplicated names given as a vector"
 )
-# As in dplyr, a column which is selected without functions keeps its name
 expect_named(
   summarise(data.frame(`my col` = 1:2, check.names = FALSE), across(`my col`)), "my col",
   info = "across() without functions keeps names with spaces"

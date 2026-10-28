@@ -153,7 +153,7 @@ pivot_wider <- function(
   }), use.names = FALSE)
   if (n_name == 0L) new_names <- character(0)
 
-  # stop if some column names would be duplicated (follow tidyr workflow); the new names must always be unique
+  # stop if some column names would be duplicated; the new names must always be unique
   clashes <- c(intersect(new_names, id_cols), new_names[duplicated(new_names)])
   if (anyDuplicated(new_names)) names_repair <- "check_unique"
   out_names <- repair_names(

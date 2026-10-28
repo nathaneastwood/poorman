@@ -71,7 +71,7 @@ join_keys <- function(x, y, by, mutating = FALSE, never_na = FALSE) {
 
 #' Cast a pair of join keys to their common type
 #'
-#' Follows `vctrs::vec_ptype2()`, as `dplyr` does: factors with different levels combine to a factor of all levels, a
+#' Factors with different levels combine to a factor of all levels, a
 #' factor and a character vector combine to a character vector, numbers combine to the widest numeric type and a
 #' `Date` combines with a `POSIXct` to a `POSIXct`. Any other combination of types is an error.
 #'
@@ -133,7 +133,7 @@ join_key_cast_character <- function(x_col, y_col) {
 join_key_cast_datetime <- function(x_col, y_col) {
   if (inherits(x_col, "POSIXlt")) x_col <- as.POSIXct(x_col)
   if (inherits(y_col, "POSIXlt")) y_col <- as.POSIXct(y_col)
-  # A Date is cast to a POSIXct at midnight in the time zone of the other key, as in `vctrs::vec_cast()`
+  # A Date is cast to a POSIXct at midnight in the time zone of the other key
   if (inherits(x_col, "Date") && inherits(y_col, "POSIXct")) {
     x_col <- as.POSIXct(as.character(x_col), tz = join_key_tz(y_col))
   } else if (inherits(x_col, "POSIXct") && inherits(y_col, "Date")) {

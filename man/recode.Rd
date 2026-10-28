@@ -47,8 +47,6 @@ and \code{character} or \code{factor} values only by their name. This is an S3 g
 You can use \code{recode()} directly with \code{factor}s; it will preserve the existing order of levels while changing the
 values. Alternatively, you can use \code{recode_factor()}, which will change the order of levels to match the order of
 replacements.
-
-This is a direct port of the \code{dplyr::recode()} function.
 }
 \examples{
 # For character values, recode values with named arguments only. Unmatched

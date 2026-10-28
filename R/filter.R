@@ -36,8 +36,6 @@ filter.data.frame <- function(.data, ..., .preserve = FALSE) {
   conditions <- dotdotdot(...)
   if (length(conditions) == 0L) return(.data)
   check_filter(conditions, parent.frame())
-  # As in dplyr, each group is given all of the conditions before the next group, so they are evaluated as one call
-  # whose result is checked and combined into the rows to keep
   warned <- logical(length(conditions))
   keep_rows <- function(value, size, group, details) {
     keep <- TRUE
@@ -88,7 +86,7 @@ filter_groups <- function(details, keep, .preserve) {
 
 #' Check the result of a condition and find the rows to keep
 #'
-#' As in dplyr, the result must have the size of its group or size one, which is checked before its type. The columns
+#' The result must have the size of its group or size one, which is checked before its type. The columns
 #' of a data frame result, e.g. from `across()`, are each checked and then combined with `&`, and a matrix result must
 #' have a single column.
 #'
@@ -156,7 +154,7 @@ stop_filter <- function(where, msg) {
 
 #' Check that no condition is named
 #'
-#' As in dplyr, a named condition is taken to be a mistake for `==`, e.g. `filter(df, x = 1)`, unless it is a logical
+#' A named condition is taken to be a mistake for `==`, e.g. `filter(df, x = 1)`, unless it is a logical
 #' constant such as `a = TRUE`. The error suggests `==` for the first named condition, labelled as `auto_label()`
 #' labels an expression, so a long one is abbreviated, e.g. `x == c(...)`.
 #'

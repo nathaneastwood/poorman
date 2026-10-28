@@ -96,7 +96,6 @@ summarise.grouped_df <- function(.data, ..., .groups = NULL) {
 
   verbose <- summarise_verbose(.groups)
 
-  # As in dplyr, the grouping is kept when any group gave other than one row
   if (is.null(.groups)) .groups <- if (res$all_one) "drop_last" else "keep"
   res <- res$data
 
@@ -140,7 +139,6 @@ summarise_groups <- function(.data, dots, env) {
   grouped <- length(res$groups) > 0L
   keys <- if (grouped) as.list(res$details)[res$groups]
   sizes <- res$sizes
-  # As in dplyr, data with no groups counts as every group giving one row
   all_one <- res$empty || all(sizes == 1L)
   if (res$empty) sizes <- 0L
 
@@ -161,8 +159,8 @@ summarise_groups <- function(.data, dots, env) {
   res
 }
 
-# Join the grouping columns, repeated for each row of their group, to the summaries. As in dplyr, a summary with the
-# name of a grouping column replaces it.
+# Join the grouping columns, repeated for each row of their group, to the summaries. A summary with the name of a
+# grouping column replaces it.
 summarise_result <- function(keys, cols, sizes, grouped) {
   if (!grouped && length(cols) == 0L) return(list(data = empty_summary(), all_one = TRUE))
   all_one <- all(sizes == 1L)
@@ -182,7 +180,6 @@ summarise_regroup <- function(x, groups, drop) {
   groups_set(x, groups, drop)
 }
 
-# As in dplyr, a summary with no columns has one row
 empty_summary <- function() {
   structure(list(), names = character(0), row.names = .set_row_names(1L), class = "data.frame")
 }
