@@ -468,9 +468,231 @@ expect_equal(
   data.frame(g = c(1, 1, 2), x = c(21, 22, 33), y = c(10, 20, 30), z = c("a", "b", "c")),
   info = "a lambda in across() sees the columns of each group and the calling environment"
 )
+# Unlike dplyr 1.0.10, which evaluates the `.fns` of a call made directly in the expression once, before any group,
+# `.fns` is evaluated in each group, as any other code of the expression is
 expect_equal(
   ungroup(mutate(gdf, across(x, if (cur_group_id() == 1L) list(~ .x * 10) else list(~ .x * 100)))),
-  data.frame(g = c(1, 1, 2), x = c(10, 20, 300), y = c(10, 20, 30), z = c("a", "b", "c")),
+  data.frame(g = c(1, 1, 2), x = 1:3, y = c(10, 20, 30), z = c("a", "b", "c"), x_1 = c(10, 20, 300)),
   info = "a lambda in across() which differs between groups is used in its group"
 )
+expect_equal(
+  summarise(group_by(data.frame(g = c(1, 1, 2, 2, 3), x = 1:5), g), across(x, if (cur_group_id() == 1L) min else max)),
+  data.frame(g = c(1, 2, 3), x = c(1L, 4L, 5L)),
+  info = "the .fns of across() is evaluated in each group"
+)
 rm(gdf, k)
+
+# A call made from a function is selected again each time it is evaluated, as its selection can use objects of that
+# function which change between calls
+sum_cols <- function(cols) {
+  s <- 0
+  for (v in cols) s <- s + across(all_of(v))[[1]]
+  s
+}
+gdf <- group_by(data.frame(g = c(1, 1, 2, 2, 3), x = 1:5, y = c(10, 20, 30, 40, 50)), g)
+expect_equal(
+  summarise(gdf, s = sum(sum_cols(c("x", "y")))),
+  data.frame(g = c(1, 2, 3), s = c(33, 77, 55)),
+  info = "across() repeated in a loop of a function selects each column in grouped summarise()"
+)
+expect_equal(
+  mutate(data.frame(x = 1:2, y = c(10, 20)), s = sum_cols(c("x", "y"))),
+  data.frame(x = 1:2, y = c(10, 20), s = c(11, 22)),
+  info = "across() repeated in a loop of a function selects each column in mutate()"
+)
+rm(gdf, sum_cols)
+
+# A call made from a helper function is set up in every group, so it must still test the full columns, including those
+# made by earlier expressions, whatever the number of groups
+sum_numeric <- function() across(where(is.numeric), sum)
+gdf <- group_by(data.frame(g = rep(1:500, each = 2), x = 1:1000), g)
+expect_equal(
+  summarise(gdf, m = mean(x), sum_numeric()),
+  data.frame(g = 1:500, m = 1:500 * 2 - 0.5, x = 1:500 * 4L - 1L),
+  info = "across() in a helper function works with many groups in summarise()"
+)
+add_one_to_large <- function() across(where(~ max(.x) > 300), ~ .x + 1)
+gdf <- group_by(data.frame(g = rep(1:100, 2), x = 1:200), g)
+expect_equal(
+  ungroup(mutate(gdf, w = x * 2, add_one_to_large())),
+  data.frame(g = rep(1:100, 2), x = 1:200, w = 1:200 * 2 + 1),
+  info = "where() in a helper function tests the full column made by an earlier expression in mutate()"
+)
+rm(gdf, sum_numeric, add_one_to_large)
+
+# The columns of the results of across() follow the same type rules across groups as the result of any expression
+gdf <- group_by(data.frame(g = c(1, 1, 2), x = 1:3, y = 4:6), g)
+expect_error(
+  summarise(gdf, across(x, ~ if (g[1L] == 1) TRUE else "a")),
+  paste0(
+    "Caused by error:\n! `x` must return compatible vectors across groups.\n",
+    "i Result type for group 1 (g = 1): <logical>.\ni Result type for group 2 (g = 2): <character>."
+  ),
+  fixed = TRUE,
+  info = "across() gives an error for columns of incompatible types across groups in summarise()"
+)
+expect_error(
+  mutate(gdf, across(c(x, y), ~ if (g[1L] == 2) as.character(.x) else .x)),
+  paste0(
+    "Caused by error:\n! `x` must return compatible vectors across groups.\n",
+    "i Result type for group 1 (g = 1): <integer>.\ni Result type for group 2 (g = 2): <character>."
+  ),
+  fixed = TRUE,
+  info = "across() gives an error for columns of incompatible types across groups in mutate()"
+)
+expect_error(
+  summarise(gdf, across(c(x, y), list(a = ~ if (g[1L] == 2) as.raw(1) else 2L))),
+  paste0(
+    "Caused by error:\n! `x_a` must return compatible vectors across groups.\n",
+    "i Result type for group 1 (g = 1): <integer>.\ni Result type for group 2 (g = 2): <raw>."
+  ),
+  fixed = TRUE,
+  info = "The type error of across() names the result column"
+)
+expect_equal(
+  summarise(gdf, across(x, ~ if (g[1L] == 1) NA else "a")),
+  data.frame(g = c(1, 2), x = c(NA, "a")),
+  info = "across() combines a column of only NA with a column of any type across groups"
+)
+expect_equal(
+  summarise(gdf, across(x, ~ if (g[1L] == 1) 1L else 2.5)),
+  data.frame(g = c(1, 2), x = c(1, 2.5)),
+  info = "across() combines integer and double columns across groups"
+)
+rm(gdf)
+
+# Each result of across() is one column, whatever its type, as in dplyr
+df <- data.frame(g = c(1, 1, 2), x = 1:3, y = c(10, 20, 30))
+gdf <- group_by(df, g)
+expect_equal(
+  summarise(gdf, across(x, ~ list(.x))),
+  structure(list(g = c(1, 2), x = list(1:2, 3L)), row.names = c(NA, -2L), class = "data.frame"),
+  info = "across() gives a list column for a function which returns a list in grouped summarise()"
+)
+expect_equal(
+  summarise(df, across(x, ~ list(.x))),
+  structure(list(x = list(1:3)), row.names = c(NA, -1L), class = "data.frame"),
+  info = "across() gives a list column for a function which returns a list in summarise()"
+)
+expect_equal(
+  summarise(gdf, across(c(x, y), list(l = ~ list(range(.x)), m = mean))),
+  structure(
+    list(g = c(1, 2), x_l = list(1:2, c(3L, 3L)), x_m = c(1.5, 3), y_l = list(c(10, 20), c(30, 30)), y_m = c(15, 30)),
+    row.names = c(NA, -2L), class = "data.frame"
+  ),
+  info = "across() gives list columns next to other columns"
+)
+expect_equal(
+  ungroup(mutate(gdf, across(x, ~ as.list(.x)))),
+  structure(
+    list(g = c(1, 1, 2), x = list(1L, 2L, 3L), y = c(10, 20, 30)), row.names = c(NA, -3L), class = "data.frame"
+  ),
+  info = "across() gives a list column for a function which returns a list in mutate()"
+)
+expect_equal(
+  summarise(gdf, across(x, ~ data.frame(a = .x[1], b = .x[1] * 2))),
+  structure(
+    list(g = c(1, 2), x = structure(list(a = c(1L, 3L), b = c(2, 6)), row.names = c(NA, -2L), class = "data.frame")),
+    row.names = c(NA, -2L), class = "data.frame"
+  ),
+  info = "across() gives a data frame column for a function which returns a data frame"
+)
+expect_equal(
+  summarise(gdf, across(x, ~ matrix(.x[1:2], 1))),
+  structure(list(g = c(1, 2), x = matrix(c(1L, 3L, 2L, NA), 2L)), row.names = c(NA, -2L), class = "data.frame"),
+  info = "across() gives a matrix column for a function which returns a matrix"
+)
+rm(df, gdf)
+
+# As in dplyr, an empty list of functions gives no columns, as an empty selection does
+gdf <- group_by(data.frame(g = c(1, 1, 2), x = 1:3), g)
+expect_equal(
+  mutate(data.frame(x = 1:2), across(x, list())),
+  data.frame(x = 1:2),
+  info = "across() with an empty list of functions adds no columns in mutate()"
+)
+expect_silent(summarise(gdf, across(x, list())), info = "across() with an empty list of functions gives no warning")
+expect_equal(
+  summarise(gdf, across(x, list())),
+  data.frame(g = c(1, 2)),
+  info = "across() with an empty list of functions adds no columns in grouped summarise()"
+)
+rm(gdf)
+
+# The columns of across() combine complex and double results across groups, as any other result does
+gdf <- group_by(data.frame(g = c(1, 1, 2), x = 1:3), g)
+expect_identical(
+  summarise(gdf, across(x, ~ if (g[1L] == 1) 1i else 2))$x, c(1i, 2 + 0i),
+  info = "across() combines complex and double columns across groups"
+)
+rm(gdf)
+
+# As in dplyr, the results are named after the columns alone only for a single function which is not in a list
+df <- data.frame(x = 1:3, y = c(1.5, 2.5, 3.5))
+expect_named(summarise(df, across(x, list(mean))), "x_1", info = "across() names the result of a list of one function")
+expect_named(
+  summarise(df, across(c(x, y), list(~ mean(.x)))), c("x_1", "y_1"),
+  info = "across() names the results of a list of one lambda"
+)
+expect_named(
+  mutate(df, across(x, list(~ .x * 2))), c("x", "y", "x_1"),
+  info = "across() in mutate() with a list of one function adds a column"
+)
+# As in dplyr, names are kept as they are, even when they are not syntactic
+expect_named(
+  summarise(df, across(x, list(mean, sd), .names = "{.fn}_{.col}")), c("1_x", "2_x"),
+  info = "across() keeps names which start with a number"
+)
+expect_named(
+  summarise(df, across(x, mean, .names = "mean of {.col}")), "mean of x",
+  info = "across() keeps names with spaces"
+)
+expect_named(
+  summarise(df, across(x, list(`my fn` = mean))), "x_my fn",
+  info = "across() keeps function names with spaces"
+)
+expect_named(
+  mutate(df, across(x, list(mean, sd), .names = "{.fn}")), c("x", "y", "1", "2"),
+  info = "across() in mutate() keeps names which are numbers"
+)
+# As in dplyr 1.0.10, a template in .names is filled in without functions, as for one unnamed function
+expect_named(
+  summarise(df, across(x, NULL, .names = "new_{.col}")), "new_x",
+  info = "across() without functions fills in {.col}"
+)
+expect_named(
+  summarise(df, across(x, NULL, .names = "{.col}_{.fn}")), "x_1",
+  info = "across() without functions fills in {.fn}"
+)
+rm(df)
+
+# As in dplyr, the names of the results must be unique, as they are no longer repaired
+df <- data.frame(y = 1:2, z = 3:4)
+expect_error(
+  summarise(df, across(c(y, z), list(a = sum, a = mean, a = max, b = min, b = sd))),
+  paste0(
+    "Names must be unique.\nx These names are duplicated:\n",
+    "  * \"y_a\" at locations 1, 2, and 3.\n  * \"y_b\" at locations 4 and 5.\n",
+    "  * \"z_a\" at locations 6, 7, and 8.\n  * \"z_b\" at locations 9 and 10."
+  ),
+  fixed = TRUE,
+  info = "across() gives an error for duplicated names"
+)
+expect_error(
+  mutate(group_by(df, z), across(y, list(a = sum, a = mean))),
+  "Names must be unique.\nx These names are duplicated:\n  * \"y_a\" at locations 1 and 2.",
+  fixed = TRUE,
+  info = "across() gives an error for duplicated names in grouped mutate()"
+)
+expect_error(
+  summarise(df, across(c(y, z), sum, .names = c("a", "a"))),
+  "Names must be unique.",
+  fixed = TRUE,
+  info = "across() gives an error for duplicated names given as a vector"
+)
+# As in dplyr, a column which is selected without functions keeps its name
+expect_named(
+  summarise(data.frame(`my col` = 1:2, check.names = FALSE), across(`my col`)), "my col",
+  info = "across() without functions keeps names with spaces"
+)
+rm(df)

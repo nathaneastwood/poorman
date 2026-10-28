@@ -45,13 +45,6 @@ flatten <- function(lst) {
   if (sum(nested)) Recall(res) else return(res)
 }
 
-#' Check whether a value is an atomic vector without attributes
-#'
-#' @param x A value.
-#' @return `logical(1)`.
-#' @noRd
-is_bare_atomic <- function(x) is.atomic(x) && is.null(attributes(x))
-
 #' Subset a vector, keeping its attributes
 #'
 #' Unlike `[`, this keeps all of the attributes of `x` (e.g. custom classes and attributes), except names.

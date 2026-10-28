@@ -23,7 +23,12 @@ Possible values are:
 }
 
 Within these functions you can use \code{\link[=cur_column]{cur_column()}} and \code{\link[=cur_group]{cur_group()}} to access the current column and grouping keys
-respectively.}
+respectively.
+
+\code{.fns} is evaluated in each group, as any other code of the expression is, so it can depend on the group, e.g.
+\code{if (cur_group_id() == 1L) min else max}. This differs from \code{dplyr} 1.0.10, which evaluates the \code{.fns} of a call
+made directly in the verb once, before any group, where \code{cur_group_id()} gives \code{0}, but evaluates the \code{.fns} of a
+call made from a function in each group.}
 
 \item{...}{Additional arguments for the function calls in \code{.fns}.}
 

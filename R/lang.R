@@ -14,6 +14,19 @@ is_formula <- function(x) {
   inherits(x, "formula")
 }
 
+#' Check whether two objects are the same lambda, whatever their environments
+#'
+#' A lambda written in an expression is a new formula each time the expression is evaluated, so two formulas made by
+#' the same code differ in their environment alone. `as_function()` gives such formulas the same function but for its
+#' environment.
+#'
+#' @param x,y Objects to compare.
+#' @return `logical(1)`. `TRUE` if `x` and `y` are both one-sided formulas with the same right-hand side.
+#' @noRd
+is_same_lambda <- function(x, y) {
+  is_formula(x) && length(x) == 2L && is_formula(y) && identical(x[[2L]], y[[2L]])
+}
+
 is_string <- function(x) {
   is.character(x) && length(x) == 1L
 }

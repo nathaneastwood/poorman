@@ -144,12 +144,13 @@ eval_groups <- function(.data, dots, env, size_rule, drop_null = FALSE, transfor
 
   context$setup(.data)
   on.exit(context$clean(), add = TRUE)
-  context$full_data <- full_data_reader(.data, masks, layout, seen, size_rule$aligned)
 
   values <- vector(mode = "list", length = length(dots))
   sizes <- size_rule$start(layout$rows)
   seen$sizes <- sizes$sizes
   for (i in seq_along(dots)) {
+    # The columns made by earlier expressions are fixed while this one is evaluated, so the reader keeps those it builds
+    context$full_data <- full_data_reader(.data, masks, layout, seen, size_rule$aligned)
     dot <- list(expr = dots[[i]], position = i, label = labels$labels[[i]], unnamed = labels$unnamed[[i]])
     vals <- eval_expression(dot, masks, layout, seen, drop_null, transform)
     sizes <- size_rule$check(sizes, vals, dot, layout)
@@ -359,16 +360,30 @@ track_result <- function(seen, vals, dot, drop_null) {
 #' @return A `function(names)` which gives a `list` of the full columns called `names`.
 #' @noRd
 full_data_reader <- function(.data, masks, layout, seen, aligned) {
+  # A call to `across()` made from a function selects its columns in every group, so a column made by an earlier
+  # expression is only combined once
+  built <- new.env(hash = TRUE, parent = emptyenv())
+  # The order of the rows is found when the first column is built, as most expressions build none
+  order <- NULL
+  ordered <- FALSE
+  build <- function(name) {
+    vals <- lapply(masks, function(mask) get0(name, envir = mask, inherits = FALSE))
+    sizes <- seen$sizes
+    recycle <- which(vapply(vals, NROW, 1L) == 1L & sizes != 1L)
+    vals[recycle] <- lapply(recycle, function(g) vec_slice(vals[[g]], rep(1L, sizes[[g]])))
+    col <- if (length(vals) == 1L) vals[[1L]] else combine_values(vals)
+    if (!aligned) return(col)
+    if (!ordered) {
+      order <<- ungroup_order(layout$rows, .row_names_info(.data, 2L))
+      ordered <<- TRUE
+    }
+    if (is.null(order)) col else vec_slice(col, order)
+  }
   function(names) {
     cols <- lapply(names, function(name) {
       if (!(name %in% seen$results)) return(.subset2(.data, name))
-      vals <- lapply(masks, function(mask) get0(name, envir = mask, inherits = FALSE))
-      sizes <- seen$sizes
-      recycle <- which(vapply(vals, NROW, 1L) == 1L & sizes != 1L)
-      vals[recycle] <- lapply(recycle, function(g) vec_slice(vals[[g]], rep(1L, sizes[[g]])))
-      col <- if (length(vals) == 1L) vals[[1L]] else combine_values(vals)
-      order <- if (aligned) ungroup_order(layout$rows, .row_names_info(.data, 2L))
-      if (is.null(order)) col else vec_slice(col, order)
+      if (!exists(name, envir = built, inherits = FALSE)) assign(name, build(name), envir = built)
+      get(name, envir = built, inherits = FALSE)
     })
     names(cols) <- names
     cols
@@ -541,28 +556,54 @@ combine_groups <- function(res, i, sizes = res$sizes) {
 #'
 #' Results are compatible when they are of the same kind, as given by `result_kind()`. Within a kind, the existing rules
 #' of `combine_values()` apply, e.g. integers and doubles combine to a double. A logical vector of only `NA` is
-#' compatible with any kind.
+#' compatible with any kind. As in dplyr, a complex result is a number, but the results so far cannot be complex when
+#' the next is logical, nor logical when the next is complex.
+#'
+#' Data frames are compatible when each of their columns is, so the columns of `across()` follow the same rules as any
+#' other result.
 #'
 #' @param vals A `list` with the result of the expression for each group, none of them `NULL`.
 #' @param dot A `list` describing the expression, as given to `eval_expression()`.
 #' @param details A `data.frame` of the groups, as returned by `get_groups()`.
+#' @param name `character(1)`. The name of the results in the error message.
 #' @return `NULL`, invisibly, or gives an error.
 #' @noRd
-check_group_types <- function(vals, dot, details) {
+check_group_types <- function(vals, dot, details, name = dot$label) {
   # Most results are plain vectors of one type, or of numbers, which can always be combined; this is checked first as
   # it is much faster than finding the kind of each result
-  if (all(lengths(lapply(vals, attributes)) == 0L)) {
-    types <- unique(vapply(vals, typeof, NA_character_))
-    if (length(types) == 1L || all(types %in% c("logical", "integer", "double"))) return(invisible())
-  }
+  if (is_one_type(plain_types(vals))) return(invisible())
   kinds <- vapply(vals, result_kind, NA_character_)
-  if (length(unique(kinds[nzchar(kinds)])) > 1L) stop_group_types(vals, kinds, dot, details)
+  # Whether a complex result can be combined depends on the types before it, so the groups are followed in order
+  if (length(unique(kinds[nzchar(kinds)])) > 1L || "complex" %in% vapply(vals, typeof, NA_character_)) {
+    clash <- find_type_clash(vals, kinds)
+    if (!is.null(clash)) stop_group_types(clash, dot, details, name)
+  }
+  if (all(kinds == "data.frame")) check_frame_types(vals, dot, details)
+  invisible()
+}
+
+#' Check that the columns of data frame results can be combined across the groups, for `check_group_types()`
+#'
+#' As in dplyr, the error for an unnamed result, e.g. from `across()`, names the column; a named result keeps its name.
+#' Data frames with different columns are left to `combine_values()`.
+#'
+#' @param vals A `list` with the data frame result of the expression for each group.
+#' @param dot,details As in `check_group_types()`.
+#' @return `NULL`, invisibly, or gives an error.
+#' @noRd
+check_frame_types <- function(vals, dot, details) {
+  nms <- names(vals[[1L]])
+  if (!all(vapply(vals, function(df) identical(names(df), nms), NA))) return(invisible())
+  for (j in seq_along(nms)) {
+    check_group_types(lapply(vals, .subset2, j), dot, details, name = if (dot$unnamed) nms[[j]] else dot$label)
+  }
   invisible()
 }
 
 #' Find the kind of a result, for `check_group_types()`
 #'
-#' Results of the same kind can be combined: logical, integer and double vectors; factors and character vectors; `Date`
+#' Results of the same kind can be combined: logical, integer, double and complex vectors, see `find_type_clash()`;
+#' factors and character vectors; `Date`
 #' and `POSIXct` vectors; unclassed lists; data frames; or objects of the same class. A matrix or array is of the kind
 #' of its base type.
 #'
@@ -578,23 +619,21 @@ result_kind <- function(x) {
   # A matrix is not a kind of its own: as in dplyr, a vector of the same base type is combined with it, each element
   # filling a row
   type <- typeof(x)
-  if (type %in% c("logical", "integer", "double")) "number" else type
+  if (type %in% c("logical", "integer", "double", "complex")) "number" else type
 }
 
-#' Give the error for results of incompatible types
+#' Find the first result which cannot be combined with the results of the groups before it
 #'
-#' As in dplyr, the error names two groups: the group whose result gave the type of the results before the first
-#' incompatible one, and the group of that incompatible result. The type is given by the earliest group whose result
-#' raised it, e.g. from integer to double; a logical vector of only `NA` takes the type of the result that follows it.
-#' Durations of different units combine to seconds, but keep the earlier group.
+#' As in dplyr, the groups are followed in order, and the type of the results so far is given by the earliest group
+#' whose result raised it, e.g. from integer to double; a logical vector of only `NA` takes the type of the result that
+#' follows it. Durations of different units combine to seconds, but keep the earlier group.
 #'
 #' @param vals A `list` with the result of the expression for each group.
 #' @param kinds `character(n)`. The kind of each result, as given by `result_kind()`.
-#' @param dot A `list` describing the expression, as given to `eval_expression()`.
-#' @param details A `data.frame` of the groups, as returned by `get_groups()`.
-#' @return Does not return; gives an error.
+#' @return `NULL` if every result can be combined, otherwise a `list` with `ref`, the group which gave the type of the
+#' results so far, `ref_type`, that type, `g`, the group of the incompatible result, and `type`, its type.
 #' @noRd
-stop_group_types <- function(vals, kinds, dot, details) {
+find_type_clash <- function(vals, kinds) {
   ref <- 1L
   ref_kind <- kinds[[1L]]
   ref_type <- type_label(vals[[1L]])
@@ -606,7 +645,9 @@ stop_group_types <- function(vals, kinds, dot, details) {
       ref_type <- type
       next
     }
-    if (kinds[[g]] != ref_kind) break
+    if (kinds[[g]] != ref_kind || is_complex_logical(ref_type, type)) {
+      return(list(ref = ref, ref_type = ref_type, g = g, type = type))
+    }
     common <- richer_type(ref_type, type)
     if (common != ref_type) {
       # dplyr keeps the earlier group when only the units of a duration change
@@ -614,13 +655,33 @@ stop_group_types <- function(vals, kinds, dot, details) {
       ref_type <- common
     }
   }
+  NULL
+}
+
+# Are two types, as given by `type_label()`, a complex and a logical, which dplyr does not combine?
+is_complex_logical <- function(a, b) {
+  setequal(sub("[[].*", "", c(a, b)), c("complex", "logical"))
+}
+
+#' Give the error for results of incompatible types
+#'
+#' As in dplyr, the error names two groups: the group whose result gave the type of the results before the first
+#' incompatible one, and the group of that incompatible result.
+#'
+#' @param clash The incompatible results, as returned by `find_type_clash()`.
+#' @param dot A `list` describing the expression, as given to `eval_expression()`.
+#' @param details A `data.frame` of the groups, as returned by `get_groups()`.
+#' @param name `character(1)`. The name of the results, as in `check_group_types()`.
+#' @return Does not return; gives an error.
+#' @noRd
+stop_group_types <- function(clash, dot, details, name = dot$label) {
   line <- "\ni Result type for group %d (%s): <%s>."
   stop(
     computing_problem(dot),
     "Caused by error:\n",
-    sprintf("! `%s` must return compatible vectors across groups.", dot$label),
-    sprintf(line, ref, describe_group(details, ref), ref_type),
-    sprintf(line, g, describe_group(details, g), type),
+    sprintf("! `%s` must return compatible vectors across groups.", name),
+    sprintf(line, clash$ref, describe_group(details, clash$ref), clash$ref_type),
+    sprintf(line, clash$g, describe_group(details, clash$g), clash$type),
     call. = FALSE
   )
 }
@@ -668,7 +729,7 @@ richer_type <- function(a, b) {
   dims <- c(dims[nzchar(dims)], "")[[1L]]
   a <- sub("[[].*", "", a)
   b <- sub("[[].*", "", b)
-  numbers <- c("logical", "integer", "double")
+  numbers <- c("logical", "integer", "double", "complex")
   type <- if (a %in% numbers && b %in% numbers) {
     numbers[max(match(c(a, b), numbers))]
   } else if (startsWith(a, "duration<") && a != b) {
@@ -739,12 +800,42 @@ combine_data_frames <- function(x) {
   ))
   if (simple) {
     cols <- lapply(seq_along(nms), function(j) lapply(x, .subset2, j))
-    simple <- all(vapply(cols, function(vals) all(vapply(vals, is_bare_atomic, NA)), NA))
+    # unlist() would also combine types which rbind() does not, e.g. raw and integer, so those are left to rbind()
+    simple <- all(vapply(cols, function(vals) {
+      types <- plain_types(vals)
+      is_one_type(types) && types[[1L]] != "list"
+    }, NA))
   }
-  if (!simple) return(do.call(rbind, x))
+  if (!simple) {
+    res <- do.call(rbind, x)
+    # rbind() gives a matrix column empty dimnames, which a matrix result of an expression does not have
+    for (j in which(vapply(res, function(col) is.matrix(col) && all(vapply(dimnames(col), is.null, NA)), NA))) {
+      dimnames(res[[j]]) <- NULL
+    }
+    return(res)
+  }
   cols <- lapply(cols, unlist, recursive = FALSE, use.names = FALSE)
   n <- sum(vapply(x, .row_names_info, 1L, type = 2L))
   structure(cols, names = nms, row.names = .set_row_names(n), class = "data.frame")
+}
+
+#' Find the types of values without attributes
+#'
+#' @param x A `list` of values.
+#' @return `character(n)`. The `typeof()` of each value, or `NA` where the value has attributes.
+#' @noRd
+plain_types <- function(x) {
+  vapply(x, function(v) if (is.null(attributes(v))) typeof(v) else NA_character_, NA_character_)
+}
+
+#' Check whether types are all the same, or all logical, integer or double
+#'
+#' @param types `character()`, as returned by `plain_types()`.
+#' @return `logical(1)`. `FALSE` if any type is `NA`.
+#' @noRd
+is_one_type <- function(types) {
+  types <- unique(types)
+  !anyNA(types) && (length(types) == 1L || all(types %in% c("logical", "integer", "double")))
 }
 
 #' Check whether values can be combined with `unlist()`, for `combine_values()`
