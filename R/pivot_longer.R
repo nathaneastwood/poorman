@@ -16,7 +16,7 @@
 #' regular expression containing matching groups (`()`); with a single value of `names_to`, the first matching group
 #' is used.
 #' @param values_to `character(1)`. The name of the new column that will contain the values of the pivoted variables.
-#' The pivoted columns are combined following the `tidyr` rules: logical, integer and double columns are combined into
+#' The pivoted columns are combined by these rules: logical, integer and double columns are combined into
 #' the richest of those types, factors are combined into a factor with the union of their levels, factors and
 #' characters are combined into a character and columns of the same class keep that class. Other combinations are an
 #' error.
@@ -100,7 +100,7 @@ pivot_longer <- function(
   n_row <- nrow(data)
 
   # Each unique combination of the `names_to` columns becomes one row of output per input row. Columns which share
-  # their `.value` and `names_to` values are told apart by a sequence number, as in tidyr.
+  # their `.value` and `names_to` values are told apart by a sequence number.
   key_names <- setdiff(names(spec), c(".name", ".value"))
   keys <- as.list(spec)[key_names]
   dup_id <- group_ids(c(list(spec$.value), keys), n = nrow(spec))

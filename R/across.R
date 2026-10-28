@@ -83,7 +83,6 @@ across <- function(.cols = everything(), .fns = NULL, ..., .names = NULL) {
 #' @export
 if_any <- function(.cols, .fns = NULL, ..., .names = NULL) {
   df <- across_columns(substitute(.cols), .fns, ..., .names = .names, .env = parent.frame(), .call = sys.call())
-  # As in dplyr, no columns give TRUE, so `filter()` keeps every row, rather than the FALSE of `any()`
   if (ncol(df) == 0L) return(TRUE)
   check_if_types(df)
   Reduce(`|`, df)
@@ -128,8 +127,6 @@ across_columns <- function(.cols, .fns, ..., .names, .env, .call) {
   funs <- if (identical(.fns, setup$fns)) setup$funs else across_group_funs(.fns, setup)
   cols <- setup$cols
   n_cols <- length(cols)
-  # As in dplyr, no columns still give a data frame with a row for each row of the group, e.g. so that `filter()` keeps
-  # every row
   if (n_cols == 0L) {
     return(structure(list(), names = character(), row.names = .set_row_names(context$get_nrow()), class = "data.frame"))
   }
@@ -165,7 +162,7 @@ across_columns <- function(.cols, .fns, ..., .names, .env, .call) {
 #' Find the columns of an `across()` call and the names of its results
 #'
 #' Within a grouped verb, the selection is made in the first group that the call is evaluated in and kept in
-#' `context$across_setups` for the other groups of the expression. As in dplyr, the columns are therefore the same in
+#' `context$across_setups` for the other groups of the expression. The columns are therefore the same in
 #' every group, and `where()` tests the full columns rather than those of one group. A call is identified by its
 #' expression, the number and names of its functions and `.names`. Only calls evaluated directly in the expression,
 #' whose environment is the data mask of each group, are kept; a call made from a function is set up each time.
@@ -178,7 +175,7 @@ across_setup <- function(.cols, .fns, .names, .env, .call) {
   mask <- context$mask
   # Only a call made directly in the expression is kept. A call made from a function, e.g. a helper or a loop within
   # one, is evaluated in a new frame in each group, or in the same frame with objects that change between calls, so
-  # its selection is made again each time, as in dplyr
+  # its selection is made again each time
   cached <- !is.null(mask) && identical(.env, mask)
   key <- list(
     call = .call,
@@ -189,7 +186,6 @@ across_setup <- function(.cols, .fns, .names, .env, .call) {
   if (cached) for (setup in context$across_setups) if (identical(setup$key, key)) return(setup)
   cols <- across_select(.cols, .env)
   funs <- across_funs(.fns)
-  # As in dplyr, an empty list of functions gives no results, as no columns do
   if (!is.null(funs) && length(funs) == 0L) cols <- character()
   names <- across_names(cols, funs, .names)
   check_unique_names(names)
@@ -210,9 +206,6 @@ across_select <- function(.cols, .env) {
   mask <- context$mask
   if (!is.null(mask) && identical(.env, mask)) .env <- parent.env(mask)
   data <- context$.data
-  # As in dplyr, the grouping columns cannot be selected, so they are left out before the selection is made: positions
-  # count the other columns, a grouping column is not found and `where()` does not test them. The data left is not
-  # grouped, so `group_cols()` selects nothing
   if (context$is_grouped()) {
     keep <- setdiff(names(data), group_vars(data))
     data <- structure(.subset(data, keep), row.names = .set_row_names(nrow(data)), class = "data.frame")
@@ -277,19 +270,14 @@ across_group_funs <- function(.fns, setup) {
 #' @return `character()` with the name of each result, or `NULL` to keep the names of the columns.
 #' @noRd
 across_names <- function(cols, funs, .names) {
-  # As in dplyr 1.0.10, a template is filled in without functions as for one function named "1"
   if (is.null(funs)) return(fill_names_template(.names, cols, "1"))
   if (!is.null(.names)) return(fill_names_template(.names, cols, unique(names(funs))))
-  # As in dplyr, only one function which is not in a list names its results after the columns alone, so `list(mean)`
-  # gives `x_1`
   if (isTRUE(attr(funs, "single"))) return(cols)
   nms <- do.call(paste, c(rev(expand.grid(names(funs), cols)), sep = "_"))
   if (length(nms) == 0L) NULL else nms
 }
 
 #' Check that the names of the results of an `across()` call are unique
-#'
-#' As in dplyr, duplicated names are an error rather than being repaired, e.g. from `list(a = sum, a = mean)`.
 #'
 #' @param names `character()`. The names of the results, or `NULL`.
 #' @return `NULL`, invisibly, or gives an error.
@@ -325,9 +313,9 @@ fill_names_template <- function(.names, cols, fn_names) {
 
 #' Build the data frame of the results of an `across()` call
 #'
-#' As in dplyr, each result is one column, whatever its type: a list, data frame or matrix result is not split into
-#' several columns as `as.data.frame()` would. Results of size one are recycled to the size of the others. As in dplyr,
-#' the names are kept as they are, even when they are not syntactic, e.g. `"mean of x"`.
+#' Each result is one column, whatever its type: a list, data frame or matrix result is not split into
+#' several columns as `as.data.frame()` would. Results of size one are recycled to the size of the others. The names
+#' are kept as they are, even when they are not syntactic, e.g. `"mean of x"`.
 #'
 #' @param x A named `list` with the result of each function for each column.
 #' @return A `data.frame` with a column for each result.

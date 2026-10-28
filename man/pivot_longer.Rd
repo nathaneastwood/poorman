@@ -52,7 +52,7 @@ is used.}
 is applied to the names.}
 
 \item{values_to}{\code{character(1)}. The name of the new column that will contain the values of the pivoted variables.
-The pivoted columns are combined following the \code{tidyr} rules: logical, integer and double columns are combined into
+The pivoted columns are combined by these rules: logical, integer and double columns are combined into
 the richest of those types, factors are combined into a factor with the union of their levels, factors and
 characters are combined into a character and columns of the same class keep that class. Other combinations are an
 error.}

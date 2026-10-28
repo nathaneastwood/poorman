@@ -139,7 +139,7 @@ expect_equal(
   info = "keep = TRUE keeps the join columns"
 )
 
-# Join keys are cast to their common type, as in dplyr
+# Join keys are cast to their common type
 x <- data.frame(k = 1:2, a = 1:2)
 y <- data.frame(k = c(2, 3), b = 1:2)
 expect_identical(inner_join(x, y, by = "k")$k, 2, info = "inner_join() casts integer and double keys to double")
@@ -209,7 +209,6 @@ expect_error(
 )
 rm(x, y)
 
-# keep = TRUE, column order and row order follow dplyr
 x <- data.frame(k = c(3L, 1L, 2L), v = c("c", "a", "b"), w = 1:3, stringsAsFactors = FALSE)
 y <- data.frame(w = c(9L, 8L, 7L, 6L), m = c(2L, 9L, 3L, 5L), k = c(20L, 90L, 30L, 50L))
 expect_identical(
@@ -267,7 +266,7 @@ for (join in list(inner_join, left_join, right_join, full_join)) {
   expect_identical(
     names(formals(join)),
     c("x", "y", "by", "copy", "suffix", "...", "keep", "na_matches"),
-    info = "The mutating joins take their arguments in the order of dplyr"
+    info = "The mutating joins take their arguments in the documented order"
   )
 }
 expect_identical(

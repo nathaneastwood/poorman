@@ -55,7 +55,6 @@ distinct.data.frame <- function(.data, ..., .keep_all = FALSE) {
   dots <- dotdotdot(..., .env = parent.frame())
   mut <- mutate_df(.data, dots, parent.frame())
   data <- mut$data
-  # As in dplyr, the grouping columns are always used; the columns are kept in the order of the data
   cols <- if (length(dots) == 0L) names(data) else intersect(names(data), c(group_vars(.data), mut$new_cols))
   keep <- which(!distinct_duplicated(.subset(data, cols), nrow(data)))
   if (!isTRUE(.keep_all)) data <- data[, cols, drop = FALSE]

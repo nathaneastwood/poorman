@@ -265,7 +265,7 @@ expect_equal(
 expect_equal(
   names(summarise(mtcars, mean(mpg + disp + hp + drat + wt + qsec + vs + am + gear + carb + mpg + disp + hp))),
   "mean(...)",
-  info = "summarise() abbreviates the names of long expressions, as rlang::as_label()"
+  info = "summarise() abbreviates the names of long expressions"
 )
 expect_equal(
   names(summarise(mtcars, .data$mpg[1L])),
@@ -521,7 +521,7 @@ expect_identical(
   info = "summarise() combines logical NAs with a character"
 )
 
-# Complex results combine with integers and doubles, but not with logicals, as in dplyr
+# Complex results combine with integers and doubles, but not with logicals
 cx_df <- group_by(data.frame(g = 1:3), g)
 expect_identical(
   summarise(cx_df, v = if (g == 1L) 1i else 2.5)$v, c(1i, 2.5 + 0i, 2.5 + 0i),
@@ -649,7 +649,6 @@ expect_identical(
   info = "summarise() combines a Date and a POSIXct to a POSIXct"
 )
 
-# As in dplyr, an unnamed data frame with no columns does not set the size of the groups
 gdf <- group_by(data.frame(g = c(1, 1, 2), x = 1:3), g)
 expect_equal(
   summarise(gdf, across(starts_with("z"), sum)),

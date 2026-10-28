@@ -256,7 +256,7 @@ expect_error(
 )
 rm(df, gf, fd, f, res)
 
-# A negative n or prop drops that many rows from each group, as in dplyr 1.0.10
+# A negative n or prop drops that many rows from each group
 df <- data.frame(g = c(1, 1, 1, 1, 2, 2, 3), x = c(3, 1, 1, 4, 5, 2, 9), id = 1:7)
 gf <- group_by(df, g)
 expect_equal(slice_head(df, n = -1)$id, 1:6, info = "slice_head() with a negative n drops the last rows")

@@ -146,7 +146,6 @@ df <- data.frame(id = 1:2, x_1 = c(1, NA), x_2 = c(NA, NA), y_1 = c(NA, NA), y_2
 res <- pivot_longer(df, -id, names_to = c(".value", "n"), names_sep = "_", values_drop_na = TRUE)
 expect_equal(res$n, c("1", "2", "2"), info = "values_drop_na drops rows where all values are missing")
 
-# Values are combined following the tidyr type rules
 df <- data.frame(a = 1:2, b = c(0.5, 1))
 expect_equal(pivot_longer(df, a:b)$value, c(1, 0.5, 2, 1), info = "integer and double combine to double")
 df <- data.frame(a = factor(c("x", "y")), b = c("z", "x"), stringsAsFactors = FALSE)

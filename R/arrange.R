@@ -45,7 +45,7 @@ arrange_rows <- function(.data, dots, env = parent.frame()) {
 
   if (length(dots) == 0L) return(seq_len(nrow(.data)))
 
-  # Like dplyr, a top level desc() sets the direction rather than being evaluated. A top level unary minus is treated in
+  # A top level desc() sets the direction rather than being evaluated. A top level unary minus is treated in
   # the same way so that it can be used with non-numeric columns (#99).
   descending <- vapply(dots, is_desc_call, NA)
   dots[descending] <- lapply(dots[descending], `[[`, 2L)
@@ -90,7 +90,6 @@ arrange_keys <- function(x, descending, n, expr) {
     x <- rep(x, length.out = n)
   }
   if (is.list(x) && !inherits(x, "POSIXlt")) {
-    # As in dplyr, list elements cannot be compared so they are sorted by their first appearance
     x <- match(x, unique(x))
   } else if (is.character(x)) {
     # Sorting strings in the current locale is slow, so only rank the unique values and sort by their integer rank.

@@ -152,7 +152,7 @@ slice_sample.data.frame <- function(.data, ..., n, prop, weight_by = NULL, repla
 #' Select rows by their position within each group
 #'
 #' The positions of the rows to keep are found within each group, then turned into positions in `.data` so that the
-#' rows are selected once. As in dplyr, the rows of grouped data are returned in group order, and groups left empty are
+#' rows are selected once. The rows of grouped data are returned in group order, and groups left empty are
 #' dropped unless the groups were made with `.drop = FALSE`.
 #'
 #' @param .data A `data.frame`.
@@ -262,7 +262,7 @@ check_slice_input_size <- function(x, arg, n_rows) {
 
 #' Check the size given to a slice helper
 #'
-#' As in dplyr, giving both `n` and `prop` is checked first, then that the one given is a single number. A negative
+#' Giving both `n` and `prop` is checked first, then that the one given is a single number. A negative
 #' size drops rows, except in `slice_sample()`.
 #'
 #' @param n,prop The `n` and `prop` arguments of the slice helper, either of which may be missing.
