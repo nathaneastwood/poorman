@@ -86,14 +86,72 @@ expect_equal(
   info = "Dropping columns with a character vector"
 )
 expect_equal(
-  poorman:::select_positions(mtcars, !mpg:!cyl),
+  poorman:::select_positions(mtcars, !mpg:cyl),
   c(disp = 3, hp = 4, drat = 5, wt = 6, qsec = 7, vs = 8, am = 9, gear = 10, carb = 11),
-  info = "Dropping columns with symbol sequences"
+  info = "`!` before a range negates the whole range"
 )
 expect_equal(
-  poorman:::select_positions(mtcars, !"mpg":!"cyl"),
+  poorman:::select_positions(mtcars, !"mpg":"cyl"),
   c(disp = 3, hp = 4, drat = 5, wt = 6, qsec = 7, vs = 8, am = 9, gear = 10, carb = 11),
-  info = "Dropping columns with a character sequence"
+  info = "`!` before a range of strings negates the whole range"
+)
+
+# Each end of a range is a selection of its own. R reads `-mpg:cyl` as `(-mpg):cyl`, so a negated end stands for every
+# other column and `:` uses the first of them, with its warning when there are several
+expect_warning(
+  res <- poorman:::select_positions(mtcars, -mpg:cyl),
+  pattern = "numerical expression has 10 elements: only the first used"
+)
+expect_equal(res, c(cyl = 2), info = "A negated start of a range stands for the first other column")
+expect_equal(
+  suppressWarnings(poorman:::select_positions(mtcars, -carb:gear)),
+  c(mpg = 1, cyl = 2, disp = 3, hp = 4, drat = 5, wt = 6, qsec = 7, vs = 8, am = 9, gear = 10),
+  info = "A negated start of a range can come before every column"
+)
+expect_equal(
+  suppressWarnings(poorman:::select_positions(mtcars, mpg:-hp)),
+  c(mpg = 1),
+  info = "A negated end of a range stands for the first other column"
+)
+expect_equal(
+  suppressWarnings(poorman:::select_positions(mtcars, -mpg:!cyl)),
+  c(cyl = 2, mpg = 1),
+  info = "Both ends of a range can be negated with different operators"
+)
+expect_equal(
+  suppressWarnings(poorman:::select_positions(mtcars, -1:3)),
+  c(cyl = 2, disp = 3),
+  info = "A negated number at the start of a range stands for the first other column"
+)
+expect_equal(
+  suppressWarnings(poorman:::select_positions(mtcars, !mpg:!cyl)),
+  c(cyl = 2, disp = 3, hp = 4, drat = 5, wt = 6, qsec = 7, vs = 8, am = 9, gear = 10, carb = 11),
+  info = "`!mpg:!cyl` negates the range `mpg:!cyl`, which is `mpg:mpg`"
+)
+expect_equal(
+  suppressWarnings(poorman:::select_positions(mtcars, !"mpg":!"cyl")),
+  c(cyl = 2, disp = 3, hp = 4, drat = 5, wt = 6, qsec = 7, vs = 8, am = 9, gear = 10, carb = 11),
+  info = "`!\"mpg\":!\"cyl\"` negates the range `\"mpg\":!\"cyl\"`"
+)
+expect_equal(
+  poorman:::select_positions(mtcars, -(-mpg):cyl),
+  c(mpg = 1, cyl = 2),
+  info = "An end negated twice stands for the column itself"
+)
+expect_equal(
+  suppressWarnings(poorman:::select_positions(mtcars, -c(mpg, cyl):-hp)),
+  c(drat = 5, wt = 6, qsec = 7, vs = 8, am = 9, gear = 10, carb = 11),
+  info = "A range with both ends negated by `-` drops the range from the first column of each end"
+)
+expect_equal(
+  suppressWarnings(names(select(mtcars, gear, -mpg:cyl))),
+  c("gear", "cyl"),
+  info = "A range with a negated end does not drop columns"
+)
+expect_error(
+  poorman:::select_positions(mtcars, -where(is.numeric):cyl),
+  pattern = "argument of length 0",
+  info = "A negated end which leaves no other column is an error"
 )
 expect_equal(
   poorman:::select_positions(mtcars, !c(mpg, cyl)),

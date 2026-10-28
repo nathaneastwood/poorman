@@ -155,7 +155,7 @@ eval_call <- function(x) {
     type,
     `:` = select_seq(x),
     `!` = select_negate(x),
-    `-` = select_minus(x),
+    `-` = select_negate(x),
     `c` = select_c(x),
     `(` = select_bracket(x),
     `&` = select_and(x),
@@ -171,33 +171,56 @@ select_and <- function(expr) {
   res[res > 0]
 }
 
+#' Select a range of columns, `from:to`
+#'
+#' Each end of the range is a selection of its own, so a negated end such as `-mpg` or `!mpg` stands for every other
+#' column, and `:` uses the first of them, with its warning when there are several. As R reads `-mpg:cyl` as
+#' `(-mpg):cyl`, this selects `cyl:cyl`. When both ends are negated with `-`, as in `-mpg:-cyl`, the range itself is
+#' negated, so the columns from `mpg` to `cyl` are dropped.
+#'
+#' @param expr A call to `:`.
+#' @return `integer`. The positions of the range, negative if it is dropped.
+#' @noRd
 select_seq <- function(expr) {
-  x <- eval_expr(expr[[2]])
-  y <- eval_expr(expr[[3]])
-  x:y
+  from <- expr[[2L]]
+  to <- expr[[3L]]
+  negated <- is_unary(from, "-") && is_unary(to, "-")
+  if (negated) {
+    from <- from[[2L]]
+    to <- to[[2L]]
+  }
+  # The ends are named `x` and `y` so that a warning from `:` reads as it does in a range of numbers
+  x <- select_range_end(from)
+  y <- select_range_end(to)
+  if (negated) -(x:y) else x:y
+}
+
+#' Find the positions an end of a range stands for
+#'
+#' @param expr The unevaluated end of the range.
+#' @return `integer`. The positions it selects; a negated end gives the positions of every other column.
+#' @noRd
+select_range_end <- function(expr) {
+  if (is_unary(expr, "(")) return(select_range_end(expr[[2L]]))
+  if (!is_negation(expr)) return(eval_expr(expr))
+  setdiff(seq_len(select_env$get_ncol()), select_range_end(expr[[2L]]))
 }
 
 select_negate <- function(expr) {
-  x <- if (is_negated_colon(expr)) {
-    expr <- call(":", expr[[2]][[2]], expr[[2]][[3]][[2]])
-    eval_expr(expr)
-  } else {
-    eval_expr(expr[[2]])
-  }
-  x * -1L
+  eval_expr(expr[[2L]]) * -1L
 }
 
 is_negation <- function(expr) {
-  is.call(expr) && length(expr) == 2L && (identical(expr[[1L]], quote(`-`)) || identical(expr[[1L]], quote(`!`)))
+  is_unary(expr, "-") || is_unary(expr, "!")
 }
 
-is_negated_colon <- function(expr) {
-  expr[[1]] == "!" && length(expr[[2]]) > 1L && expr[[2]][[1]] == ":" && expr[[2]][[3]][[1]] == "!"
-}
-
-select_minus <- function(expr) {
-  x <- eval_expr(expr[[2]])
-  x * -1L
+#' Check whether an expression is a call to the unary operator `op`, e.g. `-x`
+#' @param expr An unevaluated expression.
+#' @param op `character(1)`. The name of the operator.
+#' @return `logical(1)`.
+#' @noRd
+is_unary <- function(expr, op) {
+  is.call(expr) && length(expr) == 2L && identical(expr[[1L]], as.name(op))
 }
 
 select_c <- function(expr) {

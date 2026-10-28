@@ -18,6 +18,8 @@
 * `where()` now accepts a formula, e.g. `where(~ is.numeric(.x) && mean(.x) > 3)`, as in `dplyr`. Previously, it gave the error "is not a valid predicate function".
 * A selection which starts with a negation now starts from every column, even when the negation matches no column, as in `dplyr`. For example, `select(df, -group_cols())` on data which is not grouped and `select(df, -starts_with("z"))` with no column starting with "z" now select every column. Previously, they selected none.
 * `summarise()` now ignores the size of an unnamed data frame with no columns, such as the result of an `across()` which selects no columns, as in `dplyr`. Previously, grouped `summarise(df, across(starts_with("z"), sum))` gave a row for each row of the data rather than for each group.
+* `!` before a range, e.g. `select(df, !a:b)`, now drops the columns from `a` to `b`, as in `dplyr`. Previously, it gave the error "object of type 'symbol' is not subsettable".
+* A range with a negated end, e.g. `-a:b`, now selects the columns that `dplyr` selects. R reads `-a:b` as `(-a):b`, so each end of the range is a selection of its own: a negated end stands for every other column, and `:` uses the first of them, with the warning "numerical expression has ... elements: only the first used". For example, `select(mtcars, -mpg:cyl)` selects `cyl`, and `select(mtcars, !mpg:!cyl)` drops only `mpg`. Previously, these ranges dropped or kept columns depending on the sign of the first position. A range with both ends negated by `-`, e.g. `-a:-b`, still drops the columns from `a` to `b`; use `-(a:b)` or `!(a:b)` to drop a range.
 
 # poorman 0.3.0
 
