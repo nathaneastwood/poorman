@@ -1,19 +1,33 @@
 # Checks each CRAN package which depends on, imports, links to or suggests poorman, first against the CRAN version of
 # poorman and then against this one, and fails where the second check finds new problems. This mirrors the reverse
 # dependency check CRAN runs on incoming submissions. Run it before submitting to CRAN.
+#
+# Everything runs in one job: the reverse dependencies share most of their dependencies, so they are installed once,
+# and the checks run in parallel on the cores of the runner. The rocker image already has R, which saves installing R
+# and its system requirements with apt on every run.
 on:
   workflow_dispatch:
 
 name: revdep
 
 jobs:
-  list:
+  revdep:
     runs-on: ubuntu-latest
-    outputs:
-      packages: ${{ steps.revdeps.outputs.packages }}
+    container: rocker/r-ver:latest
+    env:
+      GITHUB_PAT: ${{ secrets.GITHUB_TOKEN }}
+
     steps:
+      - uses: actions/checkout@v5
+
+      # The image has no pandoc, which vignettes need, and no sudo, which setup-pandoc may use.
+      - name: Install pandoc
+        run: apt-get update && apt-get install -y --no-install-recommends pandoc
+
+      # Uses the R in the image and only sets up the library and the package repository.
       - uses: r-lib/actions/setup-r@v2
         with:
+          install-r: false
           use-public-rspm: true
 
       - name: List reverse dependencies
@@ -24,62 +38,46 @@ jobs:
             "poorman", db = db, reverse = TRUE, which = c("Depends", "Imports", "LinkingTo", "Suggests")
           )[[1L]]
           print(deps)
-          json <- paste0("[", paste0('"', sort(deps), '"', collapse = ","), "]")
-          cat("packages=", json, "\n", sep = "", file = Sys.getenv("GITHUB_OUTPUT"), append = TRUE)
+          # pak installs only the hard dependencies of the packages it is given, so their Suggests, which the tests
+          # need, are listed explicitly. poorman is left out and installed from CRAN in its own step.
+          needs <- tools::package_dependencies(deps, db = db, which = c("Depends", "Imports", "LinkingTo", "Suggests"))
+          needs <- intersect(unique(c(deps, unlist(needs), "rcmdcheck")), rownames(db))
+          needs <- setdiff(needs, c(rownames(utils::installed.packages(priority = "base")), "poorman"))
+          out <- Sys.getenv("GITHUB_OUTPUT")
+          cat("names=", paste(deps, collapse = " "), "\n", sep = "", file = out, append = TRUE)
+          cat("refs=", paste0("any::", sort(needs), collapse = ", "), "\n", sep = "", file = out, append = TRUE)
         shell: Rscript {0}
 
-  check:
-    needs: list
-    if: needs.list.outputs.packages != '[]'
-    runs-on: ubuntu-latest
-    name: ${{ matrix.package }}
-
-    strategy:
-      fail-fast: false
-      matrix:
-        package: ${{ fromJSON(needs.list.outputs.packages) }}
-
-    env:
-      GITHUB_PAT: ${{ secrets.GITHUB_TOKEN }}
-
-    steps:
-      - uses: actions/checkout@v4
-
-      - uses: r-lib/actions/setup-pandoc@v2
-
-      - uses: r-lib/actions/setup-r@v2
-        with:
-          use-public-rspm: true
-
-      # Installs the reverse dependency with everything it suggests, which includes the CRAN version of poorman.
+      # A cache of its own: the caches of the other workflows hold the development version of poorman.
       - uses: r-lib/actions/setup-r-dependencies@v2
         with:
-          packages: any::${{ matrix.package }}, any::rcmdcheck
-          dependencies: '"all"'
+          packages: ${{ steps.revdeps.outputs.refs }}
+          dependencies: '"hard"'
+          cache-version: revdep-1
 
-      # The package source comes from CRAN itself; the public RSPM repository may serve a binary.
-      - name: Download source
-        run: |
-          mkdir -p revdep
-          Rscript -e 'utils::download.packages("${{ matrix.package }}", "revdep", repos = "https://cloud.r-project.org", type = "source")'
+      - name: Install CRAN poorman
+        run: Rscript -e 'utils::install.packages("poorman", repos = "https://cloud.r-project.org")'
 
-      - name: Check with CRAN poorman
-        run: Rscript .github/scripts/revdep_check.R check revdep/${{ matrix.package }}_*.tar.gz revdep/old.rds
-
+      # Into its own library, so that the checks against the CRAN version do not see it.
       - name: Install development poorman
-        run: R CMD INSTALL .
+        run: |
+          mkdir -p revdep/devlib
+          R CMD INSTALL --library=revdep/devlib .
 
-      - name: Check with development poorman
-        run: Rscript .github/scripts/revdep_check.R check revdep/${{ matrix.package }}_*.tar.gz revdep/new.rds
+      # The package sources come from CRAN itself; the public RSPM repository may serve binaries.
+      - name: Download sources
+        run: |
+          mkdir -p revdep/src
+          for pkg in ${{ steps.revdeps.outputs.names }}; do
+            Rscript -e "utils::download.packages('$pkg', 'revdep/src', repos = 'https://cloud.r-project.org', type = 'source')"
+          done
 
-      - name: Compare
-        run: Rscript .github/scripts/revdep_check.R compare revdep/old.rds revdep/new.rds
+      - name: Check
+        run: Rscript .github/scripts/revdep_check.R revdep/src revdep/devlib revdep/checks
 
       - name: Upload check results
         if: failure()
         uses: actions/upload-artifact@v4
         with:
-          name: ${{ matrix.package }}-revdep-results
-          path: |
-            revdep/old
-            revdep/new
+          name: revdep-results
+          path: revdep/checks

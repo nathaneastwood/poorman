@@ -1,51 +1,77 @@
-# Reverse dependency check for a single package, used by .github/workflows/revdep.yaml.
+# Reverse dependency check, used by .github/workflows/revdep.yaml.
 #
-#   Rscript revdep_check.R check <tarball> <result.rds>
-#   Rscript revdep_check.R compare <old.rds> <new.rds>
+#   Rscript revdep_check.R <source dir> <dev lib> <check dir>
 #
-# `check` runs R CMD check on a reverse dependency against whichever poorman is installed, as CRAN would: tests
-# which call `skip_on_cran()` are skipped and missing Suggests are allowed. `compare` fails when the check against the
-# development poorman finds a problem which the check against the CRAN poorman did not, i.e. a "change to worse".
+# Checks every package tarball in <source dir> twice, as CRAN would (tests which call `skip_on_cran()` are skipped and
+# missing Suggests are allowed): once against the poorman installed in the default library, i.e. the CRAN version,
+# and once with <dev lib>, which holds the development version, first on the library path. The checks run in
+# parallel. The script fails when the check against the development version finds a problem which the check against
+# the CRAN version did not, i.e. a "change to worse".
 
 args <- commandArgs(trailingOnly = TRUE)
+src_dir <- args[1L]
+dev_lib <- normalizePath(args[2L])
+check_dir <- args[3L]
 
-run_check <- function(tarball, out) {
-  cat("Checking", basename(tarball), "with poorman", format(utils::packageVersion("poorman")), "\n")
-  res <- rcmdcheck::rcmdcheck(
-    tarball,
+cran_version <- utils::packageVersion("poorman")
+dev_version <- utils::packageVersion("poorman", lib.loc = dev_lib)
+cat("CRAN poorman:", format(cran_version), "\nDevelopment poorman:", format(dev_version), "\n")
+if (cran_version == dev_version) stop("The CRAN and development versions of poorman are the same version.")
+
+tarballs <- list.files(src_dir, pattern = "\\.tar\\.gz$", full.names = TRUE)
+packages <- sub("_.*", "", basename(tarballs))
+
+# One check per package and poorman version.
+checks <- expand.grid(tarball = tarballs, version = c("cran", "dev"), stringsAsFactors = FALSE)
+checks$libpath <- lapply(checks$version, function(v) if (v == "dev") c(dev_lib, .libPaths()) else .libPaths())
+checks$out <- file.path(check_dir, checks$version)
+for (dir in unique(checks$out)) dir.create(dir, recursive = TRUE, showWarnings = FALSE)
+
+run_check <- function(i, checks) {
+  try(rcmdcheck::rcmdcheck(
+    checks$tarball[i],
     args = "--no-manual",
-    check_dir = sub("\\.rds$", "", out),
+    libpath = checks$libpath[[i]],
+    check_dir = checks$out[i],
     env = c(NOT_CRAN = "false", `_R_CHECK_FORCE_SUGGESTS_` = "false"),
-    error_on = "never"
-  )
-  saveRDS(res, out)
+    error_on = "never",
+    quiet = TRUE
+  ))
 }
+
+# Socket workers rather than forks, as rcmdcheck runs R CMD check through processx, which does not support forking.
+cores <- max(1L, parallel::detectCores())
+cat("Running", nrow(checks), "checks on", cores, "cores\n")
+cl <- parallel::makePSOCKcluster(cores)
+results <- parallel::parLapplyLB(cl, seq_len(nrow(checks)), run_check, checks = checks)
+parallel::stopCluster(cl)
 
 # A problem is identified by its first line, e.g. "checking tests ... ERROR", which names the check and its result
 # but not the run time or output, so the same problem matches across the two runs.
-problem_keys <- function(res) {
-  problems <- c(res$errors, res$warnings, res$notes)
-  unique(trimws(sub("\n.*", "", problems)))
-}
+first_lines <- function(problems) trimws(sub("\n.*", "", problems))
 
-compare_checks <- function(old_file, new_file) {
-  old <- readRDS(old_file)
-  new <- readRDS(new_file)
-  print(rcmdcheck::compare_checks(old, new))
-  worse <- setdiff(problem_keys(new), problem_keys(old))
-  if (length(worse) == 0L) {
-    cat("\nNo changes to worse.\n")
-    return(invisible())
+outcome <- data.frame(package = packages, status = "OK", stringsAsFactors = FALSE)
+for (p in seq_along(packages)) {
+  old <- results[[which(checks$tarball == tarballs[p] & checks$version == "cran")]]
+  new <- results[[which(checks$tarball == tarballs[p] & checks$version == "dev")]]
+  cat("::group::", packages[p], "\n", sep = "")
+  if (inherits(old, "try-error") || inherits(new, "try-error")) {
+    outcome$status[p] <- "CHECK FAILED TO RUN"
+    for (res in list(old, new)) if (inherits(res, "try-error")) cat(res)
+    cat("::endgroup::\n")
+    next
   }
-  cat("\nChanges to worse with the development version of poorman:\n\n")
+  print(rcmdcheck::compare_checks(old, new))
   new_problems <- c(new$errors, new$warnings, new$notes)
-  cat(new_problems[trimws(sub("\n.*", "", new_problems)) %in% worse], sep = "\n\n")
-  quit(status = 1L)
+  worse <- setdiff(first_lines(new_problems), first_lines(c(old$errors, old$warnings, old$notes)))
+  cat("::endgroup::\n")
+  if (length(worse) > 0L) {
+    outcome$status[p] <- "WORSE"
+    cat("\nChanges to worse in ", packages[p], " with the development version of poorman:\n\n", sep = "")
+    cat(new_problems[first_lines(new_problems) %in% worse], sep = "\n\n")
+  }
 }
 
-switch(
-  args[1L],
-  check = run_check(args[2L], args[3L]),
-  compare = compare_checks(args[2L], args[3L]),
-  stop("Unknown command: ", args[1L])
-)
+cat("\n")
+print(outcome, row.names = FALSE)
+if (any(outcome$status != "OK")) quit(status = 1L)
