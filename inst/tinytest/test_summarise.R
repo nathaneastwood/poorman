@@ -521,6 +521,55 @@ expect_identical(
   info = "summarise() combines logical NAs with a character"
 )
 
+# Complex results combine with integers and doubles, but not with logicals, as in dplyr
+cx_df <- group_by(data.frame(g = 1:3), g)
+expect_identical(
+  summarise(cx_df, v = if (g == 1L) 1i else 2.5)$v, c(1i, 2.5 + 0i, 2.5 + 0i),
+  info = "summarise() combines complex and double results across groups"
+)
+expect_identical(
+  summarise(cx_df, v = switch(g, TRUE, 2L, 1i))$v, c(1 + 0i, 2 + 0i, 1i),
+  info = "summarise() combines a logical with a complex once an integer has raised the type"
+)
+expect_identical(
+  summarise(cx_df, v = switch(g, NA, 1i, 2))$v, c(NA, 1i, 2 + 0i),
+  info = "summarise() combines logical NAs with a complex"
+)
+expect_identical(
+  summarise(cx_df, v = if (g == 1L) matrix(1i, 1L, 2L) else matrix(2, 1L, 2L))$v,
+  matrix(c(1i, 2 + 0i, 2 + 0i), 3L, 2L),
+  info = "summarise() combines complex and double matrix results across groups"
+)
+expect_error(
+  summarise(cx_df, v = switch(g, 1i, 2L, TRUE)),
+  paste0(
+    "! `v` must return compatible vectors across groups.\n",
+    "i Result type for group 1 (g = 1): <complex>.\ni Result type for group 3 (g = 3): <logical>."
+  ),
+  fixed = TRUE,
+  info = "summarise() cannot combine a complex with a later logical"
+)
+expect_error(
+  summarise(cx_df, v = switch(g, TRUE, 1i, 2)),
+  paste0(
+    "! `v` must return compatible vectors across groups.\n",
+    "i Result type for group 1 (g = 1): <logical>.\ni Result type for group 2 (g = 2): <complex>."
+  ),
+  fixed = TRUE,
+  info = "summarise() cannot combine a logical with a later complex"
+)
+expect_error(
+  summarise(cx_df, v = switch(g, 1L, 1i, "a")),
+  "i Result type for group 2 (g = 2): <complex>.\ni Result type for group 3 (g = 3): <character>.",
+  fixed = TRUE,
+  info = "The type error names the group whose complex raised the type"
+)
+expect_identical(
+  mutate(cx_df, v = if (g == 1L) 1i else 2)$v, c(1i, 2 + 0i, 2 + 0i),
+  info = "mutate() combines complex and double results across groups"
+)
+rm(cx_df)
+
 # Matrix results across groups
 mt_df <- group_by(data.frame(g = c(1, 2)), g)
 expect_equal(

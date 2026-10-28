@@ -80,12 +80,12 @@ select_signed <- function(pos, first) {
   if (is_negation(first)) {
     # As in dplyr, a selection which starts with a negation starts from every column, so it keeps every column when
     # the negation matches none, e.g. `-group_cols()` on data which is not grouped
-    pos <- pos[pos < 0]
+    pos <- pos[pos < 0L]
     if (length(pos) == 0L) pos <- seq_len(select_env$get_ncol())
     return(pos)
   }
   if (length(pos) == 0L) return(pos)
-  if (pos[1] >= 0) pos[pos >= 0] else pos[pos < 0]
+  if (pos[1L] >= 0L) pos[pos >= 0L] else pos[pos < 0L]
 }
 
 #' Add back the grouping variables which a selection leaves out
