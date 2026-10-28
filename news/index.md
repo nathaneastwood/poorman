@@ -1,5 +1,117 @@
 # Changelog
 
+## poorman 0.3.1
+
+### Improvements
+
+[`across()`](../reference/across.md),
+[`if_any()`](../reference/across.md) and
+[`if_all()`](../reference/across.md) are now considerably faster on
+grouped data. The columns, the functions and the names of the results
+are found once for each expression rather than once for each group, the
+columns are read from the data of the group rather than from a copy of
+it, and the data frame results of the groups are bound column by column
+rather than with [`rbind()`](https://rdrr.io/r/base/cbind.html). On
+100,000 rows, [`summarise()`](../reference/summarise.md) with
+[`across()`](../reference/across.md) is 2.1-3x faster with 1,000 and
+10,000 groups, [`mutate()`](../reference/mutate.md) with
+[`across()`](../reference/across.md) is 2.2-2.9x faster from 10 groups
+and allocates 2-5x less memory with 1,000 and 10,000 groups, and
+[`filter()`](../reference/filter.md) with
+[`if_any()`](../reference/across.md) is 2.3-2.7x faster. A lambda,
+e.g. `~ .x - mean(.x)`, is converted to a function once for each
+expression rather than once for each group, which makes
+[`mutate()`](../reference/mutate.md) and
+[`summarise()`](../reference/summarise.md) with lambdas in
+[`across()`](../reference/across.md) a further 1.13-1.23x faster with
+1,000 and 10,000 groups.
+
+### Bug fixes
+
+- [`across()`](../reference/across.md),
+  [`if_any()`](../reference/across.md) and
+  [`if_all()`](../reference/across.md) now select their columns once for
+  each expression rather than once for each group, and
+  [`where()`](../reference/where.md) applies its predicate to the full
+  columns rather than to the rows of each group, as in `dplyr`. A column
+  made by an earlier expression is tested in full, e.g. in the order of
+  the rows in [`mutate()`](../reference/mutate.md). Previously, groups
+  could select different columns, which gave the error “names do not
+  match previous names”. A call made from a function, e.g. a helper, is
+  still selected each time it is evaluated, as its selection can use
+  objects of that function.
+- A function given to [`across()`](../reference/across.md) which returns
+  a list, a data frame or a matrix now gives a list, data frame or
+  matrix column, as in `dplyr`. Previously, a list or data frame was
+  split into several columns, or gave the error “names do not match
+  previous names” on grouped data.
+- The columns of [`across()`](../reference/across.md) now follow the
+  same type rules across groups as any other result, as in `dplyr`. For
+  example, a column which is an integer in one group and a character in
+  another now gives the error “`x` must return compatible vectors across
+  groups”; previously, it was silently converted.
+- [`across()`](../reference/across.md) with an empty list of functions,
+  e.g. `across(x, list())`, now adds no columns, as in `dplyr`.
+  Previously, [`mutate()`](../reference/mutate.md) gave the error “must
+  be size 2 or 1, not 0”.
+- [`across()`](../reference/across.md) now names its results as `dplyr`
+  does. A list of one unnamed function, e.g. `list(mean)`, names its
+  results `{.col}_1`, e.g. `x_1`; only a single function which is not in
+  a list names them after the columns alone. Names are kept as they are,
+  e.g. `.names = "mean of {.col}"` gives `mean of x` and
+  `.names = "{.fn}_{.col}"` gives `1_x`; previously, they were repaired
+  to `mean.of.x` and `X1_x`. Duplicated names, e.g. from
+  `list(a = sum, a = mean)`, are now an error, “Names must be unique.”;
+  previously, they were repaired to `y_a` and `y_a.1`. With no
+  functions, a column keeps its name, e.g. `my col`, and a `.names`
+  template is now filled in,
+  e.g. `across(x, NULL, .names = "new_{.col}")` gives `new_x`.
+- Results which are complex in some groups and integer or double in
+  others are now combined into a complex vector, as in `dplyr`.
+  Previously, they gave the error “must return compatible vectors across
+  groups”. As in `dplyr`, complex results still cannot be combined with
+  logical results other than `NA`.
+- [`?across`](../reference/across.md) now documents that `.fns` is
+  evaluated in each group. Unlike `dplyr` 1.0.10, where the `.fns` of a
+  call made directly in the verb is evaluated once, before any group,
+  `across(x, if (cur_group_id() == 1L) min else max)` uses `min` in the
+  first group and `max` in the others.
+- The column selection of [`across()`](../reference/across.md),
+  [`if_any()`](../reference/across.md) and
+  [`if_all()`](../reference/across.md) now finds objects in the
+  environment where it is called, e.g. `across(all_of(cols), sum)` or
+  `across(where(is_big), max)` inside a function where `cols` or
+  `is_big` is defined, as in `dplyr`. Previously, it gave the error
+  “object ‘cols’ not found”.
+- [`across()`](../reference/across.md),
+  [`if_any()`](../reference/across.md) and
+  [`if_all()`](../reference/across.md) now select from the columns other
+  than the grouping columns, as in `dplyr`. Positions count the other
+  columns, e.g. `across(1)` selects the first column which is not a
+  grouping column, selecting a grouping column, e.g. `across(g)`, gives
+  an error, and [`where()`](../reference/where.md) no longer applies its
+  predicate to the grouping columns. Previously, the selection included
+  the grouping columns and then dropped them, so `across(1)` on data
+  grouped by its first column selected nothing. Unlike `dplyr` 1.0.10,
+  where [`group_cols()`](../reference/group_cols.md) gives an error
+  within [`across()`](../reference/across.md), it selects no columns, so
+  `across(-group_cols())` selects every column (see
+  [`?across`](../reference/across.md)).
+- [`where()`](../reference/where.md) now accepts a formula,
+  e.g. `where(~ is.numeric(.x) && mean(.x) > 3)`, as in `dplyr`.
+  Previously, it gave the error “is not a valid predicate function”.
+- A selection which starts with a negation now starts from every column,
+  even when the negation matches no column, as in `dplyr`. For example,
+  `select(df, -group_cols())` on data which is not grouped and
+  `select(df, -starts_with("z"))` with no column starting with “z” now
+  select every column. Previously, they selected none.
+- [`summarise()`](../reference/summarise.md) now ignores the size of an
+  unnamed data frame with no columns, such as the result of an
+  [`across()`](../reference/across.md) which selects no columns, as in
+  `dplyr`. Previously, grouped
+  `summarise(df, across(starts_with("z"), sum))` gave a row for each row
+  of the data rather than for each group.
+
 ## poorman 0.3.0
 
 ### Breaking changes

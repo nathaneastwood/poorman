@@ -43,6 +43,14 @@ if_all(.cols, .fns = NULL, ..., .names = NULL)
   [`cur_group()`](context.md) to access the current column and grouping
   keys respectively.
 
+  `.fns` is evaluated in each group, as any other code of the expression
+  is, so it can depend on the group, e.g.
+  `if (cur_group_id() == 1L) min else max`. This differs from `dplyr`
+  1.0.10, which evaluates the `.fns` of a call made directly in the verb
+  once, before any group, where [`cur_group_id()`](context.md) gives
+  `0`, but evaluates the `.fns` of a call made from a function in each
+  group.
+
 - ...:
 
   Additional arguments for the function calls in `.fns`.
@@ -61,7 +69,11 @@ if_all(.cols, .fns = NULL, ..., .names = NULL)
   \<[`poor-select`](select_helpers.md)\> Columns to transform. Because
   `across()` is used within functions like [`summarise()`](summarise.md)
   and [`mutate()`](mutate.md), you can't select or compute upon grouping
-  variables.
+  variables: positions count the other columns, and
+  [`where()`](where.md) does not test the grouping variables. Unlike
+  `dplyr` 1.0.10, where [`group_cols()`](group_cols.md) gives an error
+  within `across()`, [`group_cols()`](group_cols.md) selects no columns,
+  so `-group_cols()` selects every column.
 
 ## Value
 

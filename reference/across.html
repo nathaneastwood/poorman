@@ -17,7 +17,7 @@ summarise_all() and therefore these functions will not be implemented in poorman
 
     <a class="navbar-brand me-2" href="../index.html">poorman</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.3.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.3.1</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -72,7 +72,11 @@ Possible values are:</p><ul><li><p><code>NULL</code>, to returns the columns unt
 <li><p>A lambda, e.g. <code>~ mean(.x, na.rm = TRUE)</code></p></li>
 <li><p>A list of functions/lambdas, e.g. <code>list(mean = mean, n_miss = ~ sum(is.na(.x))</code></p></li>
 </ul><p>Within these functions you can use <code><a href="context.html">cur_column()</a></code> and <code><a href="context.html">cur_group()</a></code> to access the current column and grouping keys
-respectively.</p></dd>
+respectively.</p>
+<p><code>.fns</code> is evaluated in each group, as any other code of the expression is, so it can depend on the group, e.g.
+<code>if (cur_group_id() == 1L) min else max</code>. This differs from <code>dplyr</code> 1.0.10, which evaluates the <code>.fns</code> of a call
+made directly in the verb once, before any group, where <code><a href="context.html">cur_group_id()</a></code> gives <code>0</code>, but evaluates the <code>.fns</code> of a
+call made from a function in each group.</p></dd>
 
 
 <dt id="arg--">...<a class="anchor" aria-label="anchor" href="#arg--"></a></dt>
@@ -89,7 +93,9 @@ the case where a list is used for <code>.fns</code>.</p></dd>
 
 <dt id="arg-cols-cols">cols, .cols<a class="anchor" aria-label="anchor" href="#arg-cols-cols"></a></dt>
 <dd><p>&lt;<code><a href="select_helpers.html">poor-select</a></code>&gt; Columns to transform. Because <code>across()</code> is used within functions
-like <code><a href="summarise.html">summarise()</a></code> and <code><a href="mutate.html">mutate()</a></code>, you can't select or compute upon grouping variables.</p></dd>
+like <code><a href="summarise.html">summarise()</a></code> and <code><a href="mutate.html">mutate()</a></code>, you can't select or compute upon grouping variables: positions count the other
+columns, and <code><a href="where.html">where()</a></code> does not test the grouping variables. Unlike <code>dplyr</code> 1.0.10, where <code><a href="group_cols.html">group_cols()</a></code> gives an
+error within <code>across()</code>, <code><a href="group_cols.html">group_cols()</a></code> selects no columns, so <code>-group_cols()</code> selects every column.</p></dd>
 
 </dl></div>
     <div class="section level2">

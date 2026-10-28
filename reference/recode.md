@@ -13,8 +13,6 @@ existing order of levels while changing the values. Alternatively, you
 can use `recode_factor()`, which will change the order of levels to
 match the order of replacements.
 
-This is a direct port of the `dplyr::recode()` function.
-
 ## Usage
 
 ``` r
