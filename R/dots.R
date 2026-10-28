@@ -12,11 +12,7 @@
 #' @noRd
 dotdotdot <- function(..., .impute_names = FALSE, .env = parent.frame(2L)) {
   dots <- name_colon_equals(eval(substitute(alist(...))), .env)
-  if (isTRUE(.impute_names)) {
-    names_dots <- names(dots)
-    unnamed <- if (is.null(names_dots)) rep(TRUE, length(dots)) else nchar(names_dots) == 0L
-    names(dots)[unnamed] <- vapply(dots[unnamed], auto_label, NA_character_, env = .env)
-  }
+  if (isTRUE(.impute_names) && length(dots) > 0L) names(dots) <- expression_labels(dots, .env)$labels
   dots
 }
 
@@ -74,4 +70,20 @@ deparse_var <- function(var, frame = parent.frame()) {
   sub_var <- eval(substitute(substitute(var)), frame)
   if (is.symbol(sub_var)) var <- as.character(sub_var)
   var
+}
+
+#' Name the expressions given to a verb
+#'
+#' @param dots A `list` of unevaluated expressions, as returned by `dotdotdot()`.
+#' @param env An `environment` in which to look up variables that are not columns.
+#' @return A `list` with `labels`, the name of each expression, and `unnamed`, whether the name was made automatically
+#' by `auto_label()`.
+#' @noRd
+expression_labels <- function(dots, env) {
+  dot_names <- names(dots)
+  if (is.null(dot_names)) dot_names <- character(length(dots))
+  unnamed <- !nzchar(dot_names)
+  labels <- dot_names
+  labels[unnamed] <- vapply(dots[unnamed], auto_label, NA_character_, env = env)
+  list(labels = labels, unnamed = unnamed)
 }

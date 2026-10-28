@@ -107,3 +107,28 @@ bind_rows <- function(..., .id = NULL) {
   if (inherits(first, "grouped_df")) out <- reconstruct_attrs(out, first)
   out
 }
+
+# -- Helpers -------------------------------------------------------------------
+
+#' Move entries within a list up one level
+#' @noRd
+flatten <- function(lst) {
+  nested <- is_nested(lst)
+  res <- c(lst[!nested], unlist(lst[nested], recursive = FALSE))
+  if (sum(nested)) Recall(res) else return(res)
+}
+
+#' Check whether the input is an atomic vector or a data.frame
+#' @noRd
+is_df_or_vector <- function(x) {
+  res <- is.data.frame(x) || is.atomic(x)
+  if (!isTRUE(res)) stop("You must pass vector(s) and/or data.frame(s).")
+  TRUE
+}
+
+is_named <- function(x) {
+  nms <- names(x)
+  if (is.null(nms)) return(FALSE)
+  if (any(names_are_invalid(nms))) return(FALSE)
+  TRUE
+}

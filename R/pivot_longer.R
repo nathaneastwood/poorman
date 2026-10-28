@@ -145,7 +145,7 @@ pivot_longer <- function(
     if (any(missing)) out <- lapply(out, vec_slice, which(!missing))
   }
 
-  out <- structure(out, class = "data.frame", row.names = .set_row_names(length(out[[length(out)]])))
+  out <- new_data_frame(out, length(out[[length(out)]]))
   reconstruct_attrs(out, data)
 }
 
@@ -197,7 +197,7 @@ build_longer_spec <- function(
     pieces[[piece]] <- as_function(names_transform[[piece]])(pieces[[piece]])
   }
 
-  spec <- structure(list(.name = cols), class = "data.frame", row.names = .set_row_names(length(cols)))
+  spec <- new_data_frame(list(.name = cols), length(cols))
   if (".value" %in% names(pieces)) {
     spec$.value <- pieces$.value
     pieces$.value <- NULL

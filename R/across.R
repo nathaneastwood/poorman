@@ -128,7 +128,7 @@ across_columns <- function(.cols, .fns, ..., .names, .env, .call) {
   cols <- setup$cols
   n_cols <- length(cols)
   if (n_cols == 0L) {
-    return(structure(list(), names = character(), row.names = .set_row_names(context$get_nrow()), class = "data.frame"))
+    return(new_data_frame(list(), context$get_nrow()))
   }
   names <- setup$names
   if (is.null(funs)) {
@@ -208,7 +208,7 @@ across_select <- function(.cols, .env) {
   data <- context$.data
   if (context$is_grouped()) {
     keep <- setdiff(names(data), group_vars(data))
-    data <- structure(.subset(data, keep), row.names = .set_row_names(nrow(data)), class = "data.frame")
+    data <- new_data_frame(.subset(data, keep), nrow(data))
   }
   cols <- eval_select_pos(.data = data, .cols, .group_pos = FALSE, .env = .env, .values = context$full_data)
   names(data)[cols]

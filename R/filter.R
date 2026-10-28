@@ -77,10 +77,7 @@ filter_groups <- function(details, keep, .preserve) {
   rows <- details[[".rows"]]
   idx <- unlist(rows, use.names = FALSE)
   kept <- keep[idx]
-  group <- rep.int(seq_along(rows), lengths(rows))[kept]
-  group <- structure(group, levels = as.character(seq_along(rows)), class = "factor")
-  rows <- unname(split.default(cumsum(keep)[idx[kept]], group))
-  details[[".rows"]] <- rows
+  details[[".rows"]] <- split_rows(group_of_rows(rows)[kept], length(rows), cumsum(keep)[idx[kept]])
   if (.preserve) details else drop_empty_groups(details)
 }
 

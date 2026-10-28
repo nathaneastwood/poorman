@@ -181,7 +181,7 @@ summarise_regroup <- function(x, groups, drop) {
 }
 
 empty_summary <- function() {
-  structure(list(), names = character(0), row.names = .set_row_names(1L), class = "data.frame")
+  new_data_frame(list(), 1L)
 }
 
 summarise_inform <- function(new_groups) {

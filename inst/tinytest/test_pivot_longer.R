@@ -166,6 +166,17 @@ df <- data.frame(a = 1:2, b = c("z", "x"), stringsAsFactors = FALSE)
 expect_error(pivot_longer(df, a:b), pattern = "Can't combine `a` <integer> and `b` <character>")
 df <- data.frame(a = as.Date("2020-01-01"), b = 1)
 expect_error(pivot_longer(df, a:b), pattern = "Can't combine `a` <Date> and `b` <double>")
+df <- data.frame(a = factor("low", levels = c("low", "high"), ordered = TRUE), b = 2L)
+expect_error(
+  pivot_longer(df, a:b),
+  pattern = "Can't combine `a` <ordered> and `b` <integer>",
+  info = "An ordered factor is named by its first class when it cannot be combined"
+)
+expect_error(
+  pivot_longer(df["a"], a, values_ptypes = list(value = integer())),
+  pattern = "Can't convert `a` <factor> to <integer>",
+  info = "An ordered factor is named as a factor when it cannot be cast"
+)
 
 # Attributes of id columns are kept
 df <- data.frame(id = 1:2, a = 1:2, b = 3:4)

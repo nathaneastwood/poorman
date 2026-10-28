@@ -30,7 +30,7 @@ group_data <- function(.data) {
 
 #' @export
 group_data.data.frame <- function(.data) {
-  structure(list(.rows = list(seq_len(nrow(.data)))), class = "data.frame", row.names = c(NA, -1L))
+  new_data_frame(list(.rows = list(seq_len(nrow(.data)))), 1L)
 }
 
 #' @export

@@ -74,5 +74,5 @@ distinct_duplicated <- function(cols, n) {
   # `group_ids()` is faster but only handles vectors whose values it can compare
   simple <- vapply(cols, function(col) is.atomic(col) && is.null(dim(col)), NA)
   if (all(simple)) return(duplicated(group_ids(cols, n)))
-  duplicated(structure(cols, row.names = .set_row_names(n), class = "data.frame"))
+  duplicated(new_data_frame(cols, n))
 }

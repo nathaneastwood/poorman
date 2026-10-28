@@ -217,7 +217,7 @@ pivot_wider <- function(
     unlist(value_out, recursive = FALSE)
   )
   names(out) <- out_names
-  out <- structure(out, class = "data.frame", row.names = .set_row_names(n_row))
+  out <- new_data_frame(out, n_row)
   reconstruct_attrs(out, data)
 }
 

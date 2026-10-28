@@ -65,7 +65,7 @@ group_split <- function(.data, ..., .keep = TRUE) {
 group_keys <- function(.data) {
   groups <- group_vars(.data)
   if (length(groups) == 0L) {
-    return(structure(list(), names = character(0), row.names = c(NA, -1L), class = "data.frame"))
+    return(new_data_frame(list(), 1L))
   }
   res <- get_groups(.data, groups)
   res[[".rows"]] <- NULL

@@ -39,13 +39,6 @@ names_are_invalid <- function(x) {
   x == "" | is.na(x)
 }
 
-is_named <- function(x) {
-  nms <- names(x)
-  if (is.null(nms)) return(FALSE)
-  if (any(names_are_invalid(nms))) return(FALSE)
-  TRUE
-}
-
 have_name <- function(x) {
   nms <- names(x)
   if (is.null(nms)) rep(FALSE, length(x)) else !names_are_invalid(nms)
@@ -64,10 +57,14 @@ as_symbols <- function(x) {
   lapply(x, as.symbol)
 }
 
-#' Check whether the input is an atomic vector or a data.frame
+#' Build one call which evaluates several expressions together
+#'
+#' `filter()` and `slice()` give each group all of their expressions before the next group, so they evaluate them as
+#' one expression, a call to `list()`, through `eval_groups()`.
+#'
+#' @param exprs A `list` of unevaluated expressions, as returned by `dotdotdot()`.
+#' @return A call to `base::list()` with `exprs` as its unnamed arguments.
 #' @noRd
-is_df_or_vector <- function(x) {
-  res <- is.data.frame(x) || is.atomic(x)
-  if (!isTRUE(res)) stop("You must pass vector(s) and/or data.frame(s).")
-  TRUE
+list_call <- function(exprs) {
+  as.call(c(list(base::list), unname(exprs)))
 }
