@@ -111,8 +111,23 @@ expression rather than once for each group, which makes
   `dplyr`. Previously, grouped
   `summarise(df, across(starts_with("z"), sum))` gave a row for each row
   of the data rather than for each group.
+- `!` before a range, e.g. `select(df, !a:b)`, now drops the columns
+  from `a` to `b`, as in `dplyr`. Previously, it gave the error “object
+  of type ‘symbol’ is not subsettable”.
+- A range with a negated end, e.g. `-a:b`, now selects the columns that
+  `dplyr` selects. R reads `-a:b` as `(-a):b`, so each end of the range
+  is a selection of its own: a negated end stands for every other
+  column, and `:` uses the first of them, with the warning “numerical
+  expression has … elements: only the first used”. For example,
+  `select(mtcars, -mpg:cyl)` selects `cyl`, and
+  `select(mtcars, !mpg:!cyl)` drops only `mpg`. Previously, these ranges
+  dropped or kept columns depending on the sign of the first position. A
+  range with both ends negated by `-`, e.g. `-a:-b`, still drops the
+  columns from `a` to `b`; use `-(a:b)` or `!(a:b)` to drop a range.
 
 ## poorman 0.3.0
+
+CRAN release: 2026-10-28
 
 ### Breaking changes
 

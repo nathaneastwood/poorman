@@ -59,10 +59,13 @@
 <li>A selection which starts with a negation now starts from every column, even when the negation matches no column, as in <code>dplyr</code>. For example, <code>select(df, -group_cols())</code> on data which is not grouped and <code>select(df, -starts_with("z"))</code> with no column starting with “z” now select every column. Previously, they selected none.</li>
 <li>
 <code><a href="../reference/summarise.html">summarise()</a></code> now ignores the size of an unnamed data frame with no columns, such as the result of an <code><a href="../reference/across.html">across()</a></code> which selects no columns, as in <code>dplyr</code>. Previously, grouped <code>summarise(df, across(starts_with("z"), sum))</code> gave a row for each row of the data rather than for each group.</li>
+<li>
+<code>!</code> before a range, e.g. <code>select(df, !a:b)</code>, now drops the columns from <code>a</code> to <code>b</code>, as in <code>dplyr</code>. Previously, it gave the error “object of type ‘symbol’ is not subsettable”.</li>
+<li>A range with a negated end, e.g. <code>-a:b</code>, now selects the columns that <code>dplyr</code> selects. R reads <code>-a:b</code> as <code>(-a):b</code>, so each end of the range is a selection of its own: a negated end stands for every other column, and <code>:</code> uses the first of them, with the warning “numerical expression has … elements: only the first used”. For example, <code>select(mtcars, -mpg:cyl)</code> selects <code>cyl</code>, and <code>select(mtcars, !mpg:!cyl)</code> drops only <code>mpg</code>. Previously, these ranges dropped or kept columns depending on the sign of the first position. A range with both ends negated by <code>-</code>, e.g. <code>-a:-b</code>, still drops the columns from <code>a</code> to <code>b</code>; use <code>-(a:b)</code> or <code>!(a:b)</code> to drop a range.</li>
 </ul></div>
 </div>
     <div class="section level2">
-<h2 class="pkg-version" data-toc-text="0.3.0" id="poorman-030">poorman 0.3.0<a class="anchor" aria-label="anchor" href="#poorman-030"></a></h2>
+<h2 class="pkg-version" data-toc-text="0.3.0" id="poorman-030">poorman 0.3.0<a class="anchor" aria-label="anchor" href="#poorman-030"></a></h2><p class="text-muted">CRAN release: 2026-10-28</p>
 <div class="section level3">
 <h3 id="breaking-changes-0-3-0">Breaking changes<a class="anchor" aria-label="anchor" href="#breaking-changes-0-3-0"></a></h3>
 <ul><li>The arguments of <code><a href="../reference/pivot_wider.html">pivot_wider()</a></code> are now in the same order as in <code>tidyr</code> 1.1: <code>data</code>, <code>id_cols</code>, <code>names_from</code>, <code>names_prefix</code>, <code>names_sep</code>, <code>names_glue</code>, <code>names_sort</code>, <code>names_repair</code>, <code>values_from</code>, <code>values_fill</code>, <code>values_fn</code>. Code which passes <code>values_from</code> or <code>names_from</code> by position must now name them.</li>
